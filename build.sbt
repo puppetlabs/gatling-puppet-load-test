@@ -4,8 +4,8 @@ version := "0.1.1-SNAPSHOT"
 
 scalaVersion := "2.9.2"
 
-resolvers ++= Seq("Excilys" at "http:..repository.excilys.com.content.groups.public",
-                  "Local Maven Repository" at "file:.."+Path.userHome.absolutePath+"..m2.repository")
+resolvers ++= Seq("Excilys" at "http://repository/excilys/com/content/groups/public",
+                  "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository")
 
 libraryDependencies += "com.excilys.ebi.gatling" % "gatling-app" % "1.5.0"
 
@@ -24,6 +24,6 @@ javaOptions in run ++= Seq("-server", "-XX:+UseThreadPriorities",
   "-XX:MaxTenuringThreshold=1", "-XX:CMSInitiatingOccupancyFraction=75",
   "-XX:+UseCMSInitiatingOccupancyOnly",
   "-Dgatling.core.directory.simulations=./user-files/simulations",
-  "-Dgatling.core.simulationClass=com.puppetlabs.gatling.simulation.PuppetDB",
+  "-Dgatling.core.simulationClass=com.puppetlabs.gatling.simulation.AdvancedSimulation",
   "-Dgatling.core.outputDirectoryBaseName=PE2_8",
   "-Dgatling.core.runDescription=\"This is a test\"")

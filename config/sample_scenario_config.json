@@ -1,0 +1,16 @@
+{ "base_url": "https://pe-ubuntu-lucid:8140",
+  "nodes": [
+      {
+          "simulation_class": "com.puppetlabs.gatling.simulation.PuppetDB",
+          "num_instances": 5,
+          "ramp_up_duration_seconds": 20,
+          "num_repetitions": 20
+      },
+      {
+          "simulation_class": "com.puppetlabs.gatling.simulation.VanillaDebian6",
+          "num_instances": 5,
+          "ramp_up_duration_seconds": 20,
+          "num_repetitions": 20
+      }
+  ]
+}

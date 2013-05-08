@@ -7,7 +7,7 @@ import akka.util.duration._
 import bootstrap._
 import assertions._
 
-class PuppetDB extends Simulation {
+class PuppetDB(numRepetitions: Int) extends SimulationWithScenario {
 
 	val httpConf = httpConfig
 			.baseURL("https://pe-ubuntu-lucid:8140")
@@ -26,8 +26,10 @@ class PuppetDB extends Simulation {
 	)
 
 
-	val scn = scenario("Scenario Name")
-		.exec(http("request_1")
+	val scn = scenario("PuppetDB Node")
+    .repeat(numRepetitions) {
+
+		exec(http("request_1")
 					.get("/production/file_metadatas/plugins")
 					.queryParam("""checksum_type""", """md5""")
 					.queryParam("""links""", """manage""")
@@ -114,6 +116,7 @@ class PuppetDB extends Simulation {
 					.headers(headers_19)
 						.fileBody("PuppetDB_request_19.txt")
 			)
+  }
 
 	setUp(scn.users(1).protocolConfig(httpConf))
 }

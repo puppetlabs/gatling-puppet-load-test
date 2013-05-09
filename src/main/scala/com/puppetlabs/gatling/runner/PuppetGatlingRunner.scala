@@ -2,15 +2,19 @@ package com.puppetlabs.gatling.runner
 
 import com.excilys.ebi.gatling.app.Gatling
 import com.puppetlabs.gatling.config.PuppetGatlingConfig
-import com.puppetlabs.gatling.simulation.AdvancedSimulation
+import com.puppetlabs.gatling.runner.ConfigDrivenSimulation
 
+/**
+ * This object simply provides a `main` method that wraps
+ * [[com.excilys.ebi.gatling.app.Gatling]].main, which
+ * allows us to do some configuration and setup before
+ * Gatling launches.
+ */
 object PuppetGatlingRunner {
 
   def main(args: Array[String]) {
 
-    val configPath = PuppetGatlingConfig.getEnvVar("PUPPET_GATLING_SIMULATION_CONFIG")
-
-    val config = PuppetGatlingConfig.initialize(configPath)
+    val config = PuppetGatlingConfig.initialize()
 
     // This is a pretty terrible hack, but because Gatling initializes
     // all of its configuration settings from system properties and/or
@@ -24,7 +28,7 @@ object PuppetGatlingRunner {
 
 
     // This sets the class for the simulation we want to run.
-    val simClass: String = classOf[AdvancedSimulation].getName
+    val simClass: String = classOf[ConfigDrivenSimulation].getName
     System.setProperty("gatling.core.simulationClass", simClass)
 
     // This sets the "id" for the simulataion, which will be used

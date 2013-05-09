@@ -2,7 +2,7 @@ package com.puppetlabs.gatling.config
 
 import scala.util.parsing.json.JSON
 import com.puppetlabs.json.{JsonInt, JsonList, JsonString, JsonMap}
-import com.puppetlabs.gatling.simulation.SimulationWithScenario
+import com.puppetlabs.gatling.runner.SimulationWithScenario
 
 class PuppetGatlingConfig(configFilePath: String) {
 
@@ -34,13 +34,24 @@ object PuppetGatlingConfig {
     })
   }
 
+  // this is basically a process-wide singleton that we'll use to hold the config,
+  //  which is kind of crappy, but will get the job done for now.
   private var instance: Option[PuppetGatlingConfig] = None
 
-  def initialize(configFilePath: String): PuppetGatlingConfig = {
+  val configPath = PuppetGatlingConfig.getEnvVar("PUPPET_GATLING_SIMULATION_CONFIG")
+
+  /**
+   * This method should be called once at the beginning of a run to cause the config
+   * file to be parsed and instantiate our config singleton
+   */
+  def initialize(configFilePath: String = configPath): PuppetGatlingConfig = {
     instance = Some(PuppetGatlingConfig(configFilePath))
     instance.get
   }
 
+  /**
+   * This is the main accessor that should be used to read the configuration.
+   */
   def configuration: PuppetGatlingConfig = {
     instance match {
       case None => throw new IllegalStateException("Configuration not yet initialized; please call #initialize method!")

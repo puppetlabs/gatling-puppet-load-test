@@ -11,6 +11,7 @@ Chris TODO:
 X * allow the gatling params to be specified in the config file?
 * request_N.txt files do not exist
 * Figure out how to make config file path dynamic
+* Create Constants class or consolidate some other way
 * Document the config file format
 * get rid of some of the useless log output
 * Maybe rename SimulationWithScenario?  Maybe make it a trait?

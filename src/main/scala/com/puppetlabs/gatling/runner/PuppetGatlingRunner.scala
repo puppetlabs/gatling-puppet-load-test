@@ -8,9 +8,7 @@ object PuppetGatlingRunner {
 
   def main(args: Array[String]) {
 
-    val configPath = sys.props.getOrElse("puppet.gatling.config", {
-        throw new IllegalStateException("You must specify -Dpuppet.gatling.config !")
-    })
+    val configPath = PuppetGatlingConfig.getEnvVar("PUPPET_GATLING_SIMULATION_CONFIG")
 
     val config = PuppetGatlingConfig.initialize(configPath)
 

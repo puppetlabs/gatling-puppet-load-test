@@ -1,6 +1,5 @@
-{   "simulation_id": "PE_2_8",
+{
     "run_description": "PuppetDB + VanillaDeb6, 100 instances, 100 repetitions",
-    "base_url": "https://pe-ubuntu-lucid:8140",
     "nodes": [
         {
             "simulation_class": "com.puppetlabs.gatling.simulation.PuppetDB",

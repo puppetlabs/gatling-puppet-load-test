@@ -10,9 +10,9 @@ class PuppetGatlingConfig(configFilePath: String) {
 
   private val JsonList(jsonNodes) = config("nodes")
 
-  val JsonString(simulationId) = config("simulation_id")
+  val simulationId = PuppetGatlingConfig.getEnvVar("PUPPET_GATLING_SIMULATION_ID")
+  val baseUrl = PuppetGatlingConfig.getEnvVar("PUPPET_GATLING_MASTER_BASE_URL")
   val JsonString(runDescription) = config("run_description")
-  val JsonString(baseUrl) = config("base_url")
 
   val nodes = jsonNodes.map((n) => {
     val JsonMap(node) = n
@@ -27,6 +27,12 @@ class PuppetGatlingConfig(configFilePath: String) {
 
 object PuppetGatlingConfig {
   def apply(configFilePath: String) = new PuppetGatlingConfig(configFilePath)
+
+  def getEnvVar(varName: String): String = {
+    sys.env.getOrElse(varName, {
+      throw new IllegalStateException("You must specify the environment variable '" + varName + "'!")
+    })
+  }
 
   private var instance: Option[PuppetGatlingConfig] = None
 

@@ -30,9 +30,4 @@ javaOptions in run ++= Seq("-server", "-XX:+UseThreadPriorities",
   "-XX:+UseConcMarkSweepGC", "-XX:+CMSParallelRemarkEnabled",
   "-XX:+CMSClassUnloadingEnabled", "-XX:SurvivorRatio=8",
   "-XX:MaxTenuringThreshold=1", "-XX:CMSInitiatingOccupancyFraction=75",
-  "-XX:+UseCMSInitiatingOccupancyOnly",
-  "-Dgatling.core.directory.simulations=./user-files/simulations",
-  "-Dgatling.core.simulationClass=com.puppetlabs.gatling.simulation.AdvancedSimulation",
-  "-Dgatling.core.outputDirectoryBaseName=PE2_8"
-//  "-Dgatling.core.runDescription=\"This is a test\"")
-)
+  "-XX:+UseCMSInitiatingOccupancyOnly")

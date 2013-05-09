@@ -10,6 +10,8 @@ class PuppetGatlingConfig(configFilePath: String) {
 
   private val JsonList(jsonNodes) = config("nodes")
 
+  val JsonString(simulationId) = config("simulation_id")
+  val JsonString(runDescription) = config("run_description")
   val JsonString(baseUrl) = config("base_url")
 
   val nodes = jsonNodes.map((n) => {

@@ -30,4 +30,5 @@ javaOptions in run ++= Seq("-server", "-XX:+UseThreadPriorities",
   "-XX:+UseConcMarkSweepGC", "-XX:+CMSParallelRemarkEnabled",
   "-XX:+CMSClassUnloadingEnabled", "-XX:SurvivorRatio=8",
   "-XX:MaxTenuringThreshold=1", "-XX:CMSInitiatingOccupancyFraction=75",
-  "-XX:+UseCMSInitiatingOccupancyOnly")
+  "-XX:+UseCMSInitiatingOccupancyOnly",
+  "-Dpuppet.gatling.config=./config/sample_scenario_config.json")

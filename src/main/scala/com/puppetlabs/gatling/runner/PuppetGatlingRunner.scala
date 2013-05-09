@@ -8,7 +8,11 @@ object PuppetGatlingRunner {
 
   def main(args: Array[String]) {
 
-    val config = PuppetGatlingConfig.initialize("/home/cprice/work/gatling_scratch/git/gatling-puppet-scale-test/config/sample_scenario_config.json")
+    val configPath = sys.props.getOrElse("puppet.gatling.config", {
+        throw new IllegalStateException("You must specify -Dpuppet.gatling.config !")
+    })
+
+    val config = PuppetGatlingConfig.initialize(configPath)
 
     // This is a pretty terrible hack, but because Gatling initializes
     // all of its configuration settings from system properties and/or

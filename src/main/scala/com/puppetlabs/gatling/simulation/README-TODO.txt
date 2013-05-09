@@ -8,7 +8,7 @@ Steps required to bring a Simulation class up to speed:
 
 Chris TODO:
 
-* allow the gatling params to be specified in the config file?
+X * allow the gatling params to be specified in the config file?
 * request_N.txt files do not exist
 * Figure out how to make config file path dynamic
 * Document the config file format

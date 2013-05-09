@@ -4,14 +4,22 @@ version := "0.1.1-SNAPSHOT"
 
 scalaVersion := "2.9.2"
 
-resolvers ++= Seq("Excilys" at "http://repository/excilys/com/content/groups/public",
-                  "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository")
+resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository",
+                  "Excilys" at "http://repository.excilys.com/content/groups/public"
+                  )
+//
+//libraryDependencies += "com.excilys.ebi.gatling" % "gatling-app" % "1.5.0-SNAPSHOT"
+//
+//libraryDependencies += "com.excilys.ebi.gatling.highcharts" % "gatling-charts-highcharts" % "1.5.0" exclude("com.excilys.ebi.gatling", "gatling-app") exclude("com.excilys.ebi.gatling", "gatling-core") exclude("com.excilys.ebi.gatling", "gatling-charts") exclude("com.excilys.ebi.gatling", "gatling-http") exclude("com.excilys.ebi.gatling", "gatling-jdbc") exclude("com.excilys.ebi.gatling", "gatling-parent") exclude("com.excilys.ebi.gatling", "gatling-metrics") exclude("com.excilys.ebi.gatling", "gatling-recorder") exclude("com.excilys.ebi.gatling", "gatling-redis")
 
 libraryDependencies += "com.excilys.ebi.gatling" % "gatling-app" % "1.5.0"
 
 libraryDependencies += "com.excilys.ebi.gatling.highcharts" % "gatling-charts-highcharts" % "1.5.0"
 
-mainClass in (Compile, run) := Some("com.excilys.ebi.gatling.app.Gatling")
+
+
+//mainClass in (Compile, run) := Some("com.excilys.ebi.gatling.app.Gatling")
+mainClass in (Compile, run) := Some("com.puppetlabs.gatling.runner.PuppetGatlingRunner")
 
 fork := true
 
@@ -25,5 +33,6 @@ javaOptions in run ++= Seq("-server", "-XX:+UseThreadPriorities",
   "-XX:+UseCMSInitiatingOccupancyOnly",
   "-Dgatling.core.directory.simulations=./user-files/simulations",
   "-Dgatling.core.simulationClass=com.puppetlabs.gatling.simulation.AdvancedSimulation",
-  "-Dgatling.core.outputDirectoryBaseName=PE2_8",
-  "-Dgatling.core.runDescription=\"This is a test\"")
+  "-Dgatling.core.outputDirectoryBaseName=PE2_8"
+//  "-Dgatling.core.runDescription=\"This is a test\"")
+)

@@ -2,10 +2,12 @@ package com.puppetlabs.gatling.simulation
 
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 import com.excilys.ebi.gatling.http.Predef._
-import com.puppetlabs.gatling.config.Config
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+import com.puppetlabs.gatling.config.PuppetGatlingConfig
 
 class AdvancedSimulation extends Simulation {
-  val config = Config("/home/cprice/work/gatling_scratch/git/gatling-puppet-scale-test/config/sample_scenario_config.json")
+
+  val config = PuppetGatlingConfig.configuration
 
   val httpConf = httpConfig
     .baseURL(config.baseUrl)
@@ -21,5 +23,8 @@ class AdvancedSimulation extends Simulation {
       .protocolConfig(httpConf)
   })
 
+  println( "Getting ready to run sim.  Config:" + GatlingConfiguration.configuration)
+
+//  throw new IllegalStateException("hi")
   setUp(scns.head, scns.tail:_*)
 }

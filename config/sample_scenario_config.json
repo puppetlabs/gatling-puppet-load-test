@@ -2,15 +2,15 @@
   "nodes": [
       {
           "simulation_class": "com.puppetlabs.gatling.simulation.PuppetDB",
-          "num_instances": 5,
+          "num_instances": 1,
           "ramp_up_duration_seconds": 20,
-          "num_repetitions": 20
+          "num_repetitions": 1
       },
       {
           "simulation_class": "com.puppetlabs.gatling.simulation.VanillaDebian6",
-          "num_instances": 5,
+          "num_instances": 1,
           "ramp_up_duration_seconds": 20,
-          "num_repetitions": 20
+          "num_repetitions": 1
       }
   ]
 }

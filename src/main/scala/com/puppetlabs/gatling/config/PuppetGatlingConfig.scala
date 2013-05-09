@@ -4,7 +4,7 @@ import scala.util.parsing.json.JSON
 import com.puppetlabs.json.{JsonInt, JsonList, JsonString, JsonMap}
 import com.puppetlabs.gatling.simulation.SimulationWithScenario
 
-class Config(configFilePath: String) {
+class PuppetGatlingConfig(configFilePath: String) {
 
   private val Some(JsonMap(config)) = JSON.parseFull(io.Source.fromFile(configFilePath).mkString)
 
@@ -23,6 +23,21 @@ class Config(configFilePath: String) {
 }
 
 
-object Config {
-  def apply(configFilePath: String) = new Config(configFilePath)
+object PuppetGatlingConfig {
+  def apply(configFilePath: String) = new PuppetGatlingConfig(configFilePath)
+
+  private var instance: Option[PuppetGatlingConfig] = None
+
+  def initialize(configFilePath: String): PuppetGatlingConfig = {
+    instance = Some(PuppetGatlingConfig(configFilePath))
+    instance.get
+  }
+
+  def configuration: PuppetGatlingConfig = {
+    instance match {
+      case None => throw new IllegalStateException("Configuration not yet initialized; please call #initialize method!")
+      case _ => instance.get
+    }
+  }
+
 }

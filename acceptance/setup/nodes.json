@@ -1,0 +1,15 @@
+{  "nodes":
+   {
+     "pe-ubuntu-lucid":
+     {
+        "modules" : [ "operations/pe_puppetdb", "foo" ],
+        "classes": [ "pe-puppetdb" ] 
+      },
+
+      "pe-debian6":
+      {
+        "modules" : [],
+        "classes" : []
+      }
+   }
+}

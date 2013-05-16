@@ -1,0 +1,6 @@
+{
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PuppetDB",
+    "modules": [ { "name": "operations/pe_puppetdb",
+                   "version": "0.0.4" } ],
+    "classes": [ "pe_puppetdb" ]
+}

@@ -2,13 +2,13 @@
     "run_description": "PuppetDB + VanillaDeb6, 100 instances, 100 repetitions",
     "nodes": [
         {
-            "simulation_class": "com.puppetlabs.gatling.node_simulations.PuppetDB",
+            "node_config": "puppetdb.json",
             "num_instances": 1,
             "ramp_up_duration_seconds": 20,
             "num_repetitions": 1
         },
         {
-            "simulation_class": "com.puppetlabs.gatling.node_simulations.VanillaDebian6",
+            "node_config": "vanilla_deb6.json",
             "num_instances": 1,
             "ramp_up_duration_seconds": 20,
             "num_repetitions": 1

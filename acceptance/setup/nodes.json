@@ -2,7 +2,7 @@
    {
      "pe-ubuntu-lucid":
      {
-        "modules" : [ "operations/pe_puppetdb", "foo" ],
+        "modules" : [ "operations/pe_puppetdb"],
         "classes": [ "pe-puppetdb" ] 
       },
 

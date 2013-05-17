@@ -3,8 +3,7 @@ require "json"
 rake_cmd='RAILS_ENV=production /opt/puppet/bin/rake -f /opt/puppet/share/puppet-dashboard/Rakefile'
 test_name = "Setup for Gatling Performance Run"
 
-authconf = %q{
-path /
+authconf = %q{path /
 auth any
 allow *
 }
@@ -12,6 +11,7 @@ allow *
 # create custom auth.conf
 on master, "mv /etc/puppetlabs/puppet/auth.conf /etc/puppetlabs/puppet/auth.conf.bak"
 create_remote_file(master, '/etc/puppetlabs/puppet/auth.conf', authconf)
+on master, "chown root:pe-puppet /etc/puppetlabs/puppet/auth.conf && chmod 640 /etc/puppetlabs/puppet/auth.conf"
 
 json  = File.read('suite/nodes.json')
 nodedata = JSON.parse(json)

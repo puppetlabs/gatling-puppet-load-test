@@ -1,9 +1,9 @@
 {
-    "run_description": "VanillaDeb6, 5 instances, 5 repetitions",
+    "run_description": "VanillaDeb6, 2 instances, 5 repetitions",
     "nodes": [
         {
             "node_config": "vanilla_deb6.json",
-            "num_instances": 5,
+            "num_instances": 2,
             "ramp_up_duration_seconds": 20,
             "num_repetitions": 5
         }

@@ -9,7 +9,7 @@ import bootstrap._
 import assertions._
 import com.puppetlabs.gatling.runner.SimulationWithScenario
 
-class PuppetDB(numRepetitions: Int) extends SimulationWithScenario {
+class PuppetDB extends SimulationWithScenario {
 
 	val httpConf = httpConfig
 			.baseURL("https://pe-ubuntu-lucid:8140")
@@ -29,9 +29,7 @@ class PuppetDB(numRepetitions: Int) extends SimulationWithScenario {
 
 
 	val scn = scenario("PuppetDB Node")
-    .repeat(numRepetitions) {
-
-		exec(http("request_1")
+    .exec(http("request_1")
 					.get("/production/file_metadatas/plugins")
 					.queryParam("""checksum_type""", """md5""")
 					.queryParam("""links""", """manage""")
@@ -118,7 +116,6 @@ class PuppetDB(numRepetitions: Int) extends SimulationWithScenario {
 					.headers(headers_19)
 						.fileBody("PuppetDB_request_19.txt")
 			)
-  }
 
 	setUp(scn.users(1).protocolConfig(httpConf))
 }

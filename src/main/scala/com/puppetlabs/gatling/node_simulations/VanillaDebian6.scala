@@ -9,7 +9,7 @@ import bootstrap._
 import assertions._
 import com.puppetlabs.gatling.runner.SimulationWithScenario
 
-class VanillaDebian6(numRepetitions: Int) extends SimulationWithScenario {
+class VanillaDebian6 extends SimulationWithScenario {
 
 	val httpConf = httpConfig
 			.baseURL("https://pe-ubuntu-lucid:8140")
@@ -29,9 +29,7 @@ class VanillaDebian6(numRepetitions: Int) extends SimulationWithScenario {
 
 
 	val scn = scenario("Vanilla Debian6 Node")
-    .repeat(numRepetitions) {
-
-    exec(http("request_1")
+    .exec(http("request_1")
 					.get("/production/file_metadatas/plugins")
 					.queryParam("""checksum_type""", """md5""")
 					.queryParam("""links""", """manage""")
@@ -114,7 +112,6 @@ class VanillaDebian6(numRepetitions: Int) extends SimulationWithScenario {
 					.headers(headers_18)
 						.fileBody("VanillaDebian6_request_18.txt")
 			)
-  }
 
 	setUp(scn.users(1).protocolConfig(httpConf))
 }

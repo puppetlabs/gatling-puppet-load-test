@@ -24,7 +24,7 @@ module LoadTest
       nodes = []
 
       scenario["nodes"].each do |node|
-        node_config_path = File.join(File.dirname(File.absolute_path(scenario_config_path)),
+        node_config_path = File.join(File.dirname(File.expand_path(scenario_config_path)),
                                 "..", "nodes", node["node_config"])
         node_config = JSON.parse(File.read(node_config_path))
         node_config["modules"].each do |m|

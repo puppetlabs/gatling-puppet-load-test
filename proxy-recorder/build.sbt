@@ -10,8 +10,6 @@ libraryDependencies += "com.excilys.ebi.gatling" % "gatling-app" % "1.5.0"
 
 libraryDependencies += "com.excilys.ebi.gatling.highcharts" % "gatling-charts-highcharts" % "1.5.0"
 
-resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
-
 resolvers += "Excilys" at "http://repository.excilys.com/content/groups/public"
 
 mainClass in (Compile, run) := Some("com.excilys.ebi.gatling.recorder.GatlingRecorder")

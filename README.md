@@ -1,2 +1,0 @@
-gatling-puppet-scale-test
-=========================

@@ -1,0 +1,288 @@
+[0m[[0minfo[0m] [0mLoading global plugins from /home/cprice/.sbt/plugins[0m
+[0m[[0minfo[0m] [0mUpdating {file:/home/cprice/.sbt/plugins/}default-87a5eb...[0m
+[0m[[0minfo[0m] [0mResolving com.github.mpeltonen#sbt-idea;1.4.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving commons-io#commons-io;2.0.1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache.commons#commons-parent;15 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache#apache;7 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#sbt;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#main;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#actions;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#classpath;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#launcher-interface;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-lang#scala-library;2.9.2 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#interface;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#io;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#control;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-lang#scala-compiler;2.9.2 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#completion;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#collections;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving jline#jline;1.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.sonatype.oss#oss-parent;7 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#api;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#compiler-integration;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#incremental-compiler;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#logging;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#process;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#compile;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#persist;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-tools.sbinary#sbinary_2.9.0;0.4.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#classfile;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#compiler-ivy-integration;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#ivy;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache.ivy#ivy;2.3.0-rc1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache#apache;7 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.jcraft#jsch;0.1.46 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.sonatype.oss#oss-parent;6 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving commons-httpclient#commons-httpclient;3.1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving commons-logging#commons-logging;1.0.4 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving commons-codec#commons-codec;1.2 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#run;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#task-system;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#tasks;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#tracking;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#cache;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#testing;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#test-agent;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-tools.testing#test-interface;0.5 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#command;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#compiler-interface;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#precompiled-2_8_2;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#precompiled-2_9_3;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-sbt#precompiled-2_10_1;0.12.3 ...[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.4.0/sbt-idea-1.4.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.github.mpeltonen#sbt-idea;1.4.0!sbt-idea.jar (145ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/commons-io/commons-io/2.0.1/commons-io-2.0.1.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] commons-io#commons-io;2.0.1!commons-io.jar (87ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt/0.12.3/jars/sbt.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#sbt;0.12.3!sbt.jar (667ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/main/0.12.3/jars/main.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#main;0.12.3!main.jar (1714ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/compiler-interface/0.12.3/jars/compiler-interface-src.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#compiler-interface;0.12.3!compiler-interface-src.jar (600ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/compiler-interface/0.12.3/jars/compiler-interface-bin.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#compiler-interface;0.12.3!compiler-interface-bin.jar (608ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_8_2/0.12.3/jars/compiler-interface-bin.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#precompiled-2_8_2;0.12.3!compiler-interface-bin.jar (603ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_9_3/0.12.3/jars/compiler-interface-bin.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#precompiled-2_9_3;0.12.3!compiler-interface-bin.jar (603ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_10_1/0.12.3/jars/compiler-interface-bin.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#precompiled-2_10_1;0.12.3!compiler-interface-bin.jar (623ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/actions/0.12.3/jars/actions.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#actions;0.12.3!actions.jar (624ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/interface/0.12.3/jars/interface.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#interface;0.12.3!interface.jar (599ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/io/0.12.3/jars/io.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#io;0.12.3!io.jar (620ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/ivy/0.12.3/jars/ivy.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#ivy;0.12.3!ivy.jar (778ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/launcher-interface/0.12.3/jars/launcher-interface.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#launcher-interface;0.12.3!launcher-interface.jar (693ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/logging/0.12.3/jars/logging.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#logging;0.12.3!logging.jar (1020ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/process/0.12.3/jars/process.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#process;0.12.3!process.jar (752ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/run/0.12.3/jars/run.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#run;0.12.3!run.jar (670ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/command/0.12.3/jars/command.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#command;0.12.3!command.jar (762ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/classpath/0.12.3/jars/classpath.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#classpath;0.12.3!classpath.jar (588ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/completion/0.12.3/jars/completion.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#completion;0.12.3!completion.jar (776ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/api/0.12.3/jars/api.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#api;0.12.3!api.jar (686ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/compiler-integration/0.12.3/jars/compiler-integration.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#compiler-integration;0.12.3!compiler-integration.jar (582ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/compiler-ivy-integration/0.12.3/jars/compiler-ivy-integration.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#compiler-ivy-integration;0.12.3!compiler-ivy-integration.jar (593ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/task-system/0.12.3/jars/task-system.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#task-system;0.12.3!task-system.jar (620ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/tasks/0.12.3/jars/tasks.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#tasks;0.12.3!tasks.jar (589ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/tracking/0.12.3/jars/tracking.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#tracking;0.12.3!tracking.jar (585ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/testing/0.12.3/jars/testing.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#testing;0.12.3!testing.jar (1101ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/control/0.12.3/jars/control.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#control;0.12.3!control.jar (580ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/collections/0.12.3/jars/collections.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#collections;0.12.3!collections.jar (766ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/jline/jline/1.0/jline-1.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] jline#jline;1.0!jline.jar (74ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/incremental-compiler/0.12.3/jars/incremental-compiler.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#incremental-compiler;0.12.3!incremental-compiler.jar (665ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/compile/0.12.3/jars/compile.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#compile;0.12.3!compile.jar (675ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/persist/0.12.3/jars/persist.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#persist;0.12.3!persist.jar (589ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/classfile/0.12.3/jars/classfile.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#classfile;0.12.3!classfile.jar (820ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/org/scala-tools/sbinary/sbinary_2.9.0/0.4.0/sbinary_2.9.0-0.4.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-tools.sbinary#sbinary_2.9.0;0.4.0!sbinary_2.9.0.jar (85ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0-rc1/ivy-2.3.0-rc1.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.apache.ivy#ivy;2.3.0-rc1!ivy.jar (199ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/com/jcraft/jsch/0.1.46/jsch-0.1.46.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.jcraft#jsch;0.1.46!jsch.jar (100ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/commons-httpclient/commons-httpclient/3.1/commons-httpclient-3.1.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] commons-httpclient#commons-httpclient;3.1!commons-httpclient.jar (110ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] commons-logging#commons-logging;1.0.4!commons-logging.jar (60ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/commons-codec/commons-codec/1.2/commons-codec-1.2.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] commons-codec#commons-codec;1.2!commons-codec.jar (55ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/cache/0.12.3/jars/cache.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#cache;0.12.3!cache.jar (1516ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/test-agent/0.12.3/jars/test-agent.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-sbt#test-agent;0.12.3!test-agent.jar (632ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/org/scala-tools/testing/test-interface/0.5/test-interface-0.5.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.scala-tools.testing#test-interface;0.5!test-interface.jar (46ms)[0m
+[0m[[0minfo[0m] [0mDone updating.[0m
+[0m[[0minfo[0m] [0mSet current project to gatling-puppet-agent-capture (in build file:/home/cprice/work/gatling_scratch/git/gatling-puppet-agent-capture/)[0m
+[0m[[0minfo[0m] [0mUpdating {file:/home/cprice/work/gatling_scratch/git/gatling-puppet-agent-capture/}default-0c207a...[0m
+[0m[[0minfo[0m] [0mResolving org.scala-lang#scala-library;2.9.2 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-recorder;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-parent;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.thoughtworks.xstream#xstream;1.4.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.thoughtworks.xstream#xstream-parent;1.4.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.codehaus#codehaus-parent;3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-core;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-parent;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.typesafe.akka#akka-actor;2.0.4 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.typesafe#config;1.0.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving jaxen#jaxen;1.1.6 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.sonatype.oss#oss-parent;7 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving joda-time#joda-time;2.2 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.joda#joda-convert;1.2 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.slf4j#slf4j-api;1.7.5 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.slf4j#slf4j-parent;1.7.5 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.clapper#grizzled-slf4j_2.9.2;0.6.10 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.jayway.jsonpath#json-path;0.8.1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.jayway.jsonpath#json-path-parent;0.8.1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.sonatype.oss#oss-parent;5 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving net.minidev#json-smart;1.1.1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving net.minidev#parent;1.1.1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.sonatype.oss#oss-parent;7 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving commons-lang#commons-lang;2.6 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache.commons#commons-parent;17 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache#apache;7 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache.commons#commons-math3;3.1.1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache.commons#commons-parent;24 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache#apache;9 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.jsoup#jsoup;1.7.2 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving commons-io#commons-io;2.4 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache.commons#commons-parent;25 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache#apache;9 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving ch.qos.logback#logback-classic;1.0.12 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving ch.qos.logback#logback-parent;1.0.12 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving ch.qos.logback#logback-core;1.0.12 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving ch.qos.logback#logback-parent;1.0.12 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving xerces#xercesImpl;2.11.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving xml-apis#xml-apis;1.4.01 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-http;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-parent;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.ning#async-http-client;1.7.15 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.sonatype.oss#oss-parent;5 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving io.netty#netty;3.6.5.Final ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.sonatype.oss#oss-parent;7 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.fusesource.scalate#scalate-core_2.9;1.6.1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.fusesource.scalate#scalate-project_2.9;1.6.1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.fusesource#fusesource-pom;1.8 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.fusesource.scalate#scalate-util_2.9;1.6.1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.fusesource.scalate#scalate-project_2.9;1.6.1 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.github.scopt#scopt_2.9.2;2.1.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-app;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-parent;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-jdbc;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-parent;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-redis;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-parent;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving net.debasishg#redisclient_2.9.2;2.10 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving commons-pool#commons-pool;1.6 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache.commons#commons-parent;22 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.apache#apache;9 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-charts;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-parent;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-metrics;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling#gatling-parent;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.typesafe.zinc#zinc;0.2.5 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.typesafe.sbt#incremental-compiler;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving org.scala-lang#scala-compiler;2.9.2 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.typesafe.sbt#compiler-interface;0.12.3 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling.highcharts#gatling-charts-highcharts;1.5.0 ...[0m
+M[2K[0m[[0minfo[0m] [0mResolving com.excilys.ebi.gatling.highcharts#gatling-highcharts;1.5.0 ...[0m
+[0m[[0minfo[0m] [0mdownloading http://repository.excilys.com/content/groups/public/com/excilys/ebi/gatling/gatling-recorder/1.5.0/gatling-recorder-1.5.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.excilys.ebi.gatling#gatling-recorder;1.5.0!gatling-recorder.jar (8668ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repository.excilys.com/content/groups/public/com/excilys/ebi/gatling/gatling-app/1.5.0/gatling-app-1.5.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.excilys.ebi.gatling#gatling-app;1.5.0!gatling-app.jar (2355ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repository.excilys.com/content/groups/public/com/excilys/ebi/gatling/highcharts/gatling-charts-highcharts/1.5.0/gatling-charts-highcharts-1.5.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.excilys.ebi.gatling.highcharts#gatling-charts-highcharts;1.5.0!gatling-charts-highcharts.jar (3925ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/com/thoughtworks/xstream/xstream/1.4.3/xstream-1.4.3.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.thoughtworks.xstream#xstream;1.4.3!xstream.jar (128ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repository.excilys.com/content/groups/public/com/excilys/ebi/gatling/gatling-core/1.5.0/gatling-core-1.5.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.excilys.ebi.gatling#gatling-core;1.5.0!gatling-core.jar (8639ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repository.excilys.com/content/groups/public/com/excilys/ebi/gatling/gatling-http/1.5.0/gatling-http-1.5.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.excilys.ebi.gatling#gatling-http;1.5.0!gatling-http.jar (5521ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/io/netty/netty/3.6.5.Final/netty-3.6.5.Final.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] io.netty#netty;3.6.5.Final!netty.jar(bundle) (202ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/ch/qos/logback/logback-classic/1.0.12/logback-classic-1.0.12.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] ch.qos.logback#logback-classic;1.0.12!logback-classic.jar (109ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/com/github/scopt/scopt_2.9.2/2.1.0/scopt_2.9.2-2.1.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.github.scopt#scopt_2.9.2;2.1.0!scopt_2.9.2.jar (84ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/org/clapper/grizzled-slf4j_2.9.2/0.6.10/grizzled-slf4j_2.9.2-0.6.10.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.clapper#grizzled-slf4j_2.9.2;0.6.10!grizzled-slf4j_2.9.2.jar (46ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/org/fusesource/scalate/scalate-core_2.9/1.6.1/scalate-core_2.9-1.6.1.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.fusesource.scalate#scalate-core_2.9;1.6.1!scalate-core_2.9.jar(bundle) (310ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repository.excilys.com/content/groups/public/com/typesafe/akka/akka-actor/2.0.4/akka-actor-2.0.4.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.typesafe.akka#akka-actor;2.0.4!akka-actor.jar (16726ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repository.excilys.com/content/groups/public/jaxen/jaxen/1.1.6/jaxen-1.1.6.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] jaxen#jaxen;1.1.6!jaxen.jar(bundle) (3000ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/joda-time/joda-time/2.2/joda-time-2.2.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] joda-time#joda-time;2.2!joda-time.jar (136ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/org/joda/joda-convert/1.2/joda-convert-1.2.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.joda#joda-convert;1.2!joda-convert.jar (63ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.5/slf4j-api-1.7.5.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.slf4j#slf4j-api;1.7.5!slf4j-api.jar (170ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/com/jayway/jsonpath/json-path/0.8.1/json-path-0.8.1.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.jayway.jsonpath#json-path;0.8.1!json-path.jar(bundle) (71ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/org/apache/commons/commons-math3/3.1.1/commons-math3-3.1.1.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.apache.commons#commons-math3;3.1.1!commons-math3.jar (267ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/org/jsoup/jsoup/1.7.2/jsoup-1.7.2.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.jsoup#jsoup;1.7.2!jsoup.jar (103ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] commons-io#commons-io;2.4!commons-io.jar (86ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/com/typesafe/config/1.0.0/config-1.0.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.typesafe#config;1.0.0!config.jar(bundle) (92ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/net/minidev/json-smart/1.1.1/json-smart-1.1.1.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] net.minidev#json-smart;1.1.1!json-smart.jar (74ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] commons-lang#commons-lang;2.6!commons-lang.jar (98ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/xerces/xercesImpl/2.11.0/xercesImpl-2.11.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] xerces#xercesImpl;2.11.0!xercesImpl.jar (225ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/xml-apis/xml-apis/1.4.01/xml-apis-1.4.01.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] xml-apis#xml-apis;1.4.01!xml-apis.jar (95ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/ch/qos/logback/logback-core/1.0.12/logback-core-1.0.12.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] ch.qos.logback#logback-core;1.0.12!logback-core.jar (123ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/com/ning/async-http-client/1.7.15/async-http-client-1.7.15.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.ning#async-http-client;1.7.15!async-http-client.jar (125ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/org/fusesource/scalate/scalate-util_2.9/1.6.1/scalate-util_2.9-1.6.1.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] org.fusesource.scalate#scalate-util_2.9;1.6.1!scalate-util_2.9.jar(bundle) (103ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repository.excilys.com/content/groups/public/com/excilys/ebi/gatling/gatling-jdbc/1.5.0/gatling-jdbc-1.5.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.excilys.ebi.gatling#gatling-jdbc;1.5.0!gatling-jdbc.jar (1094ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repository.excilys.com/content/groups/public/com/excilys/ebi/gatling/gatling-redis/1.5.0/gatling-redis-1.5.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.excilys.ebi.gatling#gatling-redis;1.5.0!gatling-redis.jar (1051ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repository.excilys.com/content/groups/public/com/excilys/ebi/gatling/gatling-charts/1.5.0/gatling-charts-1.5.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.excilys.ebi.gatling#gatling-charts;1.5.0!gatling-charts.jar (9689ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repository.excilys.com/content/groups/public/com/excilys/ebi/gatling/gatling-metrics/1.5.0/gatling-metrics-1.5.0.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.excilys.ebi.gatling#gatling-metrics;1.5.0!gatling-metrics.jar (1796ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/com/typesafe/zinc/zinc/0.2.5/zinc-0.2.5.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.typesafe.zinc#zinc;0.2.5!zinc.jar (104ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/net/debasishg/redisclient_2.9.2/2.10/redisclient_2.9.2-2.10.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] net.debasishg#redisclient_2.9.2;2.10!redisclient_2.9.2.jar (157ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/commons-pool/commons-pool/1.6/commons-pool-1.6.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] commons-pool#commons-pool;1.6!commons-pool.jar (88ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/com/typesafe/sbt/incremental-compiler/0.12.3/incremental-compiler-0.12.3.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.typesafe.sbt#incremental-compiler;0.12.3!incremental-compiler.jar (427ms)[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/com/typesafe/sbt/compiler-interface/0.12.3/compiler-interface-0.12.3-sources.jar ...[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.typesafe.sbt#compiler-interface;0.12.3!compiler-interface.jar (75ms)[0m
+[0m[[0minfo[0m] [0mDone updating.[0m
+[0m[[0minfo[0m] [0mRunning com.excilys.ebi.gatling.recorder.GatlingRecorder -pkg com.puppetlabs.gatling.simulation[0m
+[0m[[32msuccess[0m] [0mTotal time: 125 s, completed May 6, 2013 11:46:19 AM[0m

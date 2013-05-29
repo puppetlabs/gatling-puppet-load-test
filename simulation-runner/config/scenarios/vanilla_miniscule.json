@@ -3,8 +3,8 @@
     "nodes": [
         {
             "node_config": "vanilla_deb6.json",
-            "num_instances": 1,
-            "ramp_up_duration_seconds": 20,
+            "num_instances": 3,
+            "ramp_up_duration_seconds": 10,
             "num_repetitions": 5
         }
     ]

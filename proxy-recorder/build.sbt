@@ -4,11 +4,11 @@ version := "0.1.1-SNAPSHOT"
 
 scalaVersion := "2.9.2"
 
-libraryDependencies += "com.excilys.ebi.gatling" % "gatling-recorder" % "1.5.0" exclude("org.scala-lang", "scala-compiler")
+libraryDependencies += "com.excilys.ebi.gatling" % "gatling-recorder" % "1.5.1" exclude("org.scala-lang", "scala-compiler")
 
-libraryDependencies += "com.excilys.ebi.gatling" % "gatling-app" % "1.5.0"
+libraryDependencies += "com.excilys.ebi.gatling" % "gatling-app" % "1.5.1"
 
-libraryDependencies += "com.excilys.ebi.gatling.highcharts" % "gatling-charts-highcharts" % "1.5.0"
+libraryDependencies += "com.excilys.ebi.gatling.highcharts" % "gatling-charts-highcharts" % "1.5.1"
 
 resolvers += "Excilys" at "http://repository.excilys.com/content/groups/public"
 

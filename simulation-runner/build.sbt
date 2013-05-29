@@ -10,11 +10,13 @@ resolvers ++= Seq(
                   "Excilys" at "http://repository.excilys.com/content/groups/public"
                   )
 
-libraryDependencies += "com.excilys.ebi.gatling" % "gatling-app" % "1.5.0"
+libraryDependencies += "com.excilys.ebi.gatling" % "gatling-app" % "1.5.1"
 
-libraryDependencies += "com.excilys.ebi.gatling.highcharts" % "gatling-charts-highcharts" % "1.5.0" exclude("com.excilys.ebi.gatling", "gatling-recorder")
+libraryDependencies += "com.excilys.ebi.gatling.highcharts" % "gatling-charts-highcharts" % "1.5.1" exclude("com.excilys.ebi.gatling", "gatling-recorder")
 
 mainClass in (Compile, run) := Some("com.puppetlabs.gatling.runner.PuppetGatlingRunner")
+
+unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd / "config") }
 
 fork := true
 

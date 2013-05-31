@@ -9,17 +9,22 @@ import bootstrap._
 import assertions._
 import com.puppetlabs.gatling.runner.SimulationWithScenario
 
-class VanillaDebian6 extends SimulationWithScenario {
+class VanillaDebian6NoConnClose extends SimulationWithScenario {
 
 	val httpConf = httpConfig
 			.baseURL("https://pe-ubuntu-lucid:8140")
 			.acceptHeader("pson, b64_zlib_yaml, yaml, raw")
-			.connection("close")
+			//.connection("close")
 
 
 	val headers_2 = Map(
 			"Accept" -> """pson, b64_zlib_yaml, yaml, dot, raw""",
 			"Content-Type" -> """application/x-www-form-urlencoded"""
+	)
+
+	val headers_17 = Map(
+			"Accept" -> """pson, b64_zlib_yaml, yaml, raw""",
+			"Connection" -> """close"""
 	)
 
 	val headers_18 = Map(
@@ -105,6 +110,7 @@ class VanillaDebian6 extends SimulationWithScenario {
 		.pause(146 milliseconds)
 		.exec(http("request_17")
 					.get("/production/file_metadata/modules/pe_mcollective/plugins/util/actionpolicy.rb")
+					.headers(headers_17)
 			)
 		.pause(493 milliseconds)
 		.exec(http("request_18")

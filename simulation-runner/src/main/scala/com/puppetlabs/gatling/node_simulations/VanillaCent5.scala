@@ -7,7 +7,7 @@ import akka.util.duration._
 import bootstrap._
 import assertions._
 
-class VanillaCent5 extends Simulation {
+class VanillaCent5 extends com.puppetlabs.gatling.runner.SimulationWithScenario {
 
 	val httpConf = httpConfig
 			.baseURL("https://pe-centos6.localdomain:8140")

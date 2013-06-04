@@ -14,7 +14,7 @@ they are accurate.
 * You have set up a public key so that you can ssh into that PE master machine
   as root from this machine.
 * The PE master has an auth.conf file that allows all connections; e.g. you
-  can copy the file `conf/auth.conf` from this project to the puppet
+  can copy the file 'conf/auth.conf' from this project to the puppet
   config dir on your PE master.
 * You have a PE agent up and running somewhere, and you'd like to capture
   an agent run from it for use in future Gatling scale tests.
@@ -67,7 +67,7 @@ sbt "run -pkg com.puppetlabs.gatling.simulation" > gatling-recorder.log &
 
 echo "Proxy launched.
 
-(The proxy GUI will take a while to launch on the first run, as sbt is downloading all of the gatling binaries.  You can check the file `gatling-recorder.log` in this directory to see what's going on.)
+(The proxy GUI will take a while to launch on the first run, as sbt is downloading all of the gatling binaries.  You can check the file 'gatling-recorder.log' in this directory to see what's going on.)
 
 So now you should see a dialog asking for some information about the simulation
 we're going to record.  You can leave most of the fields alone.  Here's the ones

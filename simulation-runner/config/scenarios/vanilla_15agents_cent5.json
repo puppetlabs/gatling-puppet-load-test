@@ -1,9 +1,9 @@
 {
-    "run_description": "VanillaCent5, 50 instances, 10 repetitions",
+    "run_description": "VanillaCent5, 15 instances, 10 repetitions",
     "nodes": [
         {
-            "node_config": "vanilla_cent5.json",
-            "num_instances": 50,
+            "node_config": "vanilla_deb6.json",
+            "num_instances": 15,
             "ramp_up_duration_seconds": 90,
             "num_repetitions": 10
         }

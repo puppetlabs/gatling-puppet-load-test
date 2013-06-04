@@ -1,8 +1,8 @@
 {
-    "run_description": "VanillaDeb6 long-running, 2500 nodes, 2 repetitions",
+    "run_description": "VanillaCent5 long-running, 2500 nodes, 2 repetitions",
     "nodes": [
         {
-            "node_config": "vanilla_deb6_long_running.json",
+            "node_config": "vanilla_cent5_long_running.json",
             "num_instances": 2500,
             "ramp_up_duration_seconds": 1800,
             "num_repetitions": 2 

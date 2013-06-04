@@ -1,0 +1,7 @@
+{
+    "certname": "pe-cent5.localdomain",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.BigCatalogCent5",
+    "modules": [ { "name": "nwolfe/loadtest",
+                   "version": "0.0.1" } ],
+    "classes": [ "loadtest::bigcatalog" ]
+}

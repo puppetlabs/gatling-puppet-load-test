@@ -58,7 +58,7 @@ on master, "mv /etc/puppetlabs/puppet/auth.conf /etc/puppetlabs/puppet/auth.conf
 create_remote_file(master, '/etc/puppetlabs/puppet/auth.conf', authconf)
 on master, "chown root:pe-puppet /etc/puppetlabs/puppet/auth.conf && chmod 640 /etc/puppetlabs/puppet/auth.conf"
 
-config = Puppet::Gatling::LoadTest::ScenarioConfig.parse(File.expand_path(File.join("../", ENV['PUPPET_GATLING_SIMULATION_CONFIG'])))
+config = Puppet::Gatling::LoadTest::ScenarioConfig.parse(File.expand_path(File.join("../simulation-runner", ENV['PUPPET_GATLING_SIMULATION_CONFIG'])))
 
 # Install modules and class per node
 config.modules.each do |m|

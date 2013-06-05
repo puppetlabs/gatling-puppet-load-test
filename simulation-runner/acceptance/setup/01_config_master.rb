@@ -62,7 +62,7 @@ config = Puppet::Gatling::LoadTest::ScenarioConfig.parse(File.expand_path(File.j
 
 # Install modules and class per node
 config.modules.each do |m|
-  on master, "puppet module install #{m.name} -v #{m.version}"
+  on master, "puppet module install #{m.name} -v #{m.version} --force"
 end
 
 result = on master, "#{rake_cmd} nodeclass:list"

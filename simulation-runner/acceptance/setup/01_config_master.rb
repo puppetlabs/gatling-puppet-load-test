@@ -65,15 +65,24 @@ config.modules.each do |m|
   on master, "puppet module install #{m.name} -v #{m.version}"
 end
 
+result = on master, "#{rake_cmd} nodeclass:list"
+class_list = result.stdout.split
+
 # register nodes and classes
-config.classes.each do |c|
+config.classes.select {|c| ! (class_list.include?(c)) }.each do |c|
   on master, "#{rake_cmd} nodeclass:add name=#{c}"
 end
+
+result = on master, "#{rake_cmd} node:list"
+node_list = result.stdout.split
 
 # Add nodenames
 config.nodes.each do |n|
   step "Configuring node '#{n.name}'" do
-    on master, "#{rake_cmd} node:add name=#{n.name}"
+    unless node_list.include?(n.name)
+      on master, "#{rake_cmd} node:add name=#{n.name}"
+    end
+
     # First we reset the list of classes for the node to the default PE classes.
     # NOTE: eventually we probably need to move this list of initial classes
     # to a config file, because this assumes we'll only ever be doing testing

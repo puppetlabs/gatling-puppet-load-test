@@ -72,8 +72,21 @@ end
 
 # Add nodenames
 config.nodes.each do |n|
-  on master, "#{rake_cmd} node:add name=#{n.name}"
-  n.classes.each do |c|
-    on master, "#{rake_cmd} node:classes name=#{n.name} classes=#{c}"
+  step "Configuring node '#{n.name}'" do
+    on master, "#{rake_cmd} node:add name=#{n.name}"
+    # First we reset the list of classes for the node to the default PE classes.
+    # NOTE: eventually we probably need to move this list of initial classes
+    # to a config file, because this assumes we'll only ever be doing testing
+    # against PE.  (Although all of this stuff assumes we have at least the
+    # dashboard and rake tasks.)
+    on master, "#{rake_cmd} node:classes name=#{n.name} classes=pe_compliance,pe_accounts,pe_mcollective"
+    n.classes.each do |c|
+      on master, "#{rake_cmd} node:addclass name=#{n.name} class=#{c}"
+    end
+
+    # Here we'll just print out the final list of classes for the node so that
+    # it's visible in the log.
+    on master, "#{rake_cmd} node:listclasses name=#{n.name}"
   end
+
 end

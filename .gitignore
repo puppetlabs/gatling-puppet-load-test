@@ -4,3 +4,6 @@ target
 results
 simulation-runner/cache
 gatling-recorder.log
+.cache
+.classpath
+.project

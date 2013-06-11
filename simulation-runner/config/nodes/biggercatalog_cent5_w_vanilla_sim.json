@@ -1,5 +1,5 @@
 {
-    "certname": "pe-cent5.localdomain",
+    "certname": "pe-centos5.localdomain",
     "simulation_class": "com.puppetlabs.gatling.node_simulations.VanillaCent5",
     "modules": [ { "name": "nwolfe/loadtest",
                    "version": "0.0.2" } ],

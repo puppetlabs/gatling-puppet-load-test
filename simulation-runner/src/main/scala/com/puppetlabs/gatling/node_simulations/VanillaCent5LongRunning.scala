@@ -6,8 +6,41 @@ import com.excilys.ebi.gatling.http.Headers.Names._
 import akka.util.duration._
 import bootstrap._
 import assertions._
+import com.puppetlabs.gatling.config.{Node, PuppetGatlingConfig}
 
 class VanillaCent5LongRunning extends com.puppetlabs.gatling.runner.SimulationWithScenario {
+
+  // This is kind of a dirty hack.  Here's the deal.
+  // In order to simulate real world agent runs, we need to sleep 30 minutes
+  // in between each series of agent requests.  That can be achieved
+  // easily by adding a "pause" to the end of the run.
+  // However, if we do that, then after the final series of requests, we'll sleep
+  // for 30 minutes before the simulation can end, even though that is entirely
+  // unnecessary.  Since most of our jenkins jobs are going to run 2-6 sims,
+  // that would mean we're sleeping for 1-3 extra hours and uselessly tying up the
+  // hardware.  Thus, we need to make the sleep conditional based on whether
+  // or not we're on the final repetition.
+
+  // Mutable state, yuck... but we have to count the number of reps we've completed.
+  var repetitionCount = 0
+  // Here we dig into the configuration object and find the number of repetitions
+  // that were configured for this particular simulation class.
+  val totalNumReps = PuppetGatlingConfig.configuration.nodes.find((n:Node) => n.simulationClass == this.getClass).get.numRepetitions
+
+  // We'll call this function at the end of each repetition to see if we need
+  // to sleep or not.
+  def sleep_unless_final_repetition = {
+    repetitionCount += 1
+    println("Completed " + repetitionCount + " repetitions.")
+    if (repetitionCount < totalNumReps) {
+      println("This is not the last repetition; sleeping.")
+      Thread.sleep(30.minutes.toMillis)
+    } else {
+      println("That was the last repetition.  Not sleeping.")
+    }
+  }
+
+  // end of repetition counting hackery; beginning of normal simulation code.
 
 	val httpConf = httpConfig
 			.baseURL("https://pe-centos6.localdomain:8140")
@@ -110,7 +143,13 @@ class VanillaCent5LongRunning extends com.puppetlabs.gatling.runner.SimulationWi
 					.headers(headers_18)
 						.fileBody("VanillaCent5_request_18.txt")
 			)
-    .pause(30 minutes)
+    // here we've replaced our "pause" with a Gatling "session function",
+    // which basically just calls our hacky method above to see if
+    // we are on the final repetition, and if not, sleep for 30 mins.
+    .exec((session: Session) => {
+      sleep_unless_final_repetition
+      session
+    })
 
 	setUp(scn.users(1).protocolConfig(httpConf))
 }

@@ -1,9 +1,9 @@
 {
-    "run_description": "BigCatalogCent5, 10 instances, 5 repetitions",
+    "run_description": "BigCatalogCent5, 5 instances, 5 repetitions",
     "nodes": [
         {
             "node_config": "bigcatalog_cent5.json",
-            "num_instances": 10,
+            "num_instances": 5,
             "ramp_up_duration_seconds": 45,
             "num_repetitions": 5
         }

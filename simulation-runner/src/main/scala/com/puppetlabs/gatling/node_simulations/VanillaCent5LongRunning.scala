@@ -27,7 +27,7 @@ class VanillaCent5LongRunning extends com.puppetlabs.gatling.runner.SimulationWi
 
 
 	val scn = scenario("Scenario Name")
-		.exec(http("plugins")
+		.exec(http("filemeta plugins")
 					.get("/production/file_metadatas/plugins")
 					.queryParam("""checksum_type""", """md5""")
 					.queryParam("""links""", """manage""")

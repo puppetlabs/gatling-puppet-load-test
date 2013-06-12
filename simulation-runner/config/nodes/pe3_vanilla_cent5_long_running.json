@@ -1,0 +1,6 @@
+{
+    "certname": "pe-centos5.localdomain",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PE3VanillaCent5LongRunning",
+    "modules": [],
+    "classes": []
+}

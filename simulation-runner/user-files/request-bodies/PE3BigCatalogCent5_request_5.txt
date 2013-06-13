@@ -1,0 +1,4954 @@
+--- !ruby/object:Puppet::Transaction::Report
+  metrics: 
+    resources: !ruby/object:Puppet::Util::Metric
+      name: resources
+      label: Resources
+      values: 
+        - - total
+          - Total
+          - 192
+        - - skipped
+          - Skipped
+          - 6
+        - - failed
+          - Failed
+          - 0
+        - - failed_to_restart
+          - "Failed to restart"
+          - 0
+        - - restarted
+          - Restarted
+          - 0
+        - - changed
+          - Changed
+          - 0
+        - - out_of_sync
+          - "Out of sync"
+          - 0
+        - - scheduled
+          - Scheduled
+          - 0
+    time: !ruby/object:Puppet::Util::Metric
+      name: time
+      label: Time
+      values: 
+        - - file
+          - File
+          - 0.088488181
+        - - anchor
+          - Anchor
+          - 0.000455966
+        - - cron
+          - Cron
+          - 0.00054173
+        - - filebucket
+          - Filebucket
+          - 0.00028304700000000003
+        - - service
+          - Service
+          - 0.106479897
+        - - config_retrieval
+          - "Config retrieval"
+          - 3.10716576
+        - - total
+          - Total
+          - 3.303414581
+    changes: !ruby/object:Puppet::Util::Metric
+      name: changes
+      label: Changes
+      values: 
+        - - total
+          - Total
+          - 0
+    events: !ruby/object:Puppet::Util::Metric
+      name: events
+      label: Events
+      values: 
+        - - total
+          - Total
+          - 0
+        - - failure
+          - Failure
+          - 0
+        - - success
+          - Success
+          - 0
+  logs: 
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Retrieving plugin"
+      source: Puppet
+      time: 2013-06-13 11:26:01.740377 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/puppetdb_server_status.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.904815 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/custom_auth_conf.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.907080 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/windows.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.908331 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/iptables_persistent_version.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.909353 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/facter_dot_d.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.910330 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/pe_version.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.912510 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/postgres_default_version.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.913611 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/iptables_version.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.914463 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/root_home.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.915170 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/ip6tables_version.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.915854 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/concat_basedir.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.916564 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/puppet_vardir.rb"
+      source: Puppet
+      time: 2013-06-13 11:26:02.917176 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Caching catalog for pe-centos5.localdomain"
+      source: Puppet
+      time: 2013-06-13 11:26:06.194124 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Applying configuration version '1371147834'"
+      source: Puppet
+      time: 2013-06-13 11:26:06.606325 -07:00
+    - !ruby/object:Puppet::Util::Log
+      level: !ruby/sym notice
+      tags: 
+        - notice
+      message: "Finished catalog run in 1.45 seconds"
+      source: Puppet
+      time: 2013-06-13 11:26:07.838782 -07:00
+  resource_statuses: 
+    Schedule[daily]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[daily]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - daily
+      time: 2013-06-13 11:26:06.825210 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: daily
+      skipped: true
+      failed: false
+    Schedule[monthly]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[monthly]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - monthly
+      time: 2013-06-13 11:26:06.825508 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: monthly
+      skipped: true
+      failed: false
+    Schedule[hourly]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[hourly]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - hourly
+      time: 2013-06-13 11:26:06.825757 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: hourly
+      skipped: true
+      failed: false
+    File[/tmp/dummyfile25]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile25]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 126
+      evaluation_time: 0.000548744
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.848321 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile25
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile8]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile8]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 41
+      evaluation_time: 0.000307418
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.849201 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile8
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile80]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile80]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 401
+      evaluation_time: 0.000278834
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.849834 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile80
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile106]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile106]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 531
+      evaluation_time: 0.000301905
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.850471 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile106
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile71]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile71]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 356
+      evaluation_time: 0.000276546
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.851089 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile71
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile84]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile84]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 421
+      evaluation_time: 0.000288215
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.851694 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile84
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile52]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile52]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 261
+      evaluation_time: 0.000310127
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.852339 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile52
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile83]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile83]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 416
+      evaluation_time: 0.000275484
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.852970 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile83
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile22]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile22]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 111
+      evaluation_time: 0.000274381
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.853564 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile22
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile20]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile20]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 101
+      evaluation_time: 0.000311684
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.854194 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile20
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile36]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile36]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 181
+      evaluation_time: 0.000285269
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.854805 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile36
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile99]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile99]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 496
+      evaluation_time: 0.000285309
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.855492 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile99
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile93]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile93]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 466
+      evaluation_time: 0.000287915
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.856151 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile93
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile12]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile12]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 61
+      evaluation_time: 0.000290203
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.856818 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile12
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile42]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile42]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 211
+      evaluation_time: 0.000276383
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.857430 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile42
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile27]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile27]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 136
+      evaluation_time: 0.000282014
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.858061 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile27
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile64]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile64]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 321
+      evaluation_time: 0.000318981
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.858668 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile64
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile43]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile43]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 216
+      evaluation_time: 0.000279813
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.859300 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile43
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile47]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile47]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 236
+      evaluation_time: 0.000306784
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.859935 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile47
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile23]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile23]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 116
+      evaluation_time: 0.000278481
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.860610 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile23
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile104]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile104]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 521
+      evaluation_time: 0.000325817
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.861205 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile104
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile105]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile105]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 526
+      evaluation_time: 0.000289811
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.861888 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile105
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile73]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile73]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 366
+      evaluation_time: 0.000304998
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.862504 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile73
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile38]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile38]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 191
+      evaluation_time: 0.000285607
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.863141 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile38
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile7]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile7]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 36
+      evaluation_time: 0.000284184
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.863820 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile7
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile102]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile102]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 511
+      evaluation_time: 0.000339772
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.864464 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile102
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile94]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile94]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 471
+      evaluation_time: 0.000287404
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.865148 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile94
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile89]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile89]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 446
+      evaluation_time: 0.000275832
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.865781 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile89
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile95]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile95]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 476
+      evaluation_time: 0.000303274
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.866378 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile95
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile60]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile60]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 301
+      evaluation_time: 0.000322143
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.866989 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile60
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile70]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile70]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 351
+      evaluation_time: 0.000275412
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.867664 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile70
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile62]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile62]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 311
+      evaluation_time: 0.000344384
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.868262 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile62
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile88]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile88]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 441
+      evaluation_time: 0.000274691
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.868923 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile88
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile67]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile67]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 336
+      evaluation_time: 0.000273811
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.869511 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile67
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile39]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile39]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 196
+      evaluation_time: 0.000318356
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.870095 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile39
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile35]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile35]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 176
+      evaluation_time: 0.000269087
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.870724 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile35
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile77]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile77]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 386
+      evaluation_time: 0.000271915
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.871334 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile77
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile49]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile49]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 246
+      evaluation_time: 0.000322896
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.871925 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile49
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile101]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile101]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 506
+      evaluation_time: 0.000279489
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.872614 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile101
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile69]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile69]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 346
+      evaluation_time: 0.00027312
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.873208 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile69
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile57]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile57]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 286
+      evaluation_time: 0.000298766
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.873806 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile57
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile15]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile15]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 76
+      evaluation_time: 0.000292569
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.874419 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile15
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile17]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile17]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 86
+      evaluation_time: 0.000271911
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.875053 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile17
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile91]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile91]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 456
+      evaluation_time: 0.000278153
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.875656 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile91
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile16]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile16]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 81
+      evaluation_time: 0.000308
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.878930 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile16
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile97]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile97]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 486
+      evaluation_time: 0.00030608
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.879564 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile97
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile40]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile40]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 201
+      evaluation_time: 0.000288386
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.880210 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile40
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile87]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile87]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 436
+      evaluation_time: 0.000278871
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.880901 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile87
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile3]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile3]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 16
+      evaluation_time: 0.000303074
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.881503 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile3
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile82]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile82]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 411
+      evaluation_time: 0.000285211
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.882131 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile82
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile4]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile4]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 21
+      evaluation_time: 0.000295051
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.882785 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile4
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile32]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile32]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 161
+      evaluation_time: 0.000300405
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.883385 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile32
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile26]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile26]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 131
+      evaluation_time: 0.000277504
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.883999 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile26
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile24]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile24]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 121
+      evaluation_time: 0.000276661
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.884675 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile24
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile2]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile2]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 11
+      evaluation_time: 0.000276072
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.885263 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile2
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile41]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile41]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 206
+      evaluation_time: 0.000271747
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.885851 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile41
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile76]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile76]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 381
+      evaluation_time: 0.000273153
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.886463 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile76
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile103]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile103]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 516
+      evaluation_time: 0.000296767
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.887052 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile103
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile54]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile54]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 271
+      evaluation_time: 0.000279934
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.887703 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile54
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile28]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile28]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 141
+      evaluation_time: 0.000377871
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.893639 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile28
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile78]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile78]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 391
+      evaluation_time: 0.000277737
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.894335 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile78
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile31]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile31]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 156
+      evaluation_time: 0.000360937
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.897465 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile31
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile85]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile85]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 426
+      evaluation_time: 0.000278779
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.898150 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile85
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile92]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile92]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 461
+      evaluation_time: 0.000278003
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.898774 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile92
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile59]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile59]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 296
+      evaluation_time: 0.000306817
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.899372 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile59
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile72]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile72]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 361
+      evaluation_time: 0.000279206
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.899996 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile72
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile50]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile50]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 251
+      evaluation_time: 0.000342767
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.905810 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile50
+      skipped: false
+      failed: false
+    "Anchor[pe_accounts::begin]": !ruby/object:Puppet::Resource::Status
+      resource: "Anchor[pe_accounts::begin]"
+      file: /opt/puppet/share/puppet/modules/pe_accounts/manifests/init.pp
+      line: 118
+      evaluation_time: 0.000191386
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - anchor
+        - "pe_accounts::begin"
+        - pe_accounts
+        - begin
+        - class
+        - node
+        - default
+      time: 2013-06-13 11:26:06.906466 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Anchor
+      title: "pe_accounts::begin"
+      skipped: false
+      failed: false
+    File[/opt/puppet/sbin/refresh-mcollective-metadata]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/sbin/refresh-mcollective-metadata]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server.pp
+      line: 105
+      evaluation_time: 0.000516596
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server"
+        - pe_mcollective
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:06.909759 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/sbin/refresh-mcollective-metadata
+      skipped: false
+      failed: false
+    Cron[pe-mcollective-metadata]: !ruby/object:Puppet::Resource::Status
+      resource: Cron[pe-mcollective-metadata]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server.pp
+      line: 110
+      evaluation_time: 0.00054173
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - cron
+        - pe-mcollective-metadata
+        - class
+        - "pe_mcollective::server"
+        - pe_mcollective
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:06.917654 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Cron
+      title: pe-mcollective-metadata
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile44]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile44]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 221
+      evaluation_time: 0.000375906
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.918562 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile44
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile34]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile34]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 171
+      evaluation_time: 0.000311353
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:06.919328 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile34
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 36
+      evaluation_time: 0.00066415
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.309415 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/data]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/data]
+      file: 
+      line: 
+      evaluation_time: 0.000452655
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.310830 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/data
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/data/resource_data.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/data/resource_data.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000594647
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.311822 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/data/resource_data.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/security]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/security]
+      file: 
+      line: 
+      evaluation_time: 0.000482412
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.312883 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/security
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/security/sshkey.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/security/sshkey.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000536362
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.313790 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/security/sshkey.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/application]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/application]
+      file: 
+      line: 
+      evaluation_time: 0.000451702
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.314721 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/application
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/application/package.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/application/package.rb]
+      file: 
+      line: 
+      evaluation_time: 0.00056435
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.315633 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/application/package.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/application/service.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/application/service.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000529578
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.316665 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/application/service.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/validator]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/validator]
+      file: 
+      line: 
+      evaluation_time: 0.00044463
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.317539 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/validator
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_tags_validator.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_tags_validator.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000542118
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.318709 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/validator/puppet_tags_validator.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_server_address_validator.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_server_address_validator.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000536886
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.319622 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/validator/puppet_server_address_validator.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_resource_validator.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_resource_validator.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000594274
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.320574 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/validator/puppet_resource_validator.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_variable_validator.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_variable_validator.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000603404
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.321503 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/validator/puppet_variable_validator.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/validator/service_name.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/validator/service_name.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000535822
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.322484 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/validator/service_name.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/validator/service_name.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/validator/service_name.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000535183
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.323414 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/validator/service_name.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_variable_validator.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_variable_validator.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000574603
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.324309 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/validator/puppet_variable_validator.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_server_address_validator.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_server_address_validator.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000536537
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.325246 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/validator/puppet_server_address_validator.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/data/puppet_data.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/data/puppet_data.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000558848
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.326163 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/data/puppet_data.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/registration]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/registration]
+      file: 
+      line: 
+      evaluation_time: 0.000454957
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.327091 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/registration
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/registration/meta.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/registration/meta.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000767015
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.327947 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/registration/meta.rb
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile68]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile68]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 341
+      evaluation_time: 0.000513165
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.329147 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile68
+      skipped: false
+      failed: false
+    Filebucket[main]: !ruby/object:Puppet::Resource::Status
+      resource: Filebucket[main]
+      file: /etc/puppetlabs/puppet/manifests/site.pp
+      line: 24
+      evaluation_time: 0.00015705
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - filebucket
+        - main
+        - class
+      time: 2013-06-13 11:26:07.330230 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Filebucket
+      title: main
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_resource_validator.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_resource_validator.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000723634
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.330923 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/validator/puppet_resource_validator.ddl
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile6]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile6]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 31
+      evaluation_time: 0.000297027
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.331997 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile6
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/application/puppet.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/application/puppet.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000697936
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.332790 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/application/puppet.rb
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile10]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile10]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 51
+      evaluation_time: 0.000321863
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.333800 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile10
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile48]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile48]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 241
+      evaluation_time: 0.000287073
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.334412 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile48
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile56]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile56]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 281
+      evaluation_time: 0.0002843
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.335065 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile56
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile66]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile66]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 331
+      evaluation_time: 0.000286645
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.335697 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile66
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile65]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile65]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 326
+      evaluation_time: 0.000354232
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.336301 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile65
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile9]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile9]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 46
+      evaluation_time: 0.000307966
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.336985 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile9
+      skipped: false
+      failed: false
+    Schedule[never]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[never]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - never
+      time: 2013-06-13 11:26:07.337528 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: never
+      skipped: true
+      failed: false
+    File[/tmp/dummyfile19]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile19]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 96
+      evaluation_time: 0.000339722
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.338069 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile19
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile1]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile1]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 6
+      evaluation_time: 0.000284392
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.338765 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile1
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/data/service_data.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/data/service_data.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000832127
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.339520 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/data/service_data.rb
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile18]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile18]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 91
+      evaluation_time: 0.000412021
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.340929 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile18
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile46]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile46]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 231
+      evaluation_time: 0.000402105
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.341786 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile46
+      skipped: false
+      failed: false
+    "Anchor[pe_accounts::end]": !ruby/object:Puppet::Resource::Status
+      resource: "Anchor[pe_accounts::end]"
+      file: /opt/puppet/share/puppet/modules/pe_accounts/manifests/init.pp
+      line: 119
+      evaluation_time: 0.00026458
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - anchor
+        - "pe_accounts::end"
+        - pe_accounts
+        - end
+        - class
+        - node
+        - default
+      time: 2013-06-13 11:26:07.350989 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Anchor
+      title: "pe_accounts::end"
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile53]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile53]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 266
+      evaluation_time: 0.000461799
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.355550 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile53
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile14]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile14]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 71
+      evaluation_time: 0.000435179
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.356486 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile14
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile98]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile98]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 491
+      evaluation_time: 0.000281057
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.357270 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile98
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile33]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile33]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 166
+      evaluation_time: 0.000284233
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.357894 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile33
+      skipped: false
+      failed: false
+    Filebucket[puppet]: !ruby/object:Puppet::Resource::Status
+      resource: Filebucket[puppet]
+      file: 
+      line: 
+      evaluation_time: 0.000125997
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - filebucket
+        - puppet
+      time: 2013-06-13 11:26:07.358417 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Filebucket
+      title: puppet
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent]
+      file: 
+      line: 
+      evaluation_time: 0.000520865
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.361666 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/puppet.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/puppet.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000583943
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.362797 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/puppet.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/package.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/package.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000538024
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.363827 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/package.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetral.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetral.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000533424
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.364797 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/puppetral.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/service.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/service.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000509223
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.365689 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/service.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetral.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetral.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000524338
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.366602 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/puppetral.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/service.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/service.rb]
+      file: 
+      line: 
+      evaluation_time: 0.00052252
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.367528 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/service.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/package.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/package.rb]
+      file: 
+      line: 
+      evaluation_time: 0.016372775
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.368436 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/package.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/puppet.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/puppet.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000620108
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.385278 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/puppet.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_tags_validator.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/validator/puppet_tags_validator.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000572969
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.386209 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/validator/puppet_tags_validator.rb
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile29]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile29]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 146
+      evaluation_time: 0.000289929
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.387051 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile29
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile100]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile100]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 501
+      evaluation_time: 0.000312369
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.387733 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile100
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile61]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile61]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 306
+      evaluation_time: 0.000337945
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.388346 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile61
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile37]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile37]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 186
+      evaluation_time: 0.00027806
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.389072 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile37
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/data/service_data.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/data/service_data.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000562789
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.389786 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/data/service_data.ddl
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile79]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile79]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 396
+      evaluation_time: 0.000276386
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.390626 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile79
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile51]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile51]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 256
+      evaluation_time: 0.000267064
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.391280 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile51
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile55]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile55]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 276
+      evaluation_time: 0.000265211
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.391852 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile55
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile13]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile13]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 66
+      evaluation_time: 0.00028445
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.392585 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile13
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/data/resource_data.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/data/resource_data.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000578499
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.393268 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/data/resource_data.ddl
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile5]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile5]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 26
+      evaluation_time: 0.000266217
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.394164 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile5
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile45]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile45]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 226
+      evaluation_time: 0.000386604
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.394724 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile45
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/data/puppet_data.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/data/puppet_data.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000538396
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.395535 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/data/puppet_data.rb
+      skipped: false
+      failed: false
+    Schedule[weekly]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[weekly]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - weekly
+      time: 2013-06-13 11:26:07.402075 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: weekly
+      skipped: true
+      failed: false
+    File[/tmp/dummyfile58]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile58]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 291
+      evaluation_time: 0.000427233
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.402592 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile58
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util]
+      file: 
+      line: 
+      evaluation_time: 0.000478666
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.403542 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/package]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/package]
+      file: 
+      line: 
+      evaluation_time: 0.000436468
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.404663 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/package
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr.rb]
+      file: 
+      line: 
+      evaluation_time: 0.00066631
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.405607 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr]
+      file: 
+      line: 
+      evaluation_time: 0.000530413
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.406640 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2]
+      file: 
+      line: 
+      evaluation_time: 0.000550239
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.407520 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2/unix.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2/unix.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000672267
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.408548 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2/unix.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2/windows.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2/windows.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000624786
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.409582 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2/windows.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/actionpolicy.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/actionpolicy.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000593692
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.410546 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/actionpolicy.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/package/packagehelpers.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/package/packagehelpers.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000590912
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.411500 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/package/packagehelpers.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3]
+      file: 
+      line: 
+      evaluation_time: 0.000546166
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.412447 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3/unix.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3/unix.rb]
+      file: 
+      line: 
+      evaluation_time: 0.00058212
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.413440 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3/unix.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3/manager.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3/manager.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000600041
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.414421 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3/manager.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2/manager.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2/manager.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000620785
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.415388 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v2/manager.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppetrunner.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppetrunner.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000590167
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.416344 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppetrunner.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3/windows.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3/windows.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000544279
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.417336 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/v3/windows.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/package/base.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/package/base.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000538119
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.418322 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/package/base.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/common.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/common.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000583278
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.419307 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/puppet_agent_mgr/common.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/package/puppetpackage.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/package/puppetpackage.rb]
+      file: 
+      line: 
+      evaluation_time: 0.00063391
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.420297 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/package/puppetpackage.rb
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile30]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile30]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 151
+      evaluation_time: 0.000360136
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.421155 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile30
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile11]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile11]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 56
+      evaluation_time: 0.00027692
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.421893 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile11
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile21]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile21]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 106
+      evaluation_time: 0.000300027
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.422510 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile21
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile96]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile96]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 481
+      evaluation_time: 0.000309261
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.423110 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile96
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/aggregate]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/aggregate]
+      file: 
+      line: 
+      evaluation_time: 0.000510136
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.423857 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/aggregate
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/aggregate/boolean_summary.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/aggregate/boolean_summary.ddl]
+      file: 
+      line: 
+      evaluation_time: 0.000549562
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.424826 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/aggregate/boolean_summary.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/aggregate/boolean_summary.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/aggregate/boolean_summary.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000510125
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.425786 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/aggregate/boolean_summary.rb
+      skipped: false
+      failed: false
+    File[/etc/puppetlabs/mcollective/server.cfg]: !ruby/object:Puppet::Resource::Status
+      resource: File[/etc/puppetlabs/mcollective/server.cfg]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server.pp
+      line: 69
+      evaluation_time: 0.000330744
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server"
+        - pe_mcollective
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.426635 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /etc/puppetlabs/mcollective/server.cfg
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile63]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile63]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 316
+      evaluation_time: 0.000309012
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.427367 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile63
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile86]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile86]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 431
+      evaluation_time: 0.000319497
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.427995 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile86
+      skipped: false
+      failed: false
+    Schedule[puppet]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[puppet]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - puppet
+      time: 2013-06-13 11:26:07.428438 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: puppet
+      skipped: true
+      failed: false
+    File[/tmp/dummyfile81]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile81]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 406
+      evaluation_time: 0.000435829
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.434306 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile81
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/service]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/service]
+      file: 
+      line: 
+      evaluation_time: 0.000440955
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.435168 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/service
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/service/base.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/service/base.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000556672
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.436069 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/service/base.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/service/puppetservice.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/service/puppetservice.rb]
+      file: 
+      line: 
+      evaluation_time: 0.000528722
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.437002 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/service/puppetservice.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetd.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetd.ddl]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 40
+      evaluation_time: 0.000363204
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.438895 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/puppetd.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetd.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetd.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 38
+      evaluation_time: 0.000342948
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.439786 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/puppetd.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/application/puppetd.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/application/puppetd.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 42
+      evaluation_time: 0.000352917
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.440602 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/application/puppetd.rb
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile90]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile90]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 451
+      evaluation_time: 0.000360005
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.444130 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile90
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile74]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile74]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 371
+      evaluation_time: 0.000341168
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.444866 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile74
+      skipped: false
+      failed: false
+    File[/etc/puppetlabs/mcollective/ssl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/etc/puppetlabs/mcollective/ssl]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 31
+      evaluation_time: 0.000415522
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.445529 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /etc/puppetlabs/mcollective/ssl
+      skipped: false
+      failed: false
+    File[mcollective-private.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[mcollective-private.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 51
+      evaluation_time: 0.000488787
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - mcollective-private.pem
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.446409 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: mcollective-private.pem
+      skipped: false
+      failed: false
+    File[mcollective-cacert.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[mcollective-cacert.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 63
+      evaluation_time: 0.000457771
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - mcollective-cacert.pem
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.447237 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: mcollective-cacert.pem
+      skipped: false
+      failed: false
+    File[mcollective-public.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[mcollective-public.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 44
+      evaluation_time: 0.000404695
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - mcollective-public.pem
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.448104 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: mcollective-public.pem
+      skipped: false
+      failed: false
+    File[mcollective-cert.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[mcollective-cert.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 57
+      evaluation_time: 0.000451184
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - mcollective-cert.pem
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.448910 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: mcollective-cert.pem
+      skipped: false
+      failed: false
+    File[/etc/puppetlabs/mcollective/ssl/clients]: !ruby/object:Puppet::Resource::Status
+      resource: File[/etc/puppetlabs/mcollective/ssl/clients]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 36
+      evaluation_time: 0.000336254
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.449699 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /etc/puppetlabs/mcollective/ssl/clients
+      skipped: false
+      failed: false
+    File[peadmin-public.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[peadmin-public.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 71
+      evaluation_time: 0.000433155
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - peadmin-public.pem
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.450519 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: peadmin-public.pem
+      skipped: false
+      failed: false
+    File[/etc/puppetlabs/mcollective/ssl/clients/mcollective-public.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[/etc/puppetlabs/mcollective/ssl/clients/mcollective-public.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server.pp
+      line: 43
+      evaluation_time: 0.000416503
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server"
+        - pe_mcollective
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.451263 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /etc/puppetlabs/mcollective/ssl/clients/mcollective-public.pem
+      skipped: false
+      failed: false
+    File[puppet-dashboard-public.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[puppet-dashboard-public.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 77
+      evaluation_time: 0.00041103
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - puppet-dashboard-public.pem
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.451978 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: puppet-dashboard-public.pem
+      skipped: false
+      failed: false
+    Service[pe-mcollective]: !ruby/object:Puppet::Resource::Status
+      resource: Service[pe-mcollective]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server.pp
+      line: 75
+      evaluation_time: 0.106479897
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - service
+        - pe-mcollective
+        - class
+        - "pe_mcollective::server"
+        - pe_mcollective
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 11:26:07.455964 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Service
+      title: pe-mcollective
+      skipped: false
+      failed: false
+    File[/tmp/dummyfile75]: !ruby/object:Puppet::Resource::Status
+      resource: File[/tmp/dummyfile75]
+      file: /etc/puppetlabs/puppet/modules/loadtest/manifests/bigcatalog.pp
+      line: 376
+      evaluation_time: 0.000506092
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "loadtest::bigcatalog"
+        - loadtest
+        - bigcatalog
+        - node
+        - default
+      time: 2013-06-13 11:26:07.566820 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /tmp/dummyfile75
+      skipped: false
+      failed: false
+  host: pe-centos5.localdomain
+  time: 2013-06-13 11:26:00.791675 -07:00
+  kind: apply
+  report_format: 3
+  puppet_version: "3.2.1 (Puppet Enterprise 3.0.0-preview3-28-g63e3efe)"
+  configuration_version: 1371147834
+  environment: production
+  status: unchanged

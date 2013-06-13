@@ -1,0 +1,1303 @@
+--- !ruby/object:Puppet::Transaction::Report
+  kind: apply
+  time: 2013-06-13 07:13:49.932323 -07:00
+  status: unchanged
+  configuration_version: 1371159318
+  environment: production
+  logs: 
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:50.038060 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Retrieving plugin"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:51.832378 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/custom_auth_conf.rb"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:51.833322 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/iptables_persistent_version.rb"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:51.834091 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/facter_dot_d.rb"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:51.835368 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/pe_version.rb"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:51.836108 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/iptables_version.rb"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:51.836632 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/root_home.rb"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:51.837136 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/ip6tables_version.rb"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:51.837679 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/concat_basedir.rb"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:51.838217 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Loading facts in /var/opt/lib/pe-puppet/lib/facter/puppet_vardir.rb"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:54.151562 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Caching catalog for pe-centos5.localdomain"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:54.393794 -07:00
+      level: !ruby/sym info
+      tags: 
+        - info
+      message: "Applying configuration version '1371159318'"
+      source: Puppet
+    - !ruby/object:Puppet::Util::Log
+      time: 2013-06-13 07:13:56.680529 -07:00
+      level: !ruby/sym notice
+      tags: 
+        - notice
+      message: "Finished catalog run in 2.40 seconds"
+      source: Puppet
+  report_format: 3
+  resource_statuses: 
+    File[mcollective-public.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[mcollective-public.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 35
+      evaluation_time: 0.000397
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - mcollective-public.pem
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.335438 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: mcollective-public.pem
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetd.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetd.ddl]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 73
+      evaluation_time: 0.118643
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:55.231459 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/puppetd.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/application/package.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/application/package.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 57
+      evaluation_time: 0.117097
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:54.715102 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/application/package.rb
+      skipped: false
+      failed: false
+    Cron[pe-mcollective-metadata]: !ruby/object:Puppet::Resource::Status
+      resource: Cron[pe-mcollective-metadata]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server.pp
+      line: 64
+      evaluation_time: 0.000551
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - cron
+        - pe-mcollective-metadata
+        - class
+        - "pe_mcollective::server"
+        - pe_mcollective
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:54.463347 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Cron
+      title: pe-mcollective-metadata
+      skipped: false
+      failed: false
+    Schedule[daily]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[daily]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - daily
+      time: 2013-06-13 07:13:54.446859 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: daily
+      skipped: true
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util/actionpolicy.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util/actionpolicy.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 99
+      evaluation_time: 0.116736
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.207569 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util/actionpolicy.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/package.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/package.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 54
+      evaluation_time: 0.119968
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.082164 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/package.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/service.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/service.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 65
+      evaluation_time: 0.118177
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:55.963481 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/service.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/service.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/service.ddl]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 62
+      evaluation_time: 0.131961
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:55.712185 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/service.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/registration/meta.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/registration/meta.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 87
+      evaluation_time: 0.116293
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:54.987267 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/registration/meta.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/security]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/security]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 27
+      evaluation_time: 0.00044
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:54.465443 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/security
+      skipped: false
+      failed: false
+    Schedule[hourly]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[hourly]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - hourly
+      time: 2013-06-13 07:13:54.447366 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: hourly
+      skipped: true
+      failed: false
+    File[puppet-dashboard-public.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[puppet-dashboard-public.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 62
+      evaluation_time: 0.000398
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - puppet-dashboard-public.pem
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.339252 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: puppet-dashboard-public.pem
+      skipped: false
+      failed: false
+    Schedule[puppet]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[puppet]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - puppet
+      time: 2013-06-13 07:13:56.326894 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: puppet
+      skipped: true
+      failed: false
+    "Anchor[pe_accounts::begin]": !ruby/object:Puppet::Resource::Status
+      resource: "Anchor[pe_accounts::begin]"
+      file: /opt/puppet/share/puppet/modules/pe_accounts/manifests/init.pp
+      line: 118
+      evaluation_time: 0.000113
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - anchor
+        - "pe_accounts::begin"
+        - pe_accounts
+        - begin
+        - class
+        - node
+        - default
+      time: 2013-06-13 07:13:54.456421 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Anchor
+      title: "pe_accounts::begin"
+      skipped: false
+      failed: false
+    Cron[report_baseline]: !ruby/object:Puppet::Resource::Status
+      resource: Cron[report_baseline]
+      file: /opt/puppet/share/puppet/modules/pe_compliance/manifests/agent.pp
+      line: 6
+      evaluation_time: 0.000417
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - cron
+        - report_baseline
+        - class
+        - "pe_compliance::agent"
+        - pe_compliance
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.330787 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Cron
+      title: report_baseline
+      skipped: false
+      failed: false
+    "Anchor[pe_compliance::begin]": !ruby/object:Puppet::Resource::Status
+      resource: "Anchor[pe_compliance::begin]"
+      file: /opt/puppet/share/puppet/modules/pe_compliance/manifests/init.pp
+      line: 7
+      evaluation_time: 0.000151
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - anchor
+        - "pe_compliance::begin"
+        - pe_compliance
+        - begin
+        - class
+        - node
+        - default
+      time: 2013-06-13 07:13:56.329026 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Anchor
+      title: "pe_compliance::begin"
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetd.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetd.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 76
+      evaluation_time: 0.125714
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:55.585653 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/puppetd.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/registration]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/registration]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 84
+      evaluation_time: 0.000524
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:54.986050 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/registration
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/security/aespe_security.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/security/aespe_security.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 31
+      evaluation_time: 0.122696
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:54.466309 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/security/aespe_security.rb
+      skipped: false
+      failed: false
+    File[peadmin-public.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[peadmin-public.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 56
+      evaluation_time: 0.000446
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - peadmin-public.pem
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.337815 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: peadmin-public.pem
+      skipped: false
+      failed: false
+    "Anchor[pe_accounts::end]": !ruby/object:Puppet::Resource::Status
+      resource: "Anchor[pe_accounts::end]"
+      file: /opt/puppet/share/puppet/modules/pe_accounts/manifests/init.pp
+      line: 119
+      evaluation_time: 0.000225
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - anchor
+        - "pe_accounts::end"
+        - pe_accounts
+        - end
+        - class
+        - node
+        - default
+      time: 2013-06-13 07:13:55.226265 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Anchor
+      title: "pe_accounts::end"
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/application/service.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/application/service.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 68
+      evaluation_time: 0.152174
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:54.833116 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/application/service.rb
+      skipped: false
+      failed: false
+    Schedule[monthly]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[monthly]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - monthly
+      time: 2013-06-13 07:13:54.447138 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: monthly
+      skipped: true
+      failed: false
+    Schedule[never]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[never]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - never
+      time: 2013-06-13 07:13:55.106020 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: never
+      skipped: true
+      failed: false
+    Service[pe-mcollective]: !ruby/object:Puppet::Resource::Status
+      resource: Service[pe-mcollective]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server.pp
+      line: 50
+      evaluation_time: 0.045478
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - service
+        - pe-mcollective
+        - class
+        - "pe_mcollective::server"
+        - pe_mcollective
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.341462 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Service
+      title: pe-mcollective
+      skipped: false
+      failed: false
+    File[mcollective-cert.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[mcollective-cert.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 48
+      evaluation_time: 0.000463
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - mcollective-cert.pem
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.336238 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: mcollective-cert.pem
+      skipped: false
+      failed: false
+    "Anchor[pe_compliance::end]": !ruby/object:Puppet::Resource::Status
+      resource: "Anchor[pe_compliance::end]"
+      file: /opt/puppet/share/puppet/modules/pe_compliance/manifests/init.pp
+      line: 22
+      evaluation_time: 0.000183
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - anchor
+        - "pe_compliance::end"
+        - pe_compliance
+        - end
+        - class
+        - node
+        - default
+      time: 2013-06-13 07:13:56.332501 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Anchor
+      title: "pe_compliance::end"
+      skipped: false
+      failed: false
+    File[/etc/puppetlabs/mcollective/server.cfg]: !ruby/object:Puppet::Resource::Status
+      resource: File[/etc/puppetlabs/mcollective/server.cfg]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server.pp
+      line: 44
+      evaluation_time: 0.000569
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server"
+        - pe_mcollective
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.326156 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /etc/puppetlabs/mcollective/server.cfg
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 38
+      evaluation_time: 0.000442
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:55.230385 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent
+      skipped: false
+      failed: false
+    File[/etc/puppetlabs/mcollective/ssl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/etc/puppetlabs/mcollective/ssl]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 22
+      evaluation_time: 0.000373
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.333795 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /etc/puppetlabs/mcollective/ssl
+      skipped: false
+      failed: false
+    File[/etc/puppetlabs/mcollective/ssl/clients/mcollective-public.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[/etc/puppetlabs/mcollective/ssl/clients/mcollective-public.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server.pp
+      line: 26
+      evaluation_time: 0.000365
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server"
+        - pe_mcollective
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.338537 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /etc/puppetlabs/mcollective/ssl/clients/mcollective-public.pem
+      skipped: false
+      failed: false
+    File[mcollective-private.pem]: !ruby/object:Puppet::Resource::Status
+      resource: File[mcollective-private.pem]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 42
+      evaluation_time: 0.000435
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - mcollective-private.pem
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.334580 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: mcollective-private.pem
+      skipped: false
+      failed: false
+    Schedule[weekly]: !ruby/object:Puppet::Resource::Status
+      resource: Schedule[weekly]
+      file: 
+      line: 
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - schedule
+        - weekly
+      time: 2013-06-13 07:13:56.205246 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Schedule
+      title: weekly
+      skipped: true
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetral.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetral.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 46
+      evaluation_time: 0.114507
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:55.470334 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/puppetral.rb
+      skipped: false
+      failed: false
+    File[/etc/puppetlabs/mcollective/ssl/clients]: !ruby/object:Puppet::Resource::Status
+      resource: File[/etc/puppetlabs/mcollective/ssl/clients]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/shared_key_files.pp
+      line: 27
+      evaluation_time: 0.00029
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - pe_mco_server
+        - class
+        - "pe_mcollective::shared_key_files"
+        - pe_mcollective
+        - shared_key_files
+        - "pe_mcollective::server"
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.337087 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /etc/puppetlabs/mcollective/ssl/clients
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/util]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/util]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 93
+      evaluation_time: 0.000725
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:56.206186 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/util
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetral.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/puppetral.ddl]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 43
+      evaluation_time: 0.117655
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:55.844848 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/puppetral.ddl
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/agent/package.ddl]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/agent/package.ddl]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 51
+      evaluation_time: 0.118819
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:55.350712 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/agent/package.ddl
+      skipped: false
+      failed: false
+    Filebucket[puppet]: !ruby/object:Puppet::Resource::Status
+      resource: Filebucket[puppet]
+      file: 
+      line: 
+      evaluation_time: 0.0002
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - filebucket
+        - puppet
+      time: 2013-06-13 07:13:55.228140 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Filebucket
+      title: puppet
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/application/puppetd.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/application/puppetd.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 79
+      evaluation_time: 0.117008
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:55.107041 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/application/puppetd.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/libexec/mcollective/mcollective/security/sshkey.rb]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/libexec/mcollective/mcollective/security/sshkey.rb]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server/plugins.pp
+      line: 35
+      evaluation_time: 0.124604
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server::plugins"
+        - pe_mcollective
+        - server
+        - plugins
+        - "pe_mcollective::server"
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:54.589699 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/libexec/mcollective/mcollective/security/sshkey.rb
+      skipped: false
+      failed: false
+    File[/opt/puppet/sbin/refresh-mcollective-metadata]: !ruby/object:Puppet::Resource::Status
+      resource: File[/opt/puppet/sbin/refresh-mcollective-metadata]
+      file: /opt/puppet/share/puppet/modules/pe_mcollective/manifests/server.pp
+      line: 59
+      evaluation_time: 0.000494
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - file
+        - class
+        - "pe_mcollective::server"
+        - pe_mcollective
+        - server
+        - "pe_mcollective::role::agent"
+        - role
+        - agent
+        - node
+        - default
+      time: 2013-06-13 07:13:54.457535 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: File
+      title: /opt/puppet/sbin/refresh-mcollective-metadata
+      skipped: false
+      failed: false
+    Filebucket[main]: !ruby/object:Puppet::Resource::Status
+      resource: Filebucket[main]
+      file: /etc/puppetlabs/puppet/manifests/site.pp
+      line: 24
+      evaluation_time: 0.000133
+      change_count: 0
+      out_of_sync_count: 0
+      tags: 
+        - filebucket
+        - main
+        - class
+      time: 2013-06-13 07:13:55.104021 -07:00
+      events: []
+      out_of_sync: false
+      changed: false
+      resource_type: Filebucket
+      title: main
+      skipped: false
+      failed: false
+  host: pe-centos5.localdomain
+  metrics: 
+    events: !ruby/object:Puppet::Util::Metric
+      values: 
+        - - success
+          - Success
+          - 0
+        - - failure
+          - Failure
+          - 0
+        - - total
+          - Total
+          - 0
+      name: events
+      label: Events
+    changes: !ruby/object:Puppet::Util::Metric
+      values: 
+        - - total
+          - Total
+          - 0
+      name: changes
+      label: Changes
+    time: !ruby/object:Puppet::Util::Metric
+      values: 
+        - - config_retrieval
+          - "Config retrieval"
+          - 2.0510139465332
+        - - file
+          - File
+          - 1.838413
+        - - service
+          - Service
+          - 0.045478
+        - - anchor
+          - Anchor
+          - 0.000672
+        - - filebucket
+          - Filebucket
+          - 0.000333
+        - - cron
+          - Cron
+          - 0.000968
+        - - total
+          - Total
+          - 3.9368779465332
+      name: time
+      label: Time
+    resources: !ruby/object:Puppet::Util::Metric
+      values: 
+        - - out_of_sync
+          - "Out of sync"
+          - 0
+        - - failed_to_restart
+          - "Failed to restart"
+          - 0
+        - - failed
+          - Failed
+          - 0
+        - - changed
+          - Changed
+          - 0
+        - - skipped
+          - Skipped
+          - 6
+        - - scheduled
+          - Scheduled
+          - 0
+        - - restarted
+          - Restarted
+          - 0
+        - - total
+          - Total
+          - 44
+      name: resources
+      label: Resources
+  puppet_version: "2.7.21 (Puppet Enterprise 2.8.1)"

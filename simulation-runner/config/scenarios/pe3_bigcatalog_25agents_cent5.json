@@ -1,0 +1,11 @@
+{
+    "run_description": "PE3BigCatalogCent5, 25 instances, 5 repetitions",
+    "nodes": [
+        {
+            "node_config": "pe3_bigcatalog_cent5.json",
+            "num_instances": 25,
+            "ramp_up_duration_seconds": 45,
+            "num_repetitions": 5
+        }
+    ]
+}

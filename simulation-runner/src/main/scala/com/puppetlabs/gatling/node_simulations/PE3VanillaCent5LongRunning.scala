@@ -5,43 +5,19 @@ import com.excilys.ebi.gatling.http.Predef._
 import akka.util.duration._
 import com.puppetlabs.gatling.runner.SimulationWithScenario
 import com.puppetlabs.gatling.config.{Node, PuppetGatlingConfig}
+import bootstrap._
 
 class PE3VanillaCent5LongRunning extends SimulationWithScenario {
 
   // TODO: refactor this "longrunning" stuff into a base class, it's
   // duplicated in all of the LongRunning sims right now.
 
-  // This is kind of a dirty hack.  Here's the deal.
-  // In order to simulate real world agent runs, we need to sleep 30 minutes
-  // in between each series of agent requests.  That can be achieved
-  // easily by adding a "pause" to the end of the run.
-  // However, if we do that, then after the final series of requests, we'll sleep
-  // for 30 minutes before the simulation can end, even though that is entirely
-  // unnecessary.  Since most of our jenkins jobs are going to run 2-6 sims,
-  // that would mean we're sleeping for 1-3 extra hours and uselessly tying up the
-  // hardware.  Thus, we need to make the sleep conditional based on whether
-  // or not we're on the final repetition.
-
-  // Mutable state, yuck... but we have to count the number of reps we've completed.
-  var repetitionCount = 0
   // Here we dig into the configuration object and find the number of repetitions
   // that were configured for this particular simulation class.
   val totalNumReps = PuppetGatlingConfig.configuration.nodes.find((n:Node) => n.simulationClass == this.getClass).get.numRepetitions
 
-  // We'll call this function at the end of each repetition to see if we need
-  // to sleep or not.
-  def sleep_unless_final_repetition = {
-    repetitionCount += 1
-    println("Completed " + repetitionCount + " repetitions.")
-    if (repetitionCount < totalNumReps) {
-      println("This is not the last repetition; sleeping.")
-      Thread.sleep(30.minutes.toMillis)
-    } else {
-      println("That was the last repetition.  Not sleeping.")
-    }
-  }
+  val REPETITION_COUNTER: String = "repetitionCounter"
 
-  // end of repetition counting hackery; beginning of normal simulation code.
 
 	val httpConf = httpConfig
 			.baseURL("https://pe-centos6.localdomain:8140")
@@ -96,13 +72,37 @@ class PE3VanillaCent5LongRunning extends SimulationWithScenario {
 					.headers(headers_5)
 						.fileBody("PE3VanillaCent5_request_5.txt")
 			)
-    // here we've replaced our "pause" with a Gatling "session function",
-    // which basically just calls our hacky method above to see if
+
+    // This is kind of a dirty hack.  Here's the deal.
+    // In order to simulate real world agent runs, we need to sleep 30 minutes
+    // in between each series of agent requests.  That can be achieved
+    // easily by adding a "pause" to the end of the run.
+    // However, if we do that, then after the final series of requests, we'll sleep
+    // for 30 minutes before the simulation can end, even though that is entirely
+    // unnecessary.  Since most of our jenkins jobs are going to run 2-6 sims,
+    // that would mean we're sleeping for 1-3 extra hours and uselessly tying up the
+    // hardware.  Thus, we need to make the sleep conditional based on whether
+    // or not we're on the final repetition.
+
+    // Here we've replaced our "pause" with a Gatling "session function",
+    // which basically just sets a session variable to check to see if
     // we are on the final repetition, and if not, sleep for 30 mins.
     .exec((session: Session) => {
-      sleep_unless_final_repetition
-      session
-    })
+    val repetitionCount = session.getAttributeAsOption[Int](REPETITION_COUNTER).getOrElse(0) + 1
+        println("Agent " + session.userId +
+            " completed " + repetitionCount + " repetitions.")
+        session.setAttribute(REPETITION_COUNTER, repetitionCount)
+    }).doIf((session) => session.getTypedAttribute[Int](REPETITION_COUNTER) < totalNumReps) {
+        exec((session) => {
+          println("This is not the last repetition; sleeping.")
+          session
+        }).pause(30 minutes)
+    }.doIf((session) => session.getTypedAttribute[Int](REPETITION_COUNTER) >= totalNumReps) {
+      exec((session) => {
+        println("That was the last repetition.  Not sleeping.")
+        session
+      })
+    }
 
 	setUp(scn.users(1).protocolConfig(httpConf))
 }

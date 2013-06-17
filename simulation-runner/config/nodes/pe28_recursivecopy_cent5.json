@@ -1,0 +1,7 @@
+{
+    "certname": "pe-centos5.localdomain",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PE28RecursiveCopyCent5",
+    "modules": [ { "name": "nwolfe/loadtest",
+                   "version": "0.0.4" } ],
+    "classes": [ "loadtest::recursivecopy" ]
+}

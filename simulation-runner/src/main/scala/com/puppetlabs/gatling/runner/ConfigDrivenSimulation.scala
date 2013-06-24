@@ -28,7 +28,9 @@ class ConfigDrivenSimulation extends Simulation {
 
     scenario(simulationClass.getSimpleName)
       .repeat(numRepetitions) {
-        exec(sim.scn)
+        exitBlockOnFail {
+          exec(sim.scn)
+        }
       }.users(numInstances)
       .ramp(rampUpDuration)
       .protocolConfig(httpConf)

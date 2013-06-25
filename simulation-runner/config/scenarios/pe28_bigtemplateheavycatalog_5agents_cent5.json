@@ -1,0 +1,11 @@
+{
+    "run_description": "PE28BigTemplateHeavyCatalogCent5, 5 instances, 5 repetitions",
+    "nodes": [
+        {
+            "node_config": "pe28_bigtemplateheavycatalog_cent5.json",
+            "num_instances": 5,
+            "ramp_up_duration_seconds": 45,
+            "num_repetitions": 5
+        }
+    ]
+}

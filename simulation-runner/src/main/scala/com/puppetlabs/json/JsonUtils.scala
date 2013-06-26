@@ -10,6 +10,7 @@ class ClassCast[T] { def unapply(a:Any):Option[T] = Some(a.asInstanceOf[T])}
 object JsonMap extends ClassCast[Map[String, Any]]
 object JsonList extends ClassCast[List[Any]]
 object JsonString extends ClassCast[String]
+object JsonBool extends ClassCast[Boolean]
 
 // Scala's JSON parser parses all numeric values as Doubles, so
 // we need to explicitly convert if we actually want an Int.

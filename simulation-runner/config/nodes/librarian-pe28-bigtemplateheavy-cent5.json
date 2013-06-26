@@ -1,0 +1,12 @@
+{
+    "certname": "pe-centos5.localdomain",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PE28BigTemplateHeavyCatalogCent5",
+    "modules": [ { "name": "nwolfe/loadtest",
+                   "version": "0.0.3",
+                   "git": "git://github.com/shakedown/puppet-loadtest.git" },
+                 { "name": "puppetlabs/apache",
+                   "version": "0.6.0" },
+                 { "name": "puppetlabs/firewall",
+                   "version" : "0.3.1"} ],
+    "classes": [ "loadtest::bigtemplateheavycatalog" ]
+}

@@ -1,14 +1,14 @@
 {
-    "run_description": "PuppetDB + VanillaCent5, 1 instances, 1 repetitions",
+    "run_description": "PE28VanillaCent5 + PE28BigCatalog, 1 instances, 1 repetitions",
     "nodes": [
         {
-            "node_config": "puppetdb.json",
+            "node_config": "pe28_vanilla_cent5.json",
             "num_instances": 1,
             "ramp_up_duration_seconds": 20,
             "num_repetitions": 1
         },
         {
-            "node_config": "vanilla_cent5.json",
+            "node_config": "pe28_bigcatalog_cent5.json",
             "num_instances": 1,
             "ramp_up_duration_seconds": 20,
             "num_repetitions": 1

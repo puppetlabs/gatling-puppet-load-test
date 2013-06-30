@@ -1,0 +1,6 @@
+{
+    "certname": "pe-centos6.localdomain",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.FOSS322VanillaCent6",
+    "modules": [],
+    "classes": []
+}

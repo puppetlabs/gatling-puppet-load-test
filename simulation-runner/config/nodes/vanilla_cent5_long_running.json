@@ -1,6 +1,0 @@
-{
-    "certname": "pe-centos5",
-    "simulation_class": "com.puppetlabs.gatling.node_simulations.VanillaCent5LongRunning",
-    "modules": [],
-    "classes": []
-}

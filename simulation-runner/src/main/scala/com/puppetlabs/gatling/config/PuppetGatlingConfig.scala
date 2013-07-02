@@ -1,7 +1,7 @@
 package com.puppetlabs.gatling.config
 
 import scala.util.parsing.json.JSON
-import com.puppetlabs.json.{JsonInt, JsonList, JsonString, JsonMap}
+import com.puppetlabs.json._
 import com.puppetlabs.gatling.runner.SimulationWithScenario
 import java.io.File
 
@@ -14,6 +14,7 @@ class PuppetGatlingConfig(configFilePath: String) {
   val simulationId = PuppetGatlingConfig.getEnvVar("PUPPET_GATLING_SIMULATION_ID")
   val baseUrl = PuppetGatlingConfig.getEnvVar("PUPPET_GATLING_MASTER_BASE_URL")
   val JsonString(runDescription) = config("run_description")
+  val JsonBool(isLongRunning) = config.getOrElse("is_long_running", false)
 
   val nodes = jsonNodes.map((n) => {
     val JsonMap(node) = n

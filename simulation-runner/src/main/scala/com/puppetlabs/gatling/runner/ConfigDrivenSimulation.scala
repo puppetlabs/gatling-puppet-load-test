@@ -82,7 +82,9 @@ class ConfigDrivenSimulation extends Simulation {
 
     scenario(simulationClass.getSimpleName)
       .repeat(numRepetitions) {
-        chainWithLongRunning
+        group((session) => simulationClass.getSimpleName) {
+          chainWithLongRunning
+        }
       }.users(numInstances)
       .ramp(rampUpDuration)
       .protocolConfig(httpConf)

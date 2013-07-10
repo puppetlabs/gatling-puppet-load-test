@@ -162,9 +162,21 @@ allow *
 end
 
 def install_modules(host, modules)
-  modules.each do |m|
-    on master, "puppet module install #{m.name} -v #{m.version} --force"
-  end
+  File.open("Puppetfile", "w") { |f|
+    f.puts 'forge "http://forge.puppetlabs.com"'
+
+    modules.each do |m|
+      f.puts "mod \"#{m.name}\", \"#{m.version}\""
+    end
+  }
+
+  # NOTE:
+  #   We might want to add a proper dependency on this gem
+  #   (Bundler?) instead of installing directly in this method.
+  system "gem install librarian-puppet"
+  system "librarian-puppet install --clean --verbose"
+
+  File.delete("Puppetfile")
 end
 
 def register_classes(host, classes)

@@ -173,7 +173,7 @@ def install_modules(host, modules)
   # NOTE:
   #   We might want to add a proper dependency on this gem
   #   (Bundler?) instead of installing directly in this method.
-  system "gem install librarian-puppet"
+  system "sudo gem install librarian-puppet"
   system "librarian-puppet install --clean --verbose"
 
   File.delete("Puppetfile")

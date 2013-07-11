@@ -14,7 +14,7 @@ def save_data(facter_data, data_hash)
     FileUtils.mkdir 'puppet-gatling'
   end
 
-  File.write('puppet-gatling/facter-data.txt', facter_data)
+  File.open('puppet-gatling/facter-data.txt', 'w') { |file| file.write(facter_data) }
   CSV.open('puppet-gatling/important_data.csv', 'w') { |csv| data_hash.to_a.each { |elem| csv << elem} }
   puts "Files now saved within puppet-gatling/"
 end

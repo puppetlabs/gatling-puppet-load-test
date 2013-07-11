@@ -182,6 +182,22 @@ def register_nodes(host, nodes)
   end
 end
 
+def install_git_master(master)
+  pkg_cmd = on master, "which yum || which apt-get || which zypper"
+  unless pkg_cmd
+    fail("Unable to determine Master's package manager")
+  end
+  
+  if pkg_cmd.include?("zypper")
+    pkg_cmd+=" install -y git"
+  elsif pkg_cmd.include?("yum")
+    pkg_cmd+=" -y install git"
+  elsif pkg_cmd.include?("apt-get")
+    pkg_cmd+=" -y install git-core"
+  end
+  on master, "#{pkg_cmd}"
+end
+
 ############################################################################################
 # END HELPER METHODS
 ############################################################################################
@@ -198,6 +214,7 @@ end
 test_name = "Setup for Gatling Performance Run"
 config = Puppet::Gatling::LoadTest::ScenarioConfig.parse(File.expand_path(File.join("../simulation-runner", ENV['PUPPET_GATLING_SIMULATION_CONFIG'])))
 
+install_git_master(master)
 create_custom_auth_conf(master)
 install_modules(master, config.modules)
 register_classes(master, config.classes)

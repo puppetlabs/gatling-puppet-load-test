@@ -174,7 +174,7 @@ def install_modules(host, modules)
   #   We might want to add a proper dependency on this gem
   #   (Bundler?) instead of installing directly in this method.
   on master, "/opt/puppet/bin/gem install librarian-puppet"
-  on master, "librarian-puppet install --clean --verbose"
+  on master, "/opt/puppet/bin/librarian-puppet install --clean --verbose"
 
   File.delete("Puppetfile")
 end

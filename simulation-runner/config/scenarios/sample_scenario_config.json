@@ -5,13 +5,13 @@
             "node_config": "pe28_vanilla_cent5.json",
             "num_instances": 1,
             "ramp_up_duration_seconds": 20,
-            "num_repetitions": 1
+            "num_repetitions": 3
         },
         {
             "node_config": "pe28_bigcatalog_cent5.json",
             "num_instances": 1,
             "ramp_up_duration_seconds": 20,
-            "num_repetitions": 1
+            "num_repetitions": 3
         }
     ]
 }

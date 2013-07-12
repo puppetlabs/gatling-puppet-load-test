@@ -12,7 +12,7 @@ module Gatling
 module LoadTest
   class ScenarioConfig
 
-    Module = Struct.new(:name, :version)
+    Module = Struct.new(:name, :version, :git)
     Node = Struct.new(:name, :classes)
 
     def initialize(modules, classes, nodes)
@@ -34,7 +34,7 @@ module LoadTest
                                 "..", "nodes", node["node_config"])
         node_config = JSON.parse(File.read(node_config_path))
         node_config["modules"].each do |m|
-          modules.add(Module.new(m["name"], m["version"]))
+          modules.add(Module.new(m["name"], m["version"], m["git"]))
         end
         node_config["classes"].each do |c|
           classes.add(c)
@@ -162,19 +162,29 @@ allow *
 end
 
 def install_modules(host, modules)
+  result = on host, "puppet master --configprint modulepath"
+  modulepath = result.stdout.strip.split(":")[0].gsub(/\/modules$/, "")
+
+
   File.open("Puppetfile", "w") { |f|
     f.puts 'forge "http://forge.puppetlabs.com"'
 
     modules.each do |m|
-      f.puts "mod \"#{m.name}\", \"#{m.version}\""
+      if (m.git)
+        f.puts "mod '#{m.name}', :git => '#{m.git}', :ref => '#{m.version}'"
+      else
+        f.puts "mod '#{m.name}', '#{m.version}'"
+      end
     end
   }
+
+  scp_to(host, "Puppetfile", modulepath)
 
   # NOTE:
   #   We might want to add a proper dependency on this gem
   #   (Bundler?) instead of installing directly in this method.
   on master, "/opt/puppet/bin/gem install librarian-puppet"
-  on master, "/opt/puppet/bin/librarian-puppet install --clean --verbose"
+  on master, "cd #{modulepath} && /opt/puppet/bin/librarian-puppet install --clean --verbose"
 
   File.delete("Puppetfile")
 end
@@ -195,7 +205,7 @@ def register_nodes(host, nodes)
 end
 
 def install_git_master(master)
-  pkg_cmd = on master, "which yum || which apt-get || which zypper"
+  pkg_cmd = (on master, "which yum || which apt-get || which zypper").stdout.strip
   unless pkg_cmd
     fail("Unable to determine Master's package manager")
   end

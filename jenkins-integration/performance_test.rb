@@ -1,20 +1,5 @@
 require 'json'
-require './testing_steps.rb'
-
-SUPPORTED_STEPS = {
-  "install"           => :install,
-  "simulate"          => :simulate,
-  "cobbler-provision" => :cobbler_provision
-}
-
-def perform_step(settings, step, arguments = nil)
-  if !SUPPORTED_STEPS.keys.include? step
-    raise "Unrecognized step \"#{step}\".\nSupported steps are: #{SUPPORTED_STEPS.keys}"
-  end
-
-  settings[:step_arguments] = arguments
-  Puppet::PerformanceTest::Steps.send(SUPPORTED_STEPS[step], settings)
-end
+require './tester.rb'
 
 def extract_settings(json)
   settings = {}
@@ -44,10 +29,12 @@ settings = extract_settings(json)
 steps = json["steps"]
 raise 'Job "steps" are required' unless steps
 
+tester = Puppet::PerformanceTest::Tester.new(settings)
+
 steps.each do |step|
   if step.is_a? String
-    perform_step(settings, step)
+    tester.perform(step)
   elsif step.is_a? Hash
-    perform_step(settings, step.first[0], step.first[1])
+    tester.perform(step.first[0], step.first[1])
   end
 end

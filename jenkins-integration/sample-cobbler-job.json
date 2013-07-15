@@ -1,0 +1,25 @@
+{
+  "master": {
+    "hostname": "puppet",
+    "ip": "10.16.150.50"
+  },
+  "steps": [
+    "cobbler-provision",
+    {"install": "pe28"},
+    {"simulate": {
+        "id": "PE28_vanilla_5",
+        "scenario": {
+          "run_description": "PE28VanillaCent5, 1 instance, 1 repetition",
+          "nodes": [
+            {
+              "node_config": "pe28_vanilla_cent5.json",
+              "num_instances": 1,
+              "ramp_up_duration_seconds": 1,
+              "num_repetitions": 1
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

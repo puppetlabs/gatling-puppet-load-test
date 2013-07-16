@@ -38,6 +38,9 @@ module Puppet
       def simulate(arguments)
         sim_id = arguments["id"]
         scenario = arguments["scenario"]
+        if arguments['puppet_version']
+          @puppet_version = arguments['puppet_version']
+        end
         filename = write_scenario_to_file(sim_id, scenario)
 
         run "restart_services_#{@puppet_version}.sh", @settings[:systest_config], @settings[:ssh_keyfile]

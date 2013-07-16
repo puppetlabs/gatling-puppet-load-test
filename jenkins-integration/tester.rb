@@ -9,6 +9,7 @@ module Puppet
 
       def initialize(settings)
         @settings = settings
+        @puppet_version = settings[:puppet_version]
       end
 
       def perform(step, arguments = nil)
@@ -28,8 +29,7 @@ module Puppet
         run 'cobbler_provision.sh', @settings[:master_ip]
       end
 
-      def install(arguments)
-        @puppet_version = arguments
+      def install
         run 'uninstall_pe.sh', @settings[:puppet_master]
         write_systest_config_file()
         run "install_#{@puppet_version}.sh", @settings[:systest_config], @settings[:ssh_keyfile]

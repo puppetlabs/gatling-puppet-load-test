@@ -15,6 +15,9 @@ def extract_settings(json)
     settings[:master_ip] = master_info["ip"]
     settings[:puppet_master] = master_info["ip"]
   end
+  
+  settings[:puppet_version] = json["puppet_version"]
+  raise 'Puppet version is required' unless settings[:puppet_version]
 
   # Default value taken from puppet-acceptance/options_parsing.rb
   settings[:ssh_keyfile] = json["ssh-keyfile"] || "~/.ssh/id_rsa"

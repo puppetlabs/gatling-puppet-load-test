@@ -21,6 +21,8 @@ def extract_settings(json)
 
   settings[:systest_config] = File.join(ENV['PWD'], "gatling-perf-master.cfg")
 
+  settings[:sbtpath] = json["sbtpath"] || "/home/jenkins/sbt-launch.jar"
+
   return settings
 end
 

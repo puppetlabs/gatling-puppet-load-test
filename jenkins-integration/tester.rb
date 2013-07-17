@@ -44,7 +44,7 @@ module Puppet
         filename = write_scenario_to_file(sim_id, scenario)
 
         run "restart_services_#{@puppet_version}.sh", @settings[:systest_config], @settings[:ssh_keyfile]
-        run "classify_nodes_#{@puppet_version}.sh", filename, @settings[:systest_config], @settings[:ssh_keyfile]
+        run "classify_nodes_#{@puppet_version}.sh", filename, @settings[:systest_config], @settings[:ssh_keyfile], sim_id
         run 'sbt.sh', sim_id, @settings[:puppet_master], filename, @settings[:sbtpath]
       end
 

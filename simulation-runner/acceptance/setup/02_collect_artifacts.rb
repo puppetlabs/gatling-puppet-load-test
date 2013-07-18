@@ -19,12 +19,12 @@ def save_data(facter_data, data_hash, config)
   File.open(File.join(simulation_dir, 'facter-data.txt'), 'w') { |file| file.write(facter_data) }
   CSV.open(File.join(simulation_dir, 'important_data.csv'), 'w') { |csv| data_hash.to_a.each { |elem| csv << elem} }
 
-  File.open(File.join(simulation_dir, 'gatling_sim_data.txt'), 'w') do |file|
+  File.open(File.join(simulation_dir, 'gatling_sim_data.csv'), 'w') do |file|
     config.nodes.each do |node|
       file.write("#{node.groupname},#{node.instances},#{node.repetitions}\n")
     end
   end
-  puts "Files now saved within puppet-gatling/"
+  puts "Files now saved within #{simulation_dir}"
 end
 
 # disk, num cpus, speed of cpus, ram

@@ -42,7 +42,7 @@ end
 def get_git_data(git_dir)
   if git_dir == 'puppet-acceptance'
     `git rev-parse HEAD`
-  elsif git_dir = 'gatling-puppet-load-test'
+  elsif git_dir == 'gatling-puppet-load-test'
     `git --git-dir=../../.git rev-parse HEAD`
   end
 end

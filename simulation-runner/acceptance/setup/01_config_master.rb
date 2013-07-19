@@ -31,10 +31,11 @@ def pe_register_classes(host, classes)
 end
 
 def pe_register_nodes(host, nodes)
-  result = on host, "#{pe_rake_cmd} node:list"
-  node_list = result.stdout.split
 
   nodes.each do |n|
+    result = on host, "#{pe_rake_cmd} node:list"
+    node_list = result.stdout.split
+
     step "Configuring node '#{n.name}'" do
       unless node_list.include?(n.name)
         on host, "#{pe_rake_cmd} node:add name=#{n.name}"

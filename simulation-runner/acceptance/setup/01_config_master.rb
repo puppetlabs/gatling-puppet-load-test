@@ -1,59 +1,3 @@
-require 'set'
-require 'json'
-
-############################################################################################
-# CONFIGURATION PARSER CLASS
-############################################################################################
-# Would really like to move this into a separate file, waiting for puppet-acceptance
-# to support adding library paths.
-
-module Puppet
-module Gatling
-module LoadTest
-  class ScenarioConfig
-
-    Module = Struct.new(:name, :version, :git)
-    Node = Struct.new(:name, :classes)
-
-    def initialize(modules, classes, nodes)
-      @modules = modules
-      @classes = classes
-      @nodes = nodes
-    end
-
-    attr_accessor :modules, :classes, :nodes
-
-    def self.parse(scenario_config_path)
-      scenario = JSON.parse(File.read(scenario_config_path))
-      modules = Set.new
-      classes = Set.new
-      nodes = []
-
-      scenario["nodes"].each do |node|
-        node_config_path = File.join(File.dirname(File.expand_path(scenario_config_path)),
-                                "..", "nodes", node["node_config"])
-        node_config = JSON.parse(File.read(node_config_path))
-        node_config["modules"].each do |m|
-          modules.add(Module.new(m["name"], m["version"], m["git"]))
-        end
-        node_config["classes"].each do |c|
-          classes.add(c)
-        end
-        nodes.push(Node.new(node_config["certname"], node_config["classes"]))
-      end
-
-      ScenarioConfig.new(modules.to_a, classes.to_a, nodes)
-
-    end
-  end
-end
-end
-end
-
-############################################################################################
-# END CONFIGURATION PARSER CLASS
-############################################################################################
-
 ############################################################################################
 # PE/OSS HELPER METHODS
 ############################################################################################
@@ -87,10 +31,11 @@ def pe_register_classes(host, classes)
 end
 
 def pe_register_nodes(host, nodes)
-  result = on host, "#{pe_rake_cmd} node:list"
-  node_list = result.stdout.split
 
   nodes.each do |n|
+    result = on host, "#{pe_rake_cmd} node:list"
+    node_list = result.stdout.split
+
     step "Configuring node '#{n.name}'" do
       unless node_list.include?(n.name)
         on host, "#{pe_rake_cmd} node:add name=#{n.name}"
@@ -229,12 +174,9 @@ end
 # MAIN SCRIPT
 ############################################################################################
 
-unless ENV.has_key?("IS_PE")
-  fail("Must set environment variable 'IS_PE' to either true or false")
-end
-
 test_name = "Setup for Gatling Performance Run"
-config = Puppet::Gatling::LoadTest::ScenarioConfig.parse(File.expand_path(File.join("../simulation-runner", ENV['PUPPET_GATLING_SIMULATION_CONFIG'])))
+
+config = Puppet::Gatling::LoadTest::ScenarioConfig.config_instance
 
 install_git_master(master)
 create_custom_auth_conf(master)

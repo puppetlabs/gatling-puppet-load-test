@@ -26,7 +26,19 @@ def extract_settings(json)
   return settings
 end
 
-json = JSON.parse(File.read(File.join(ENV['PWD'], ARGV.first)))
+def remove_comments(config_path)
+  new_json = ""
+  File.open(config_path, 'r') do |infile|
+    while (line = infile.gets)
+      unless line.strip.start_with?('#') or line.strip.start_with?('//')
+        new_json << line
+      end
+    end
+  end
+  new_json
+end
+
+json = JSON.parse(remove_comments(File.join(ENV['PWD'], ARGV.first)))
 settings = extract_settings(json)
 steps = json["steps"]
 raise 'Job "steps" are required' unless steps

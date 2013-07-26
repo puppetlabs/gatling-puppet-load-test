@@ -26,7 +26,21 @@ def extract_settings(json)
   return settings
 end
 
-json = JSON.parse(File.read(File.join(ENV['PWD'], ARGV.first)))
+def parse_comment(config_path)
+  new_json = ""
+  unparsed_json = File.open(config_path, 'r') do |infile|
+    while (line = infile.gets)
+      hash_comment = line.strip
+      backslash_comment = hash_comment[0,2]
+      unless hash_comment[0] == '#' or backslash_comment == '//'
+        new_json << line
+      end
+    end
+  end
+  new_json
+end
+
+json = JSON.parse(parse_comment(File.join(ENV['PWD'], ARGV.first)))
 settings = extract_settings(json)
 steps = json["steps"]
 raise 'Job "steps" are required' unless steps

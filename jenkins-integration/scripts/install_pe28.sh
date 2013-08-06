@@ -10,8 +10,7 @@ export q_puppet_enterpriseconsole_smtp_user_auth=y
 export q_puppet_enterpriseconsole_smtp_username=dmvrbac@gmail.com
 export q_puppet_enterpriseconsole_smtp_password=dmvpassword
 export IS_PE=true
-export pe_dist_dir='http://neptune.puppetlabs.lan/2.8/ci-ready/'
-export pe_version_file='perftesting'
+export pe_dist_dir='http://pe-releases.puppetlabs.lan/2.8.1/'
 export pe_dep_versions=./config/versions/pe_version
 
 rm -rf pe_acceptance_tests

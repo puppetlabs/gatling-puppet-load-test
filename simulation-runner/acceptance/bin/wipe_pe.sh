@@ -18,3 +18,6 @@ rm -rf /etc/puppetlabs/
 # Make sure MySQL is gone
 yum erase --assumeyes mysql
 rm -rf /var/lib/mysql/
+
+# Clean yum repository
+yum clean all

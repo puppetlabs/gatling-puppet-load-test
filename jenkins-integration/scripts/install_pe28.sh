@@ -9,32 +9,17 @@ export q_puppet_enterpriseconsole_smtp_use_tls=y
 export q_puppet_enterpriseconsole_smtp_user_auth=y
 export q_puppet_enterpriseconsole_smtp_username=dmvrbac@gmail.com
 export q_puppet_enterpriseconsole_smtp_password=dmvpassword
-export IS_PE=true
-export pe_dist_dir='http://pe-releases.puppetlabs.lan/2.8.1/'
-export pe_dep_versions=./config/versions/pe_version
+export pe_dist_dir='http://neptune.delivery.puppetlabs.net/archives/releases/2.8.3'
 
-rm -rf pe_acceptance_tests
-git clone git@github.com:puppetlabs/pe_acceptance_tests.git
-cd pe_acceptance_tests
-git checkout pe2.8.1
-cd ..
-
-rm -rf puppet-acceptance
-git clone git://github.com/puppetlabs/puppet-acceptance.git
-cd puppet-acceptance
-git checkout pe2.8.1
-
-./systest.rb \
-  --config $SYSTEST_CONFIG \
-  --type pe \
-  --no-color \
-  --xml \
-  --ntp \
-  --root-keys \
-  --repo-proxy \
-  --snapshot pe \
-  --debug \
-  --keyfile $SSH_KEYFILE \
-  --setup-dir ../pe_acceptance_tests/setup \
-  --preserve-hosts \
-  --install-only
+bundle exec beaker                                          \
+  --config $SYSTEST_CONFIG                                  \
+  --helper ../simulation-runner/acceptance/helper.rb        \
+  --tests ../simulation-runner/acceptance/install           \
+  --preserve-hosts                                          \
+  --no-color                                                \
+  --xml                                                     \
+  --ntp                                                     \
+  --root-keys                                               \
+  --repo-proxy                                              \
+  --debug                                                   \
+  --keyfile $SSH_KEYFILE

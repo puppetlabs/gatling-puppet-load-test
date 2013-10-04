@@ -1,6 +1,12 @@
 module Puppet
   module PerformanceTest
     class Tester
+      PE_LOCATION = {
+        '3.1' => 'http://neptune.delivery.puppetlabs.net/3.1/ci-ready',
+        '3.0' => 'http://neptune.delivery.puppetlabs.net/archives/releases/3.0.1',
+        '2.8' => 'http://neptune.delivery.puppetlabs.net/archives/releases/2.8.3'
+      }
+
       SUPPORTED_STEPS = {
         "install"           => :install,
         "simulate"          => :simulate,
@@ -28,23 +34,21 @@ module Puppet
         run 'cobbler_provision.sh', @settings[:master_ip]
       end
 
-      def install(arguments)
-        @puppet_version = arguments
-        run 'uninstall_pe.sh', @settings[:puppet_master]
+      def install(version)
+        ENV['pe_dist_dir'] = PE_LOCATION[version]
+
+        run 'pe_uninstall.sh', @settings[:puppet_master]
         write_systest_config_file()
-        run "install_#{@puppet_version}.sh", @settings[:systest_config], @settings[:ssh_keyfile]
+        run "pe_install.sh", @settings[:systest_config], @settings[:ssh_keyfile]
       end
 
       def simulate(arguments)
         sim_id = arguments["id"]
         scenario = arguments["scenario"]
-        if arguments['puppet_version']
-          @puppet_version = arguments['puppet_version']
-        end
         filename = write_scenario_to_file(sim_id, scenario)
 
-        run "restart_services_#{@puppet_version}.sh", @settings[:systest_config], @settings[:ssh_keyfile]
-        run "classify_nodes_#{@puppet_version}.sh", filename, @settings[:systest_config], @settings[:ssh_keyfile], sim_id
+        run "pe_restart.sh", @settings[:systest_config], @settings[:ssh_keyfile]
+        run "pe_classify.sh", filename, @settings[:systest_config], @settings[:ssh_keyfile], sim_id
         run 'sbt.sh', sim_id, @settings[:puppet_master], filename, @settings[:sbtpath]
       end
 
@@ -54,7 +58,6 @@ module Puppet
         puts "Running '#{script} #{args}'"
 
         script_file = "scripts/#{script}"
-        raise "#{@puppet_version} is not a supported Puppet version" unless File.exists? script_file
 
         successful = system "bash -x #{script_file} #{args}"
         raise "Error running #{script}" unless successful

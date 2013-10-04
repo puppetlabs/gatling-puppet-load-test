@@ -6,7 +6,7 @@
 # class and child classes with the two different implementations.
 
 def is_pe?
-  ENV["IS_PE"] == "true"
+  options.is_pe?
 end
 
 def pe_rake_cmd

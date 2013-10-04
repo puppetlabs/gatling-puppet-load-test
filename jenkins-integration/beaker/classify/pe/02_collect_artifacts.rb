@@ -55,10 +55,6 @@ config = Puppet::Gatling::LoadTest::ScenarioConfig.config_instance
 facter_data = get_facter_data
 data_hash = get_data_hash facter_data
 
-pa_git_rev = get_git_data 'puppet-acceptance'
-data_hash['puppet-acceptance'] = pa_git_rev.chomp
-puts "puppet-acceptance HEAD: #{data_hash['puppet-acceptance']}"
-
 pgl_git_rev = get_git_data 'gatling-puppet-load-test'
 data_hash['gatling-puppet-load-test'] = pgl_git_rev.chomp
 puts "gatling-puppet-load-test HEAD: #{data_hash['gatling-puppet-load-test']}"

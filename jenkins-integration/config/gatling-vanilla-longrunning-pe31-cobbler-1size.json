@@ -1,0 +1,17 @@
+{
+  "master": {
+    "hostname": "puppet",
+    "ip": "10.16.150.20"
+  },
+  "steps": [
+    "cobbler-provision",
+    {"install": "3.1"},
+    {"simulate": {
+        "id": "PE30_vanilla_1000",
+        "scenario": {
+          "run_description": "PE3VanillaCent5 long-running, 1000 instances, 2 repetitions",
+          "is_long_running   }
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "master": {
+    "hostname": "puppet",
+    "ip": "10.16.150.20"
+  },
+  "steps": [
+    "cobbler-provision",
+    {"install": "3.1"},
+    {"simulate": {
+        "id": "PE31_vanilla_7500",
+        "scenario": {
+          "run_description": "PE31VanillaCent5 long-running, 7500 instances, 2 repetitions",
+          "is_long_running": true,
+          "nodes": [
+            {
+              "node_config": "pe30_vanilla_cent5.json",
+              "num_instances": 7500,
+              "ramp_up_duration_seconds": 1800,
+              "num_repetitions": 2
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

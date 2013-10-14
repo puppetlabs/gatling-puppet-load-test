@@ -1,5 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'json'
+
 module Puppet
-  module PerformanceTest
+  module Performance
     class Tester
       PE_LOCATION = {
         '3.1' => 'http://neptune.delivery.puppetlabs.net/3.1/ci-ready',
@@ -90,5 +94,91 @@ module Puppet
         return filename
       end
     end
+
+    class Runner
+      def extract_settings(json)
+        settings = {}
+
+        master_info = json["master"]
+        raise 'Master information is required' unless master_info
+        if master_info.is_a? String
+          settings[:master_hostname] = master_info
+          settings[:puppet_master] = master_info
+          settings[:master_ip] = nil
+        elsif master_info.is_a? Hash
+          settings[:master_hostname] = master_info["hostname"]
+          settings[:master_ip] = master_info["ip"]
+          settings[:puppet_master] = master_info["ip"]
+        end
+
+        # Default value taken from puppet-acceptance/options_parsing.rb
+        settings[:ssh_keyfile] = json["ssh-keyfile"] || "~/.ssh/id_rsa"
+
+        settings[:systest_config] = File.join(ENV['PWD'], "gatling-perf-master.cfg")
+
+        settings[:sbtpath] = json["sbtpath"] || "/home/jenkins/sbt-launch.jar"
+
+        return settings
+      end
+
+      def remove_comments(config_path)
+        new_json = ""
+        File.open(config_path, 'r') do |infile|
+          while (line = infile.gets)
+            unless line.strip.start_with?('#') or line.strip.start_with?('//')
+              new_json << line
+            end
+          end
+        end
+        new_json
+      end
+
+      def run_steps(config_path)
+        json = JSON.parse(remove_comments(config_path))
+        settings = extract_settings(json)
+        steps = json["steps"]
+        raise 'Job "steps" are required' unless steps
+
+        tester = Tester.new(settings)
+
+        steps.each do |step|
+          if step.is_a? String
+            tester.perform(step)
+          elsif step.is_a? Hash
+            tester.perform(step.first[0], step.first[1])
+          end
+        end
+      end
+
+      def display_help_and_exit
+        progname = File.basename( $0 )
+        puts "usage:  #{progname} path/to/config.json"
+        exit 1
+      end
+
+      def run(args = ARGV)
+        if args.length > 1
+          puts "Too many arguments"
+          display_help_and_exit
+        end
+
+        case args.first
+        when '-h', '--help', nil
+          display_help_and_exit
+
+        else
+          path = File.join(ENV['PWD'], args.first)
+          if File.exists?( path )
+            run_steps
+
+          else
+            display_help_and_exit
+
+          end
+        end
+      end
+    end
   end
 end
+
+Puppet::Performance::Runner.new.run( ARGV )

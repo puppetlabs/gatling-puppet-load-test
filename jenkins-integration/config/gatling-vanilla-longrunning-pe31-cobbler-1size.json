@@ -10,7 +10,16 @@
         "id": "PE30_vanilla_1000",
         "scenario": {
           "run_description": "PE3VanillaCent5 long-running, 1000 instances, 2 repetitions",
-          "is_long_running   }
+          "is_long_running": true,
+          "nodes": [
+            {
+              "node_config": "pe28_vanilla_cent5.json",
+              "num_instances": 1000,
+              "ramp_up_duration_seconds": 1800,
+              "num_repetitions": 2
+            }
+          ]
+        }
       }
     }
   ]

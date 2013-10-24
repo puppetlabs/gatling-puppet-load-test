@@ -7,15 +7,16 @@ ssh jenkins@ull.delivery.puppetlabs.net 'sudo /usr/bin/cobbler system edit --nam
 echo "Rebooting the target machine"
 ssh root@$MASTER_IP reboot
 
-echo "Sleeping 60 seconds to wait for it to begin rebooting."
+echo "Sleeping 120 seconds to wait for it to begin rebooting."
 date
-sleep 60
+sleep 120
 date
 
 echo "Attempting to reconnect."
 while true; do
   echo "Attempting to ssh"
   ssh root@$MASTER_IP "echo SUCCESS" && break
+  sleep 5
 done
 
 echo "Disabling firewall on master"

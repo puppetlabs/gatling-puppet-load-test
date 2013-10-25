@@ -41,7 +41,7 @@ module Puppet
       def install(version)
         ENV['pe_dist_dir'] = PE_LOCATION[version]
 
-        run 'pe_uninstall.sh', @settings[:puppet_master]
+        run 'pe_uninstall.sh', @settings[:puppet_master], @settings[:ssh_keyfile]
         write_systest_config_file()
         run "pe_install.sh", @settings[:systest_config], @settings[:ssh_keyfile]
       end

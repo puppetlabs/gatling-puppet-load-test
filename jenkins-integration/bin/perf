@@ -35,7 +35,7 @@ module Puppet
 
       def cobbler_provision()
         raise 'Puppet Master ipaddress is required for cobbler provisioning' unless @settings[:master_ip]
-        run 'cobbler_provision.sh', @settings[:master_ip]
+        run 'cobbler_provision.sh', @settings[:master_ip], @settings[:ssh_keyfile]
       end
 
       def install(version)

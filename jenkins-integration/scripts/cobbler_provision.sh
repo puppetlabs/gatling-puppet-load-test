@@ -3,11 +3,12 @@
 set -e
 
 MASTER_IP=$1
+SSH_KEYFILE=$2
 
-ssh jenkins@ull.delivery.puppetlabs.net 'sudo /usr/bin/cobbler system edit --name='centos6-64-perf02' --netboot-enable=True'
+ssh -i "$SSH_KEYFILE" jenkins@ull.delivery.puppetlabs.net 'sudo /usr/bin/cobbler system edit --name='centos6-64-perf02' --netboot-enable=True'
 
 echo "Rebooting the target machine"
-ssh root@$MASTER_IP reboot
+ssh -i "$SSH_KEYFILE" root@$MASTER_IP reboot
 
 echo "Sleeping 120 seconds to wait for it to begin rebooting."
 date
@@ -17,10 +18,10 @@ date
 echo "Attempting to reconnect."
 while true; do
   echo "Attempting to ssh"
-  ssh root@$MASTER_IP "echo SUCCESS" && break
+  ssh -i "$SSH_KEYFILE" root@$MASTER_IP "echo SUCCESS" && break
   sleep 5
 done
 
 echo "Disabling firewall on master"
-ssh root@$MASTER_IP "service iptables stop"
-ssh root@$MASTER_IP "ping -c 2 neptune.delivery.puppetlabs.net"
+ssh -i "$SSH_KEYFILE" root@$MASTER_IP "service iptables stop"
+ssh -i "$SSH_KEYFILE" root@$MASTER_IP "ping -c 2 neptune.delivery.puppetlabs.net"

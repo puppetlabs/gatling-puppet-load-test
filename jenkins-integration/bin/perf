@@ -58,7 +58,10 @@ module Puppet
 
       private
       def run(script, *args)
-        args = args.join ' '
+        args = args.join '" "'
+        if (args.length > 0)
+          args = '"' + args + '"'
+        end
         puts "Running '#{script} #{args}'"
 
         script_file = "scripts/#{script}"

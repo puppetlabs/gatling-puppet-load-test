@@ -169,7 +169,7 @@ module Puppet
         else
           path = File.join(ENV['PWD'], args.first)
           if File.exists?( path )
-            run_steps
+            run_steps(path)
 
           else
             display_help_and_exit

@@ -1,4 +1,4 @@
-## Wecome to load testing Puppet with Gatling!
+## Welcome to load testing Puppet with Gatling!
 
 This is the main Puppetlabs load testing repository for its http services. The repository is currently split into three projects:
 

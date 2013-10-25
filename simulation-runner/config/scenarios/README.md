@@ -1,0 +1,1 @@
+We are now automatically generating the scenario config files at runtime.  This file is just here as a placeholder to ensure that this directory exists at runtime, so that the config files can be written here.

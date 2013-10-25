@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 MASTER_IP=$1
 
 ssh jenkins@ull.delivery.puppetlabs.net 'sudo /usr/bin/cobbler system edit --name='centos6-64-perf02' --netboot-enable=True'

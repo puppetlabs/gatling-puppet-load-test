@@ -11,7 +11,7 @@ export q_puppet_enterpriseconsole_smtp_username=dmvrbac@gmail.com
 export q_puppet_enterpriseconsole_smtp_password=dmvpassword
 
 bundle exec beaker             \
-  --config $SYSTEST_CONFIG     \
+  --config "$SYSTEST_CONFIG"   \
   --helper beaker/helper.rb    \
   --tests beaker/install/pe.rb \
   --preserve-hosts             \

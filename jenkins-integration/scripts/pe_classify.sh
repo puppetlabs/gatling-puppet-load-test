@@ -9,7 +9,7 @@ export PUPPET_GATLING_SIMULATION_CONFIG=config/scenarios/$SCENARIO
 export PUPPET_GATLING_SIM_ID=$SIM_ID
 
 bundle exec beaker            \
-  --config $SYSTEST_CONFIG    \
+  --config "$SYSTEST_CONFIG"  \
   --no-color                  \
   --xml                       \
   --debug                     \

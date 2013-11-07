@@ -11,7 +11,7 @@ def get_facter_data
 end
 
 def save_data(facter_data, data_hash, config)
-  simulation_dir = File.join("..", "..", "puppet-gatling", config.simulation_id)
+  simulation_dir = File.join("..", "puppet-gatling", config.simulation_id)
   unless File.exist?(simulation_dir)
     FileUtils.mkdir_p simulation_dir
   end

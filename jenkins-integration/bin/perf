@@ -35,13 +35,13 @@ module Puppet
 
       def cobbler_provision()
         raise 'Puppet Master ipaddress is required for cobbler provisioning' unless @settings[:master_ip]
-        run 'cobbler_provision.sh', @settings[:master_ip]
+        run 'cobbler_provision.sh', @settings[:master_ip], @settings[:ssh_keyfile]
       end
 
       def install(version)
         ENV['pe_dist_dir'] = PE_LOCATION[version]
 
-        run 'pe_uninstall.sh', @settings[:puppet_master]
+        run 'pe_uninstall.sh', @settings[:puppet_master], @settings[:ssh_keyfile]
         write_systest_config_file()
         run "pe_install.sh", @settings[:systest_config], @settings[:ssh_keyfile]
       end
@@ -58,7 +58,10 @@ module Puppet
 
       private
       def run(script, *args)
-        args = args.join ' '
+        args = args.join '" "'
+        if (args.length > 0)
+          args = '"' + args + '"'
+        end
         puts "Running '#{script} #{args}'"
 
         script_file = "scripts/#{script}"
@@ -169,7 +172,7 @@ module Puppet
         else
           path = File.join(ENV['PWD'], args.first)
           if File.exists?( path )
-            run_steps
+            run_steps(path)
 
           else
             display_help_and_exit

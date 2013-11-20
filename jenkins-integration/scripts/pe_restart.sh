@@ -4,7 +4,7 @@ SYSTEST_CONFIG=$1
 SSH_KEYFILE=$2
 
 bundle exec beaker             \
-  --hosts $SYSTEST_CONFIG      \
+  --hosts "$SYSTEST_CONFIG"    \
   --no-color                   \
   --xml                        \
   --debug                      \

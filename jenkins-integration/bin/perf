@@ -110,10 +110,12 @@ module Puppet
           settings[:master_hostname] = master_info
           settings[:puppet_master] = master_info
           settings[:master_ip] = nil
+          settings[:target] = nil
         elsif master_info.is_a? Hash
           settings[:master_hostname] = master_info["hostname"]
           settings[:master_ip] = master_info["ip"]
           settings[:puppet_master] = master_info["ip"]
+          settings[:target] = master_info["target"]
         end
 
         # Default value taken from puppet-acceptance/options_parsing.rb

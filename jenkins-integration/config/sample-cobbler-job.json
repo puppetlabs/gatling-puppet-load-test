@@ -1,7 +1,8 @@
 {
   "master": {
     "hostname": "puppet",
-    "ip": "10.16.150.50"
+    "ip": "10.16.150.50",
+    "target": "centos6-64-perf02"
   },
   "steps": [
     "cobbler-provision",

@@ -1,6 +1,6 @@
 {
   "master": {
-    "hostname": "puppet",
+    "hostname": "centos6-64-perf02",
     "ip": "10.16.150.20",
     "target": "centos6-64-perf02"
   },

@@ -125,11 +125,11 @@ def install_modules(host, modules)
 
   scp_to(host, "Puppetfile", modulepath)
 
-  # NOTE:
-  #   We might want to add a proper dependency on this gem
-  #   (Bundler?) instead of installing directly in this method.
-  on master, "/opt/puppet/bin/gem install librarian-puppet"
-  on master, "cd #{modulepath} && /opt/puppet/bin/librarian-puppet install --clean --verbose"
+  # Install librarian
+  scp_to(host, "Gemfile.master", "Gemfile")
+  on host, "/opt/puppet/bin/bundle install --shebang /opt/puppet/bin/ruby"
+
+  on host, "cd #{modulepath} && BUNDLE_GEMFILE=/root/Gemfile /opt/puppet/bin/bundle exec /opt/puppet/bin/ruby /opt/puppet/lib/ruby/gems/1.9.1/bin/librarian-puppet install --clean --verbose"
 
   File.delete("Puppetfile")
 end

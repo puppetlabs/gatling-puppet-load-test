@@ -7,12 +7,12 @@
 # -d    Delete databases
 # -p    Purge everything! A full uninstall
 # -y    Answer 'yes' to all questions
-cd /tmp/puppet-enterprise*
+cd /tmp/$(date +'%Y')-*/puppet-enterprise-*
 ./puppet-enterprise-uninstaller -d -p -y
 
 # Make sure these directories are gone
 cd /tmp/
-rm -rf puppet-enterprise*
+rm -rf ./$(date +'%Y')-*
 rm -rf /etc/puppetlabs/
 
 # Make sure MySQL is gone

@@ -39,14 +39,6 @@ def get_data_hash(data)
   end
 end
 
-def get_git_data(git_dir)
-  if git_dir == 'puppet-acceptance'
-    `git rev-parse HEAD`
-  elsif git_dir == 'gatling-puppet-load-test'
-    `git --git-dir=../../.git rev-parse HEAD`
-  end
-end
-
 # Begin work
 
 puts "Gathering facter data and processing data..."
@@ -55,8 +47,12 @@ config = Puppet::Gatling::LoadTest::ScenarioConfig.config_instance
 facter_data = get_facter_data
 data_hash = get_data_hash facter_data
 
-pgl_git_rev = get_git_data 'gatling-puppet-load-test'
+pgl_git_rev = `git rev-parse HEAD`
 data_hash['gatling-puppet-load-test'] = pgl_git_rev.chomp
 puts "gatling-puppet-load-test HEAD: #{data_hash['gatling-puppet-load-test']}"
+
+beaker_version = `bundle exec gem list beaker |grep beaker`.chomp
+data_hash['beaker-version'] = beaker_version
+puts "Beaker version: #{beaker_version}"
 
 save_data(facter_data, data_hash, config)

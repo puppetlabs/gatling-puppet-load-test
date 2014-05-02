@@ -13,6 +13,9 @@ Steps required to bring a Simulation class up to speed:
           catalog -> /production/catalog/agent.localdomain
           filemeta mco plugins -> /production/file_metadatas/modules/pe_mcollective/plugins
           report -> /production/report/agent.localdomain
+
+dependencies: 
+    The target puppet master must have gcc and make installed in order for some gems, required by beaker, to compile.   
         
 FUTURE
 

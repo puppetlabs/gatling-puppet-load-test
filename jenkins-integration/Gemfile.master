@@ -5,4 +5,4 @@ source 'https://rubygems.org'
 # NOTE: We have to use Alex's branch of librarian for now, because
 # the released versions of librarian are not compatible with PE3.2
 # See: https://github.com/rodjek/librarian-puppet/pull/190
-gem 'librarian-puppet', :github => 'adreyer/librarian-puppet', :branch => 'pe-32-compat'
+gem 'librarian-puppet', :github => 'adreyer/librarian-puppet', :branch => 'puppet-v3-compat'

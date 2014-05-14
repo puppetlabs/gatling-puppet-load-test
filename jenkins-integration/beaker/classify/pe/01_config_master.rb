@@ -125,11 +125,14 @@ def install_modules(host, modules)
 
   scp_to(host, "Puppetfile", modulepath)
 
-  # Install librarian
-  scp_to(host, "Gemfile.master", "Gemfile")
-  on host, "/opt/puppet/bin/bundle install --shebang /opt/puppet/bin/ruby"
-
-  on host, "cd #{modulepath} && BUNDLE_GEMFILE=/root/Gemfile /opt/puppet/bin/bundle exec /opt/puppet/bin/ruby /opt/puppet/lib/ruby/gems/1.9.1/bin/librarian-puppet install --clean --verbose"
+on master, "/opt/puppet/bin/gem install librarian-puppet"
+on master, "cd #{modulepath} && /opt/puppet/bin/librarian-puppet install --clean --verbose"
+# drosser 2014/05/13 - it seems PE28 doesn't have /opt/puppet/bin/bundle
+#  # Install librarian
+#  scp_to(host, "Gemfile.master", "Gemfile")
+#  on host, "/opt/puppet/bin/bundle install --shebang /opt/puppet/bin/ruby"
+#
+#  on host, "cd #{modulepath} && BUNDLE_GEMFILE=/root/Gemfile /opt/puppet/bin/bundle exec /opt/puppet/bin/ruby /opt/puppet/lib/ruby/gems/1.9.1/bin/librarian-puppet install --clean --verbose"
 
   File.delete("Puppetfile")
 end

@@ -1,0 +1,12 @@
+{
+    "run_description": "Catalog Zero 2500 node",
+    "is_long_running": true,
+    "nodes": [
+        {
+            "node_config": "foss360rc_catalogzero.json",
+            "num_instances": 2500,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 2
+        }
+    ]
+}

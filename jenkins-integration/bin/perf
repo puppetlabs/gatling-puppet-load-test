@@ -119,6 +119,18 @@ module Puppet
           settings[:target] = master_info["target"]
         end
 
+        # Settings from the json configuration file can be overriden by environment variables
+        if ENV["MASTER_HOSTNAME"]
+          settings[:master_hostname] = ENV["MASTER_HOSTNAME"]
+        end
+        if ENV["MASTER_IP"]
+          settings[:master_ip] = ENV["MASTER_IP"]
+          settings[:puppet_master] = ENV["MASTER_IP"]
+        end
+        if ENV["MASTER_TARGET"]
+          settings[:target] = ENV["MASTER_TARGET"]
+        end
+
         # Default value taken from puppet-acceptance/options_parsing.rb
         settings[:ssh_keyfile] = json["ssh-keyfile"] || "~/.ssh/id_rsa"
 

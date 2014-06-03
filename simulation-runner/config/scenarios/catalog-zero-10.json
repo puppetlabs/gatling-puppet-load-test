@@ -1,11 +1,12 @@
 {
-    "run_description": "Catalog Zero 10 node",
+    "run_description": "jvm",
     "nodes": [
         {
             "node_config": "foss360rc_catalogzero.json",
-            "num_instances": 10,
-            "ramp_up_duration_seconds": 5,
-            "num_repetitions": 5
+            "num_instances": 100,
+            "ramp_up_duration_seconds": 100,
+            "num_repetitions": 1
         }
     ]
 }
+

@@ -3,6 +3,8 @@
 target
 results
 simulation-runner/cache
+simulation-runner/config/gatling.conf
+simulation-runner/config/tmp
 gatling-recorder.log
 .cache
 .classpath

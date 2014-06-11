@@ -136,7 +136,7 @@ module Puppet
 
         settings[:systest_config] = File.join(ENV['PWD'], "gatling-perf-master.cfg")
 
-        settings[:sbtpath] = json["sbtpath"] || "/home/jenkins/sbt-launch.jar"
+        settings[:sbtpath] = json["sbtpath"] || "/var/lib/jenkins/sbt-launch.jar"
 
         return settings
       end

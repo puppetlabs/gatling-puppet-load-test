@@ -6,6 +6,7 @@ module Puppet
   module Performance
     class Tester
       PE_LOCATION = {
+        '3.4' => 'http://neptune.delivery.puppetlabs.net/3.4/ci-ready',
         '3.3' => 'http://neptune.delivery.puppetlabs.net/3.3/ci-ready',
         '3.2' => 'http://neptune.delivery.puppetlabs.net/archives/releases/3.2.3',
         '3.1' => 'http://neptune.delivery.puppetlabs.net/archives/releases/3.1.3',

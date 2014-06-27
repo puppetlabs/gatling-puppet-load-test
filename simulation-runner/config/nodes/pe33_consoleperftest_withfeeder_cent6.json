@@ -1,0 +1,6 @@
+{
+    "certname": "puppet-agent",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PE33_ConsolePerfTestWithFeeder",
+    "modules": [],
+    "classes": []
+}

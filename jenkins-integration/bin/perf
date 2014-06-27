@@ -55,8 +55,10 @@ module Puppet
         scenario = arguments["scenario"]
         filename = write_scenario_to_file(sim_id, scenario)
 
-        run "pe_restart.sh", @settings[:systest_config], @settings[:ssh_keyfile]
-        run "pe_classify.sh", filename, @settings[:systest_config], @settings[:ssh_keyfile], sim_id
+        if !ENV["ERG_MODE"] # Don't run restart or classify during ERG testing
+          run "pe_restart.sh", @settings[:systest_config], @settings[:ssh_keyfile]
+          run "pe_classify.sh", filename, @settings[:systest_config], @settings[:ssh_keyfile], sim_id
+        end
         run 'sbt.sh', sim_id, @settings[:puppet_master], filename, @settings[:sbtpath]
       end
 

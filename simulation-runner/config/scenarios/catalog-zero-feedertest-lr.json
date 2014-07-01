@@ -1,0 +1,12 @@
+{
+    "run_description": "Catalog Zero Feeder Variable node",
+    "is_long_running": true,
+    "nodes": [
+        {
+            "node_config": "pe33_consoleperftest_withfeeder_cent6.json",
+            "num_instances": 500,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 2
+        }
+    ]
+}

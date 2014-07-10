@@ -4,6 +4,10 @@
     "ip": "10.16.150.22",
     "target": "perf-bl04-prod.delivery.puppetlabs.net"
   },
+  "agent": {
+    "hostname": "centos6-64-perf03",
+    "ip": "10.16.150.21"
+  },
   "steps": [
     {"simulate": {
         "id": "PE33_vanilla_20000",

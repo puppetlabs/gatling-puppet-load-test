@@ -127,7 +127,7 @@ def install_modules(host, modules)
 
 # I was seeing "/opt/puppet/bin/bundle: No such file or directory"
 # on PE28 so use the gem instead
-on master, "/opt/puppet/bin/gem install librarian-puppet"
+on master, "/opt/puppet/bin/gem install librarian-puppet -v 1.0.3"
 on master, "cd #{modulepath} && /opt/puppet/bin/librarian-puppet install --clean --verbose"
 
   File.delete("Puppetfile")

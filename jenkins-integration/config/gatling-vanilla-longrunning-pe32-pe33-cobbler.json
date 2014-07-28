@@ -4,6 +4,10 @@
     "ip": "10.16.150.20",
     "target": "centos6-64-perf02"
   },
+  "agent": {
+    "hostname": "centos6-64-perf03",
+    "ip": "10.16.150.21"
+  },
   "steps": [
     "cobbler-provision",
     {"install": "3.3"},

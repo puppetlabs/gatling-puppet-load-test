@@ -7,7 +7,7 @@ import akka.util.duration._
 import bootstrap._
 import assertions._
 
-class FOSS360rc_CatalogZero extends com.puppetlabs.gatling.runner.SimulationWithScenario {
+class FOSS360rc_CustomParser extends com.puppetlabs.gatling.runner.SimulationWithScenario {
 
 	val httpConf = httpConfig
 			.baseURL("https://perf-bl16.performance.delivery.puppetlabs.net:8140")

@@ -10,9 +10,9 @@ resolvers ++= Seq(
                   "Excilys" at "http://repository.excilys.com/content/groups/public"
                   )
 
-libraryDependencies += "com.excilys.ebi.gatling" % "gatling-app" % "1.5.5"
+libraryDependencies += "com.excilys.ebi.gatling" % "gatling-app" % "1.5.6"
 
-libraryDependencies += "com.excilys.ebi.gatling.highcharts" % "gatling-charts-highcharts" % "1.5.5" exclude("com.excilys.ebi.gatling", "gatling-recorder")
+libraryDependencies += "com.excilys.ebi.gatling.highcharts" % "gatling-charts-highcharts" % "1.5.6" exclude("com.excilys.ebi.gatling", "gatling-recorder")
 
 mainClass in (Compile, run) := Some("com.puppetlabs.gatling.runner.PuppetGatlingRunner")
 

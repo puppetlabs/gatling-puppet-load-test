@@ -95,12 +95,16 @@ module Puppet
           puts "Executing: " + cmd
           puts %x{#{cmd}}
 
+          # copy the ~/.ivy2 directory due to repository.excilys.com being down
+          # scp -r .ivy2/ root@10.16.150.21:
+          #cmd = %Q{scp -i #{@settings[:ssh_keyfile]} -r ~/.ivy2/ root@#{@settings[:agent_ip]}:}
+          #puts "Copying over the ~/.ivy2 directory to the driver node (QENG-1164)"
+          #puts "Executing: " + cmd
+          #puts %x{#{cmd}}
+
           # launch the sbt.sh script on the driver node
-          cmd = %Q{ssh -i #{@settings[:ssh_keyfile]}  root@#{@settings[:agent_ip]} "cd #{workspace}/jenkins-integration; scripts/sbt.sh #{sim_id} #{@settings[:master_ip]} #{filename} /root/sbt-launch.jar"}
           puts "Launching gatling on the driver node"
-          puts "Executing: " + cmd
-          # Use 'system' here in order to stream the stdout to the jenkins log
-          system cmd
+          run "run_sbt.sh", filename, @settings[:systest_config], @settings[:ssh_keyfile], sim_id, workspace
 
           # Copy the "results" directory over to the jenkins slave for the plugins to process
           puts "Copying results from the driver node back to the Jenkins slave"
@@ -190,19 +194,40 @@ module Puppet
       def write_systest_config_file()
         # Dominic M: feeling extra dirty - temporary until job is moved to jenkins-enterprise
         ip = (@settings[:master_ip].nil?) ? nil : "ip: #{@settings[:master_ip]}"
-        config = <<-EOS
-          HOSTS:
-            #{@settings[:master_hostname]}:
-              roles:
-                - master
-                - agent
-                - dashboard
-                - database
-              platform: el-6-x86_64
-              #{ip}
-          CONFIG:
-            consoleport: 443
-        EOS
+        if @settings[:agent_ip]
+          config = <<-EOS
+            HOSTS:
+              #{@settings[:master_hostname]}:
+                roles:
+                  - master
+                  - agent
+                  - dashboard
+                  - database
+                platform: el-6-x86_64
+                #{ip}
+              #{@settings[:agent_hostname]}:
+                roles:
+                  - gatling
+                platform: el-6-x86_64
+                ip: #{@settings[:agent_ip]}
+            CONFIG:
+              consoleport: 443
+          EOS
+        else
+          config = <<-EOS
+            HOSTS:
+              #{@settings[:master_hostname]}:
+                roles:
+                  - master
+                  - agent
+                  - dashboard
+                  - database
+                platform: el-6-x86_64
+                #{ip}
+            CONFIG:
+              consoleport: 443
+          EOS
+        end
 
         File.open(@settings[:systest_config], 'w') { |file| file.write(config) }
       end

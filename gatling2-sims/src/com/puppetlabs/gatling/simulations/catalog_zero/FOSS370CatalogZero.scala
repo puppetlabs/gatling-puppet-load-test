@@ -19,7 +19,8 @@ class FOSS370CatalogZero extends Simulation {
 
 	val headers_108 = Map(
 		"""Accept""" -> """pson, yaml""",
-		"""Content-Type""" -> """text/pson""")
+		"""Content-Type""" -> """text/pson""",
+		"""Connection""" -> """close""")
 
     val uri1 = """https://puppet-master:8140/production"""
 
@@ -266,10 +267,10 @@ val chain_1 = exec(http("filemeta")
 	//setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
 
         val REPETITION_COUNTER: String = "repetitionCounter"
-        val NUM_AGENTS: Int = 1
-        val NUM_REPETITIONS: Int = 3
-        val SLEEP_DURATION: FiniteDuration = 10 seconds
-        val RAMP_UP_DURATION: FiniteDuration = 0 seconds
+        val NUM_AGENTS: Int = 3000
+        val NUM_REPETITIONS: Int = 2
+        val SLEEP_DURATION: FiniteDuration = 30 minutes
+        val RAMP_UP_DURATION: FiniteDuration = 30 minutes
 
         def addSleeps(chain:ChainBuilder, totalNumReps:Int): ChainBuilder = {
           // This is kind of a dirty hack. Here's the deal.

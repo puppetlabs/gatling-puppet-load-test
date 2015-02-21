@@ -1,6 +1,0 @@
-{
-    "certname": "perf-bl15.performance.delivery.puppetlabs.net",
-    "simulation_class": "com.puppetlabs.gatling.node_simulations.FOSS360rc_CatalogZero",
-    "modules": [],
-    "classes": []
-}

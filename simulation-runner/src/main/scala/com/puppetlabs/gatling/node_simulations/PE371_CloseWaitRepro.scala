@@ -18,7 +18,8 @@ class PE371_CloseWaitRepro extends SimulationWithScenario {
 
 	val headers_9 = Map(
 		"Accept" -> "pson, yaml",
-		"Content-Type" -> "text/pson")
+		"Content-Type" -> "text/pson",
+                "Connection" -> "close")
 
 //    val uri1 = "https://ec2-closewait-split-master.localdomain:8140/production"
 

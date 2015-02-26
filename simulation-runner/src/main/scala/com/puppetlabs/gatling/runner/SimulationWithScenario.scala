@@ -1,7 +1,7 @@
 package com.puppetlabs.gatling.runner
 
-import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
-import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
+import io.gatling.core.scenario.Simulation
+import io.gatling.core.structure.ScenarioBuilder
 
 /**
  * This class is a bit of a shim; it just exposes the `scn`

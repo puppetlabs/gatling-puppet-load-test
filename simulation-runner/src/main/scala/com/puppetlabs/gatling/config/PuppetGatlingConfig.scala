@@ -4,6 +4,7 @@ import scala.util.parsing.json.JSON
 import com.puppetlabs.json._
 import com.puppetlabs.gatling.runner.SimulationWithScenario
 import java.io.File
+import scala.io
 
 class PuppetGatlingConfig(configFilePath: String) {
 
@@ -22,6 +23,7 @@ class PuppetGatlingConfig(configFilePath: String) {
     val JsonInt(numInstances) = node("num_instances")
     val JsonInt(numRepetitions) = node("num_repetitions")
     val JsonInt(rampUpDuration) = node("ramp_up_duration_seconds")
+    val JsonInt(sleepDuration) = node("sleep_duration_seconds")
 
     // There has to be some File/Path util class in scala that can do this in a less
     // stupid way
@@ -30,7 +32,8 @@ class PuppetGatlingConfig(configFilePath: String) {
     val Some(JsonMap(nodeConfig)) = JSON.parseFull(io.Source.fromFile(nodeConfigFile).mkString)
     val JsonString(simClass) = nodeConfig("simulation_class")
 
-    Node(Class.forName(simClass).asInstanceOf[Class[SimulationWithScenario]], numRepetitions, numInstances, rampUpDuration)
+    Node(Class.forName(simClass).asInstanceOf[Class[SimulationWithScenario]],
+      numRepetitions, numInstances, sleepDuration, rampUpDuration)
   })
 }
 

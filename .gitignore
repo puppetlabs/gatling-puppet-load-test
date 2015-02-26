@@ -9,3 +9,6 @@ gatling-recorder.log
 .cache
 .classpath
 .project
+cache
+ivy2.tgz
+ivy-tmp

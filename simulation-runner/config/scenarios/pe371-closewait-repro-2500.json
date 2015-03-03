@@ -1,0 +1,13 @@
+{
+    "run_description": "CLOSE_WAIT repro attempts",
+    "nodes": [
+        {
+            "node_config": "pe371-closewait-repro.json",
+            "num_instances": 2500,
+            "ramp_up_duration_seconds": 7200,
+            "num_repetitions": 40,
+            "sleep_duration_seconds": 7200
+        }
+    ]
+}
+

@@ -10,6 +10,8 @@ libraryDependencies += "io.gatling" % "gatling-app" % "2.1.4"
 
 libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.4" exclude("io.gatling", "gatling-recorder")
 
+libraryDependencies += "joda-time" % "joda-time" % "2.7"
+
 mainClass in (Compile, run) := Some("com.puppetlabs.gatling.runner.PuppetGatlingRunner")
 
 unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd / "config") }

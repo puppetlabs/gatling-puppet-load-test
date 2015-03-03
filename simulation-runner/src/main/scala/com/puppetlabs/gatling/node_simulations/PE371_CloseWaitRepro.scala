@@ -3,6 +3,8 @@ package com.puppetlabs.gatling.node_simulations
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import com.puppetlabs.gatling.runner.SimulationWithScenario
+import org.joda.time.LocalDateTime
+import org.joda.time.format.ISODateTimeFormat
 
 class PE371_CloseWaitRepro extends SimulationWithScenario {
 
@@ -22,6 +24,8 @@ class PE371_CloseWaitRepro extends SimulationWithScenario {
     "Connection" -> "close")
 
 //    val uri1 = "https://ec2-closewait-split-master.localdomain:8140/production"
+
+  val reportBody = ELFileBody("PE371_CloseWaitRepro_0009_request.txt")
 
 	val scn = scenario("PE371_CloseWaitRepro")
 		.exec(http("node")
@@ -49,10 +53,14 @@ class PE371_CloseWaitRepro extends SimulationWithScenario {
 			.get("/production/file_metadata/modules/logrotate/etc/cron.daily/logrotate?links=manage&source_permissions=use"))
     .exec(http("filemeta")
 			.get("/production/file_metadata/modules/logrotate/etc/cron.hourly/logrotate?links=manage&source_permissions=use"))
+    .exec((session:Session) => {
+      session.set("reportTimestamp",
+        LocalDateTime.now.toString(ISODateTimeFormat.dateTime()))
+    })
     .exec(http("report")
 			.put("/production/report/closewait-agent.localdomain")
 			.headers(headers_9)
-			.body(RawFileBody("PE371_CloseWaitRepro_0009_request.txt")))
+      .body(reportBody))
 
 	//setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
 }

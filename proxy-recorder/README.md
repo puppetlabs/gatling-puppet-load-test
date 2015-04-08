@@ -17,7 +17,7 @@ is interactive and will walk you through the rest of the process.
 Output: 
 
   After the recording is complete, the resulting scenario file must be modified slightly per:
-  ../simulation-runner/README-GENERATING-AGENT-SIMULATIONS.md  
+  [README-GENERATING-AGENT-SIMULATIONS](../simulation-runner/README-GENERATING-AGENT-SIMULATIONS.md).
           
   
 

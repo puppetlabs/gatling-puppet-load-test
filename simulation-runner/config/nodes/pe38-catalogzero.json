@@ -1,0 +1,6 @@
+{
+    "certname": "jb-centos7-agent.localdomain",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PE38_CatalogZero",
+    "modules": [],
+    "classes": []
+}

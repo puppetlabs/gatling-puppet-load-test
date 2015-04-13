@@ -229,11 +229,21 @@ puppet-gatling-jenkins-plugin project.
   request:
 
   ~~~~scala
+  import org.joda.time.LocalDateTime
+  import org.joda.time.format.ISODateTimeFormat
+  import java.util.UUID
+
+  ...
+
   val chain_1 = exec(http("request_97")
   ...
     .exec((session:Session) => {
       session.set("reportTimestamp",
         LocalDateTime.now.toString(ISODateTimeFormat.dateTime()))
+    })
+    .exec((session:Session) => {
+      session.set("transactionUuid",
+        UUID.randomUUID().toString())
     })
     .exec(http("request_107")
       .put("/production/report/myhost.localdomain")
@@ -242,17 +252,17 @@ puppet-gatling-jenkins-plugin project.
   ~~~~
 
   Along with the above changes to the Scala file, a reference to the
-  "reportTimestamp" variable should be added to the "request.txt" file.  For
-  example, the original file may have:
+  "reportTimestamp" and "transactionUuid" variables should be added to the
+  "request.txt" file.  For example, the original file may have:
 
   ~~~~json
-  {"host":"myhost.localdomain","time":"2015-04-07T17:24:25.927023581-07:00",...}
+  {"host":"myhost.localdomain","time":"2015-04-07T17:24:25.927023581-07:00",...,"transaction_uuid":"558b70db-554b-4497-ad85-ca63a299807f"},...}
   ~~~~
 
   This would need to be changed to:
 
   ~~~~json
-  {"host":"myhost.localdomain","time":"${reportTimestamp}",...}
+  {"host":"myhost.localdomain","time":"${reportTimestamp}",...,"transaction_uuid":"${transactionUuid}",...}
   ~~~~
 
   For an example of the above changes, see this commit:

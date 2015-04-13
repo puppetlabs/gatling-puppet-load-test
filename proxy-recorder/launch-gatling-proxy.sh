@@ -82,6 +82,16 @@ you should define:
    on your machine, but you can change it if you like.  you will need to know
    this value for the next steps.
 
+* Infer html resources?: This will probably be checked by default.  You should
+   uncheck it.  Leaving it checked would cause the generated simulation code
+   to try to replay groups of requests that look like 'resources', e.g., links
+   from an HTML document, concurrently.  This simulates the behavior that a
+   browser would perform to obtain these kinds of resources.  We don't want
+   that behavior for a Puppet agent simulation, though, because a real Puppet
+   agent will only request 'resources' serially.  For example, any follow up
+   file_metadata / file_content requests that an agent would make based on
+   content in the catalog would be done one at a time.
+
 Once you've set those, you can click the 'Start' button to start the proxy.
 PRESS ENTER"
 read

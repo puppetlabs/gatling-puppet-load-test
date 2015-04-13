@@ -1,0 +1,13 @@
+{
+    "run_description": "PE 3.8 Catalog Zero - 3000 agents, 30 minute ramp, 1 time",
+    "nodes": [
+        {
+            "node_config": "pe38-catalogzero.json",
+            "num_instances": 3000,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 1,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}
+

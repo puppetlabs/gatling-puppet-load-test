@@ -25,6 +25,8 @@ class FOSS375CatalogZero extends SimulationWithScenario {
 		"Content-Type" -> "text/pson",
 		"Connection" -> "close")
 
+    val reportBody = ELFileBody("FOSS375CatalogZero_0108_request.txt")
+
     val uri1 = "https://puppets-macbook-pro-3.local:8140/production"
 
 	val chain_0 = exec(http("node")
@@ -260,10 +262,13 @@ val chain_1 = exec(http("filemeta")
 		.exec(http("filemeta")
 			.get("/production/file_metadata/modules/catalog-zero18/catalog-zero18-impl32.txt?links=manage&source_permissions=use"))
 		.pause(805 milliseconds)
+                .exec((session:Session) => {
+                   session.set("reportTimestamp", LocalDateTime.now.toString(ISODateTimeFormat.dateTime()))
+                })
 		.exec(http("report")
 			.put("/production/report/centos65.localdomain")
 			.headers(headers_108)
-			.body(RawFileBody("FOSS375CatalogZero_0108_request.txt")))
+			.body(reportBody))
 					
 	val scn = scenario("FOSS375CatalogZero").exec(
 		chain_0, chain_1)

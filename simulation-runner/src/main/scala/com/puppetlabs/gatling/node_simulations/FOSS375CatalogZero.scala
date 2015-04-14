@@ -22,7 +22,8 @@ class FOSS375CatalogZero extends SimulationWithScenario {
 
 	val headers_108 = Map(
 		"Accept" -> "pson, yaml",
-		"Content-Type" -> "text/pson")
+		"Content-Type" -> "text/pson",
+		"Connection" -> "close")
 
     val uri1 = "https://puppets-macbook-pro-3.local:8140/production"
 

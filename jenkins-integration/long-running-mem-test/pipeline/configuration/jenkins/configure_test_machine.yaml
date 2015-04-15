@@ -1,0 +1,29 @@
+- project:
+    name: configure_test_machine
+    jobs:
+        - "configure_test_machine"
+    pxe_boot_client: 172.16.142.102
+    login_user: root
+    test_catalogs_repo_url: git@github.com:puppetlabs/test-catalogs.git
+    test_catalogs_dir: test-catalogs
+    git_url: git@github.com:puppetlabs/qatests.git
+    machine_hostname: 172.16.142.102
+    scm:
+        name: long-running-mem-test
+
+
+
+- job-template:
+    name: configure_test_machine
+    builders:
+        - shell: !include-raw ../scripts/send_test_catalogs_to_SUT.sh
+        - shell: !include-raw ../scripts/run_beaker.sh
+    scm:
+        - git:
+            url: git@github.com:jpinsonault/long-running-mem-test.git
+            branches:
+                - master
+            browser: githubweb
+            browser-url: http://github.com/jpinsonault/long-running-mem-test.git
+            credentials-id: de258f10-26da-4bb4-b1b5-85fa29f43732
+

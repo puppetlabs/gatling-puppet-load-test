@@ -1,0 +1,13 @@
+{
+    "run_description": "FOSS 3.7.5 Catalog Zero - 1 agent",
+    "nodes": [
+        {
+            "node_config": "foss375-catalogzero.json",
+            "num_instances": 1,
+            "ramp_up_duration_seconds": 0,
+            "num_repetitions": 5,
+            "sleep_duration_seconds": 10
+        }
+    ]
+}
+

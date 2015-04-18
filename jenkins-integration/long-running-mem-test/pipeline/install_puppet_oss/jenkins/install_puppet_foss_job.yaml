@@ -1,0 +1,17 @@
+- project:
+    name: install_puppet_foss
+    jobs:
+        - "install_puppet_foss"
+
+- job-template:
+    name: install_puppet_foss
+    builders:
+        - shell: !include-raw ../scripts/run_beaker.sh
+    scm:
+        - git:
+            url: git@github.com:jpinsonault/long-running-mem-test.git
+            branches:
+                - master
+            browser: githubweb
+            browser-url: http://github.com/jpinsonault/long-running-mem-test.git
+            credentials-id: de258f10-26da-4bb4-b1b5-85fa29f43732

@@ -1,0 +1,16 @@
+- project:
+    name: provision_machine
+    jobs:
+        - "provision_long_running_mem_test_machine"
+    cobbler_server: 172.16.142.111
+    pxe_boot_client: 172.16.142.101
+    login_user: root
+    machine_to_provision: pxe_test_machine
+
+
+- job-template:
+    name: provision_long_running_mem_test_machine
+    builders:
+        - shell: whoami && ssh {login_user}@{cobbler_server} '/usr/bin/cobbler system edit --name={machine_to_provision} --netboot-enable=True'
+        - shell: ssh {login_user}@{pxe_boot_client} 'reboot'
+

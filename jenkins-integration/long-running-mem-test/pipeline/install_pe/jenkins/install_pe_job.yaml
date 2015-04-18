@@ -1,0 +1,19 @@
+- project:
+    name: install_pe
+    jobs:
+        - "install_pe"
+    pe_version: 3.7.2-1-gaaf9773
+    pe_dist_dir: http://neptune.puppetlabs.lan/3.7/ci-ready/
+
+- job-template:
+    name: install_pe
+    builders:
+        - shell: !include-raw ../scripts/run_beaker.sh
+    scm:
+        - git:
+            url: git@github.com:jpinsonault/long-running-mem-test.git
+            branches:
+                - master
+            browser: githubweb
+            browser-url: http://github.com/jpinsonault/long-running-mem-test.git
+            credentials-id: de258f10-26da-4bb4-b1b5-85fa29f43732

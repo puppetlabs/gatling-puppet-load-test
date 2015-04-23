@@ -8,6 +8,7 @@ import io.gatling.http.Predef._
 import com.puppetlabs.gatling.runner.SimulationWithScenario
 import org.joda.time.LocalDateTime
 import org.joda.time.format.ISODateTimeFormat
+import java.util.UUID
 
 class PE38_CatalogZero extends SimulationWithScenario {
 
@@ -256,6 +257,10 @@ class PE38_CatalogZero extends SimulationWithScenario {
     .exec((session:Session) => {
       session.set("reportTimestamp",
         LocalDateTime.now.toString(ISODateTimeFormat.dateTime()))
+    })
+	  .exec((session:Session) => {
+	    session.set("transactionUuid",
+		    UUID.randomUUID().toString())
     })
 		.exec(http("report")
 			.put("/production/report/jb-centos7-agent.localdomain")

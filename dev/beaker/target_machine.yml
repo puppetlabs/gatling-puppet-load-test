@@ -1,0 +1,10 @@
+HOSTS:
+  target_hostname:
+    roles:
+      - master
+      - agent
+    platform: el-6-x86_64
+
+CONFIG:
+  nfs_server: none
+  consoleport: 443

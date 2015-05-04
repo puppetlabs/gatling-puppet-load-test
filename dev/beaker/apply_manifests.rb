@@ -1,6 +1,6 @@
 test_name "Apply manifests for jenkins/git, sbt, and jjb"
 
-manifests = [Dir.glob("../manifests/*.pp")]
+manifests = Dir.glob("./dev/manifests/*.pp")
 
 hosts.each do |host|
   manifests.each do |local_path|

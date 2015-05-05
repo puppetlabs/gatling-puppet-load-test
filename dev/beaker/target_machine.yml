@@ -3,6 +3,7 @@ HOSTS:
     roles:
       - master
       - agent
+      - dev_machine
     platform: el-6-x86_64
 
 CONFIG:

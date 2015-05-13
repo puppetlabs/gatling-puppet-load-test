@@ -34,8 +34,10 @@ replace `jenkins-gatling` with the hostname or IP of your system.
 From inside the `dev` directory:
 ```bash
 bundle install
-bundle exec beaker --log-level debug --hosts beaker/target_machine.yml --tests
-beaker/
+bundle exec beaker \
+	--log-level debug \
+	--hosts beaker/target_machine.yml \
+	--tests beaker/
 ```
 
 If everything goes well, the beaker output should show no errors.

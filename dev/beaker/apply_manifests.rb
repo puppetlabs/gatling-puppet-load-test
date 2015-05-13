@@ -1,6 +1,10 @@
 test_name "Apply manifests for jenkins/git, sbt, and jjb"
 
-manifests = Dir.glob("./dev/manifests/*.pp")
+manifests = [
+  "manifests/setup_jenkins.pp",
+  "manifests/setup_jjb.pp",
+  "manifests/setup_sbt.pp"
+]
 
 step "Make a temp dir for manifests"
 remote_temp_dir = create_tmpdir_on(dev_machine)

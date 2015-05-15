@@ -6,12 +6,10 @@ the automation for `gatling-puppet-load-test`
 The beaker scripts in the `beaker` directory will set up a machine with a
 jenkins server, a copy of this repo (which contains the gatling executables),
 `sbt` for running gatling, and an installation of `jenkins-job-builder`
-configured to point at the jenkins server.
+configured to point at the jenkins server. Puppet will be installed to manage the installation of these things.
 
 ## Requirements
-This guide assumes you have a centos-6 machine/VM with:
-  * ssh key authentication for the root user (for `beaker`)
-  * `puppet` installed and in the `PATH`
+This guide assumes you have a centos-6 machine/VM with ssh key authentication for the root user (for `beaker`)
 
 This will be your jenkins/gatling box 
 

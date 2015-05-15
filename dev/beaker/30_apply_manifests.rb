@@ -17,7 +17,9 @@ manifests.each do |local_path|
   scp_to(dev_machine, local_path, remote_path)
 
   step "Apply #{manifest_name} manifest"
-  on(dev_machine, "puppet apply #{remote_path}")
+  on(dev_machine, "puppet apply #{remote_path}") do |result|
+    assert_no_match(/Error:/, result.stderr, 'Unexpected error was detected!')
+  end
   
 end
 

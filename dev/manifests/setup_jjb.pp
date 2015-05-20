@@ -8,6 +8,8 @@ $jjb_config_file = "${jjb_config_dir}/jenkins_jobs.ini"
 # Need this for pip
 package { 'epel-release-6-8.noarch':
   ensure => installed,
+  source => "http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm",
+  provider => "rpm",
 }
 
 # Centos 6 doesn't come with pip, needed for the pip provider

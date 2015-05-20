@@ -1,5 +1,5 @@
 HOSTS:
-  target_hostname:
+  jenkins-gatling:
     roles:
       - master
       - agent

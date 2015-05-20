@@ -9,7 +9,9 @@ jenkins server, a copy of this repo (which contains the gatling executables),
 configured to point at the jenkins server. Puppet will be installed to manage the installation of these things.
 
 ## Requirements
-This guide assumes you have a centos-6 machine/VM with ssh key authentication for the root user (for `beaker`)
+This guide assumes you'll be running beaker from your personal machine and you want to setup a separate machine with the dev environment.
+
+You'll need a centos-6 machine/VM with ssh key authentication for the root user so that you can run beaker
 
 This will be your jenkins/gatling box 
 

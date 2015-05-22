@@ -116,6 +116,9 @@ echo "
 All done!  You should now have a .scala file in your output directory that
 contains everything that we need in order to simulate this node in a scale test.
 
+If your node sent any requests with text bodies, such as reports, they will be
+in proxy-recorder/user-files/bodies/, not in the output directory.
+
 The next step is to take that scala file and hack it up just a tiny bit
 so that it's compatible with the gatling-puppet-scale-test project.  Head
 on over to that project for more info.  Good luck!"

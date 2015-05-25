@@ -33,15 +33,15 @@ class FOSSPuppetserver210CatalogZero extends SimulationWithScenario {
 		"Connection" -> "close")
 
     // val uri1 = "https://perf-bl14.delivery.puppetlabs.net:8140/puppet/v3"
-	val reportBody = ELFileBody("FOSSPuppetserver210CatalogZero_0105_response.txt")
+	val reportBody = ELFileBody("FOSSPuppetserver210CatalogZero_0105_request.txt")
 
 	val chain_0 = exec(http("node")
 			.get("/puppet/v3/node/stfui0skrwbvd7n.delivery.puppetlabs.net?environment=production&transaction_uuid=e1c0a4a6-b57f-4dd9-b3bc-5d127fc134b3&fail_on_404=true")
 			.headers(headers_0))
-		.exec(http("filemeta")
+		.exec(http("filemeta pluginfacts")
 			.get("/puppet/v3/file_metadatas/pluginfacts?environment=production&links=follow&recurse=true&source_permissions=use&ignore=.svn&ignore=CVS&ignore=.git&checksum_type=md5")
 			.headers(headers_0))
-		.exec(http("filemeta")
+		.exec(http("filemeta plugins")
 			.get("/puppet/v3/file_metadatas/plugins?environment=production&links=follow&recurse=true&source_permissions=ignore&ignore=.svn&ignore=CVS&ignore=.git&checksum_type=md5")
 			.headers(headers_0))
 		.pause(613 milliseconds)

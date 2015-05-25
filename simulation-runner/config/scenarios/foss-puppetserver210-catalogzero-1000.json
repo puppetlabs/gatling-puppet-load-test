@@ -1,0 +1,13 @@
+{
+    "run_description": "puppeserver 2.1.0 Catalog Zero - 1000 agents, 30 minute ramp, 2 times",
+    "nodes": [
+        {
+            "node_config": "foss-puppetserver210-catalogzero.json",
+            "num_instances": 1000,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 2,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}
+

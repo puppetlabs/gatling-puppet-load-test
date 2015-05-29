@@ -1,46 +1,38 @@
-$jjb_config_dir = '/etc/jenkins_jobs'
-$jjb_config_file = "${jjb_config_dir}/jenkins_jobs.ini"
-
 #####################
 # Jenkins job builder
 #####################
 
 # Need this for pip
-package { 'epel-release-6-8.noarch':
-  ensure => installed,
-  source => "http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm",
-  provider => "rpm",
-}
-
-# Centos 6 doesn't come with pip, needed for the pip provider
+class { 'epel': }
+->
 package { 'python-pip':
   ensure => installed,
-  require => Package['epel-release-6-8.noarch']
 }
-
+->
 package { 'jenkins-job-builder':
-  ensure => installed,
+  ensure   => installed,
   provider => 'pip',
-  require => Package['python-pip']
 }
-
 
 #################
 # JJB Config File
 #################
+
+$jjb_config_dir = '/etc/jenkins_jobs'
+$jjb_config_file = "${jjb_config_dir}/jenkins_jobs.ini"
+
 file { $jjb_config_dir:
   ensure => directory,
 }
-
+->
 file { $jjb_config_file:
   ensure => file,
 }
-
+->
 ini_setting { 'jenkins url':
   ensure  => present,
   path    => $jjb_config_file,
   section => 'jenkins',
   setting => 'url',
   value   => 'http://localhost:8080',
-  require => File[$jjb_config_file]
 }

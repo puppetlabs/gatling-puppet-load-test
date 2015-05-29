@@ -3,7 +3,8 @@ test_name "Install required binaries and puppet modules"
 modules = [
   "puppetlabs-firewall",
   "rtyler-jenkins",
-  "puppetlabs-inifile"
+  "puppetlabs-inifile",
+  "stahnma-epel"
 ]
 
 step "Install git"

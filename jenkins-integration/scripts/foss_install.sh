@@ -1,17 +1,17 @@
-#!/bin/sh
+#!/bin/bash
+set -x
 
-SYSTEST_CONFIG=$1
-SSH_KEYFILE=$2
+export BEAKER_TESTSUITE="${BEAKER_TESTSUITE:-beaker/install/foss/}"
+export BEAKER_KEYFILE="~/.ssh/id_rsa-acceptance"
+export BEAKER_HELPER="beaker/helper.rb"
 
-bundle exec beaker             \
-  --config "$SYSTEST_CONFIG"   \
-  --helper beaker/helper.rb    \
-  --tests beaker/install/foss/ \
-  --preserve-hosts             \
-  --no-color                   \
-  --xml                        \
-  --ntp                        \
-  --root-keys                  \
-  --repo-proxy                 \
-  --debug                      \
-  --keyfile $SSH_KEYFILE
+bundle install --path vendor/bundle
+
+bundle exec beaker \
+  --config $BEAKER_CONFIG \
+  --type aio \
+  --helper $BEAKER_HELPER \
+  --tests $BEAKER_TESTSUITE \
+  --keyfile $BEAKER_KEYFILE \
+  --preserve-hosts onfail \
+  --debug 

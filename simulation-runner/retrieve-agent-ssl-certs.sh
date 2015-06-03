@@ -37,12 +37,14 @@ read -e PE_AGENT
 
 echo "Copying files from $PE_AGENT"
 
+PUPPET_SCRIPT="/opt/puppetlabs/bin/puppet"
+
 rm -rf ./target/ssl
 mkdir -p ./target/ssl
-HOST_CERTNAME=`ssh root@${PE_AGENT} "puppet agent --configprint certname"`
-HOST_CERT=`ssh root@${PE_AGENT} "puppet agent --configprint hostcert"`
-HOST_KEY=`ssh root@${PE_AGENT} "puppet agent --configprint hostprivkey"`
-CA_CERT=`ssh root@${PE_AGENT} "puppet agent --configprint localcacert"`
+HOST_CERTNAME=`ssh root@${PE_AGENT} "${PUPPET_SCRIPT} agent --configprint certname"`
+HOST_CERT=`ssh root@${PE_AGENT} "${PUPPET_SCRIPT} agent --configprint hostcert"`
+HOST_KEY=`ssh root@${PE_AGENT} "${PUPPET_SCRIPT} agent --configprint hostprivkey"`
+CA_CERT=`ssh root@${PE_AGENT} "${PUPPET_SCRIPT} agent --configprint localcacert"`
 
 scp root@${PE_AGENT}:${HOST_CERT} ./target/ssl/hostcert.pem
 scp root@${PE_AGENT}:${HOST_KEY} ./target/ssl/hostkey.pem

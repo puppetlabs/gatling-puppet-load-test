@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-export BEAKER_TESTSUITE="${BEAKER_TESTSUITE:-beaker/install/pe/}"
+export BEAKER_TESTSUITE="${BEAKER_TESTSUITE:-beaker/install/foss/}"
 export BEAKER_KEYFILE="~/.ssh/id_rsa-acceptance"
 export BEAKER_HELPER="beaker/helper.rb"
 

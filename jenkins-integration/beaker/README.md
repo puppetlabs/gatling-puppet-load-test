@@ -43,3 +43,5 @@ When running the PE installer, two options can be set:
   `pe_ver` environment variable
 
 You must at least set the PE dist dir. If `pe_ver` isn't set, it will install the latest version at the location provided by the dist dir.
+
+TestyChange

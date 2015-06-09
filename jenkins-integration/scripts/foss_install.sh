@@ -11,7 +11,8 @@ bundle exec beaker \
   --config $BEAKER_CONFIG \
   --type aio \
   --helper $BEAKER_HELPER \
+  --load-path lib \
   --tests $BEAKER_TESTSUITE \
   --keyfile $BEAKER_KEYFILE \
   --preserve-hosts onfail \
-  --debug 
+  --debug

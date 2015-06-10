@@ -1,5 +1,4 @@
 require 'json'
-require 'set'
 
 ## Assumptions:
 ## 1. CWD is "jenkins-integration"
@@ -18,7 +17,12 @@ def get_node_configs(scenario)
 end
 
 def get_modules(node_configs)
-  node_configs.reduce(Set.new) do |modules, node_config|
-    modules.merge(node_config['modules'])
-  end.to_a
+  result = Hash.new { |h, k| h[k] = Array.new }
+  node_configs.each do |node_config|
+    env = node_config['environment']
+    env = 'production' if (env.nil? || env.empty?)
+    result[env] += node_config['modules']
+  end
+  result.values.each &:uniq!
+  result
 end

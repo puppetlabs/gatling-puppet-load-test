@@ -16,20 +16,21 @@ def generate_puppetfile(modules)
 end
 
 def run_librarian_puppet(host, environment, puppetfile)
+  on(host, "mkdir -p #{environment}/modules")
   create_remote_file(host, "#{environment}/Puppetfile", puppetfile)
   librarian_puppet = '/opt/puppetlabs/puppet/bin/librarian-puppet'
   on(host, "cd #{environment} && #{librarian_puppet} install --clean --verbose")
 end
 
-def install_modules(host, modules)
-  puppetfile_content = generate_puppetfile(modules)
+def install_environment_modules(host, modules)
   environments = on(host, puppet('config print environmentpath')).stdout.chomp
-
-  environment = 'production'
-  run_librarian_puppet(host, "#{environments}/#{environment}", puppetfile_content)
+  modules.each_pair do |env, mods|
+    puppetfile = generate_puppetfile(mods)
+    run_librarian_puppet(host, "#{environments}/#{env}", puppetfile)
+  end
 end
 
 scenario_id = ENV['PUPPET_GATLING_SCENARIO']
 modules = get_modules(get_node_configs(get_scenario(scenario_id)))
 install_librarian_puppet(master)
-install_modules(master, modules)
+install_environment_modules(master, modules)

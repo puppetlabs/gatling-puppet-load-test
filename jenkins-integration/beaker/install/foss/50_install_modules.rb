@@ -9,10 +9,18 @@ def install_librarian_puppet(host)
 end
 
 def generate_puppetfile(modules)
-  modules
-    .map { |mod| "mod '#{mod}'" }
-    .insert(0, "forge 'https://forgeapi.puppetlabs.com'")
-    .join("\n")
+  modules.map do |mod|
+    directive = "mod '#{mod['name']}'"
+    if mod['version']
+      directive += ", '#{mod['version']}'"
+    elsif mod['path']
+      directive += ", :path => '#{mod['path']}'"
+    elsif mod['git']
+      directive += ", :git => '#{mod['git']}'"
+      directive += ", :ref => '#{mod['ref']}'" if mod['ref']
+    end
+    directive
+  end.insert(0, "forge 'https://forgeapi.puppetlabs.com'").join("\n")
 end
 
 def run_librarian_puppet(host, environment, puppetfile)
@@ -31,6 +39,6 @@ def install_environment_modules(host, modules)
 end
 
 scenario_id = ENV['PUPPET_GATLING_SCENARIO']
-modules = get_modules(get_node_configs(get_scenario(scenario_id)))
+modules = scenario_modules(scenario_id)
 install_librarian_puppet(master)
 install_environment_modules(master, modules)

@@ -1,0 +1,26 @@
+{
+    "run_description": "example scenario",
+    "nodes": [
+        {
+            "node_config": "example-node1",
+            "num_instances": 1,
+            "ramp_up_duration_seconds": 1,
+            "num_repetitions": 1,
+            "sleep_duration_seconds": 1
+        },
+        {
+            "node_config": "example-node2",
+            "num_instances": 2,
+            "ramp_up_duration_seconds": 2,
+            "num_repetitions": 2,
+            "sleep_duration_seconds": 2
+        },
+        {
+            "node_config": "example-node3",
+            "num_instances": 3,
+            "ramp_up_duration_seconds": 3,
+            "num_repetitions": 3,
+            "sleep_duration_seconds": 3
+        }
+    ]
+}

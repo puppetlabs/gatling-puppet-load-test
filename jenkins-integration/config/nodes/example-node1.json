@@ -1,0 +1,21 @@
+{
+    "certname": "example-node1",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.FOSSPuppetserver210CatalogZero",
+    "modules": [
+        {
+            "name": "catalog_zero1",
+            "path": "/root/test-catalogs/catalog_zero/modules/catalog_zero1"
+        },
+        {
+            "name": "nwolfe-simmons",
+            "version": "0.3.1"
+        },
+        {
+            "name": "stankevich-python",
+            "git": "git://github.com/stankevich/puppet-python.git",
+            "ref": "1.9.3"
+        }
+    ],
+    "classes": [],
+    "environment": "exampleenv1"
+}

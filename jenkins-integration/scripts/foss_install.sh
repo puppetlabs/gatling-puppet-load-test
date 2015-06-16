@@ -15,4 +15,5 @@ bundle exec beaker \
   --tests $BEAKER_TESTSUITE \
   --keyfile $BEAKER_KEYFILE \
   --preserve-hosts onfail \
+  --no-color \
   --debug

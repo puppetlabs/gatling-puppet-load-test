@@ -26,3 +26,7 @@ def get_modules(node_configs)
   result.values.each &:uniq!
   result
 end
+
+def scenario_modules(scenario_id)
+  get_modules(get_node_configs(get_scenario(scenario_id)))
+end

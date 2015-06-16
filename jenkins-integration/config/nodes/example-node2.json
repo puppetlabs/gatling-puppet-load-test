@@ -1,0 +1,16 @@
+{
+    "certname": "example-node2",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.FOSSPuppetserver210CatalogZero",
+    "modules": [
+        {
+            "name": "puppetlabs-firewall"
+        },
+        {
+            "name": "puppetlabs-reboot",
+            "git": "git://github.com/puppetlabs/puppetlabs-reboot.git",
+            "ref": "1.0.x"
+        }
+    ],
+    "classes": [],
+    "environment": "exampleenv1"
+}

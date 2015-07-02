@@ -17,6 +17,7 @@ proxy-recorder/user-files
 # Bundler
 .bundle
 vendor
+Gemfile.lock
 
 # Beaker
 log

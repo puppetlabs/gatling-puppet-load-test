@@ -39,6 +39,6 @@ def install_environment_modules(host, modules)
 end
 
 scenario_id = ENV['PUPPET_GATLING_SCENARIO']
-modules = scenario_modules(scenario_id)
+modules = modules_per_environment(node_configs(scenario_id))
 install_librarian_puppet(master)
 install_environment_modules(master, modules)

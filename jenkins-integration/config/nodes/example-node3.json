@@ -1,12 +1,12 @@
 {
     "certname": "example-node3",
+    "environment": "",
     "simulation_class": "com.puppetlabs.gatling.node_simulations.FOSSPuppetserver210CatalogZero",
     "modules": [
         {
-            "name": "puppetlabs-tagmail",
-            "git": "git://github.com/puppetlabs/puppetlabs-tagmail.git"
+            "name": "puppetlabs-postgresql",
+            "git": "git://github.com/puppetlabs/puppetlabs-postgresql.git"
         }
     ],
-    "classes": [],
-    "environment": ""
+    "classes": ["postgresql::server"]
 }

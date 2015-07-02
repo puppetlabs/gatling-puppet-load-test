@@ -1,7 +1,11 @@
 {
     "certname": "example-node1",
+    "environment": "exampleenv1",
     "simulation_class": "com.puppetlabs.gatling.node_simulations.FOSSPuppetserver210CatalogZero",
     "modules": [
+        {
+            "name": "puppetlabs-firewall"
+        },
         {
             "name": "catalog_zero1",
             "path": "/root/test-catalogs/catalog_zero/modules/catalog_zero1"
@@ -16,6 +20,5 @@
             "ref": "1.9.3"
         }
     ],
-    "classes": [],
-    "environment": "exampleenv1"
+    "classes": ["catalog_zero1", "simmons", "python"]
 }

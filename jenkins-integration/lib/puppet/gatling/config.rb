@@ -5,28 +5,36 @@ require 'json'
 ## 2. Scenario config JSON files in "./config/scenarios/*.json"
 ## 3. Node config JSON files in "./config/nodes/*.json"
 
-def get_scenario(scenario_id)
+def parse_scenario_file(scenario_id)
   JSON.parse(File.read(File.join('config', 'scenarios', scenario_id + '.json')))
 end
 
-def get_node_configs(scenario)
+def parse_node_config_files(scenario)
   scenario['nodes'].map do |node|
     config_path = File.join('config', 'nodes', node['node_config'] + '.json')
     JSON.parse(File.read(config_path))
   end
 end
 
-def get_modules(node_configs)
-  result = Hash.new { |h, k| h[k] = Array.new }
-  node_configs.each do |node_config|
-    env = node_config['environment']
-    env = 'production' if (env.nil? || env.empty?)
-    result[env] += node_config['modules']
-  end
-  result.values.each &:uniq!
-  result
+# Returns the list of node configs hashes in the given scenario.
+def node_configs(scenario_id)
+  parse_node_config_files(parse_scenario_file(scenario_id))
 end
 
-def scenario_modules(scenario_id)
-  get_modules(get_node_configs(get_scenario(scenario_id)))
+# Group the list of node configs into a hash keyed by their environments.
+# A nil or empty environment will be interpreted as 'production'.
+def group_by_environment(node_configs)
+  node_configs.group_by do |config|
+    env = config['environment']
+    (env.nil? || env.empty?) ? 'production' : env
+  end
+end
+
+# Returns a hash from environments to modules; removes duplicate modules.
+def modules_per_environment(node_configs)
+  node_configs = group_by_environment(node_configs)
+  modules = node_configs.map do |env, configs|
+    [env, configs.map { |c| c['modules'] }.flatten.uniq]
+  end
+  Hash[modules]
 end

@@ -6,12 +6,12 @@ set -x
 #     pe_dist_dir="http://neptune.puppetlabs.lan/4.0/ci-ready"
 #     (optional) pe_ver="4.0.0-rc5-161-g85ecc84"
 
-export BEAKER_TESTSUITE="
+export BEAKER_TESTSUITE="${BEAKER_TESTSUITE:-\
 beaker/install/pe/10_install_pe.rb,\
 beaker/install/shared/40_clone_test_catalogs.rb,\
 beaker/install/shared/50_install_modules.rb,\
 beaker/install/pe/60_classify_nodes.rb
-"
+}"
 export BEAKER_KEYFILE="~/.ssh/id_rsa-acceptance"
 export BEAKER_HELPER="beaker/helper.rb"
 

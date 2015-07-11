@@ -21,12 +21,18 @@ def node_configs(scenario_id)
   parse_node_config_files(parse_scenario_file(scenario_id))
 end
 
+# Returns the environment from the node config hash, or 'production'
+# if it is nil or empty.
+def node_environment(node_config)
+  env = node_config['environment']
+  (env.nil? || env.empty?) ? 'production' : env
+end
+
 # Group the list of node configs into a hash keyed by their environments.
 # A nil or empty environment will be interpreted as 'production'.
 def group_by_environment(node_configs)
   node_configs.group_by do |config|
-    env = config['environment']
-    (env.nil? || env.empty?) ? 'production' : env
+    node_environment(config)
   end
 end
 

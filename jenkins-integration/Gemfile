@@ -2,3 +2,7 @@ source ENV['GEM_SOURCE'] || 'https://rubygems.org'
 
 gem 'beaker', '2.15.1'
 gem 'scooter', :git => 'git@github.com:puppetlabs/scooter.git', :tag => '2.2'
+
+if File.exists? "#{__FILE__}.local"
+  eval(File.read("#{__FILE__}.local"), binding)
+end

@@ -7,4 +7,8 @@ class {'jenkins':
 # isn't installed along side it.
 jenkins::plugin {'git-client': ;}
 
+jenkins::plugin {'scm-api': ;}
+
 jenkins::plugin {'git': ;}
+
+jenkins::plugin {'sbt': ;}

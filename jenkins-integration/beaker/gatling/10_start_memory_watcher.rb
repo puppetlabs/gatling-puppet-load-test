@@ -16,12 +16,12 @@ script_remote_path = "#{remote_logger_dir}/#{logger_script}"
 logger_cmd = "#{script_remote_path} #{logger_refresh}"
 
 step "Create directory on SUT for memory usage log"
-on(sut, "mkdir -p #{remote_logger_dir}")
+on(master, "mkdir -p #{remote_logger_dir}")
 
 step "Send memory watcher script to SUT"
-scp_to(sut, logger_local_path, script_remote_path)
+scp_to(master, logger_local_path, script_remote_path)
 
 step "Start memory watching script on SUT"
 
 # Redirect output of script to file, run in the background with nohup
-on(sut, "nohup #{logger_cmd} &> #{remote_logger_dir}/#{simulation_id}_memory_usage.csv &")
+on(master, "nohup #{logger_cmd} &> #{remote_logger_dir}/#{simulation_id}_memory_usage.csv &")

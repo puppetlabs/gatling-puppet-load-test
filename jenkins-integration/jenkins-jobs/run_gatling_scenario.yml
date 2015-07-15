@@ -11,7 +11,7 @@
         description: "The gatling scenario file to run"
     - string:
         name: PUPPET_GATLING_SIMULATION_ID
-        description: "An descriptive identifier for this run"
+        description: "A descriptive identifier for this run"
     - string:
         name: PUPPET_GATLING_MASTER_BASE_URL
         description: "The URL of the puppet master SUT"

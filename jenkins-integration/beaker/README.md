@@ -1,6 +1,14 @@
 # beaker
 This directory holds beaker scripts that will get run as part of jenkins jobs
 
+**Table of Contents**
+
+  * [install/](#install)
+    * [FOSS](#foss)
+    * [PE](#pe)
+  * [Gatling](#gatling)
+    * [10_start_memory_watcher.rb](#20_start_memory_watcherrb)
+
 ## install/
 The `install` directory has scripts to install FOSS puppet and PE
 
@@ -43,3 +51,24 @@ When running the PE installer, two options can be set:
   `pe_ver` environment variable
 
 You must at least set the PE dist dir. If `pe_ver` isn't set, it will install the latest version at the location provided by the dist dir.
+
+## gatling/
+### 10_start_memory_watcher.rb
+This script starts a simple bash script on the SUT that periodically logs the memory usage of puppetserver. The output is stored in `/root/<simulation_id>_memory_usage/`
+
+It uses some environment variables:
+* Required - `GATLING_SIMULATION_ID`: Some identifier for the run
+* Optional - `MEMORY_WATCHER_REFRESH`: Interval between memory usage recordings. Defaults to `300`
+
+The beaker hosts file might look something like this
+
+```yaml
+HOSTS:
+  wzmg0128dylvv1d:
+    platform: el-6-x86_64
+    roles:
+    - master
+    - agent
+```
+
+The script uses the `master` role to determine which machine is the SUT

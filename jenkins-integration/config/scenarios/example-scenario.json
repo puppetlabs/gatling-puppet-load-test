@@ -1,5 +1,6 @@
 {
     "run_description": "example scenario",
+    "hiera": "basic-example",
     "nodes": [
         {
             "node_config": "example-node1",

@@ -1,9 +1,12 @@
 require 'json'
+require 'yaml'
 
 ## Assumptions:
 ## 1. CWD is "jenkins-integration"
 ## 2. Scenario config JSON files in "./config/scenarios/*.json"
 ## 3. Node config JSON files in "./config/nodes/*.json"
+## 4. Hiera config YAML files in "./config/hieras/<hiera>/hiera.yaml"
+## 5. Hiera data trees in "./config/hieras/<hiera>/<datadir(s)>/"
 
 def parse_scenario_file(scenario_id)
   JSON.parse(File.read(File.join('config', 'scenarios', scenario_id + '.json')))
@@ -43,4 +46,22 @@ def modules_per_environment(node_configs)
     [env, configs.map { |c| c['modules'] }.flatten.uniq]
   end
   Hash[modules]
+end
+
+# Returns the path to the local hiera.yaml file for the specified hiera.
+def hiera_configpath(hiera)
+  File.join('config', 'hieras', hiera, 'hiera.yaml')
+end
+
+# Returns a list of pairs of datadir filepaths for the given hiera.
+# The pairs contain the local and target filepaths, respectively.
+def hiera_datadirs(hiera)
+  configpath = hiera_configpath(hiera)
+  config = YAML.load_file(configpath)
+  backends = [config[:backends]].flatten
+  datadirs = backends.map { |be| config[be.to_sym][:datadir] }.uniq
+  datadirs.map do |datadir|
+    localpath = File.join('config', 'hieras', hiera, File.basename(datadir))
+    [localpath, datadir]
+  end
 end

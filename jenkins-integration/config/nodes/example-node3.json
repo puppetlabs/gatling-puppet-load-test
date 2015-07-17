@@ -6,7 +6,10 @@
         {
             "name": "puppetlabs-postgresql",
             "git": "git://github.com/puppetlabs/puppetlabs-postgresql.git"
+        },
+        {
+            "name": "nwolfe-simmons"
         }
     ],
-    "classes": ["postgresql::server"]
+    "classes": ["postgresql::server", "simmons"]
 }

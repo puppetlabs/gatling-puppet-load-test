@@ -72,3 +72,14 @@ HOSTS:
 ```
 
 The script uses the `master` role to determine which machine is the SUT
+
+### 20_run_sbt.rb
+This script runs `sbt run` inside of the `simulation-runner/` dir on the gatling machine.
+
+The `gatling` role must be applied to the machine in the beaker config file.
+
+It uses some required environment variables:
+* `GATLING_SIMULATION_ID`: Some identifier for the run
+* `GATLING_SCENARIO`: JSON scenario file
+* `GATLING_SUT_HOSTNAME`: Hostname of the puppetserver SUT
+* `SBT_WORKSPACE`: The directory the `gatling-puppet-load-test` will be cloned into. If this script is running as part of a jenkins job, it'll be the jenkins workspace most likely.

@@ -10,7 +10,8 @@ export BEAKER_TESTSUITE="${BEAKER_TESTSUITE:-\
 beaker/install/pe/10_install_pe.rb,\
 beaker/install/shared/40_clone_test_catalogs.rb,\
 beaker/install/shared/50_install_modules.rb,\
-beaker/install/pe/60_classify_nodes.rb
+beaker/install/pe/60_classify_nodes.rb,\
+beaker/install/shared/70_install_hiera.rb
 }"
 export BEAKER_KEYFILE="~/.ssh/id_rsa-acceptance"
 export BEAKER_HELPER="beaker/helper.rb"

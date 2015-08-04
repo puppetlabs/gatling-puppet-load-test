@@ -15,5 +15,8 @@ elsif not workspace
   abort "SBT_WORKSPACE environment variable required"
 end
 
-on(gatling, %Q{cd #{workspace}/simulation-runner; \
-  ./run_sbt.sh #{simulation_id} #{sut_hostname} #{gatling_scenario}})
+on(gatling, %Q{cd #{workspace}/simulation-runner;
+  export PUPPET_GATLING_SIMULATION_ID=#{simulation_id};
+  export PUPPET_GATLING_MASTER_BASE_URL=https://#{sut_hostname}:8140;
+  export PUPPET_GATLING_SIMULATION_CONFIG=./config/scenarios/#{gatling_scenario};
+  sbt run})

@@ -12,7 +12,6 @@ gatling-recorder.log
 cache
 ivy2.tgz
 ivy-tmp
-proxy-recorder/user-files
 
 # Bundler
 .bundle

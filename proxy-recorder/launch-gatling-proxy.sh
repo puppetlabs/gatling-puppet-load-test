@@ -48,8 +48,18 @@ scp root@${PE_MASTER}:${HOST_KEY} ./target/tmp/ssl/hostkey.pem
 
 echo "Copied files.  Generating keystore file for gatling."
 cat ./target/tmp/ssl/hostcert.pem ./target/tmp/ssl/hostkey.pem > ./target/tmp/ssl/keystore.pem
-echo "puppet" | openssl pkcs12 -export -in ./target/tmp/ssl/keystore.pem -out ./target/tmp/ssl/keystore.p12 -name ${HOST_CERTNAME} -passout fd:0
-keytool -importkeystore -destkeystore ./target/tmp/ssl/gatling-proxy-keystore.jks -srckeystore ./target/tmp/ssl/keystore.p12 -srcstoretype PKCS12 -alias ${HOST_CERTNAME} -deststorepass "puppet" -srcstorepass "puppet"
+echo "puppet" | openssl pkcs12 -export \
+                        -in ./target/tmp/ssl/keystore.pem \
+                        -out ./target/tmp/ssl/keystore.p12 \
+                        -name ${HOST_CERTNAME} \
+                        -passout fd:0
+keytool -importkeystore \
+        -destkeystore ./target/tmp/ssl/gatling-proxy-keystore.jks \
+        -srckeystore ./target/tmp/ssl/keystore.p12 \
+        -srcstoretype PKCS12 \
+        -alias ${HOST_CERTNAME} \
+        -deststorepass "puppet" \
+        -srcstorepass "puppet"
 
 echo "Keystore successfully generated."
 
@@ -63,11 +73,21 @@ Press enter to launch the proxy.
 PRESS ENTER"
 read
 
-sbt "run -pkg com.puppetlabs.gatling.simulation" > gatling-recorder.log &
+# Gatling recorder arguments http://gatling.io/docs/2.0.0-RC2/http/recorder.html
+# * pkg (package)
+#   Scala package (and directory structure) the generated file will be in
+# * of (output-folder)
+#   Directory to create the package tree under
+# * ihr (infer HTML resources)
+#   Disable regrouping of resource requests (agent's wont be doing that)
+sbt "run -pkg com.puppetlabs.gatling.node_simulations -of $PWD -ihr false" \
+    > gatling-recorder.log &
 
 echo "Proxy launched.
 
-(The proxy GUI will take a while to launch on the first run, as sbt is downloading all of the gatling binaries.  You can check the file 'gatling-recorder.log' in this directory to see what's going on.)
+(The proxy GUI will take a while to launch on the first run, as sbt is
+downloading all of the gatling binaries.  You can check the file
+'gatling-recorder.log' in this directory to see what's going on.)
 
 So now you should see a dialog asking for some information about the simulation
 we're going to record.  You can leave most of the fields alone.  Here's the ones
@@ -78,15 +98,15 @@ you should define:
 
 * Output folder: path to wherever you want the generated simulation code to go
 
-* Listening port (HTTPS): it's fine to leave this as 8001 if that port is open
-   on your machine, but you can change it if you like.  you will need to know
+* Listening port (HTTPS): it's fine to leave this as 8000 if that port is open
+   on your machine, but you can change it if you like.  You will need to know
    this value for the next steps.
 
-* Infer html resources?: This will probably be checked by default.  You should
-   uncheck it.  Leaving it checked would cause the generated simulation code
-   to try to replay groups of requests that look like 'resources', e.g., links
-   from an HTML document, concurrently.  This simulates the behavior that a
-   browser would perform to obtain these kinds of resources.  We don't want
+* Infer html resources?: This should be unchecked by default.  If not, you
+   should uncheck it.  Leaving it checked would cause the generated simulation
+   code to try to replay groups of requests that look like 'resources', e.g.,
+   links from an HTML document, concurrently.  This simulates the behavior that
+   a browser would perform to obtain these kinds of resources.  We don't want
    that behavior for a Puppet agent simulation, though, because a real Puppet
    agent will only request 'resources' serially.  For example, any follow up
    file_metadata / file_content requests that an agent would make based on
@@ -104,7 +124,7 @@ of empty textboxes for request and response data.  Cool.
 The last step is to run your puppet agent, pointed at the proxy.  To do that,
 simply log in to your agent box and run a command like this:
 
-    puppet agent --test --http_proxy_host=<this machine's hostname or IP> --http_proxy_port=8001
+    puppet agent --test --server=<master hostname or IP> --http_proxy_host=<this machine's hostname or IP> --http_proxy_port=8000
 
 You should see some requests appear in the Gatling proxy window.  Once the
 agent run completes, click on the 'Stop & Save' button in Gatling, and then

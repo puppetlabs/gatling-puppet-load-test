@@ -1,0 +1,19 @@
+{
+    "run_description": "Puppet Server 2.0.0, Catalog Zero, 2 environments, 2 different agents",
+    "nodes": [
+        {
+            "node_config": "foss200-catalogzero-agent1",
+            "num_instances": 1,
+            "ramp_up_duration_seconds": 0,
+            "num_repetitions": 1,
+            "sleep_duration_seconds": 0
+        },
+        {
+            "node_config": "foss200-catalogzero-agent2",
+            "num_instances": 1,
+            "ramp_up_duration_seconds": 0,
+            "num_repetitions": 1,
+            "sleep_duration_seconds": 0
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "run_description": "PE 2015.2.3 Catalog Zero - 1 agent, 1 time",
+    "nodes": [
+        {
+            "node_config": "pe201523-catalogzero.json",
+            "num_instances": 1,
+            "ramp_up_duration_seconds": 0,
+            "num_repetitions": 1,
+            "sleep_duration_seconds": 0
+        }
+    ]
+}
+
+

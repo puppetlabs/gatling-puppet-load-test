@@ -8,6 +8,7 @@ import io.gatling.http.Predef._
 import com.puppetlabs.gatling.runner.SimulationWithScenario
 import org.joda.time.LocalDateTime
 import org.joda.time.format.ISODateTimeFormat
+import java.util.UUID
 
 class PE201523CatalogZero extends SimulationWithScenario {
 

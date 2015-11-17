@@ -282,15 +282,15 @@ puppet-gatling-jenkins-plugin project.
 12. In order for Gatling to generate useful reports per request endpoint, the
     names of the endpoints should be renamed.
 
-  | Name                 | Legacy Endpoint     | Modern v3 Endpoint |
-  | -------------------- | ------------ | ------------ |
-  | catalog              | /production/catalog/agent.localdomain | /puppet/v3/catalog/agent.localdomain |
-  | filemeta pluginfacts | /production/file_metadatas/pluginfacts | /puppet/v3/file_metadatas/pluginfacts |
-  | filemeta plugins     | /production/file_metadatas/plugins | /puppet/v3/file_metadatas/plugins |
-  | filemeta             | /production/file_metadatas/modules/xyz | /puppet/v3/file_metadata/modules/xyz |
-  | filemeta mco plugins | /production/file_metadatas/modules/pe_mcollective/plugins | /puppet/v3/file_metadata/modules/puppet_enterprise/mcollective |
-  | node                 | /production/node/agent.localdomain | /puppet/v3/node/agent.localdomain |
-  | report               | /production/report/agent.localdomain | /puppet/v3/report/agent.localdomain |
+  | Name                 | Legacy Endpoint                                            | Modern v3 Endpoint                                              |
+  | -------------------- | ------------                                               | ------------                                                    |
+  | catalog              | /production/catalog/agent.localdomain                      | /puppet/v3/catalog/agent.localdomain                            |
+  | filemeta pluginfacts | /production/file_metadatas/pluginfacts                     | /puppet/v3/file_metadatas/pluginfacts                           |
+  | filemeta plugins     | /production/file_metadatas/plugins                         | /puppet/v3/file_metadatas/plugins                               |
+  | filemeta             | /production/file_metadatas/modules/xyz                     | /puppet/v3/file_metadata/modules/xyz                            |
+  | filemeta mco plugins | /production/file_metadatas/modules/pe_mcollective/plugins  | /puppet/v3/file_metadata/modules/puppet_enterprise/mcollective  |
+  | node                 | /production/node/agent.localdomain                         | /puppet/v3/node/agent.localdomain                               |
+  | report               | /production/report/agent.localdomain                       | /puppet/v3/report/agent.localdomain                             |
 
   To change this for the "node" request, for example, the argument to the
   http() method would need to be changed from "request_0" to "node":

@@ -1,0 +1,13 @@
+{
+    "run_description": "PE 3.8 Catalog Zero - 250 agents",
+    "nodes": [
+        {
+            "node_config": "pe38-catalogzero-with-feeder.json",
+            "num_instances": 250,
+            "ramp_up_duration_seconds": 60,
+            "num_repetitions": 3,
+            "sleep_duration_seconds": 5
+        }
+    ]
+}
+

@@ -1,0 +1,6 @@
+{
+    "certname": "w3h244u9nwii0y5.delivery.puppetlabs.net",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PE201530CatalogZeroWithFeeder",
+    "modules": [],
+    "classes": []
+}

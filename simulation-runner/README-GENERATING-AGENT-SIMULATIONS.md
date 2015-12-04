@@ -5,6 +5,13 @@ simulation, i.e., the scala simulation and associated files commonly generated
 via the proxy-recorder tool, in order to make the simulation compatible with the
 puppet-gatling-jenkins-plugin project.
 
+There is a ruby script in the proxy-recorder directory that will apply most of
+these changes. Just run `ruby ../proxy-recorder/process_gatling_recording.rb
+$path_to_scala_file` and it will output the modified scala to a file named
+after the input file with .new added. So an updated `MySimulation.scala` would
+be called `MySimulation.scala.new`. The script does not apply Step 1, Step 7,
+or Step 8, but does do the rest of the changes below.
+
 ## Changes to the simulation scala file
 
 1. Look for any references to "inferHtmlResources" or the "resources" method.

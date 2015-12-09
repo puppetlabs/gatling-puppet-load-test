@@ -7,6 +7,7 @@ require 'yaml'
 ## 3. Node config JSON files in "./config/nodes/*.json"
 ## 4. Hiera config YAML files in "./config/hieras/<hiera>/hiera.yaml"
 ## 5. Hiera data trees in "./config/hieras/<hiera>/<datadir(s)>/"
+## 6. r10k config YAML files in "./config/r10ks/<r10k>.yaml"
 
 def parse_scenario_file(scenario_id)
   JSON.parse(File.read(File.join('config', 'scenarios', scenario_id + '.json')))
@@ -64,4 +65,9 @@ def hiera_datadirs(hiera)
     localpath = File.join('config', 'hieras', hiera, File.basename(datadir))
     [localpath, datadir]
   end
+end
+
+# Returns the path to the local r10k YAML configuration file
+def r10k_configpath(r10k)
+  File.join('config', 'r10ks', r10k + '.yaml')
 end

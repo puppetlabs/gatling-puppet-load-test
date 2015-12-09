@@ -1,0 +1,6 @@
+:cachedir: '/opt/puppetlabs/r10k/cache'
+
+:sources:
+  :basic:
+    remote: 'https://github.com/nwolfe/r10k-control-repo.git'
+    basedir: '/etc/puppetlabs/code/environments'

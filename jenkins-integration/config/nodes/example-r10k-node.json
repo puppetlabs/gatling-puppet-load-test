@@ -1,6 +1,0 @@
-{
-    "certname": "example-r10k-node",
-    "simulation_class": "com.puppetlabs.gatling.node_simulations.FOSSPuppetserver210CatalogZero",
-    "modules": [],
-    "classes": []
-}

@@ -27,8 +27,7 @@ def run_r10k_deploy(host)
   on(host, "#{r10k} deploy environment --puppetfile --verbose")
 end
 
-scenario_id = ENV['PUPPET_GATLING_SCENARIO']
-r10k_config = parse_scenario_file(scenario_id)['r10k']
+r10k_config = parse_scenario_file(get_scenario_from_env())['r10k']
 if r10k_config
   install_r10k(master)
   create_r10k_config(master, r10k_config)

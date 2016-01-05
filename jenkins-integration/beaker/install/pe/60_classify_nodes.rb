@@ -19,8 +19,16 @@ def classify_pe_nodes(classifier, nodes)
   end
 end
 
-scenario_id = ENV['PUPPET_GATLING_SCENARIO']
-nodes = node_configs(scenario_id)
+nodes = node_configs(get_scenario_from_env())
 classifier = Scooter::HttpDispatchers::ConsoleDispatcher.new(dashboard)
+
+# Updating classes can take a VERY long time, like the OPS deployment
+# which has ~80 environments each with hundreds of classes.
+# Set the connection timeout to 60 minutes to accomodate this.
+classifier.connection.options.timeout = 3600
 classifier.update_classes()
+
 classify_pe_nodes(classifier, nodes)
+
+# TODO validate classes by asking for the classes for the each node and
+#      asserting they're the same ones that are in the JSON config

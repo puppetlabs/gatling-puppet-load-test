@@ -1,0 +1,18 @@
+---
+HOSTS:
+  jenkins-gatling:
+    pe_dir:
+    pe_ver:
+    pe_upgrade_dir:
+    pe_upgrade_ver:
+    hypervisor: none
+    platform: el-6-x86_64
+    template: centos-6-x86_64
+    roles:
+    - agent
+    - master
+    - jenkins
+CONFIG:
+  nfs_server: none
+  consoleport: 443
+  pooling_api: http://vmpooler.delivery.puppetlabs.net/

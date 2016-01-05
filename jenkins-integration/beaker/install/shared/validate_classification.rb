@@ -34,6 +34,5 @@ def validate_classification(host, nodes)
   end
 end
 
-scenario_id = ENV['PUPPET_GATLING_SCENARIO']
-nodes = node_configs(scenario_id)
+nodes = node_configs(get_scenario_from_env())
 validate_classification(master, nodes)

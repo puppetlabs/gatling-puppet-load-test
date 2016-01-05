@@ -1,25 +1,30 @@
-test_name "Apply manifests for jenkins/git, sbt, and jjb"
+test_name "Apply manifests for jenkins, sbt, jjb, etc"
 
-manifests = [
-  "manifests/setup_jenkins.pp",
-  "manifests/setup_jjb.pp",
-  "manifests/setup_sbt.pp"
-]
+## Development and debugging of the manifests is easier if we first copy all
+## of them over before we start applying them. That way if one fails to apply
+## we can SSH into the machine and have access to all of them so we can run
+## "puppet apply" on them directly and in different orders.
 
-step "Make a temp dir for manifests"
-remote_temp_dir = create_tmpdir_on(dev_machine)
+tmpdir = create_tmpdir_on(jenkins)
 
-manifests.each do |local_path|
-  manifest_name = File.basename(local_path)
-  remote_path = File.join(remote_temp_dir, manifest_name)
-
-  step "Send #{manifest_name} to #{dev_machine}"
-  scp_to(dev_machine, local_path, remote_path)
-
-  step "Apply #{manifest_name} manifest"
-  on(dev_machine, "puppet apply #{remote_path}") do |result|
-    assert_no_match(/Error:/, result.stderr, 'Unexpected error was detected!')
+step "Copy all manifests to dev machine" do
+  Dir['manifests/*.pp'].each do |manifest|
+    remotepath = "#{tmpdir}/#{File.basename(manifest)}"
+    scp_to(jenkins, manifest, remotepath)
   end
-  
 end
 
+manifests_to_apply = [
+  "setup_jenkins.pp",
+  "setup_jjb.pp",
+  "setup_sbt.pp",
+  "setup_ruby.pp",
+]
+
+step "Apply manifests on dev machine" do
+  manifests_to_apply.each do |manifest|
+    remotepath = "#{tmpdir}/#{manifest}"
+    stderr = on(jenkins, puppet_apply(remotepath)).stderr
+    assert_no_match(/Error:/, stderr, 'Unexpected error was detected!')
+  end
+end

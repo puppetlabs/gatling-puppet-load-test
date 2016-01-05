@@ -16,8 +16,7 @@ def install_hieradata(host, hiera)
   end
 end
 
-scenario_id = ENV['PUPPET_GATLING_SCENARIO']
-hiera = parse_scenario_file(scenario_id)['hiera']
+hiera = parse_scenario_file(get_scenario_from_env())['hiera']
 if hiera
   install_hieraconfig(master, hiera)
   install_hieradata(master, hiera)

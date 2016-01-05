@@ -6,6 +6,10 @@ set -x
 #     pe_dist_dir="http://neptune.puppetlabs.lan/4.0/ci-ready"
 #     (optional) pe_ver="4.0.0-rc5-161-g85ecc84"
 
+## TODO Add the r10k_deploy.rb step to the TESTSUITE
+##      below once we know how it should interoperate
+##      with some of the other steps, like install_hiera
+##      and install_modules. SERVER-852
 export BEAKER_TESTSUITE="${BEAKER_TESTSUITE:-\
 beaker/install/pe/10_install_pe.rb,\
 beaker/install/shared/40_clone_test_catalogs.rb,\

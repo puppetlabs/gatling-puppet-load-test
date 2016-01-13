@@ -16,6 +16,7 @@ import scala.concurrent.duration._
 class ConfigDrivenSimulation extends Simulation {
 
   val REPETITION_COUNTER: String = "repetitionCounter"
+  val SLEEP_DURATION: String = "nextSleepDuration"
 
   def addSleeps(chain:ChainBuilder, sleepDuration:Int, totalNumReps:Int): ChainBuilder = {
     // This is kind of a dirty hack. Here's the deal.
@@ -31,16 +32,40 @@ class ConfigDrivenSimulation extends Simulation {
     // Here we've replaced our "pause" with a Gatling "session function",
     // which basically just sets a session variable to check to see if
     // we are on the final repetition, and if not, sleep for 30 mins.
-    chain.exec((session: Session) => {
+    //
+    // In addition, simply sleeping for sleepDuration after a run causes issues
+    // long runs, where start/end times will drift, and agent runs will start to
+    // clump together. To solve this, the length of the pause is calculated to
+    // be the difference between (start time + (repetition * sleep duration))
+    // and the current time.
+    //
+    // That is, if the sleep duration is 30 seconds, and a run takes 5 seconds,
+    // the agent will sleep for 25 seconds
+    chain.exec((session) => {
       val repetitionCount = session(REPETITION_COUNTER).asOption[Int].getOrElse(0) + 1
-      println("Agent " + session.userId +
-        " completed " + repetitionCount + " of " + totalNumReps + " repetitions.")
-      session.set(REPETITION_COUNTER, repetitionCount)
+
+      // Calculate the difference between when the next start time should be,
+      // and now.
+      // This has the bonus that the start times will never drift from run to
+      // run. They will always be ((a multiple of sleepDuration) + the start time)
+      val timeUntilNextRun = (session.startDate + sleepDuration * 1000 * repetitionCount) - System.currentTimeMillis()
+
+      // To mimic real puppet agents, if the sleepDuration has passed,
+      // run again immediately
+      val nextSleepDuration = math.max(0, timeUntilNextRun)
+
+      println(s"Agent ${session.userId} completed $repetitionCount of $totalNumReps repetitions.")
+
+      session
+        .set(REPETITION_COUNTER, repetitionCount)
+        .set(SLEEP_DURATION, nextSleepDuration)
     }).doIf((session) => session(REPETITION_COUNTER).as[Int] < totalNumReps) {
       exec((session) => {
-        println("This is not the last repetition; sleeping " + sleepDuration + ".")
+        val nextSleepDuration = session(SLEEP_DURATION).as[Long] / 1000.0
+
+        println(s"This is not the last repetition; sleeping ${nextSleepDuration}s to match ${sleepDuration}s cycle")
         session
-      }).pause(sleepDuration seconds)
+      }).pause((session) => session(SLEEP_DURATION).as[Long] milliseconds)
     }.doIf((session) => session(REPETITION_COUNTER).as[Int] >= totalNumReps) {
       exec((session) => {
         println("That was the last repetition. Not sleeping.")
@@ -65,9 +90,9 @@ class ConfigDrivenSimulation extends Simulation {
     val sim: SimulationWithScenario = simulationClass.newInstance
 
     val chainWithFailFast:ChainBuilder =
-    // this wrapper causes the agent sims to exit the series of
-    // of requests upon the first failure, rather than continuing
-    // to send up the remaining requests for the agent run.
+      // this wrapper causes the agent sims to exit the series of
+      // of requests upon the first failure, rather than continuing
+      // to send up the remaining requests for the agent run.
       exitBlockOnFail {
         exec(sim.scn)
       }

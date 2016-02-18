@@ -1,0 +1,12 @@
+{
+    "certname": "tld8f7u8nuqbbar.delivery.puppetlabs.net",
+    "environment": "production",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PE201530CatalogZero",
+    "classes": ["catalog_zero1"],
+    "modules": [
+        {
+            "name": "catalog_zero1",
+            "path": "/root/test-catalogs/catalog_zero/modules/catalog_zero1"
+        }
+    ]
+}

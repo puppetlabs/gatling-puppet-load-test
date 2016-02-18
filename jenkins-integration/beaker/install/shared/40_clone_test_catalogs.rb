@@ -1,19 +1,11 @@
-require 'fileutils'
-require 'tmpdir'
-
 test_name 'Clone test-catalogs repo onto master'
 
-# This is awful - we clone locally and then SCP the whole thing over.
-# See QENG-2556 for adding a proper way to do this in Beaker.
-tmp_repo = Dir.mktmpdir('test-catalogs')
-target = '/root/test-catalogs'
+create_remote_file(master, '/root/.ssh/known_hosts', <<-EOF)
+github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==
+EOF
 
-teardown do
-  FileUtils.remove_dir(tmp_repo)
+if !check_for_package(master, 'git')
+  install_package(master, 'git')
 end
 
-repo_url = 'git@github.com:puppetlabs/test-catalogs.git'
-%x(git clone #{repo_url} #{tmp_repo} --depth 1)
-
-on(master, "test -d #{target} && rm -rf #{target} || true")
-scp_to(master, tmp_repo, target)
+on(master, 'git clone git@github.com:puppetlabs/test-catalogs.git /root/test-catalogs --depth 1')

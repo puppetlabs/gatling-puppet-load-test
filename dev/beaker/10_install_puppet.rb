@@ -1,5 +1,4 @@
-test_name "Install puppet on target machine"
+test_name "Install Puppet on dev machine"
 
-step "Install puppet"
-# Installs the latest version
-on(dev_machine, install_puppet)
+# Installs the latest version found in the package repository
+install_puppet_on(jenkins)

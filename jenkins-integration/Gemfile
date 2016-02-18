@@ -1,7 +1,13 @@
 source ENV['GEM_SOURCE'] || 'https://rubygems.org'
 
-gem 'beaker', '2.15.1'
-gem 'scooter', :git => 'git@github.com:puppetlabs/scooter.git', :tag => '2.2'
+gem 'beaker', '>=2.11.0'
+gem 'beaker-hostgenerator', '0.3.2'
+
+gem 'scooter', :git => 'git@github.com:puppetlabs/scooter.git', :tag => '3.2.4'
+# Pin to the last version of net-ldap that works on ruby 1.9.3. We can get rid
+# of this once a new release of scooter is done that has an upper bound on this
+# gem dependency.
+gem 'net-ldap', '0.12.1'
 
 if File.exists? "#{__FILE__}.local"
   eval(File.read("#{__FILE__}.local"), binding)

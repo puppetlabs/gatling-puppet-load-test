@@ -1,12 +1,30 @@
-#####################
-# Jenkins job builder
-#####################
+############################################################
+# WARNING:                                                 #
+#   Be aware of PUP-3829 pip package provider broken on EL #
+############################################################
 
-# Need this for pip
+# TODO We should probably assert that we're running against a CentOS 6 machine
+#      because these resources are very specific to that platform. We could
+#      probably just check some OS facter fact for determing the platform, and
+#      fail if it's not CentOS 6.
+
 class { 'epel': }
 ->
-package { 'python-pip':
+yumrepo { 'IUS':
+  baseurl  => 'http://dl.iuscommunity.org/pub/ius/stable/CentOS/6/x86_64/',
+  descr    => 'Repo with Python 3 packages',
+  enabled  => 1,
+  gpgcheck => 0,
+}
+->
+package { 'python34u-pip':
   ensure => installed,
+}
+->
+file { '/usr/bin/pip-python':
+  # WORKAROUND for PUP-3829
+  ensure => 'link',
+  target => '/usr/bin/pip3',
 }
 ->
 package { 'jenkins-job-builder':

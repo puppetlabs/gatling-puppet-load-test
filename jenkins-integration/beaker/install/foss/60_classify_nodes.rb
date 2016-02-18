@@ -24,6 +24,5 @@ def classify_foss_nodes(host, nodes)
   end
 end
 
-scenario_id = ENV['PUPPET_GATLING_SCENARIO']
-nodes = node_configs(scenario_id)
+nodes = node_configs(get_scenario_from_env())
 classify_foss_nodes(master, nodes)

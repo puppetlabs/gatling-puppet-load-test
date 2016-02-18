@@ -1,23 +1,24 @@
 {
-    "run_description": "example scenario",
+    "run_description": "non-functional example scenario showing possible configuration values",
     "hiera": "basic-example",
+    "r10k": "basic.yaml",
     "nodes": [
         {
-            "node_config": "example-node1",
+            "node_config": "example-node1.json",
             "num_instances": 1,
             "ramp_up_duration_seconds": 1,
             "num_repetitions": 1,
             "sleep_duration_seconds": 1
         },
         {
-            "node_config": "example-node2",
+            "node_config": "example-node2.json",
             "num_instances": 2,
             "ramp_up_duration_seconds": 2,
             "num_repetitions": 2,
             "sleep_duration_seconds": 2
         },
         {
-            "node_config": "example-node3",
+            "node_config": "example-node3.json",
             "num_instances": 3,
             "ramp_up_duration_seconds": 3,
             "num_repetitions": 3,

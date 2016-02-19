@@ -84,14 +84,13 @@ Anyway, back to the present reality.  Here's an example of what a node config fi
         "certname": "pe-centos5.localdomain",
         "environment": "production",
         "simulation_class": "com.puppetlabs.gatling.node_simulations.PE28BigTemplateHeavyCatalogCent5",
-        "modules": [ { "name": "nwolfe/loadtest",
-                       "version": "0.0.3",
-                       "git": "git://github.com/nwolfe/puppet-loadtest.git" },
+        "modules": [ { "name": "catalog_zero",
+                       "path": "/root/test-catalogs/catalog_zero/modules/catalog_zero" },
                      { "name": "puppetlabs/apache",
                        "version": "0.6.0" },
                      { "name": "puppetlabs/firewall",
                        "version" : "0.3.1"} ],
-        "classes": [ "loadtest::bigtemplateheavycatalog" ]
+        "classes": [ "catalog_zero" ]
     }
 
 And here are what the keys/values mean:

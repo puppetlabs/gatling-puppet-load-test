@@ -5,6 +5,30 @@ This project is intended to be used in a Jenkins job to run puppet
 agent simulations against an existing puppet master, for the purposes
 of load testing.
 
+### NOTES re: hardware configuration
+
+When setting up your Puppet Server or PE SUT to prepare for test runs,
+you will want to be careful to make sure that there is going to be enough disk
+space available to leave the run going for as long as you intend for it to run.
+This is particularly an issue in PE, as the postgres data directory for PuppetDB
+and other apps can end up using quite a bit of disk space.
+
+This is particularly tricky on some of the dedicated perf testing hardware that
+we are using, because the machines have two disks: a small (~250GB?) SSD that is
+mounted at `/`, and a large (1TB) mechanical drive mounted at `/data`.
+
+The easiest way that we've found to deal with this for the time being is, before
+you do the PE installation, create a directory called `/data/opt/puppetlabs`, and
+then symlink that to `/opt/puppetlabs`.  Afterward, when you install PE, all of the
+biggest files / data directories will be set up underneath that symlink, and thus
+will reside on the larger disk so that you are less likely to run out of disk space
+during your test run.
+
+We intend to automate this as part of the Jenkins jobs that will be used to manage
+these runs in the future.
+
+### Generating Agent simulations
+
 To generate agent simulations, use the shell script in the
 `proxy-recorder` folder, and then copy the resulting code
 into this project.  It should go in this folder:
@@ -19,6 +43,8 @@ in `config/nodes`.
 
 Then you may reference your config file in one or more "scenarios",
 which are defined in `config/scenarios`.
+
+### Running simulations
 
 Before you start a simulation run, you will want to ensure that an truststore
 with SSL files for the agent being simulated have been put in place.  To do

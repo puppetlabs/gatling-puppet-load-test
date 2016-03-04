@@ -13,9 +13,7 @@ they are accurate.
 * You have a PE master up and running somewhere.
 * You have set up a public key so that you can ssh into that PE master machine
   as root from this machine.
-* The PE master has an auth.conf file that allows all connections; e.g. you
-  can copy the file 'conf/auth.conf' from this project to the puppet
-  config dir on your PE master.
+* The PE master has a Trapperkeeper Authorization configuration that allows all connections; for more info on this, see https://github.com/puppetlabs/gatling-puppet-load-test/README_tk_auth.md .
 * You have a PE agent up and running somewhere, and you'd like to capture
   an agent run from it for use in future Gatling scale tests.
 * You have classified this PE agent node the way you want it to be classified,

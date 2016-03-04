@@ -8,7 +8,9 @@ puppet-gatling-jenkins-plugin project.
 ## NOTE re ruby script to automate some of these steps
 
 There is a ruby script in the proxy-recorder directory that will apply most of
-these changes. Just run `ruby ../proxy-recorder/process_gatling_recording.rb
+these changes.  (*NOTE: requires ruby 2.0 or greater.*)
+
+Just run `ruby ../proxy-recorder/process_gatling_recording.rb
 $path_to_scala_file` and it will output the modified scala to a file named
 after the input file with .new added. So an updated `MySimulation.scala` would
 be called `MySimulation.scala.new`. The script does not apply Step 1, Step 7,

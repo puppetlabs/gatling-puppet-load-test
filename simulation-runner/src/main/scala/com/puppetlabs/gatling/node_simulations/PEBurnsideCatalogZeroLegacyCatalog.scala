@@ -15,6 +15,8 @@ class PEBurnsideCatalogZeroLegacyCatalog extends SimulationWithScenario {
 // 	val httpProtocol = http
 // 		.baseURL("https://perf-bl16.delivery.puppetlabs.net:8140")
 
+	val reportBody = ELFileBody("PEBurnsideCatalogZeroLegacyCatalog_0111_request.txt")
+
 	val headers_0 = Map("X-Puppet-Version" -> "4.4.0")
 
 	val headers_3 = Map(
@@ -24,7 +26,8 @@ class PEBurnsideCatalogZeroLegacyCatalog extends SimulationWithScenario {
 	val headers_111 = Map(
 		"Accept" -> "pson, yaml",
 		"Content-Type" -> "text/pson",
-		"X-Puppet-Version" -> "4.4.0")
+		"X-Puppet-Version" -> "4.4.0",
+                "Connection" -> "close")
 // val uri1 = "https://perf-bl16.delivery.puppetlabs.net:8140/puppet/v3"
 
 	val chain_0 = exec(http("node")
@@ -375,10 +378,18 @@ val chain_1 = exec(http("filemeta")
 			.get("/puppet/v3/file_metadata/modules/pe_accounts/shell/bash_profile?environment=production&links=manage&checksum_type=md5&source_permissions=ignore")
 			.headers(headers_0))
 		.pause(1)
+		.exec((session:Session) => {
+			session.set("reportTimestamp",
+				LocalDateTime.now.toString(ISODateTimeFormat.dateTime()))
+		})
+		.exec((session:Session) => {
+			session.set("transactionUuid",
+				UUID.randomUUID().toString())
+		})
 		.exec(http("report")
 			.put("/puppet/v3/report/perf-bl16.delivery.puppetlabs.net?environment=production&")
 			.headers(headers_111)
-			.body(RawFileBody("PEBurnsideCatalogZeroLegacyCatalog_0111_request.txt")))
+			.body(reportBody))
 					
 	val scn = scenario("PEBurnsideCatalogZeroLegacyCatalog").exec(
 		chain_0, chain_1)

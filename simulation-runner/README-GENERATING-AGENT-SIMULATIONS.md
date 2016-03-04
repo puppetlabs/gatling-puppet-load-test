@@ -5,12 +5,26 @@ simulation, i.e., the scala simulation and associated files commonly generated
 via the proxy-recorder tool, in order to make the simulation compatible with the
 puppet-gatling-jenkins-plugin project.
 
+## NOTE re ruby script to automate some of these steps
+
 There is a ruby script in the proxy-recorder directory that will apply most of
 these changes. Just run `ruby ../proxy-recorder/process_gatling_recording.rb
 $path_to_scala_file` and it will output the modified scala to a file named
 after the input file with .new added. So an updated `MySimulation.scala` would
 be called `MySimulation.scala.new`. The script does not apply Step 1, Step 7,
-or Step 8, but does do the rest of the changes below.
+or Step 10, but does do the rest of the changes below.
+
+In the future we'd like to be able to fully automate the agent recording process
+so that we can set up jenkins jobs to take new recordings when a new version
+of PE is released.  However, to do that, we really need to get to a state where
+the recorder can generate the simulation in another format besides raw scala
+code.  I've discussed this briefly with the Gatling maintainers and it seems
+like it shouldn't be a huge chunk of work to submit a patch upstream that
+would allow you to generate JSON output for a recording instead of scala.  Then
+we will be able to do some post-processing on the JSON, and then feed the modified
+JSON back into a Gatling API to have it generate the Scala.  This is something
+I'm hoping to poke at after we've gotten to the point where the *execution* of
+a simulation is fully automated.
 
 ## Changes to the simulation scala file
 

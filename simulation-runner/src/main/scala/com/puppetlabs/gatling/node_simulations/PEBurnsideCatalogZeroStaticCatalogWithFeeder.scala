@@ -1,4 +1,6 @@
 package com.puppetlabs.gatling.node_simulations
+
+import com.puppetlabs.gatling.config.NodeFeeder
 import com.puppetlabs.gatling.runner.SimulationWithScenario
 import org.joda.time.LocalDateTime
 import org.joda.time.format.ISODateTimeFormat
@@ -16,7 +18,7 @@ class PEBurnsideCatalogZeroStaticCatalogWithFeeder extends SimulationWithScenari
 // 		.baseURL("https://${node}:8140")
 
 	val reportBody = ELFileBody("PEBurnsideCatalogZeroStaticCatalogWithFeeder_0010_request.txt")
-        val nodeNames = csv("nodes.1000.csv").circular
+	val nodeNames = NodeFeeder("node", 1000).circular
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.4.0")
 

@@ -44,6 +44,6 @@ After this, it's a good idea to do an agent run with `puppet agent -t` to verify
 
 After verifying that, you will want to restart or HUP the server so that the new rules take effect.  You can test the rules by running a command like this:
 
-   curl -k https://localhost:8140/puppet/v3/catalog/<certname-of-this-server>\?environment=production
+   curl -k https://localhost:8140/puppet/v3/catalog/$(hostname)\?environment=production
 
 If the auth rules haven't taken effect, this request will be rejected because you didn't pass the appropriate client cert when making the request.  If this request succeeds, then you should be ready for proxy recordings or simulations.

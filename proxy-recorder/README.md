@@ -13,6 +13,7 @@ Prerequisites:
 Once you have these, just run the `launch-gatling-proxy.sh`.  The shell script
 is interactive and will walk you through the rest of the process.
 
+Note that the steps involving preparing the TK auth rules to allow the appropriate access for taking a proxy recording can be a bit tricky; for more info, see [../README_tk_auth.md](../README_tk_auth.md).
 
 Output: 
 

@@ -1,0 +1,14 @@
+{
+    "run_description": "PE Burnside Catalog Zero - 10 agents, 1 minute ramp, 10 times",
+    "nodes": [
+        {
+            "node_config": "pe-burnside-catalogzero-static-catalog.json",
+            "num_instances": 10,
+            "ramp_up_duration_seconds": 60,
+            "num_repetitions": 10,
+            "sleep_duration_seconds": 0
+        }
+    ]
+}
+
+

@@ -1,0 +1,14 @@
+{
+    "run_description": "PE Burnside Catalog Zero (Legacy Cats) - 1000 agents",
+    "nodes": [
+        {
+            "node_config": "pe-burnside-catalogzero-legacy-catalog-feeder.json",
+            "num_instances": 1000,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 100,
+            "sleep_duration_seconds": 1800 
+        }
+    ]
+}
+
+

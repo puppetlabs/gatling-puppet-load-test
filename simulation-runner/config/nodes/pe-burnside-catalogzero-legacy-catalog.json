@@ -1,0 +1,6 @@
+{
+    "certname": "perf-bl16.delivery.puppetlabs.net",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PEBurnsideCatalogZeroLegacyCatalog",
+    "modules": [],
+    "classes": []
+}

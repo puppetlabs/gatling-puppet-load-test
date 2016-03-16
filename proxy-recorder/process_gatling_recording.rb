@@ -7,6 +7,7 @@ TERMINOLOGY = {
   "file_metadata[s]?/plugins"                               => "filemeta plugins",
   "file_metadata[s]?/modules"                               => "filemeta",
   "file_content/modules"                                    => "file content",
+  "static_file_content/modules"                             => "static file content",
   "node"                                                    => "node",
   "report"                                                  => "report",
 }

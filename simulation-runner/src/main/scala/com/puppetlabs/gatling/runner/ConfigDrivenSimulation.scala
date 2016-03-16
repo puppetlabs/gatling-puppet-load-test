@@ -78,10 +78,6 @@ class ConfigDrivenSimulation extends Simulation {
 
   val httpProtocol = http
     .baseURL(config.baseUrl)
-    .disableFollowRedirect
-    .disableAutoReferer
-    .acceptHeader("""pson, yaml, b64_zlib_yaml, raw""")
-
 
   val scns = config.nodes.map(node => {
 

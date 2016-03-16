@@ -1,0 +1,6 @@
+{
+    "certname": "perf-bl15.delivery.puppetlabs.net",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PEBurnsideRecursiveLargeFilesLegacyCatalog",
+    "modules": [],
+    "classes": []
+}

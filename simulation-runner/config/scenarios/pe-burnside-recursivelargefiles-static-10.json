@@ -3,7 +3,7 @@
     "nodes": [
         {
             "node_config": "pe-burnside-recursivelargefiles-static.json",
-            "num_instances": 1,
+            "num_instances": 10,
             "ramp_up_duration_seconds": 60,
             "num_repetitions": 10,
             "sleep_duration_seconds": 0

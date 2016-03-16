@@ -14,7 +14,7 @@ mainClass in (Compile, run) := Some("io.gatling.recorder.GatlingRecorder")
 
 fork := true
 
-javaOptions in run ++= Seq("-Xms512M", "-Xmn100M",
+javaOptions in run ++= Seq("-Xms512M", "-Xmx8g", "-Xmn100M",
   "-Drecorder.proxy.https.mode=ProvidedKeyStore",
   "-Drecorder.proxy.https.keyStore.path=./target/tmp/ssl/gatling-proxy-keystore.jks",
   "-Drecorder.proxy.https.keyStore.password=puppet",

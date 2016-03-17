@@ -31,9 +31,10 @@ class PuppetGatlingConfig(configFilePath: String) {
 
     val Some(JsonMap(nodeConfig)) = JSON.parseFull(io.Source.fromFile(nodeConfigFile).mkString)
     val JsonString(simClass) = nodeConfig("simulation_class")
+    val JsonString(nodeNamePrefix) = nodeConfig("certname_prefix")
 
     Node(Class.forName(simClass).asInstanceOf[Class[SimulationWithScenario]],
-      numRepetitions, numInstances, sleepDuration, rampUpDuration)
+      nodeNamePrefix, numRepetitions, numInstances, sleepDuration, rampUpDuration)
   })
 }
 

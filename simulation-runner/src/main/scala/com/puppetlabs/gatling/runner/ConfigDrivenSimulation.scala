@@ -3,7 +3,7 @@ package com.puppetlabs.gatling.runner
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-import com.puppetlabs.gatling.config.PuppetGatlingConfig
+import com.puppetlabs.gatling.config.{NodeFeeder, PuppetGatlingConfig}
 import io.gatling.core.structure.{ChainBuilder}
 
 import scala.concurrent.duration._
@@ -101,7 +101,10 @@ class ConfigDrivenSimulation extends Simulation {
     val chainWithSleeps:ChainBuilder =
       addSleeps(chainWithFailFast, sleepDuration, numRepetitions)
 
+    val feeder = NodeFeeder("node", numInstances).circular
+
     scenario(simulationClass.getSimpleName)
+        .feed(feeder)
       .repeat(numRepetitions) {
         group((session) => simulationClass.getSimpleName) {
           chainWithSleeps

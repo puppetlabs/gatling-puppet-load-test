@@ -1,4 +1,6 @@
 package com.puppetlabs.gatling.node_simulations
+
+import com.puppetlabs.gatling.config.NodeFeeder
 import com.puppetlabs.gatling.runner.SimulationWithScenario
 import org.joda.time.LocalDateTime
 import org.joda.time.format.ISODateTimeFormat
@@ -16,7 +18,6 @@ class PEBurnsideCatalogZeroStaticCatalogWithFeeder extends SimulationWithScenari
 // 		.baseURL("https://${node}:8140")
 
 	val reportBody = ELFileBody("PEBurnsideCatalogZeroStaticCatalogWithFeeder_0010_request.txt")
-        val nodeNames = csv("nodes.1000.csv").circular
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.4.0")
 
@@ -32,7 +33,6 @@ class PEBurnsideCatalogZeroStaticCatalogWithFeeder extends SimulationWithScenari
 // val uri1 = "https://${node}:8140/puppet/v3"
 
 	val scn = scenario("PEBurnsideCatalogZeroStaticCatalogWithFeeder")
-                .feed(nodeNames)
 		.exec(http("node")
 			.get("/puppet/v3/node/${node}?environment=production&transaction_uuid=9221e708-f25f-4255-ad62-c03a21a270a5&fail_on_404=true")
 			.headers(headers_0))

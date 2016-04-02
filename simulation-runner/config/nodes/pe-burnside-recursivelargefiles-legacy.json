@@ -1,0 +1,6 @@
+{
+    "certname_prefix": "burnside_largefiles_legacy",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PEBurnsideRecursiveLargeFilesLegacyCatalog",
+    "modules": [],
+    "classes": []
+}

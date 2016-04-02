@@ -1,0 +1,6 @@
+{
+    "certname_prefix": "burnside_largefiles_static",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PEBurnsideRecursiveLargeFilesStaticCatalog",
+    "modules": [],
+    "classes": []
+}

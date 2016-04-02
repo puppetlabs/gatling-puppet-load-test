@@ -78,10 +78,6 @@ class ConfigDrivenSimulation extends Simulation {
 
   val httpProtocol = http
     .baseURL(config.baseUrl)
-    .disableFollowRedirect
-    .disableAutoReferer
-    .acceptHeader("""pson, yaml, b64_zlib_yaml, raw""")
-
 
   val scns = config.nodes.map(node => {
 
@@ -101,7 +97,7 @@ class ConfigDrivenSimulation extends Simulation {
     val chainWithSleeps:ChainBuilder =
       addSleeps(chainWithFailFast, sleepDuration, numRepetitions)
 
-    val feeder = NodeFeeder("node", numInstances).circular
+    val feeder = NodeFeeder(nodeNamePrefix, numInstances).circular
 
     scenario(simulationClass.getSimpleName)
         .feed(feeder)
@@ -113,5 +109,6 @@ class ConfigDrivenSimulation extends Simulation {
       .protocols(httpProtocol)
   })
 
-  scns.foreach(setUp(_))
+  setUp(scns)
+//  scns.foreach(setUp(_))
 }

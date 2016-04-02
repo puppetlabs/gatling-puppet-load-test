@@ -15,18 +15,21 @@ import com.puppetlabs.gatling.runner.SimulationWithScenario
  * @param rampUpDuration - the number of seconds to spread out the instantiation of the individual node instances over.  (e.g., if you have 10 instances and a ramp-up duration of 10, then a new node instance will be created every 1 second for the first 10 seconds of the simulation.
  */
 class Node(val simulationClass: Class[SimulationWithScenario],
-            val numRepetitions: Int,
-            val numInstances: Int,
-            val sleepDuration: Int,
-            val rampUpDuration: Int) {}
+           val nodeNamePrefix: String,
+           val numRepetitions: Int,
+           val numInstances: Int,
+           val sleepDuration: Int,
+           val rampUpDuration: Int) {}
 
 object Node {
   def apply(simulationClass: Class[SimulationWithScenario],
+            nodeNamePrefix: String,
             numRepetitions: Int,
             numInstances: Int,
             sleepDuration: Int,
             rampUpDuration: Int) =
     new Node(simulationClass,
+              nodeNamePrefix,
               numRepetitions,
               numInstances,
               sleepDuration,

@@ -1,0 +1,21 @@
+{
+    "run_description": "PE Burnside Catalog Zero + Recursive Large Files",
+    "nodes": [
+        {
+            "node_config": "pe-burnside-recursivelargefiles-static.json",
+            "num_instances": 20,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 100,
+            "sleep_duration_seconds": 1800 
+        },
+        {
+            "node_config": "pe-burnside-catalogzero-static-catalog-feeder.json",
+            "num_instances": 1000,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 100,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}
+
+

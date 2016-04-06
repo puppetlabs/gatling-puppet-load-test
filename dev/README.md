@@ -34,6 +34,9 @@ To run the beaker script, you must first add an entry to your `hosts` file for
 Alternatively you can edit `dev/target_machine.yml` and
 replace `jenkins-gatling` with the hostname or IP of your system.
 
+You also must add your public key (`~/.ssh/id_rsa.pub`) to the `authorized_keys` on
+the `jenkins-gatling` node.
+
 #### Running Beaker
 
 From inside the `dev` directory:

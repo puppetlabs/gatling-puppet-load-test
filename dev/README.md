@@ -41,7 +41,7 @@ From inside the `dev` directory:
 bundle install --path vendor/bundle
 bundle exec beaker \
 	--log-level debug \
-	--hosts beaker/target_machine.yml \
+	--hosts ./target_machine.yml \
 	--tests beaker/
 ```
 

@@ -116,12 +116,12 @@ On a CentOS 6 VM, perform the following steps:
     You should see something like "/dev/sda /dev/sda1 /dev/sda2 /dev/sdb /dev/sdb2"
     (Once we've added a new disk we should see another result here, like '/dev/sdc')
 2.  Curl the VMPooler to add a new disk of the specified size:
-    `curl -H X-AUTH-TOKEN <your token> -X POST --url vmpooler/api/v1/vm/$(hostname)/disk/18`
+    `curl -k -X POST -H X-AUTH-TOKEN:<your_token> --url https://<vmpooler-host>/api/v1/vm/<short-hostname>/disk/18`
     Here we've added 18GB. See
     https://github.com/puppetlabs/vmpooler/blob/master/API.md#adding-additional-disks
     for more information. This will take several minutes to complete (~10
     minutes).
-3.  Wait until the new disk is reflect in the VM status:
+3.  Wait until the new disk is reflected in the VM status:
     `curl vmpooler/api/v1/vm/$(hostname)`
     You should see a section like `"disk": ["+18gb"]` in the output.
 4.  Restart the VM with `reboot` and log back in.

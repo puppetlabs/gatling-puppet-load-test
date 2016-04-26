@@ -1,0 +1,4 @@
+{
+ "name": "puppetserver-perf-sut",
+ "rule": ["or", ["=", ["fact", "macaddress"], "84:34:97:11:d5:e4"], ["=", ["fact", "macaddress"], "84:34:97:11:d0:a0"], ["=", ["fact", "macaddress"], "84:34:97:11:d1:38"]]
+}

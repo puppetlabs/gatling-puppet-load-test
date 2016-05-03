@@ -1,0 +1,9 @@
+{
+ "name": "puppetserver-perf-sut",
+ "hostname": "puppetserver-perf-sut${id}.delivery.puppetlabs.net",
+ "root-password": "puppet",
+ "tags": "puppetserver-perf-sut",
+ "repo": "centos-7",
+ "task": "puppetserver-sut-centos/7",
+ "broker": "puppetserver-perf-sut"
+} 

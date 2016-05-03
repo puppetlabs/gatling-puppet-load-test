@@ -97,7 +97,7 @@ is nothing that we need to put into the Razor database for these.
 ### Task for the `driver` node
 
 None at this time.  We're just using the standard Cent7 task that ships with razor
-and it seems so far.
+and it seems sufficient so far.
 
 ### Task for the `SUT` nodes
 

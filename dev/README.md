@@ -1,38 +1,38 @@
 # Setting up a Development Environment
+
 This describes how to set up a development environment suitable for working on
-the automation for `gatling-puppet-load-test`
+the automation for `gatling-puppet-load-test`.  For more info on how the whole
+system works, you'll probably want to have read the
+[`README.md` in the parent directory](../README.md)
+before reading this.
 
 ## What you get
-The beaker scripts in the `beaker` directory will set up a machine with a
-jenkins server, a copy of this repo (which contains the gatling executables),
-`sbt` for running gatling, and an installation of `jenkins-job-builder`
-configured to point at the jenkins server. Puppet will be installed to manage
-the installation of these things.
+
+The beaker scripts in the `beaker` directory will set up a "driver node", with a
+jenkins server and a bootstrap jenkins job, as well as all of the prerequisites
+necessary to run a Gatling simulation.  Puppet will be installed and used to manage
+all of the above.
 
 ## Requirements
 This guide assumes you'll be running beaker from your personal machine and you
-want to setup a separate machine with the dev environment.
+want to setup a vm pooler machine with the dev environment.
 
 The following are required:
-* CentOS 6 VM hostname to be the `jenkins-gatling` machine
-* CentOS 6 VM hostname to be the master SUT (only when we run the jenkins jobs)
-* `~/.ssh/id_rsa` SSH key for cloning private repos from GitHub
-* `~/.ssh/id_rsa-acceptance` SSH key for inter-host communication during runs
+* CentOS 7 VM hostname to be the "driver" machine
+* CentOS 7 VM hostname to be the master SUT (only when we run the jenkins jobs)
 
-To actually run gatling against a SUT, you'll need to set up another machine
-with some flavor of puppetserver/PE depending on what you're trying to test.
-Running tests isn't covered in this guide though.
+## Setting up the driver node
 
-It's also important to note that if you want to work on the cobbler provisioning
-portion of the automation, it's much more involved. There will be a separate
-guide for that at some point.
+To run the beaker script, you need to set up a beaker hosts file that tells beaker
+about the machine we're going to use as the driver.  Your options are:
 
-## Setting up the jenkins/gatling box
-To run the beaker script, you must first add an entry to your `hosts` file for
-`jenkins-gatling` for the IP of your new system.
-
-Alternatively you can edit `dev/target_machine.yml` and
-replace `jenkins-gatling` with the hostname or IP of your system.
+* Edit the `target_machine.yml` file and replace the default hostname `jenkins-gatling`
+  with the hostname of your vmpooler VM, or
+* Edit your /etc/hosts file and add an entry for `jenkins-gatling` that maps to
+  the IP of your vmpooler VM, or
+* Copy the `target_machine.yml` file to `target_machine_local.yml` and then edit
+  it.  `target_machine_local.yml` is in the `.gitignore` file, so you won't have
+  to worry about accidentally committing it.
 
 #### Running Beaker
 
@@ -41,70 +41,53 @@ From inside the `dev` directory:
 bundle install --path vendor/bundle
 bundle exec beaker \
 	--log-level debug \
+	--keyfile ~/.ssh/id_rsa-acceptance \
 	--hosts ./target_machine.yml \
 	--tests beaker/
 ```
 
 If everything goes well, the beaker output should show no errors.
 
-Jenkins should be available on port `8080` of the `jenkins-gatling` machine.
+Jenkins should be available on port `8080` of your "driver" machine.  There should
+be one or more initial jobs configured; for more detail on what these jobs do,
+see the [`README.md` in the parent directory](../README.md).
 
-`jenkins-jobs` and `sbt` should be available at the command line.
-
-A copy of this repo should be in `~/gatling-puppet-load-test`.
-
-#### Configure sbt on Jenkins
-
-Unfortunately you'll need to tell Jenkins where it can find the sbt jar for
-actually running the gatling scenario.
-
-On the `jenkins-gatling:8080` web page, perform the following steps:
-
-1. Click "Manage Jenkins"
-2. Click "Configure System"
-3. Click "Add Sbt" under the Sbt section
-4. Enter "default" for the "Sbt name" (an arbitrary name we'll reference later)
-5. Uncheck "Install automatically"
-6. Set "sbt launch jar" to "/usr/share/sbt-launcher-packaging/bin/sbt-launch.jar"
-7. Click "Save" at the bottom
-
-Jenkins will now know where to find the sbt jar, but individual jobs that use
-sbt will now need to be configured to use the "default" sbt installation.
-
-#### Deploying jobs to Jenkins
-
-Going to `jenkins-gatling:8080` in your browser will show you the main Jenkins
-page, but there will not be any jobs to run.
-
-In order to deploy the JJB jobs to Jenkins, run the `jenkins-jobs update`
-command with a JJB YAML file. For example:
-```bash
-jenkins-jobs update gatling-puppet-load-test/jenkins-integration/jenkins-jobs/run_gatling_scenario.yml
-```
-
-You'll need to configure the job to use our "default" sbt installation now.
-
-1. Click "Configure" on the new job page.
-   You should see a Build section, with a "Build using sbt" block with the sbt
-   launcher set to "default".
-2. Click "Save"
-
-Yes, we just opened a web page, did nothing, and closed it. Welcome to Jenkins.
-
-The job should now be ready to use the sbt plugin for running gatling.
+If you want to poke on the node,  `jenkins-jobs` and `sbt` should be
+available at the command line.  However, hopefully most of the work you'll
+be interested in doing from here will be driven through Jenkins.
 
 ## Setting up the master SUT
 
 During development, the master SUT can be a local VM (e.g. VMWare Fusion), a
-VMPooler VM, or a dedicated blade.
+VMPooler VM, or a dedicated blade.  For these instructions we'll assume you're
+using a vmpooler VM.
 
 #### Using VMPooler VMs
 
-You may need to increase the disk space available to the VMPooler VMs as they
-are only configured with about 12GB. This will not be enough disk space for some
-scenarios, like the OPS deployment.
+VMPooler VMs should hopefully work pretty much out-of-the-box as SUT nodes.  The
+only thing you should need to do is to add a public key that will allow your
+driver node to connect to it via beaker, to install PE, etc.
 
-On a CentOS 6 VM, perform the following steps:
+##### Adding driver-compatible public key to SUT node
+
+There's a script in this directory, `add-public-key.sh`, which will do this for you.
+(It uses a key that is compatible with the beaker-provisioned driver node if you
+followed the steps above.)  To run it:
+
+    ./add-public-key.sh <jenkins-acceptance-keyfile> <vmpooler-sut-node-fqdn>
+
+e.g.:
+
+    ./add-public-key.sh ~/.ssh/id_rsa-acceptance  yw72peu78u7zcxv.delivery.puppetlabs.net
+
+##### SUT vmpooler node - disk space
+
+Depending on how long your gatling run may last, you may end up generating a lot
+of data in the PuppetDB database.  You may need to increase the disk space available
+to the VMPooler VMs as they are only configured with about 12GB. This will not be
+enough disk space for some scenarios.
+
+On a CentOS 7 VM, perform the following steps:
 
 0.  Run `df -h` to see the default disk space. You should see a size of "12G"
     under '/dev/mapper/VolGroup-lv_root'. This number will be updated once we're
@@ -113,12 +96,12 @@ On a CentOS 6 VM, perform the following steps:
     You should see something like "/dev/sda /dev/sda1 /dev/sda2 /dev/sdb /dev/sdb2"
     (Once we've added a new disk we should see another result here, like '/dev/sdc')
 2.  Curl the VMPooler to add a new disk of the specified size:
-    `curl -H X-AUTH-TOKEN <your token> -X POST --url vmpooler/api/v1/vm/$(hostname)/disk/18`
+    `curl -k -X POST -H X-AUTH-TOKEN:<your_token> --url https://<vmpooler-host>/api/v1/vm/<short-hostname>/disk/18`
     Here we've added 18GB. See
     https://github.com/puppetlabs/vmpooler/blob/master/API.md#adding-additional-disks
     for more information. This will take several minutes to complete (~10
     minutes).
-3.  Wait until the new disk is reflect in the VM status:
+3.  Wait until the new disk is reflected in the VM status:
     `curl vmpooler/api/v1/vm/$(hostname)`
     You should see a section like `"disk": ["+18gb"]` in the output.
 4.  Restart the VM with `reboot` and log back in.
@@ -135,6 +118,14 @@ On a CentOS 6 VM, perform the following steps:
 
 The VM should now have increased disk space. Mounting or symlinking the new disk
 should not be necessary.
+
+## Working on Jobs
+
+Once you have your dev environment up and running, you will mostly be iterating
+on the code in the `jenkins-integration/jenkins-jobs` directory in the
+`gatling-puppet-load-test` repo.  You may wish to run the bootstrap job on the
+driver node periodically to refresh the job that you are working on.  For more
+info, read the [`README.md` in the parent directory](../README.md)
 
 ## Development Tips
 
@@ -165,6 +156,4 @@ For example:
 commit)!*
 
 You'll need to temporarily change any git references to point to your IP address
-instead of GitHub. This should at least include
-`dev/40_clone_gatling_puppet_load_test.rb`, but you'll probably want to change
-the git url referenced in your JJB job as well.
+instead of GitHub.

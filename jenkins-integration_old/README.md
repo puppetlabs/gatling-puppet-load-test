@@ -1,3 +1,9 @@
+# OLD STUFF
+
+This is the old directory where we had done our original jenkins stuff
+several years ago.  It's almost certainly all bit-rot at this point, and
+will probably be deleted soon.
+
 ## Jenkins Integration for Gatling Perf Testing
 
 This sub project is divided as:

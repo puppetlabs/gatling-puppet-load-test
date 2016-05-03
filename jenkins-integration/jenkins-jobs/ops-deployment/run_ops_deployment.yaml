@@ -12,24 +12,26 @@
     - string:
         name: PUPPET_GATLING_MASTER_BASE_URL
         description: "The URL of the puppet master SUT"
+        default: "puppetserver-perf-sut54.delivery.puppetlabs.net"
 
     scm:
       - git:
-          url: https://github.com/puppetlabs/gatling-puppet-load-test.git
+          url: https://github.com/cprice404/gatling-puppet-load-test.git
           branches:
-              - master
+              - maint/master/playing-with-nates-dev-env
           browser: githubweb
           browser-url: http://github.com/puppetlabs/gatling-puppet-load-test
 
     builders:
-      - shell:
-          "pushd jenkins-integration && \
-          ./jenkins-jobs/ops-deployment/setup_master.sh && \
-          popd"
-      - sbt:
-          actions: "run"
-          subdir-path: "./simulation-runner"
+      - shell: |
+          #!/usr/bin/env bash
 
+          pushd jenkins-integration
+          source ./jenkins-jobs/ops-deployment/initialize_ruby_env.sh
+          ./jenkins-jobs/ops-deployment/setup_beaker_env.sh
+          ./jenkins-jobs/ops-deployment/setup_master.sh
+          ./jenkins-jobs/ops-deployment/run_simulation.sh
+          popd
 - project:
     name: ops-deployment
     jobs:

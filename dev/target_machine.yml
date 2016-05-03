@@ -1,6 +1,6 @@
 ---
 HOSTS:
-  jenkins-gatling:
+  gatling-driver:
     pe_dir:
     pe_ver:
     pe_upgrade_dir:
@@ -9,8 +9,6 @@ HOSTS:
     platform: el-6-x86_64
     template: centos-6-x86_64
     roles:
-    - agent
-    - master
     - jenkins
 CONFIG:
   nfs_server: none

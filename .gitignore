@@ -22,3 +22,4 @@ Gemfile.local
 # Beaker
 log
 junit
+dev/target_machine_local.yml

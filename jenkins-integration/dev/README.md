@@ -26,9 +26,9 @@ The following are required:
 To run the beaker script, you need to set up a beaker hosts file that tells beaker
 about the machine we're going to use as the driver.  Your options are:
 
-* Edit the `target_machine.yml` file and replace the default hostname `jenkins-gatling`
+* Edit the `target_machine.yml` file and replace the default hostname `gatling-driver`
   with the hostname of your vmpooler VM, or
-* Edit your /etc/hosts file and add an entry for `jenkins-gatling` that maps to
+* Edit your /etc/hosts file and add an entry for `gatling-driver` that maps to
   the IP of your vmpooler VM, or
 * Copy the `target_machine.yml` file to `target_machine_local.yml` and then edit
   it.  `target_machine_local.yml` is in the `.gitignore` file, so you won't have

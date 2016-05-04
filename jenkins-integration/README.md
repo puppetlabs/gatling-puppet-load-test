@@ -36,11 +36,30 @@ run on some dedicated hardware that lives in the SysOps PE/Razor environments.
 For development work, when you are just trying to get a new test working, you
 can spin up the driver and SUT nodes in vmpooler.
 
+##### Relevant repos containing Puppet code
+
+There are two repos containing Puppet code that is used to manage the infrastructure.
+Hopefully, in most circumstances, you'll never need to interact with them directly,
+but for posterity, they are:
+
+* [puppetlabs-puppetserver_perf_driver](https://github.com/puppetlabs/puppetlabs-puppetserver_perf_driver)
+
+  This repo contains a puppet module that is used to configure everything we need on the driver
+  node (Jenkins, sbt, JJB, lots of ssh keys, and more fun stuff).  There are component classes,
+  roles, and profiles here that are used in both the production setup and in vmpooler dev
+  environments (see the following sections for more info).
+
+* [puppetlabs-puppetserver_perf_driver_dev_control](https://github.com/puppetlabs/puppetlabs-puppetserver_perf_driver_dev_control)
+
+  This is an r10k control repo.  It is used *only* in development / vmpooler environments, to
+  fill in a few gaps for things that are managed by profiles in the puppetlabs-modules repo
+  in the production setup (because those profiles are not usable outside of the ops environment.)
+
 ##### Production Environment
 
 In the production environment, we have 3 dedicated SUT blades, and one driver blade.
 These are all provisioned via Razor.  For details on the razor setup,
-see the [docs in the `razor` subdirector](./razor).
+see the [docs in the `razor` subdirectory](./razor).
 
 The driver node will have all of our Jenkins history and visualizations of trends
 of different jobs over time.  It is managed by Puppet, using a role

@@ -1,7 +1,7 @@
 require 'puppet/gatling/config'
 require 'fileutils'
 
-test_name 'Configure SSL authorization'
+test_name 'Configure Gatling SSL authorization'
 
 # This step will generate a keystore and trustore file using the master's
 # certificate and private key, and the CA's certificate.
@@ -38,24 +38,4 @@ step 'Generate Gatling SSL keystore & trustore' do
 
   # Generate truststore
   %x{keytool -import -alias "CA" -keystore #{ssldir}/gatling-truststore.jks -storepass "puppet" -trustcacerts -file #{ssldir}/cacert.pem -noprompt}
-end
-
-step 'Configure permissive auth.conf on master' do
-  auth_conf = '/etc/puppetlabs/puppetserver/conf.d/auth.conf'
-  create_remote_file(master, auth_conf, <<-EOF)
-authorization: {
-    version: 1
-    rules: [
-        {
-            match-request: {
-                path: "/"
-                type: path
-            }
-            allow-unauthenticated: true
-            sort-order: 1
-            name: "Puppet Gatling Load Test -- allow all"
-        }
-    ]
-}
-EOF
 end

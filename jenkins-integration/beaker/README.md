@@ -1,5 +1,9 @@
 # beaker
-This directory holds beaker scripts that will get run as part of jenkins jobs
+This directory holds beaker scripts that will get run as part of jenkins jobs.
+
+If you are running any of the existing JJB jobs, or if you copy/paste them as a
+template, you may not need to worry about any of the details below.  But if you
+need to dig deeper into how Puppet/PE are getting installed, read on.
 
 **Table of Contents**
 

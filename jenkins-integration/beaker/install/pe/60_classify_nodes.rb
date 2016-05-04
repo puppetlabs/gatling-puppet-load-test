@@ -9,11 +9,11 @@ def classify_pe_nodes(classifier, nodes)
   nodes.each_pair do |env, node_configs|
     node_configs.each do |config|
       classifier.create_new_node_group_model(
-        'name' => "#{config['certname']}-group",
+        'name' => "#{config['certname_prefix']}-group",
         'parent' => production_id,
         'environment' => env,
         'environment_trumps' => true,
-        'rule' => ['=', ['trusted', 'certname'], config['certname']],
+        'rule' => ['~', ['trusted', 'certname'], "#{config['certname_prefix']}.*"],
         'classes' => Hash[config['classes'].map { |klass| [klass, {}] }])
     end
   end

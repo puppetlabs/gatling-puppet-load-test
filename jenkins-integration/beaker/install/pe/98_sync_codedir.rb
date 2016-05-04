@@ -25,3 +25,7 @@ curl += "https://#{master}:8140/file-sync/v1/commit "
 curl += '-d \'{"commit-all": true}\''
 
 on(master, curl)
+
+# TODO: improve this
+# sleep for 10 minutes to make sure the file sync has completed
+sleep 600

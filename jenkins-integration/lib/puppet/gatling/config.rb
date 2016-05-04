@@ -1,6 +1,11 @@
 require 'json'
 require 'yaml'
 
+# This code is used to read gplt scenario JSON files and allow us to
+# automate some of the steps of setting up a testing environment for them;
+# e.g. what modules do we need to install, what nodes do we need to classify,
+# etc.
+
 # Assumptions:
 # 1. CWD is "jenkins-integration"
 # 2. Configuration files in "../simulation-runner/config/"

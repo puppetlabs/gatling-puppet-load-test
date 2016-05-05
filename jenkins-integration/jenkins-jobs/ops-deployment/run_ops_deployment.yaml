@@ -16,9 +16,9 @@
 
     scm:
       - git:
-          url: https://github.com/cprice404/gatling-puppet-load-test.git
+          url: https://github.com/puppetlabs/gatling-puppet-load-test.git
           branches:
-              - feature/master/PE-14976-puppetized-driver-node
+              - master
           browser: githubweb
           browser-url: http://github.com/puppetlabs/gatling-puppet-load-test
 

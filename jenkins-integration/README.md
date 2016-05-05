@@ -20,6 +20,12 @@ This sub project is divided as:
 
 The basic premise of this perf testing work is as follows.
 
+#### Crappy Diagram
+ 
+![crappy arch diagram](./puppetserver-perf-infra.png)
+
+[draw.io diagram source](https://drive.google.com/a/puppet.com/file/d/0B8v7HryXOF5NMGVEM0tvNmpTQXM/view?usp=sharing)
+
 #### Driver node and SUT nodes
 
 There is a node that we refer to as the "driver" node.  This machine has

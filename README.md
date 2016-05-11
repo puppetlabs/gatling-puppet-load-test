@@ -9,3 +9,9 @@ This is the main Puppetlabs load testing repository for its http services. The r
   3. `jenkins_integration` -- This project leverages Beaker to provision new environments in Puppetlabs' Jenkins infrastructure that are suitable for being load tested using `simulation_runner`.
 
 Note that the state of the various config files required by all the parts of this system is a bit chaotic and confusing; hopefully we can figure out some ways to simplify it going forward, but for now, see [./README_CONFIG_FILE_MADNESS.md](README_CONFIG_FILE_MADNESS.md) for some info on the current state of affairs.
+
+## Maintainence
+
+Maintainers: Chris Price <chris@puppet.com>, Matthaus Owens <matthaus@puppet.com>, Ruth Linehan <ruth@puppet.com>
+
+Tickets: https://tickets.puppetlabs.com/browse/PE. Set component = Puppet Server

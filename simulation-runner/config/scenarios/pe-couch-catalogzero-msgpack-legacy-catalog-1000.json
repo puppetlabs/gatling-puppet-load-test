@@ -1,0 +1,12 @@
+{
+    "run_description": "PE Couch Catalog Zero (Legacy Cats) with msgpack - 1000 agents",
+    "nodes": [
+        {
+            "node_config": "pe-couch-catalogzero-msgpack-legacy-catalog.json",
+            "num_instances": 1000,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 100,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}

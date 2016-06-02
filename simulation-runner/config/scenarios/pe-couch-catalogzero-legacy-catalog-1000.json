@@ -1,0 +1,12 @@
+{
+    "run_description": "PE Couch Catalog Zero (Legacy Cats) - 1000 agents",
+    "nodes": [
+        {
+            "node_config": "pe-couch-catalogzero-legacy-catalog.json",
+            "num_instances": 1,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 100,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}

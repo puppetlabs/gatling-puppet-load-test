@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-set -x
-
 echo ""
 echo "Setting Up Ruby Environment"
 echo ""

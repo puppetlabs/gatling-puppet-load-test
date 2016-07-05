@@ -40,7 +40,7 @@ end
 def get_scenario_from_env()
   scenario_file = ENV['PUPPET_GATLING_SIMULATION_CONFIG']
   if !scenario_file
-    raise 'PUPPET_GATLING_SCENARIO scenario file must be defined'
+    raise 'PUPPET_GATLING_SIMULATION_CONFIG scenario file must be defined'
   end
   scenario_file
 end

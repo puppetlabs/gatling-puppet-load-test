@@ -8,7 +8,7 @@ def classify_pe_nodes(classifier, nodes)
   nodes = group_by_environment(nodes)
   nodes.each_pair do |env, node_configs|
     node_configs.each do |config|
-      classifier.create_new_node_group_model(
+      classifier.find_or_create_node_group_model(
         'name' => "#{config['certname_prefix']}-group",
         'parent' => production_id,
         'environment' => env,
@@ -18,6 +18,9 @@ def classify_pe_nodes(classifier, nodes)
     end
   end
 end
+
+# this code gets the list of node -> class name mappings by parsing
+#  the g-p-l-t 'scenario' json file.
 
 nodes = node_configs(get_scenario_from_env())
 classifier = Scooter::HttpDispatchers::ConsoleDispatcher.new(dashboard)

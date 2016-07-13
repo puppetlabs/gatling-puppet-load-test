@@ -5,6 +5,12 @@ def install_r10k(host)
   on(host, "#{gem} install r10k --no-document")
 end
 
+# NOTE: this section initializes the r10k configuration on the SUT
+#  machine.  For development purposes you might want to set the
+#  `remote` (control repo) to point at your fork or even a local
+#  git daemon, but for the most part it should stay pinned to
+#  the PL control repo for production use.
+
 def create_r10k_config(host)
   configdir = '/etc/puppetlabs/r10k'
   on(host, "mkdir -p #{configdir}")

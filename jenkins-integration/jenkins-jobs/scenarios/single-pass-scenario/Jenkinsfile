@@ -1,0 +1,5 @@
+node {
+    checkout scm
+    pipeline = load 'jenkins-integration/jenkins-jobs/common/scripts/jenkins/pipeline.groovy'
+}
+pipeline.single_pipeline('singletest')

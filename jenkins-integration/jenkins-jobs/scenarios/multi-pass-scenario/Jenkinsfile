@@ -1,0 +1,7 @@
+node {
+    checkout scm
+    pipeline = load 'jenkins-integration/jenkins-jobs/common/scripts/jenkins/pipeline.groovy'
+}
+pipeline.multipass_pipeline([
+        [job_name: 'firsttest'],
+        [job_name: 'secondtest']])

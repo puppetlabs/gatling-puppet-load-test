@@ -26,6 +26,30 @@ curl += '-d \'{"commit-all": true}\''
 
 on(master, curl)
 
+# TODO: DRY
+# This code hits the file sync 'force sync' endpoint, which will hopefully
+# trigger a synchronous sync of the files.  Ideally that means that when
+# this curl command returns, we know that the sync is complete and that the
+# files have been deployed successfully.
+curl = 'curl '
+curl += '-X POST '
+curl += '--cert $(puppet config print hostcert) '
+curl += '--key $(puppet config print hostprivkey) '
+curl += '--cacert $(puppet config print localcacert) '
+curl += '-H "Content-type: application/json" '
+curl += "https://#{master}:8140/file-sync/v1/force-sync "
+# curl += '-d \'{"commit-all": true}\''
+
+on(master, curl)
+
+
+
+# curl = <<EOS
+# curl -s -X POST -k
+# EOS
+
 # TODO: improve this
 # sleep for 10 minutes to make sure the file sync has completed
-sleep 600
+# step "Sleeping 600 to wait for file sync to complete; should change this to monitor the file sync status endpoint"
+# sleep 300
+# step "Done sleeping"

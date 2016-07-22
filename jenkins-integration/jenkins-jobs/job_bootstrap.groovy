@@ -49,6 +49,7 @@ scenarios_dir.eachFileRecurse (FileType.FILES) { file ->
                         '../simulation-runner/config/scenarios/ops-scenario.json',
                         'The path to the gplt gatling scenario config file.')
                 booleanParam('SKIP_PE_INSTALL', false, 'If checked, will skip over the PE Install step.  Useful if you are doing development and already have a PE SUT.')
+                booleanParam('SKIP_PROVISIONING', true, 'If checked, will skip over the Razor provisioning step.  Useful if you already have an SUT provisioned, e.g. via the VM Pooler.')
             }
             definition {
                 cpsScm {

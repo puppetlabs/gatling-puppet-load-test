@@ -40,7 +40,7 @@ Currently:
 * The `common/scripts/jenkins` directory contains groovy library code that can be re-used
   across multiple perf test jobs; typically you'll load this code via your Jenkinsfile.
 
-* The `common/scripts/job_steps` directory contains shell scripts that are used to
+* The `common/scripts/job-steps` directory contains shell scripts that are used to
   implement "steps" in a job.  These are mostly delegating work to beaker, and
   are consumed by the groovy library code in `common/scripts/jenkins`; you shouldn't
   need to mess with them unless you are adding new features / configuration parameters

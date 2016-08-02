@@ -63,7 +63,7 @@ def step900_collect_driver_artifacts() {
     gatlingArchive()
 }
 
-SCRIPT_DIR = "./jenkins-integration/jenkins-jobs/common/scripts/job_steps"
+SCRIPT_DIR = "./jenkins-integration/jenkins-jobs/common/scripts/job-steps"
 
 def single_pipeline(job_name) {
     node {

@@ -1,3 +1,8 @@
+// NOTE: would really like to start writing some classes for some of this stuff,
+// and importing them here, but it doesn't seem like support for that is really
+// viable yet.  See https://issues.jenkins-ci.org/browse/JENKINS-37125 and
+// https://issues.jenkins-ci.org/browse/JENKINS-31155 .
+
 def step000_provision_sut(SKIP_PROVISIONING, script_dir) {
     echo "SKIP PROVISIONING?: ${SKIP_PROVISIONING} (${SKIP_PROVISIONING.class})"
     if (!SKIP_PROVISIONING) {
@@ -26,8 +31,23 @@ def step030_customize_settings() {
     echo "Hi! TODO: I should be customizing PE settings on the SUT, but I'm not."
 }
 
-def step040_install_puppet_code(script_dir) {
-    sh "${script_dir}/040_install_puppet_code.sh"
+def step040_install_puppet_code(script_dir, code_deploy) {
+    switch (code_deploy["type"]) {
+        case "r10k":
+            withEnv(["PUPPET_GATLING_R10K_CONTROL_REPO=${code_deploy["control_repo"]}",
+                     "PUPPET_GATLING_R10K_BASEDIR=${code_deploy["basedir"]}",
+                     "PUPPET_GATLING_R10K_ENVIRONMENTS=${code_deploy["environments"].join(",")}",
+                    ]) {
+                sh "${script_dir}/040_install_puppet_code-r10k.sh"
+            }
+            break
+        case "ops":
+            sh "${script_dir}/040_install_puppet_code-ops_tarball.sh"
+            break
+        default:
+            error "Unsupported code type: ${code_deploy["type"]}"
+            break
+    }
 }
 
 def step050_file_sync(script_dir) {
@@ -50,7 +70,8 @@ def step080_launch_bg_scripts() {
 
 def step090_run_gatling_sim(job_name, script_dir) {
     withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${PUPPET_GATLING_SIMULATION_CONFIG}",
-             "PUPPET_GATLING_SIMULATION_ID=${job_name}"]) {
+             "PUPPET_GATLING_SIMULATION_ID=${job_name}",
+             "SUT_HOST=${SUT_HOST}"]) {
         sh "${script_dir}/090_run_simulation.sh"
     }
 }
@@ -65,7 +86,7 @@ def step900_collect_driver_artifacts() {
 
 SCRIPT_DIR = "./jenkins-integration/jenkins-jobs/common/scripts/job-steps"
 
-def single_pipeline(job_name) {
+def single_pipeline(job) {
     node {
         checkout scm
 
@@ -85,7 +106,7 @@ def single_pipeline(job_name) {
         step030_customize_settings()
 
         stage '040-install-puppet-code'
-        step040_install_puppet_code(SCRIPT_DIR)
+        step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"])
 
         stage '050-file-sync'
         step050_file_sync(SCRIPT_DIR)
@@ -100,7 +121,7 @@ def single_pipeline(job_name) {
         step080_launch_bg_scripts()
 
         stage '090-run-gatling-sim'
-        step090_run_gatling_sim(job_name, SCRIPT_DIR)
+        step090_run_gatling_sim(job['job_name'], SCRIPT_DIR)
 
         stage '100-collect-sut-artifacts'
         step100_collect_sut_artifacts()
@@ -126,11 +147,11 @@ def multipass_pipeline(jobs) {
             echo "RUNNING JOB:" + job_name
 
             stage job_name
-            step000_provision_sut()
+            step000_provision_sut(SKIP_PROVISIONING, SCRIPT_DIR)
             step010_setup_beaker(SCRIPT_DIR)
             step020_install_pe(SKIP_PE_INSTALL, SCRIPT_DIR)
             step030_customize_settings()
-            step040_install_puppet_code(SCRIPT_DIR)
+            step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"])
             step050_file_sync(SCRIPT_DIR)
             step060_classify_nodes(SCRIPT_DIR)
             step070_classify_nodes()

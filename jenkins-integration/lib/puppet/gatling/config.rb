@@ -163,3 +163,26 @@ end
 def r10k_configpath(r10k)
   File.join(configuration_root(), 'r10ks', r10k)
 end
+
+def get_r10k_config_from_env()
+  control_repo = ENV['PUPPET_GATLING_R10K_CONTROL_REPO']
+  if !control_repo
+    raise 'PUPPET_GATLING_R10K_CONTROL_REPO must be defined'
+  end
+
+  basedir = ENV['PUPPET_GATLING_R10K_BASEDIR']
+  if !basedir
+    raise 'PUPPET_GATLING_R10K_BASEDIR must be defined'
+  end
+
+  environments = ENV['PUPPET_GATLING_R10K_ENVIRONMENTS']
+  if !environments
+    raise 'PUPPET_GATLING_R10K_ENVIRONMENTS must be defined'
+  end
+  environments = environments.split(",")
+
+  {:control_repo => control_repo,
+   :basedir => basedir,
+   :environments => environments
+  }
+end

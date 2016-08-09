@@ -13,7 +13,7 @@ def classify_pe_nodes(classifier, nodes)
         'parent' => production_id,
         'environment' => env,
         'environment_trumps' => true,
-        'rule' => ['~', ['trusted', 'certname'], "#{config['certname_prefix']}.*"],
+        'rule' => ['~', 'clientcert', "#{config['certname_prefix']}.*"],
         'classes' => Hash[config['classes'].map { |klass| [klass, {}] }])
     end
   end

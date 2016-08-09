@@ -34,51 +34,10 @@ a simulation is fully automated.
 
   If you find any of these, it means that you probably left the
   "Infer Html resources?" box checked in the Gatling proxy recorder GUI when you
-  generated the simulation file.  To correct this problem, it might be easier
-  to just re-run the proxy recorder with the box not checked to get a new
-  simulation file.
-
-  If you want to instead manually correct the simulation file, you would need to
-  remove any calls like this from the file:
-
-  ~~~~scala
-  .resources(http(request_1")
-  ~~~~
-
-  You would also need to promote any nested requests under one `.exec()` up to
-  separate `.exec()` calls.  For example, the following source would need to
-  be changed from...
-
-  ~~~~scala
-  val scn = ...
-    .exec(http("request_0")
-      .get("/production/node/myhost.localdomain?transaction_uuid=aa073181-5aec-4c07-896a-458b20b4c2f4&fail_on_404=true")
-      .resources(http("request_1")
-      .get(uri1 + "/file_metadatas/pluginfacts?links=manage&recurse=true&ignore=.svn&ignore=CVS&ignore=.git&checksum_type=md5"),
-  ...
-  ~~~~
-
-  to...
-
-  ~~~~scala
-  val scn = ...
-    .exec(http("request_0")
-      .get("/production/node/myhost.localdomain?transaction_uuid=aa073181-5aec-4c07-896a-458b20b4c2f4&fail_on_404=true"))
-    .exec(http("request_1")
-      .get("/production/file_metadatas/pluginfacts?links=manage&recurse=true&ignore=.svn&ignore=CVS&ignore=.git&checksum_type=md5"))
-  ...
-  ~~~~
-
-  For an example of this change, see this commit:
-  https://github.com/puppetlabs/gatling-puppet-load-test/commit/b134e63fd99693d94cc2d4da05910ce8f5773043.
-
-  Another disadvantage to manually removing resource references is that any
-  natural pauses between requests that the simulation would otherwise have
-  captured would be gone - because replays of resource requests are done
-  concurrently.  Again, it would be much better to just start with a simulation
-  which is captured with "Infer Html Resources?" not checked as the resulting
-  data should more accurately reflect the real agent communication with the
-  master.
+  generated the simulation file.  This causes the simulation to try to behave
+  like a browser and request multiple 'resources' in parallel; this behavior is
+  not suitable for simulating puppet agents.  Please re-record your scenario with
+  the 'Infer Html resources?' checkbox *unchecked*.
 
 2. Change the package name to:
 

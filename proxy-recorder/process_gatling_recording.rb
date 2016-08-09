@@ -24,9 +24,21 @@ def comment_line(line)
   "// #{line}"
 end
 
-def step1_look_for_inferred_html_resources()
+def step1_look_for_inferred_html_resources(text)
   puts "STEP 1: Look for inferred HTML resources"
-  puts "\t(Not yet implemented)"
+
+  if text.match(/\.inferHtmlResources\(\)/) or
+      text.match(/\.resource\(http/)
+    puts
+    puts "ERROR: Found references to 'inferHtmlResources' and/or 'resources'.\n" +
+             "This most likely means that you had the 'Infer Html resources?' checkbox\n" +
+             "in the gatling proxy recorder GUI checked.  This causes the simulation to\n" +
+             "try to behave like a browser and request multiple 'resources' in parallel;\n" +
+             "this behavior is not suitable for simulating puppet agents.  Please re-record\n" +
+             "your scenario with the 'Infer Html resources?' checkbox *unchecked*."
+    exit 1
+  end
+
 end
 
 # Step 2
@@ -162,7 +174,7 @@ def main(infile, outfile)
 
   output = input.dup
 
-  step1_look_for_inferred_html_resources()
+  step1_look_for_inferred_html_resources(output)
   step2_rename_package(output)
   output = step3_add_new_imports(output)
   step4_remove_unneeded_import(output)

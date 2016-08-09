@@ -13,8 +13,8 @@ these changes.  (*NOTE: requires ruby 2.0 or greater.*)
 Just run `ruby ../proxy-recorder/process_gatling_recording.rb
 $path_to_scala_file` and it will output the modified scala to a file named
 after the input file with .new added. So an updated `MySimulation.scala` would
-be called `MySimulation.scala.new`. The script does not apply Step 1, Step 7,
-Step 10, or Step 13, but does do the rest of the changes below.
+be called `MySimulation.scala.new`. The script does not apply Step 13, but does
+do the rest of the changes below.
 
 In the future we'd like to be able to fully automate the agent recording process
 so that we can set up jenkins jobs to take new recordings when a new version
@@ -164,7 +164,39 @@ a simulation is fully automated.
   For an example of this change, see this commit:
   https://github.com/puppetlabs/gatling-puppet-load-test/commit/2b54e20f724ca25184f7f7b9e9a4b41b63439485.
 
-10. Add a dynamic timestamp to the report payload.
+10. Presuming you want to control the simulation parameters through a scenario
+    json file rather than hardcoding them in the Scala file directly, comment
+    out the generated call to setup():
+
+  ~~~~scala
+  // setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
+  ~~~~
+
+  For an example of this change, see this commit:
+  https://github.com/puppetlabs/gatling-puppet-load-test/commit/2b54e20f724ca25184f7f7b9e9a4b41b63439485.
+
+11. In order for Gatling to generate useful reports per request endpoint, the
+    names of the endpoints should be renamed.
+
+  | Name                 | Legacy Endpoint                                            | Modern v3 Endpoint                                              |
+  | -------------------- | ------------                                               | ------------                                                    |
+  | catalog              | /production/catalog/agent.localdomain                      | /puppet/v3/catalog/agent.localdomain                            |
+  | filemeta pluginfacts | /production/file_metadatas/pluginfacts                     | /puppet/v3/file_metadatas/pluginfacts                           |
+  | filemeta plugins     | /production/file_metadatas/plugins                         | /puppet/v3/file_metadatas/plugins                               |
+  | filemeta             | /production/file_metadatas/modules/xyz                     | /puppet/v3/file_metadata/modules/xyz                            |
+  | filemeta mco plugins | /production/file_metadatas/modules/pe_mcollective/plugins  | /puppet/v3/file_metadata/modules/puppet_enterprise/mcollective  |
+  | node                 | /production/node/agent.localdomain                         | /puppet/v3/node/agent.localdomain                               |
+  | report               | /production/report/agent.localdomain                       | /puppet/v3/report/agent.localdomain                             |
+
+  To change this for the "node" request, for example, the argument to the
+  http() method would need to be changed from "request_0" to "node":
+
+  ~~~~scala
+  val chain_0 = exec(http("node")
+    .get("/production/node/myhost.localdomain?transaction_uuid=2eabf4c0-acf8-466f-a0e4-d75519be6afc&fail_on_404=true"))
+  ~~~~
+
+12. Add a dynamic timestamp to the report payload.
 
   This change is needed whenever the report processor registered with the Puppet
   master would somehow reject the report content based on the same timestamp
@@ -249,38 +281,6 @@ a simulation is fully automated.
 
   For an example of the above changes, see this commit:
   https://github.com/puppetlabs/gatling-puppet-load-test/commit/9450847e52bd436192278a5fe9ea50308e4ddb26
-
-11. Presuming you want to control the simulation parameters through a scenario
-    json file rather than hardcoding them in the Scala file directly, comment
-    out the generated call to setup():
-
-  ~~~~scala
-  // setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
-  ~~~~
-
-  For an example of this change, see this commit:
-  https://github.com/puppetlabs/gatling-puppet-load-test/commit/2b54e20f724ca25184f7f7b9e9a4b41b63439485.
-
-12. In order for Gatling to generate useful reports per request endpoint, the
-    names of the endpoints should be renamed.
-
-  | Name                 | Legacy Endpoint                                            | Modern v3 Endpoint                                              |
-  | -------------------- | ------------                                               | ------------                                                    |
-  | catalog              | /production/catalog/agent.localdomain                      | /puppet/v3/catalog/agent.localdomain                            |
-  | filemeta pluginfacts | /production/file_metadatas/pluginfacts                     | /puppet/v3/file_metadatas/pluginfacts                           |
-  | filemeta plugins     | /production/file_metadatas/plugins                         | /puppet/v3/file_metadatas/plugins                               |
-  | filemeta             | /production/file_metadatas/modules/xyz                     | /puppet/v3/file_metadata/modules/xyz                            |
-  | filemeta mco plugins | /production/file_metadatas/modules/pe_mcollective/plugins  | /puppet/v3/file_metadata/modules/puppet_enterprise/mcollective  |
-  | node                 | /production/node/agent.localdomain                         | /puppet/v3/node/agent.localdomain                               |
-  | report               | /production/report/agent.localdomain                       | /puppet/v3/report/agent.localdomain                             |
-
-  To change this for the "node" request, for example, the argument to the
-  http() method would need to be changed from "request_0" to "node":
-
-  ~~~~scala
-  val chain_0 = exec(http("node")
-    .get("/production/node/myhost.localdomain?transaction_uuid=2eabf4c0-acf8-466f-a0e4-d75519be6afc&fail_on_404=true"))
-  ~~~~
 
 13. In order to make the simulation more realistic, the driver program will automatically
     replace occurrences of the variable `${node}` in Strings with a dynamically

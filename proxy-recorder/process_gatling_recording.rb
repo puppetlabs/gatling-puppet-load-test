@@ -63,10 +63,10 @@ def find_report_request_info(text)
     exit 1
   end
 
-  result[:request_txt_file] = request_txt
+  result[:request_txt_file_path] = request_txt
 
   puts "\tReport request headers var: #{result[:request_headers_varname]}"
-  puts "\tReport request text file: #{result[:request_txt_file]}"
+  puts "\tReport request text file: #{result[:request_txt_file_path]}"
   puts
   result
 end
@@ -167,23 +167,16 @@ def step9_update_expiration(text)
 end
 
 # Step 10
-# TODO define this method
-def step10_add_dynamic_timestamp(text)
-  puts "STEP 10: Use dynamic timestamp and transaction UUID"
-  puts "\t(Not yet implemented)"
-end
-
-# Step 11
-def step11_comment_out_setup(text)
-  puts "STEP 11: Comment out SCN setUp call since driver will handle it"
+def step10_comment_out_setup(text)
+  puts "STEP 10: Comment out SCN setUp call since driver will handle it"
   text.gsub!(/^\s*(setUp\(.*\))/, '// \1')
 end
 
-# Step 12
-def step12_rename_request_bodies(text)
-  puts "STEP 12: Add names for HTTP requests"
+# Step 11
+def step11_rename_request_bodies(text)
+  puts "STEP 11: Add names for HTTP requests"
   current_replacement = ""
-  out_text = ""
+  out_lines = []
   # Here we replace request types according to step 12 in
   # https://github.com/puppetlabs/gatling-puppet-load-test/blob/master/simulation-runner/README-GENERATING-AGENT-SIMULATIONS.md
   text.lines.reverse.each do |line|
@@ -194,18 +187,47 @@ def step12_rename_request_bodies(text)
       else
         fail "Unrecognized request type. Please add to TERMINOLOGY."
       end
-      out_text << line
+      out_lines << line
     elsif line.match(/\.?exec\(http\("request_\d+"\)/) && !current_replacement.empty?
-      out_text << line.sub(/request_\d+/, current_replacement)
+      out_lines << line.sub(/request_\d+/, current_replacement)
       current_replacement = ""
     elsif line.match(/\.?exec\(http\("request_\d+"\)/) && current_replacement.empty?
       fail "Unexpected http request. Line: '#{line}' needs some work"
     else
-      out_text << line
+      out_lines << line
     end
   end
 
-  out_text
+  out_lines.reverse.join
+end
+
+# Step 12
+def step12_add_dynamic_timestamp(text, report_text, report_request_info)
+  puts "STEP 12: Use dynamic timestamp and transaction UUID"
+  text.gsub!(/(\/\/\s*val httpProtocol[^\n]+\n\/\/\s*\.baseURL\([^\n]+\n)/,
+             "\\1\n\tval reportBody = ELFileBody(\"#{report_request_info[:request_txt_file]}\")\n")
+
+  report_session_vars = <<EOS
+
+\t\t.exec((session:Session) => {
+\t\t\tsession.set("reportTimestamp",
+\t\t\t\tLocalDateTime.now.toString(ISODateTimeFormat.dateTime()))
+\t\t})
+\t\t.exec((session:Session) => {
+\t\t\tsession.set("transactionUuid",
+\t\t\t\tUUID.randomUUID().toString())
+\t\t})
+EOS
+
+  text.gsub!(/\n(\s*\.exec\(http\("report"\)\s*\n)/,
+             "#{report_session_vars}\\1")
+  text.gsub!(/(\n\s*)\.body\(RawFileBody\("#{report_request_info[:request_txt_file]}"\)\)\)\n/,
+      "\\1.body(reportBody))\n\n")
+
+  report_text.sub!(/"time":"[^"]+"/,
+                   '"time":"${reportTimestamp}"')
+  report_text.gsub!(/"transaction_uuid":"[^"]+"/,
+                    '"transaction_uuid":"${transactionUuid}"')
 end
 
 def step13_setup_node_feeder()
@@ -228,6 +250,8 @@ def main(infile, outfile)
 
   report_request_info = find_report_request_info(output)
 
+  report_request_output = File.read(report_request_info[:request_txt_file_path])
+
   step1_look_for_inferred_html_resources(output)
   step2_rename_package(output)
   output = step3_add_new_imports(output)
@@ -237,14 +261,16 @@ def main(infile, outfile)
   step7_add_connection_close(output, report_request_info[:request_headers_varname])
   step8_comment_out_uri1(output)
   step9_update_expiration(output)
-  step10_add_dynamic_timestamp(output)
-  step11_comment_out_setup(output)
-  output = step12_rename_request_bodies(output)
+  step10_comment_out_setup(output)
+  output = step11_rename_request_bodies(output)
+  step12_add_dynamic_timestamp(output, report_request_output, report_request_info)
   step13_setup_node_feeder()
 
   puts "All steps completed, writing output to file '#{outfile}'"
   # Dump the reformatted file to disk
-  File.open(outfile, 'w').write(output.split("\n").reverse.join("\n"))
+  File.open(outfile, 'w').write(output)
+  File.open(report_request_info[:request_txt_file_path] + ".new", 'w').
+      write(report_request_output)
 end
 
 if $0 == __FILE__

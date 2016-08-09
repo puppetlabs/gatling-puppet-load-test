@@ -29,7 +29,7 @@ bundle exec beaker \
         --log-level debug \
         --no-color \
         --tests \
-beaker/install/pe/60_classify_nodes.rb
+beaker/install/shared/60_classify_nodes_via_site_pp.rb
 
 # without this set +x, rvm will log 10 gigs of garbage
 set +x

@@ -14,7 +14,7 @@ Just run `ruby ../proxy-recorder/process_gatling_recording.rb
 $path_to_scala_file` and it will output the modified scala to a file named
 after the input file with .new added. So an updated `MySimulation.scala` would
 be called `MySimulation.scala.new`. The script does not apply Step 1, Step 7,
-or Step 10, but does do the rest of the changes below.
+Step 10, or Step 13, but does do the rest of the changes below.
 
 In the future we'd like to be able to fully automate the agent recording process
 so that we can set up jenkins jobs to take new recordings when a new version
@@ -322,6 +322,15 @@ a simulation is fully automated.
   val chain_0 = exec(http("node")
     .get("/production/node/myhost.localdomain?transaction_uuid=2eabf4c0-acf8-466f-a0e4-d75519be6afc&fail_on_404=true"))
   ~~~~
+
+13. In order to make the simulation more realistic, the driver program will automatically
+    replace occurrences of the variable `${node}` in Strings with a dynamically
+    generated node name (using a Gatling 'feeder' under the hood).
+    The scala file and the report body in the request.txt file will both have multiple
+    references to the certname of the agent that was used to make the original recording;
+    you'll need to do a find and replace in those files and replace the occurrences
+    of the certname (e.g. `vszab9lhwyarzky.delivery.puppetlabs.net`) with `${node}`.
+
 
 ## Request bodies
 

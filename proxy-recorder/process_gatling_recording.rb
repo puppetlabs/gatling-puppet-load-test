@@ -24,6 +24,54 @@ def comment_line(line)
   "// #{line}"
 end
 
+def get_simulation_runner_root_dir()
+  File.join(File.dirname(__FILE__), "..", "simulation-runner")
+end
+
+def validate_infile_path(infile)
+  infile_dir = File.absolute_path(File.dirname(infile))
+  sim_dir = File.absolute_path(
+                    File.join(get_simulation_runner_root_dir(),
+                              "src", "main", "scala", "com", "puppetlabs",
+                              "gatling", "node_simulations"))
+
+  unless infile_dir == sim_dir
+    puts "ERROR: Simulation recording must be placed in this directory: '#{sim_dir}'"
+    puts "(specified input file is in dir '#{infile_dir}')"
+    exit 1
+  end
+end
+
+def find_report_request_info(text)
+  matches = text.match(/\n\s*\.put\("\/puppet\/v3\/report[^"]+"\)\s*\n\s*\.headers\(([^\)]+)\)\s*\n\s*\.body\(RawFileBody\("([^"]+)"\)\)\)\s*\n/)
+  unless matches
+    puts "Unable to find report request in recording!"
+    exit 1
+  end
+
+  puts "Found report request."
+
+  result = {:request_headers_varname => matches[1],
+            :request_txt_file => matches[2]}
+
+  request_txt = File.absolute_path(
+                        File.join(get_simulation_runner_root_dir(), "user-files", "bodies",
+                                  result[:request_txt_file]))
+
+  unless File.file?(request_txt)
+    puts "Unable to find report request body file!  Expected to find it at #{request_txt}"
+    exit 1
+  end
+
+  result[:request_txt_file] = request_txt
+
+  puts "\tReport request headers var: #{result[:request_headers_varname]}"
+  puts "\tReport request text file: #{result[:request_txt_file]}"
+  puts
+  result
+end
+
+
 def step1_look_for_inferred_html_resources(text)
   puts "STEP 1: Look for inferred HTML resources"
 
@@ -100,10 +148,10 @@ def step6_comment_out_http_protocol(text)
 end
 
 # Step 7
-# TODO define this method
-def step7_add_connection_close(text)
+def step7_add_connection_close(text, report_headers_var)
   puts "STEP 7: Add 'Connection: close' after report request"
-  puts "\t(Not yet implemented)"
+  text.gsub!(/(\s*val #{report_headers_var} = Map\(\s*\n(?:\s*"[^"]+" -> "[^"]+",\s*\n)*(?:\s*"[^"]+" -> "[^"]+"))\)/,
+       "\\1,\n\t\t\"Connection\" -> \"close\")\n//\n")
 end
 
 # Step 8
@@ -166,13 +214,19 @@ def step13_setup_node_feeder()
 end
 
 def main(infile, outfile)
+
+  validate_infile_path(infile)
+
   # The main event.
   # the input file tends to not end in a newline, which gets messy later
   input = File.read(infile) + "\n"
 
   puts "Reading input from file '#{infile}'"
+  puts
 
   output = input.dup
+
+  report_request_info = find_report_request_info(output)
 
   step1_look_for_inferred_html_resources(output)
   step2_rename_package(output)
@@ -180,7 +234,7 @@ def main(infile, outfile)
   step4_remove_unneeded_import(output)
   step5_update_extends(output)
   output = step6_comment_out_http_protocol(output)
-  step7_add_connection_close(output)
+  step7_add_connection_close(output, report_request_info[:request_headers_varname])
   step8_comment_out_uri1(output)
   step9_update_expiration(output)
   step10_add_dynamic_timestamp(output)

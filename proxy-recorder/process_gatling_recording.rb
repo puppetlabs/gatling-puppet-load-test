@@ -24,13 +24,20 @@ def comment_line(line)
   "// #{line}"
 end
 
+def step1_look_for_inferred_html_resources()
+  puts "STEP 1: Look for inferred HTML resources"
+  puts "\t(Not yet implemented)"
+end
+
 # Step 2
-def rename_package(text)
+def step2_rename_package(text)
+  puts "STEP 2: Renaming package to `com.puppetlabs.gatling.node_simulations`"
   text.gsub!(/^\s*package (.*)/, "package com.puppetlabs.gatling.node_simulations")
 end
 
 # Step 3
-def add_new_imports(text)
+def step3_add_new_imports(text)
+  puts "STEP 3: Adding additional import statements (for SimulationWithScnario and date/time classes)"
   out_text = text.lines.map do |line|
     if line.match(/package com.puppetlabs.gatling.node_simulations$/)
       [line,
@@ -48,17 +55,20 @@ def add_new_imports(text)
 end
 
 # Step 4
-def remove_unneeded_import(text)
+def step4_remove_unneeded_import(text)
+  puts "STEP 4: Removing unused JDBC import"
   text.gsub!(/^\s*(import io\.gatling\.jdbc\.Predef\._)/, '// \1')
 end
 
 # Step 5
-def update_extends(text)
+def step5_update_extends(text)
+  puts "STEP 5: Set class to extend `SimulationWithScenario`"
   text.gsub!(/^class (.*) extends Simulation/, 'class \1 extends SimulationWithScenario')
 end
 
 # Step 6
-def comment_out_http_protocol(text)
+def step6_comment_out_http_protocol(text)
+  puts "STEP 6: Comment out `httpProtocol` variable"
   begin_comment = false
   end_comment = false
 
@@ -79,31 +89,39 @@ end
 
 # Step 7
 # TODO define this method
-def add_connection_close(text)
+def step7_add_connection_close(text)
+  puts "STEP 7: Add 'Connection: close' after report request"
+  puts "\t(Not yet implemented)"
 end
 
 # Step 8
-def comment_out_uri1(text)
+def step8_comment_out_uri1(text)
+  puts "STEP 8: Comment out `uri1` variable"
   text.gsub!(/^\s*(val uri1 = ".*")/, '// \1')
 end
 
 # Step 9
-def update_expiration(text)
-  text.gsub!(/(expiration%22%3A%22)(\d{4})/, '\12025')
+def step9_update_expiration(text)
+  puts "STEP 9: Update facts expiration date"
+  text.gsub!(/(expiration%22%3A%22)(\d{4})/, '\12125')
 end
 
 # Step 10
 # TODO define this method
-def add_dynamic_timestamp(text)
+def step10_add_dynamic_timestamp(text)
+  puts "STEP 10: Use dynamic timestamp and transaction UUID"
+  puts "\t(Not yet implemented)"
 end
 
 # Step 11
-def comment_out_setup(text)
+def step11_comment_out_setup(text)
+  puts "STEP 11: Comment out SCN setUp call since driver will handle it"
   text.gsub!(/^\s*(setUp\(.*\))/, '// \1')
 end
 
 # Step 12
-def rename_request_bodies(text)
+def step12_rename_request_bodies(text)
+  puts "STEP 12: Add names for HTTP requests"
   current_replacement = ""
   out_text = ""
   # Here we replace request types according to step 12 in
@@ -130,25 +148,35 @@ def rename_request_bodies(text)
   out_text
 end
 
+def step13_setup_node_feeder()
+  puts "STEP 13: Set up ${node} var for feeder"
+  puts "\t(Not yet implemented)"
+end
+
 def main(infile, outfile)
   # The main event.
   # the input file tends to not end in a newline, which gets messy later
   input = File.read(infile) + "\n"
 
+  puts "Reading input from file '#{infile}'"
+
   output = input.dup
 
-  rename_package(output)
-  output = add_new_imports(output)
-  remove_unneeded_import(output)
-  update_extends(output)
-  output = comment_out_http_protocol(output)
-  add_connection_close(output)
-  comment_out_uri1(output)
-  update_expiration(output)
-  add_dynamic_timestamp(output)
-  comment_out_setup(output)
-  output = rename_request_bodies(output)
+  step1_look_for_inferred_html_resources()
+  step2_rename_package(output)
+  output = step3_add_new_imports(output)
+  step4_remove_unneeded_import(output)
+  step5_update_extends(output)
+  output = step6_comment_out_http_protocol(output)
+  step7_add_connection_close(output)
+  step8_comment_out_uri1(output)
+  step9_update_expiration(output)
+  step10_add_dynamic_timestamp(output)
+  step11_comment_out_setup(output)
+  output = step12_rename_request_bodies(output)
+  step13_setup_node_feeder()
 
+  puts "All steps completed, writing output to file '#{outfile}'"
   # Dump the reformatted file to disk
   File.open(outfile, 'w').write(output.split("\n").reverse.join("\n"))
 end

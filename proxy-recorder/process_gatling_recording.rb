@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'json'
+
 TERMINOLOGY = {
   "catalog"                                                 => "catalog",
   "file_metadata[s]?/modules/puppet_enterprise/mcollective" => "filemeta mco plugins",
@@ -17,6 +19,30 @@ def lookup_request_match(line, prefix)
     if line.match(prefix + "/" + url)
       return rewrite
     end
+  end
+end
+
+def grep_dir(dir, pattern)
+  Dir.glob("#{dir}/**/*").each do |file|
+    next unless File.file?(file)
+    File.open(file) do |f|
+      f.each_line do |line|
+        if line.match(pattern)
+          return File.absolute_path(file)
+        end
+      end
+    end
+  end
+  nil
+end
+
+def prompt(msg)
+  $stdout.write msg
+  result = $stdin.gets.strip
+  if result.empty?
+    nil
+  else
+    result
   end
 end
 
@@ -84,6 +110,54 @@ def find_report_request_info(text)
   puts "\tReport request text file: #{result[:request_txt_file_path]}"
   puts
   result
+end
+
+def find_node_config(simulation_class)
+  node_configs_dir = File.join(get_simulation_runner_root_dir(), "config", "nodes")
+  existing_node_config = grep_dir(node_configs_dir, /"simulation_class"\s*:\s*"#{simulation_class}"/)
+  existing_node_config
+end
+
+def generate_node_config(simulation_class, certname)
+  node_configs_dir = File.join(get_simulation_runner_root_dir(), "config", "nodes")
+  node_config_filename = simulation_class.sub(/.*\.([^\.]+)$/, '\1') + ".json"
+  node_config_file = File.absolute_path(File.join(node_configs_dir, node_config_filename))
+  if File.exists?(node_config_file)
+    puts "ERROR: file already exists at path '#{node_config_file}'; exiting."
+    exit 1
+  end
+
+  data = prompt("Node config file name? [#{node_config_filename}]> ")
+  if data
+    node_config_file = File.absolute_path(File.join(node_configs_dir, data))
+  end
+
+  certname_prefix = certname.sub(/^([^\.]+)\..*$/, '\1').sub(/\d+$/, '')
+
+  data = prompt("Certname prefix? (this will be used to classify nodes and generate certnames)\n" +
+      "[#{certname_prefix}]>")
+  if data
+    certname_prefix = data
+  end
+
+  classes = []
+  data = prompt("Puppet classes? (IMPORTANT!  This will be used to classify nodes,\n" +
+                    "and *must* match up to what your recorded catalog was compiled\n" +
+                    "with.  For best results use a single 'role' class, but if you\n" +
+                    "need to provide multiple classes, separate them with a comma.)\n" +
+                    "[]>")
+  if data
+    classes = data.split(",")
+  end
+
+  node_config = {:simulation_class => simulation_class,
+                 :certname_prefix => certname_prefix,
+                 :classes => classes
+  }
+  File.open(node_config_file, 'w') do |f|
+    f.write(JSON.pretty_generate(node_config))
+  end
+  puts "Wrote node config file to '#{node_config_file}'"
 end
 
 
@@ -268,6 +342,7 @@ def main(infile, outfile)
 
   report_request_output = File.read(report_request_info[:request_txt_file_path])
   certname = find_certname(output)
+  simulation_classname = "com.puppetlabs.gatling.node_simulations.#{File.basename(infile, ".*")}"
 
   step1_look_for_inferred_html_resources(output)
   step2_rename_package(output)
@@ -288,6 +363,17 @@ def main(infile, outfile)
   File.open(outfile, 'w').write(output)
   File.open(report_request_info[:request_txt_file_path] + ".new", 'w').
       write(report_request_output)
+
+  puts
+
+  node_config = find_node_config(simulation_classname)
+  if node_config
+    puts "Found existing node config at '#{node_config}'"
+  else
+    puts "No node config file found.  Let's generate one."
+    puts
+    generate_node_config(simulation_classname, certname)
+  end
 end
 
 if $0 == __FILE__

@@ -42,6 +42,21 @@ def validate_infile_path(infile)
   end
 end
 
+def find_certname(text)
+  matches = text.match(/\n\s*\.get\("\/puppet\/v3\/node\/([^\?]+)\?environment/)
+  unless matches
+    puts "Unable to find certname (from node request) in recording!"
+    exit 1
+  end
+
+  certname = matches[1]
+
+  puts "Found certname: '#{certname}'"
+  puts
+
+  certname
+end
+
 def find_report_request_info(text)
   matches = text.match(/\n\s*\.put\("\/puppet\/v3\/report[^"]+"\)\s*\n\s*\.headers\(([^\)]+)\)\s*\n\s*\.body\(RawFileBody\("([^"]+)"\)\)\)\s*\n/)
   unless matches
@@ -230,9 +245,10 @@ EOS
                     '"transaction_uuid":"${transactionUuid}"')
 end
 
-def step13_setup_node_feeder()
+def step13_setup_node_feeder(text, report_text, certname)
   puts "STEP 13: Set up ${node} var for feeder"
-  puts "\t(Not yet implemented)"
+  text.gsub!(certname, "${node}")
+  report_text.gsub!(certname, "${node}")
 end
 
 def main(infile, outfile)
@@ -251,6 +267,7 @@ def main(infile, outfile)
   report_request_info = find_report_request_info(output)
 
   report_request_output = File.read(report_request_info[:request_txt_file_path])
+  certname = find_certname(output)
 
   step1_look_for_inferred_html_resources(output)
   step2_rename_package(output)
@@ -264,7 +281,7 @@ def main(infile, outfile)
   step10_comment_out_setup(output)
   output = step11_rename_request_bodies(output)
   step12_add_dynamic_timestamp(output, report_request_output, report_request_info)
-  step13_setup_node_feeder()
+  step13_setup_node_feeder(output, report_request_output, certname)
 
   puts "All steps completed, writing output to file '#{outfile}'"
   # Dump the reformatted file to disk

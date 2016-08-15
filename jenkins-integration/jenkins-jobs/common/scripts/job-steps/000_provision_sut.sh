@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 pushd jenkins-integration
-#source jenkins-jobs/common/scripts/job_steps/initialize_ruby_env.sh
+#source jenkins-jobs/common/scripts/job-steps/initialize_ruby_env.sh
 
 if [ -z "$SUT_HOST" ]; then
     echo "Missing required environment variable SUT_HOST"

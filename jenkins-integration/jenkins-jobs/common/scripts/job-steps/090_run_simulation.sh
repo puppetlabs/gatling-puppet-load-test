@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pushd jenkins-integration
-source jenkins-jobs/common/scripts/job_steps/initialize_ruby_env.sh
+source jenkins-jobs/common/scripts/job-steps/initialize_ruby_env.sh
 
 # This job sets up the following:
 # - local keystore file that gatling can use to talk to the SUT
@@ -36,7 +36,9 @@ pushd simulation-runner
 
 set -x
 
-PUPPET_GATLING_MASTER_BASE_URL=https://$PUPPET_GATLING_MASTER_BASE_URL:8140 sbt run
+echo "SUT_HOST IS: '${SUT_HOST}'"
+
+PUPPET_GATLING_MASTER_BASE_URL=https://$SUT_HOST:8140 sbt run
 # without this set +x, rvm will log 10 gigs of garbage
 set +x
 popd

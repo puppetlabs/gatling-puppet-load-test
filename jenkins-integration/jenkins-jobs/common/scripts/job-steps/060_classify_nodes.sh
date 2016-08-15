@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pushd jenkins-integration
-source jenkins-jobs/common/scripts/job_steps/initialize_ruby_env.sh
+source jenkins-jobs/common/scripts/job-steps/initialize_ruby_env.sh
 
 # This job sets up the following:
 # - Node classified via NC to have catalog zero module

@@ -1,3 +1,6 @@
+TODO: maybe move these into jenkins-jobs/common/scripts/beaker, closer to the
+other scripts
+
 # beaker
 This directory holds beaker scripts that will get run as part of jenkins jobs.
 

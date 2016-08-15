@@ -15,16 +15,6 @@ String relativize(File root_dir, File f) {
     Paths.get(root_dir.absolutePath).relativize(Paths.get(f.absolutePath))
 }
 
-def createScript(job_name, job_script) {
-    """
-def job =  node {
-    checkout scm
-    load '${job_script}'
-}
-job.createPipeline('${job_name}')
-"""
-}
-
 dir = new File(__FILE__).parentFile.absoluteFile
 
 def root_dir = dir
@@ -63,9 +53,6 @@ scenarios_dir.eachFileRecurse (FileType.FILES) { file ->
                     }
                     scriptPath(relative_jenkinsfile)
                 }
-            }
-            publishers {
-                archiveArtifacts('build/test-output/**/*.html')
             }
         }
     }

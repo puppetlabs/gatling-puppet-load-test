@@ -90,31 +90,33 @@ enough disk space for some scenarios.
 On a CentOS 7 VM, perform the following steps:
 
 0.  Run `df -h` to see the default disk space. You should see a size of "12G"
-    under '/dev/mapper/VolGroup-lv_root'. This number will be updated once we're
-    done adding more disk space.
+    under the `/dev/mapper/<Volume Group>-<Logical Volume>` Filesystem.  This
+    number will be updated once we're done adding more disk space.  Note the
+    name of the `<Volume Group>` and `<Logical Volume>` since you will need to
+    substitute those into various commands below.  For a Filesystem named
+    `/dev/mapper/centos-root`, the `<Volume Group>` would be "centos" and the
+    `<Logical Volume>` would be "root".
 1.  Run `ls /dev/sd*` to see the default disk partitions available.
     You should see something like "/dev/sda /dev/sda1 /dev/sda2 /dev/sdb /dev/sdb2"
     (Once we've added a new disk we should see another result here, like '/dev/sdc')
 2.  Curl the VMPooler to add a new disk of the specified size:
-    `curl -k -X POST -H X-AUTH-TOKEN:<your_token> --url https://<vmpooler-host>/api/v1/vm/<short-hostname>/disk/18`
+    `curl -k -X POST -H X-AUTH-TOKEN:<your_token> --url https://<vmpooler-host>/api/v1/vm/<short-hostname>/disk/18`.
     Here we've added 18GB. See
     https://github.com/puppetlabs/vmpooler/blob/master/API.md#adding-additional-disks
     for more information. This will take several minutes to complete (~10
     minutes).
 3.  Wait until the new disk is reflected in the VM status:
-    `curl vmpooler/api/v1/vm/$(hostname)`
+    `curl https://<vmpooler-host>/api/v1/vm/<short-hostname>`.
     You should see a section like `"disk": ["+18gb"]` in the output.
 4.  Restart the VM with `reboot` and log back in.
 5.  Run `ls /dev/sd*` again and we should see the new disk, like '/dev/sdc'.
     The following steps will assume the new disk is named '/dev/sdc'.
-6.  Run `pvcreate /dev/sdc` to initialize the volume
-7.  Run `pvdisplay` and we should see our new physical volume '/dev/sdc'.
-    Note the "VG Name" value of the other volumes; we'll need to add our new
-    volume to this group (likely named "VolGroup").
-8.  Run `vgextend VolGroup /dev/sdc` to add it to the existing volume group.
-9.  Run `lvextend /dev/VolGroup/lv_root /dev/sdc`
-10. Run `resize2fs /dev/VolGroup/lv_root`
-11. Run `df -h` and we should now see our updated size of "30G". Done!
+6.  Run `pvcreate /dev/sdc` to initialize the volume.
+7.  Run `vgextend <Volume Group> /dev/sdc` to add it to the existing volume group.
+8.  Run `lvextend /dev/<Volume Group>/<Logical Volume> /dev/sdc`.
+9.  Run `xfs_growfs /dev/<Volume Group>/<Logical Volume>`.
+10. Run `df -h` and we should now see our updated size of "30G" under the
+    `/dev/mapper/<Volume Group>-<Logical Volume>` Filesystem. Done!
 
 The VM should now have increased disk space. Mounting or symlinking the new disk
 should not be necessary.

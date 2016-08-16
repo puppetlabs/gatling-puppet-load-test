@@ -1,0 +1,6 @@
+{
+    "certname_prefix": "pgtomcat",
+    "environment": "production",
+    "simulation_class": "com.puppetlabs.gatling.node_simulations.PE33PerfMedium",
+    "classes": ["role::by_size::medium"]
+}

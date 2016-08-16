@@ -1,0 +1,43 @@
+node {
+    checkout scm
+    pipeline = load 'jenkins-integration/jenkins-jobs/common/scripts/jenkins/pipeline.groovy'
+}
+
+//pipeline.single_pipeline(
+//        [job_name: 'pe33-medium',
+//         server_version: [
+//                 type: "pe",
+//                 pe_version: "3.3.2"
+//         ],
+//         code_deploy: [
+//                 type: "r10k",
+//                 control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",
+//                 basedir: "/etc/puppetlabs/puppet/environments",
+//                 environments: ["production"]
+//         ]
+//        ])
+
+pipeline.multipass_pipeline([
+        [job_name: 'pe33-medium',
+         server_version: [
+                 type: "pe",
+                 pe_version: "3.3.2"
+         ],
+         code_deploy: [
+                 type: "r10k",
+                 control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",
+                 basedir: "/etc/puppetlabs/puppet/environments",
+                 environments: ["production"]
+         ]],
+        [job_name: 'pe-couch-medium',
+         server_version: [
+                 type: "pe",
+                 pe_version: "2016.2.0"
+         ],
+         code_deploy: [
+                 type: "r10k",
+                 control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",
+                 basedir: "/etc/puppetlabs/code-staging/environments",
+                 environments: ["production"]
+         ]]
+])

@@ -4,7 +4,7 @@ pushd jenkins-integration
 source jenkins-jobs/common/scripts/job-steps/initialize_ruby_env.sh
 
 # This job sets up the following:
-# - PE 2015.3.1 installation on provided master
+# - Specified PE version installed installation on provided master
 
 set -x
 set -e
@@ -26,6 +26,8 @@ beaker/install/shared/disable_firewall.rb,\
 beaker/install/pe/10_install_pe.rb,\
 beaker/install/shared/configure_permissive_server_auth.rb,\
 beaker/install/pe/99_restart_server.rb
+
+echo "Finished installing PE!"
 
 # without this set +x, rvm will log 10 gigs of garbage
 set +x

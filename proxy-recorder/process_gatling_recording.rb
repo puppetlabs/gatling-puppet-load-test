@@ -186,7 +186,7 @@ end
 
 # Step 3
 def step3_add_new_imports(text)
-  puts "STEP 3: Adding additional import statements (for SimulationWithScnario and date/time classes)"
+  puts "STEP 3: Adding additional import statements (for SimulationWithScenario and date/time classes)"
   out_text = text.lines.map do |line|
     if line.match(/package com.puppetlabs.gatling.node_simulations$/)
       [line,

@@ -110,6 +110,19 @@ def step040_install_puppet_code(script_dir, code_deploy, server_era) {
     }
 }
 
+def step045_install_hiera_config(script_dir, code_deploy, server_era) {
+    hiera_config_source_file = (code_deploy["hiera_config_source_file"] == null) ?
+            "" : code_deploy["hiera_config_source_file"]
+    hiera_config_datadir = (code_deploy["hiera_config_datadir"] == null) ?
+            "" : code_deploy["hiera_config_datadir"]
+    withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
+             "PUPPET_GATLING_HIERA_CONFIG_SOURCE_FILE=${hiera_config_source_file}",
+             "PUPPET_GATLING_HIERA_CONFIG_DATADIR=${hiera_config_datadir}"
+    ]) {
+        sh "${script_dir}/045_install_hiera_config.sh"
+    }
+}
+
 def step050_file_sync(script_dir, server_era) {
     if (server_era["file_sync_available"] == true) {
         if (server_era["file_sync_enabled"] == false) {
@@ -184,6 +197,9 @@ def single_pipeline(job) {
         stage '040-install-puppet-code'
         step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
 
+        stage '045-install-hiera-config'
+        step045_install_hiera_config(SCRIPT_DIR, job["code_deploy"], server_era)
+
         stage '050-file-sync'
         step050_file_sync(SCRIPT_DIR, server_era)
 
@@ -230,6 +246,7 @@ def multipass_pipeline(jobs) {
             step020_install_pe(SKIP_PE_INSTALL, SCRIPT_DIR, server_era)
             step030_customize_settings()
             step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
+            step045_install_hiera_config(SCRIPT_DIR, job["code_deploy"], server_era)
             step050_file_sync(SCRIPT_DIR, server_era)
             step060_classify_nodes(SCRIPT_DIR, server_era)
             step070_validate_classification()

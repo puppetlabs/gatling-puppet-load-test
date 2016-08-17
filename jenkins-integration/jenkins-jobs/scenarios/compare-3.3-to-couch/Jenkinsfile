@@ -13,7 +13,9 @@ node {
 //                 type: "r10k",
 //                 control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",
 //                 basedir: "/etc/puppetlabs/puppet/environments",
-//                 environments: ["production"]
+//                 environments: ["production"],
+//                 hiera_config_source_file: "/etc/puppetlabs/puppet/environments/production/root_files/hiera.yaml",
+//                 hiera_config_datadir: "/etc/puppetlabs/puppet/environments/%{environment}/hieradata"
 //         ]
 //        ])
 
@@ -27,7 +29,9 @@ pipeline.multipass_pipeline([
                  type: "r10k",
                  control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",
                  basedir: "/etc/puppetlabs/puppet/environments",
-                 environments: ["production"]
+                 environments: ["production"],
+                 hiera_config_source_file: "/etc/puppetlabs/puppet/environments/production/root_files/hiera.yaml",
+                 hiera_config_datadir: "/etc/puppetlabs/puppet/environments/%{environment}/hieradata"
          ]],
         [job_name: 'pe-couch-medium',
          server_version: [
@@ -38,6 +42,7 @@ pipeline.multipass_pipeline([
                  type: "r10k",
                  control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",
                  basedir: "/etc/puppetlabs/code-staging/environments",
-                 environments: ["production"]
+                 environments: ["production"],
+                 hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"
          ]]
 ])

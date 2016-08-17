@@ -137,23 +137,10 @@ end
 ################################################################################
 ### Hiera
 
-# Returns the path to the local hiera.yaml file for the specified hiera.
-def hiera_configpath(hiera)
-  File.join(configuration_root(), 'hieras', hiera, 'hiera.yaml')
-end
-
-# Returns a list of pairs of datadir filepaths for the given hiera.
-# The pairs contain the local and target filepaths, respectively.
-def hiera_datadirs(hiera)
-  configpath = hiera_configpath(hiera)
-  config = YAML.load_file(configpath)
-  backends = [config[:backends]].flatten
-  datadirs = backends.map { |be| config[be.to_sym][:datadir] }.uniq
-  datadirs.map do |datadir|
-    localpath = File.join(configuration_root(),
-                          'hieras', hiera, File.basename(datadir))
-    [localpath, datadir]
-  end
+def get_hiera_config_from_env()
+  {:source_file => ENV['PUPPET_GATLING_HIERA_CONFIG_SOURCE_FILE'],
+   :datadir => ENV['PUPPET_GATLING_HIERA_CONFIG_DATADIR']
+  }
 end
 
 ################################################################################

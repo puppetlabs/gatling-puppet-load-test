@@ -1,0 +1,7 @@
+{
+  "simulation_class": "com.puppetlabs.gatling.node_simulations.PECouchPerfMedium",
+  "certname_prefix": "pgtomcat",
+  "classes": [
+    "role::by_size::medium"
+  ]
+}

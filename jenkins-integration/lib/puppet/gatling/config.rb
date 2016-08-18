@@ -45,6 +45,15 @@ def get_scenario_from_env()
   scenario_file
 end
 
+# Returns the $PUPPET_GATLING_SIMULATION_ID variable or throws an error.
+def get_simulation_id_from_env()
+  simulation_id = ENV['PUPPET_GATLING_SIMULATION_ID']
+  if !simulation_id
+    raise 'PUPPET_GATLING_SIMULATION_ID must be defined'
+  end
+  simulation_id
+end
+
 # Parses the full path to the scenario file as JSON.
 # Should be called with the result of the get_scenario_from_env() function.
 def parse_scenario_file(scenario_file)

@@ -13,6 +13,7 @@ pipeline.single_pipeline([
                 type: "r10k",
                 control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",
                 basedir: "/etc/puppetlabs/code-staging/environments",
-                environments: ["production"]
+                environments: ["production"],
+                hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"
         ]
 ])

@@ -115,11 +115,15 @@ def step045_install_hiera_config(script_dir, code_deploy, server_era) {
             "" : code_deploy["hiera_config_source_file"]
     hiera_config_datadir = (code_deploy["hiera_config_datadir"] == null) ?
             "" : code_deploy["hiera_config_datadir"]
-    withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
-             "PUPPET_GATLING_HIERA_CONFIG_SOURCE_FILE=${hiera_config_source_file}",
-             "PUPPET_GATLING_HIERA_CONFIG_DATADIR=${hiera_config_datadir}"
-    ]) {
-        sh "${script_dir}/045_install_hiera_config.sh"
+    if ((hiera_config_source_file == "") && (hiera_config_datadir == "")) {
+        echo "Skipping hiera configuration because no options specified in job"
+    } else {
+        withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
+                 "PUPPET_GATLING_HIERA_CONFIG_SOURCE_FILE=${hiera_config_source_file}",
+                 "PUPPET_GATLING_HIERA_CONFIG_DATADIR=${hiera_config_datadir}"
+        ]) {
+            sh "${script_dir}/045_install_hiera_config.sh"
+        }
     }
 }
 

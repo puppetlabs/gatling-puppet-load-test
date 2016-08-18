@@ -147,8 +147,8 @@ def step050_file_sync(script_dir, server_era) {
     }
 }
 
-def step060_classify_nodes(script_dir, server_era) {
-    withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${PUPPET_GATLING_SIMULATION_CONFIG}",
+def step060_classify_nodes(script_dir, gatling_simulation_config, server_era) {
+    withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${gatling_simulation_config}",
              "PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}"]) {
         if (server_era["node_classifier"] == true) {
             sh "${script_dir}/060_classify_nodes-NC-API.sh"
@@ -167,8 +167,8 @@ def step080_launch_bg_scripts() {
     echo "Hi! TODO: I should be launching background scripts on your SUT, but I'm not."
 }
 
-def step090_run_gatling_sim(job_name, script_dir) {
-    withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${PUPPET_GATLING_SIMULATION_CONFIG}",
+def step090_run_gatling_sim(job_name, gatling_simulation_config, script_dir) {
+    withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${gatling_simulation_config}",
              "PUPPET_GATLING_SIMULATION_ID=${job_name}",
              "SUT_HOST=${SUT_HOST}"]) {
         sh "${script_dir}/090_run_simulation.sh"
@@ -219,7 +219,9 @@ def single_pipeline(job) {
         step050_file_sync(SCRIPT_DIR, server_era)
 
         stage '060-classify-nodes'
-        step060_classify_nodes(SCRIPT_DIR, server_era)
+        step060_classify_nodes(SCRIPT_DIR,
+                job["gatling_simulation_config"],
+                server_era)
 
         stage '070-validate-classification'
         step070_validate_classification()
@@ -228,7 +230,9 @@ def single_pipeline(job) {
         step080_launch_bg_scripts()
 
         stage '090-run-gatling-sim'
-        step090_run_gatling_sim(job['job_name'], SCRIPT_DIR)
+        step090_run_gatling_sim(job['job_name'],
+                job["gatling_simulation_config"],
+                SCRIPT_DIR)
 
         stage '100-collect-sut-artifacts'
         step100_collect_sut_artifacts()
@@ -264,10 +268,14 @@ def multipass_pipeline(jobs) {
             step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
             step045_install_hiera_config(SCRIPT_DIR, job["code_deploy"], server_era)
             step050_file_sync(SCRIPT_DIR, server_era)
-            step060_classify_nodes(SCRIPT_DIR, server_era)
+            step060_classify_nodes(SCRIPT_DIR,
+                    job['gatling_simulation_config'],
+                    server_era)
             step070_validate_classification()
             step080_launch_bg_scripts()
-            step090_run_gatling_sim(job_name, SCRIPT_DIR)
+            step090_run_gatling_sim(job_name,
+                    job['gatling_simulation_config'],
+                    SCRIPT_DIR)
             step100_collect_sut_artifacts()
         }
 

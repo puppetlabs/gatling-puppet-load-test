@@ -35,9 +35,6 @@ scenarios_dir.eachFileRecurse (FileType.FILES) { file ->
                 stringParam('SUT_HOST',
                         'puppetserver-perf-sut54.delivery.puppetlabs.net',
                         'The host/IP address of the system to use as the SUT')
-                stringParam('PUPPET_GATLING_SIMULATION_CONFIG',
-                        '../simulation-runner/config/scenarios/ops-scenario.json',
-                        'The path to the gplt gatling scenario config file.')
                 booleanParam('SKIP_PE_INSTALL', false, 'If checked, will skip over the PE Install step.  Useful if you are doing development and already have a PE SUT.')
                 booleanParam('SKIP_PROVISIONING', true, 'If checked, will skip over the Razor provisioning step.  Useful if you already have an SUT provisioned, e.g. via the VM Pooler.')
             }

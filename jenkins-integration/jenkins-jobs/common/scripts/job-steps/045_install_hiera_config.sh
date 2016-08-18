@@ -20,7 +20,7 @@ bundle exec beaker \
         --no-color \
         --tests \
 beaker/install/shared/45_install_hiera_config.rb,\
-beaker/install/pe/99_restart_server.rb
+beaker/install/shared/99_restart_server.rb
 
 # without this set +x, rvm will log 10 gigs of garbage
 set +x

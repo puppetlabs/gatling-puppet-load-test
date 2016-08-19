@@ -5,6 +5,7 @@ node {
 
 //pipeline.single_pipeline(
 //        [job_name: 'pe33-medium',
+//         gatling_simulation_config: '../simulation-runner/config/scenarios/pe33-medium-10.json',
 //         server_version: [
 //                 type: "pe",
 //                 pe_version: "3.3.2"
@@ -21,6 +22,7 @@ node {
 
 pipeline.multipass_pipeline([
         [job_name: 'pe33-medium',
+         gatling_simulation_config: '../simulation-runner/config/scenarios/pe33-medium-10.json',
          server_version: [
                  type: "pe",
                  pe_version: "3.3.2"
@@ -34,6 +36,7 @@ pipeline.multipass_pipeline([
                  hiera_config_datadir: "/etc/puppetlabs/puppet/environments/%{environment}/hieradata"
          ]],
         [job_name: 'pe-couch-medium',
+         gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-10.json',
          server_version: [
                  type: "pe",
                  pe_version: "2016.2.0"

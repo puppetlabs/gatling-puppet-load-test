@@ -2,7 +2,7 @@
     "run_description": "'medium' role from perf control repo",
     "nodes": [
         {
-            "node_config": "pe33-medium.json",
+            "node_config": "PE33PerfMedium.json",
             "num_instances": 3,
             "ramp_up_duration_seconds": 0,
             "num_repetitions": 1,

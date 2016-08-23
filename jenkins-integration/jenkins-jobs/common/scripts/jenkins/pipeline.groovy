@@ -15,7 +15,8 @@ def get_pe_server_era(pe_version) {
                 r10k_version: "1.5.1",
                 file_sync_available: false,
                 file_sync_enabled: false,
-                node_classifier: true]
+                node_classifier: true,
+                facter_structured_facts: false]
     } else if (pe_version ==~ /^3\..*/) {
         return [type: "pe",
                 service_name: "pe-httpd",
@@ -25,7 +26,8 @@ def get_pe_server_era(pe_version) {
                 r10k_version: "1.5.1",
                 file_sync_available: false,
                 file_sync_enabled: false,
-                node_classifier: false]
+                node_classifier: false,
+                facter_structured_facts: false]
     } else if (pe_version ==~ /^2016\..*/) {
         return [type: "pe",
                 service_name: "pe-puppetserver",
@@ -35,7 +37,8 @@ def get_pe_server_era(pe_version) {
                 r10k_version: "2.3.0",
                 file_sync_available: true,
                 file_sync_enabled: false,
-                node_classifier: true]
+                node_classifier: true,
+                facter_structured_facts: true]
     } else if (pe_version ==~ /^2015\.3\..*/) {
         return [type: "pe",
                 service_name: "pe-puppetserver",
@@ -45,7 +48,8 @@ def get_pe_server_era(pe_version) {
                 r10k_version: "2.3.0",
                 file_sync_available: true,
                 file_sync_enabled: true,
-                node_classifier: true]
+                node_classifier: true,
+                facter_structured_facts: true]
     } else if (pe_version ==~ /^2015\..*/) {
         return [type: "pe",
                 service_name: "pe-puppetserver",
@@ -55,7 +59,8 @@ def get_pe_server_era(pe_version) {
                 r10k_version: "2.3.0",
                 file_sync_available: false,
                 file_sync_enabled: false,
-                node_classifier: true]
+                node_classifier: true,
+                facter_structured_facts: true]
     } else {
         error "Unrecognized PE version: '${pe_version}'"
     }
@@ -141,9 +146,10 @@ def step020_install_server(SKIP_SERVER_INSTALL, script_dir, server_era) {
     }
 }
 
-def step025_collect_facter_data(job_name, gatling_simulation_config, script_dir) {
+def step025_collect_facter_data(job_name, gatling_simulation_config, script_dir, server_era) {
     withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${gatling_simulation_config}",
-             "PUPPET_GATLING_SIMULATION_ID=${job_name}"]) {
+             "PUPPET_GATLING_SIMULATION_ID=${job_name}",
+             "FACTER_STRUCTURED_FACTS=${server_era["facter_structured_facts"]}"]) {
         sh "${script_dir}/025_collect_facter_data.sh"
     }
 }
@@ -275,7 +281,8 @@ def single_pipeline(job) {
         stage '025-collect-facter-data'
         step025_collect_facter_data(job['job_name'],
                 job['gatling_simulation_config'],
-                SCRIPT_DIR)
+                SCRIPT_DIR,
+                server_era)
 
         stage '030-customize-settings'
         step030_customize_settings()
@@ -339,7 +346,8 @@ def multipass_pipeline(jobs) {
             step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era)
             step025_collect_facter_data(job_name,
                     job['gatling_simulation_config'],
-                    SCRIPT_DIR)
+                    SCRIPT_DIR,
+                    server_era)
             step030_customize_settings()
             step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
             step045_install_hiera_config(SCRIPT_DIR, job["code_deploy"], server_era)

@@ -28,7 +28,7 @@ def save_data(facter_data, data_hash, simulation_id, config)
 end
 
 # disk, num cpus, speed of cpus, ram
-def get_data_hash(data)
+def get_data_hash_from_structured_facts(data)
   facts_data = JSON.parse(data)
   {
       'processor0' => facts_data['processors']['models'][0],
@@ -39,14 +39,30 @@ def get_data_hash(data)
   }
 end
 
+def get_data_hash_from_legacy_facts(data)
+  facts_data = JSON.parse(data)
+  {
+      'processor0' => facts_data['processor0'],
+      'processorcount' => facts_data['processorcount'],
+      'puppetversion' => facts_data['puppetversion'],
+      'blockdevice_sda_size' => facts_data['blockdevice_sda_size'],
+      'memorysize' => facts_data['memorysize']
+  }
+end
+
 # Begin work
 
 puts "Gathering facter data and processing data..."
 config = parse_scenario_file(get_scenario_from_env())
 simulation_id = get_simulation_id_from_env()
 
-facter_data = get_facter_data
-data_hash = get_data_hash facter_data
+facter_data = get_facter_data()
+data_hash =
+  if ENV["FACTER_STRUCTURED_FACTS"] == "true"
+    get_data_hash_from_structured_facts(facter_data)
+  else
+    get_data_hash_from_legacy_facts(facter_data)
+  end
 
 pgl_git_rev = `git rev-parse HEAD`
 data_hash['gatling-puppet-load-test'] = pgl_git_rev.chomp

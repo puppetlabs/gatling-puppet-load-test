@@ -26,7 +26,7 @@ def classify_foss_nodes(host, nodes)
     # need to restart the server to make this change take effect.
     # TODO: should move the restart into a helper method or something, this
     # is duplicated in 99_restart_server.rb.
-    service_name = ENV['PUPPET_SERVER_SERVICE_NAME']
+    service_name = get_puppet_server_service_name_from_env()
 
     on(host, "systemctl restart #{service_name}")
 

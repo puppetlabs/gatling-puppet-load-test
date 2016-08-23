@@ -14,7 +14,8 @@ pipeline.multipass_pipeline([
                  control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",
                  basedir: "/etc/puppetlabs/code-staging/environments",
                  environments: ["production"],
-                 hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"]],
+                 hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"],
+         server_java_args: "-Xms12g -Xmx12g"],
         [job_name: 'secondtest',
          gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-10.json',
          server_version: [
@@ -26,4 +27,5 @@ pipeline.multipass_pipeline([
                  control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",
                  basedir: "/etc/puppetlabs/code-staging/environments",
                  environments: ["production"],
-                 hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"]]])
+                 hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"],
+         server_java_args: "-Xms12g -Xmx12g"]])

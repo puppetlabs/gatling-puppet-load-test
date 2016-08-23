@@ -1,6 +1,8 @@
+require 'puppet/gatling/config'
+
 test_name 'Restart PE Puppet Server to pick up configuration changes'
 
-service_name = ENV['PUPPET_SERVER_SERVICE_NAME']
+service_name = get_puppet_server_service_name_from_env()
 
 on(master, "systemctl restart #{service_name}")
 

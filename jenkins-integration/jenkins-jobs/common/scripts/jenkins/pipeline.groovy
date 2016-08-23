@@ -63,11 +63,12 @@ def get_pe_server_era(pe_version) {
 
 def get_oss_server_era(oss_version) {
     // TODO: eventually we will probably want to do something more sophisticated
-    //  here; currently only support 'latest' OSS puppetserver + 'latest' agent
-    if (oss_version == "latest") {
+    //  here; currently only support 'latest'/'master'/'stable' OSS puppetserver,
+    //  and 'latest' agent
+    if (["latest", "master", "stable"].contains(oss_version)) {
         return [type: "oss",
                 service_name: "puppetserver",
-                version: "latest",
+                version: oss_version,
                 agent_version: "latest",
                 tk_auth: false,
                 puppet_bin_dir: "/opt/puppetlabs/puppet/bin",

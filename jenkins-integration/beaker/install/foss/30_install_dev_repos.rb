@@ -3,12 +3,16 @@ repo_config_dir = 'tmp/repo_configs'
 
 require 'net/http'
 
-def get_latest_master_version
+def get_latest_master_version(branch)
   response = Net::HTTP.get(URI('http://builds.puppetlabs.lan/puppetserver/?C=M&O=D'))
+
+  if branch == "latest"
+    branch = "master"
+  end
 
   response.lines do |l|
     next unless l =~ /<td><a /
-    next unless l =~ /master/
+    next unless l =~ /#{branch}/
     match = l.match(/^.*href="([^"]+)\/\?C=M&amp;O=D".*$/)
     return match[1]
   end
@@ -30,8 +34,8 @@ end
 
 step "Setup Puppet Server repositories." do
   package_build_version = ENV['PACKAGE_BUILD_VERSION']
-  if package_build_version == "latest"
-    package_build_version = get_latest_master_version()
+  if ["latest","stable","master"].include?(package_build_version)
+    package_build_version = get_latest_master_version(package_build_version)
   end
   if package_build_version
     Beaker::Log.notify("Installing OSS Puppet Server version '#{package_build_version}'")

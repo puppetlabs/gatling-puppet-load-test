@@ -10,17 +10,10 @@ step "Upgrade nss to version that is hopefully compatible with jdk version puppe
   if nss_package_name
     master.upgrade_package(nss_package_name)
   else
-    logger.warn("Don't know what nss package to use for #{variant} so not installing one")
+    Beaker::Log.warn("Don't know what nss package to use for #{variant} so not installing one")
   end
 end
 
 step "Install Puppet Server." do
-  make_env = {
-      "prefix" => "/usr",
-      "confdir" => "/etc/",
-      "rundir" => "/var/run/puppetserver",
-      "initdir" => "/etc/init.d",
-  }
-
   install_package master, 'puppetserver'
 end

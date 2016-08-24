@@ -3,19 +3,23 @@
 // viable yet.  See https://issues.jenkins-ci.org/browse/JENKINS-37125 and
 // https://issues.jenkins-ci.org/browse/JENKINS-31155 .
 
-def get_server_era(pe_version) {
+def get_pe_server_era(pe_version) {
     // A normal groovy switch/case statement with regex matchers doesn't seem
     // to work in Jenkins: https://issues.jenkins-ci.org/browse/JENKINS-37214
     if (pe_version ==~ /^3\.[78]\..*/) {
-        return [service_name: "pe-puppetserver",
-                tk_auth     : false,
+        return [type: "pe",
+                service_name: "pe-puppetserver",
+                version: pe_version,
+                tk_auth: false,
                 puppet_bin_dir: "/opt/puppet/bin",
                 r10k_version: "1.5.1",
                 file_sync_available: false,
                 file_sync_enabled: false,
                 node_classifier: true]
     } else if (pe_version ==~ /^3\..*/) {
-        return [service_name: "pe-httpd",
+        return [type: "pe",
+                service_name: "pe-httpd",
+                version: pe_version,
                 tk_auth     : false,
                 puppet_bin_dir: "/opt/puppet/bin",
                 r10k_version: "1.5.1",
@@ -23,7 +27,9 @@ def get_server_era(pe_version) {
                 file_sync_enabled: false,
                 node_classifier: false]
     } else if (pe_version ==~ /^2016\..*/) {
-        return [service_name: "pe-puppetserver",
+        return [type: "pe",
+                service_name: "pe-puppetserver",
+                version: pe_version,
                 tk_auth     : true,
                 puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
                 r10k_version: "2.3.0",
@@ -31,7 +37,9 @@ def get_server_era(pe_version) {
                 file_sync_enabled: false,
                 node_classifier: true]
     } else if (pe_version ==~ /^2015\.3\..*/) {
-        return [service_name: "pe-puppetserver",
+        return [type: "pe",
+                service_name: "pe-puppetserver",
+                version: pe_version,
                 tk_auth     : true,
                 puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
                 r10k_version: "2.3.0",
@@ -39,7 +47,9 @@ def get_server_era(pe_version) {
                 file_sync_enabled: true,
                 node_classifier: true]
     } else if (pe_version ==~ /^2015\..*/) {
-        return [service_name: "pe-puppetserver",
+        return [type: "pe",
+                service_name: "pe-puppetserver",
+                version: pe_version,
                 tk_auth     : false,
                 puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
                 r10k_version: "2.3.0",
@@ -48,6 +58,36 @@ def get_server_era(pe_version) {
                 node_classifier: true]
     } else {
         error "Unrecognized PE version: '${pe_version}'"
+    }
+}
+
+def get_oss_server_era(oss_version) {
+    // TODO: eventually we will probably want to do something more sophisticated
+    //  here; currently only support 'latest'/'master'/'stable' OSS puppetserver,
+    //  and 'latest' agent
+    if (["latest", "master", "stable"].contains(oss_version)) {
+        return [type: "oss",
+                service_name: "puppetserver",
+                version: oss_version,
+                agent_version: "latest",
+                tk_auth: false,
+                puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
+                r10k_version: "2.3.0",
+                file_sync_available: false,
+                file_sync_enabled: false,
+                node_classifier: false]
+    } else {
+        error "Unrecognized OSS version: '${oss_version}'"
+    }
+}
+
+def get_server_era(server_version) {
+    if (server_version["type"] == "pe") {
+        return get_pe_server_era(server_version["pe_version"])
+    } else if (server_version["type"] == "oss") {
+        return get_oss_server_era(server_version["version"])
+    } else {
+        error "Unsupported server type: ${server_version["type"]}"
     }
 }
 
@@ -62,25 +102,41 @@ def step000_provision_sut(SKIP_PROVISIONING, script_dir) {
 }
 
 def step010_setup_beaker(script_dir, server_version) {
-    if (server_version["type"] != "pe") {
-        error "Unsupported server type: ${server_version["type"]}"
-    }
+    if (server_version["type"] == "pe") {
+        withEnv(["SUT_HOST=${SUT_HOST}",
+                 "pe_version=${server_version["pe_version"]}",
+                 "pe_family=${server_version["pe_version"]}"]) {
+            sh "${script_dir}/010_setup_beaker.sh"
+        }
+    } else if (server_version["type"] == "oss") {
+        withEnv(["SUT_HOST=${SUT_HOST}"]) {
+            sh "${script_dir}/010_setup_beaker.sh"
+        }
 
-    withEnv(["SUT_HOST=${SUT_HOST}",
-             "pe_version=${server_version["pe_version"]}",
-             "pe_family=${server_version["pe_version"]}"]) {
-        sh "${script_dir}/010_setup_beaker.sh"
+    } else {
+        error "Unsupported server type: ${server_version["type"]}"
     }
 }
 
-def step020_install_pe(SKIP_PE_INSTALL, script_dir, server_era) {
-    echo "SKIP PE INSTALL?: ${SKIP_PE_INSTALL} (${SKIP_PE_INSTALL.class})"
-    if (SKIP_PE_INSTALL) {
-        echo "Skipping PE install because SKIP_PE_INSTALL is set."
+def step020_install_server(SKIP_SERVER_INSTALL, script_dir, server_era) {
+    echo "SKIP SERVER INSTALL?: ${SKIP_SERVER_INSTALL} (${SKIP_SERVER_INSTALL.class})"
+    if (SKIP_SERVER_INSTALL) {
+        echo "Skipping server install because SKIP_SERVER_INSTALL is set."
     } else {
-        withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
-                 "PUPPET_SERVER_TK_AUTH=${server_era["tk_auth"]}"]) {
-            sh "${script_dir}/020_install_pe.sh"
+        if (server_era["type"] == "pe") {
+            withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
+                     "PUPPET_SERVER_TK_AUTH=${server_era["tk_auth"]}"]) {
+                sh "${script_dir}/020_install_pe.sh"
+            }
+        } else if (server_era["type"] == "oss") {
+            withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
+                     "PUPPET_SERVER_TK_AUTH=${server_era["tk_auth"]}",
+                     "PACKAGE_BUILD_VERSION=${server_era["version"]}",
+                     "PUPPET_AGENT_VERSION=${server_era["agent_version"]}"]) {
+                sh "${script_dir}/020_install_oss.sh"
+            }
+        } else {
+            error "Unsupported server type: ${server_era["type"]}"
         }
     }
 }
@@ -202,7 +258,7 @@ def single_pipeline(job) {
     node {
         checkout scm
 
-        SKIP_PE_INSTALL = (SKIP_PE_INSTALL == "true")
+        SKIP_SERVER_INSTALL = (SKIP_SERVER_INSTALL == "true")
         SKIP_PROVISIONING = (SKIP_PROVISIONING == "true")
 
         stage '000-provision-sut'
@@ -211,10 +267,10 @@ def single_pipeline(job) {
         stage '010-setup-beaker'
         step010_setup_beaker(SCRIPT_DIR, job["server_version"])
 
-        server_era = get_server_era(job["server_version"]["pe_version"])
+        server_era = get_server_era(job["server_version"])
 
-        stage '020-install-pe'
-        step020_install_pe(SKIP_PE_INSTALL, SCRIPT_DIR, server_era)
+        stage '020-install-server'
+        step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era)
 
         stage '025-collect-facter-data'
         step025_collect_facter_data(job['job_name'],
@@ -264,7 +320,7 @@ def multipass_pipeline(jobs) {
     node {
         checkout scm
 
-        SKIP_PE_INSTALL = (SKIP_PE_INSTALL == "true")
+        SKIP_SERVER_INSTALL = (SKIP_SERVER_INSTALL == "true")
         SKIP_PROVISIONING = (SKIP_PROVISIONING == "true")
 
         // NOTE: jenkins does not appear to like groovy's
@@ -279,8 +335,8 @@ def multipass_pipeline(jobs) {
             stage job_name
             step000_provision_sut(SKIP_PROVISIONING, SCRIPT_DIR)
             step010_setup_beaker(SCRIPT_DIR, job["server_version"])
-            server_era = get_server_era(job["server_version"]["pe_version"])
-            step020_install_pe(SKIP_PE_INSTALL, SCRIPT_DIR, server_era)
+            server_era = get_server_era(job["server_version"])
+            step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era)
             step025_collect_facter_data(job_name,
                     job['gatling_simulation_config'],
                     SCRIPT_DIR)

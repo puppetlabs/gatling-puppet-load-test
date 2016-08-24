@@ -25,6 +25,9 @@ bundle install --path vendor/bundle
         | sed -e 's/hypervisor: vmpooler/hypervisor: none/1' \
         > hosts.yaml
 
+echo "CREATED HOSTS.YAML FILE:"
+cat hosts.yaml
+
 # without this set +x, rvm will log 10 gigs of garbage
 set +x
 popd

@@ -60,6 +60,14 @@ def parse_scenario_file(scenario_file)
   JSON.parse(File.read(File.join(scenario_file)))
 end
 
+def get_puppet_server_service_name_from_env()
+  ENV['PUPPET_SERVER_SERVICE_NAME']
+end
+
+def get_puppet_server_java_args_from_env()
+  ENV['PUPPET_SERVER_JAVA_ARGS']
+end
+
 ################################################################################
 ### Nodes
 

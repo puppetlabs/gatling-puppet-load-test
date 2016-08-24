@@ -162,11 +162,23 @@ def step070_validate_classification() {
     echo "Hi! TODO: I should be validating classification on your SUT, but I'm not."
 }
 
-def step080_launch_bg_scripts() {
+def step080_customize_settings(script_dir, server_java_args, server_era) {
+    if ((server_java_args == null) || (server_java_args == "")) {
+        echo "Skipping java_args configuration because none specified in job"
+    } else {
+        withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
+                 "PUPPET_SERVER_JAVA_ARGS=${server_java_args}"
+        ]) {
+            sh "${script_dir}/080_configure_java_args.sh"
+        }
+    }
+}
+
+def step090_launch_bg_scripts() {
     echo "Hi! TODO: I should be launching background scripts on your SUT, but I'm not."
 }
 
-def step090_run_gatling_sim(job_name, gatling_simulation_config, script_dir) {
+def step100_run_gatling_sim(job_name, gatling_simulation_config, script_dir) {
     withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${gatling_simulation_config}",
              "PUPPET_GATLING_SIMULATION_ID=${job_name}",
              "SUT_HOST=${SUT_HOST}"]) {
@@ -174,7 +186,7 @@ def step090_run_gatling_sim(job_name, gatling_simulation_config, script_dir) {
     }
 }
 
-def step100_collect_sut_artifacts() {
+def step110_collect_sut_artifacts() {
     echo "Hi! TODO: I should be collecting artifacts from your SUT, but I'm not."
 }
 
@@ -227,16 +239,19 @@ def single_pipeline(job) {
         stage '070-validate-classification'
         step070_validate_classification()
 
-        stage '080-launch-bg-scripts'
-        step080_launch_bg_scripts()
+        stage '080-customize-java-args'
+        step080_customize_settings(SCRIPT_DIR, job["server_java_args"], server_era)
 
-        stage '090-run-gatling-sim'
-        step090_run_gatling_sim(job['job_name'],
+        stage '090-launch-bg-scripts'
+        step090_launch_bg_scripts()
+
+        stage '100-run-gatling-sim'
+        step100_run_gatling_sim(job['job_name'],
                 job["gatling_simulation_config"],
                 SCRIPT_DIR)
 
-        stage '100-collect-sut-artifacts'
-        step100_collect_sut_artifacts()
+        stage '110-collect-sut-artifacts'
+        step110_collect_sut_artifacts()
 
         stage '900-collect-driver-artifacts'
         step900_collect_driver_artifacts()
@@ -275,11 +290,14 @@ def multipass_pipeline(jobs) {
                     job['gatling_simulation_config'],
                     server_era)
             step070_validate_classification()
-            step080_launch_bg_scripts()
-            step090_run_gatling_sim(job_name,
+            step080_customize_settings(SCRIPT_DIR,
+                    job["server_java_args"],
+                    server_era)
+            step090_launch_bg_scripts()
+            step100_run_gatling_sim(job_name,
                     job['gatling_simulation_config'],
                     SCRIPT_DIR)
-            step100_collect_sut_artifacts()
+            step110_collect_sut_artifacts()
         }
 
         // it's critical that the gatling archiving happens outside

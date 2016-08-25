@@ -8,6 +8,7 @@ def generate_sitepp(node_configs)
       map { |klass| "include #{klass}" }.
       insert(0, "node /#{config['certname_prefix']}.*/ {").
       push('}').
+      push("node 'default' {}").
       join("\n")
   end.join("\n").strip
 end

@@ -236,15 +236,29 @@ def step080_customize_settings(script_dir, server_java_args, server_era) {
     }
 }
 
-def step090_launch_bg_scripts() {
-    echo "Hi! TODO: I should be launching background scripts on your SUT, but I'm not."
+def step090_launch_bg_scripts(script_dir, background_scripts) {
+    if (background_scripts == null) {
+        echo "No background scripts configured, skipping."
+    } else {
+        withEnv(["SUT_BACKGROUND_SCRIPTS=${background_scripts.join("\n")}"]) {
+            sh "${script_dir}/090_start_bg_scripts.sh"
+        }
+    }
 }
 
 def step100_run_gatling_sim(job_name, gatling_simulation_config, script_dir) {
     withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${gatling_simulation_config}",
              "PUPPET_GATLING_SIMULATION_ID=${job_name}",
              "SUT_HOST=${SUT_HOST}"]) {
-        sh "${script_dir}/090_run_simulation.sh"
+        sh "${script_dir}/100_run_simulation.sh"
+    }
+}
+
+def step105_stop_bg_scripts(script_dir, background_scripts) {
+    if (background_scripts == null) {
+        echo "No background scripts configured, skipping."
+    } else {
+        sh "${script_dir}/105_stop_bg_scripts.sh"
     }
 }
 
@@ -308,12 +322,15 @@ def single_pipeline(job) {
         step080_customize_settings(SCRIPT_DIR, job["server_java_args"], server_era)
 
         stage '090-launch-bg-scripts'
-        step090_launch_bg_scripts()
+        step090_launch_bg_scripts(SCRIPT_DIR, job['background_scripts'])
 
         stage '100-run-gatling-sim'
         step100_run_gatling_sim(job['job_name'],
                 job["gatling_simulation_config"],
                 SCRIPT_DIR)
+
+        stage '105-stop-bg-scripts'
+        step105_stop_bg_scripts(SCRIPT_DIR, job['background_scripts'])
 
         stage '110-collect-sut-artifacts'
         step110_collect_sut_artifacts()
@@ -359,10 +376,11 @@ def multipass_pipeline(jobs) {
             step080_customize_settings(SCRIPT_DIR,
                     job["server_java_args"],
                     server_era)
-            step090_launch_bg_scripts()
+            step090_launch_bg_scripts(SCRIPT_DIR, job['background_scripts'])
             step100_run_gatling_sim(job_name,
                     job['gatling_simulation_config'],
                     SCRIPT_DIR)
+            step105_stop_bg_scripts(SCRIPT_DIR, job['background_scripts'])
             step110_collect_sut_artifacts()
         }
 

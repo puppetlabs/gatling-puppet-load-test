@@ -271,11 +271,13 @@ def step105_stop_bg_scripts(script_dir, background_scripts) {
     }
 }
 
-def step110_collect_sut_artifacts(script_dir, archive_sut_files) {
+def step110_collect_sut_artifacts(script_dir, job_name, archive_sut_files) {
     if (archive_sut_files == null) {
         echo "No SUT archive files configured, skipping."
     } else {
-        withEnv(["SUT_ARCHIVE_FILES=${archive_sut_files.join("\n")}"]) {
+        echo "Collecting SUT archive files for job '${job_name}'"
+        withEnv(["SUT_ARCHIVE_FILES=${archive_sut_files.join("\n")}",
+                 "PUPPET_GATLING_JOB_NAME=${job_name}"]) {
             sh "${script_dir}/110_archive_sut_files.sh"
         }
         for (f in archive_sut_files) {
@@ -283,8 +285,9 @@ def step110_collect_sut_artifacts(script_dir, archive_sut_files) {
             // TODO: probably would be nicer for the scripts to be saving
             // the files somewhere outside of the git working directory,
             // but didn't want to hassle with figuring that out for the moment.
-            String filePath = "jenkins-integration/sut_archive_files/${filename}"
+            String filePath = "jenkins-integration/sut_archive_files/${job_name}/${filename}"
             echo "Archiving SUT file: '${filePath}'"
+            sh "if [ ! -f './${filePath}' ] ; then echo 'ERROR! FILE DOES NOT EXIST!'; false ; fi"
             archive "${filePath}"
         }
     }
@@ -305,6 +308,8 @@ def single_pipeline(job) {
         SKIP_SERVER_INSTALL = (SKIP_SERVER_INSTALL == "true")
         SKIP_PROVISIONING = (SKIP_PROVISIONING == "true")
 
+        job_name = job['job_name']
+
         stage '000-provision-sut'
         step000_provision_sut(SKIP_PROVISIONING, SCRIPT_DIR)
 
@@ -317,7 +322,7 @@ def single_pipeline(job) {
         step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era)
 
         stage '025-collect-facter-data'
-        step025_collect_facter_data(job['job_name'],
+        step025_collect_facter_data(job_name,
                 job['gatling_simulation_config'],
                 SCRIPT_DIR,
                 server_era)
@@ -349,7 +354,7 @@ def single_pipeline(job) {
         step090_launch_bg_scripts(SCRIPT_DIR, job['background_scripts'])
 
         stage '100-run-gatling-sim'
-        step100_run_gatling_sim(job['job_name'],
+        step100_run_gatling_sim(job_name,
                 job["gatling_simulation_config"],
                 SCRIPT_DIR)
 
@@ -357,7 +362,7 @@ def single_pipeline(job) {
         step105_stop_bg_scripts(SCRIPT_DIR, job['background_scripts'])
 
         stage '110-collect-sut-artifacts'
-        step110_collect_sut_artifacts(SCRIPT_DIR, job['archive_sut_files'])
+        step110_collect_sut_artifacts(SCRIPT_DIR, job_name, job['archive_sut_files'])
 
         stage '900-collect-driver-artifacts'
         step900_collect_driver_artifacts()
@@ -405,7 +410,7 @@ def multipass_pipeline(jobs) {
                     job['gatling_simulation_config'],
                     SCRIPT_DIR)
             step105_stop_bg_scripts(SCRIPT_DIR, job['background_scripts'])
-            step110_collect_sut_artifacts(SCRIPT_DIR, job['archive_sut_files'])
+            step110_collect_sut_artifacts(SCRIPT_DIR, job_name, job['archive_sut_files'])
         }
 
         // it's critical that the gatling archiving happens outside

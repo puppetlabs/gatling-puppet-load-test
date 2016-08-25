@@ -4,7 +4,7 @@ node {
 }
 pipeline.multipass_pipeline([
         [job_name: 'firsttest',
-         gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-10.json',
+         gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-3.json',
          server_version: [
                  type: "pe",
                  pe_version: "2016.2.0"
@@ -17,7 +17,7 @@ pipeline.multipass_pipeline([
                  hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"],
          server_java_args: "-Xms12g -Xmx12g"],
         [job_name: 'secondtest',
-         gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-10.json',
+         gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-3.json',
          server_version: [
                  type: "pe",
                  pe_version: "2016.2.0"

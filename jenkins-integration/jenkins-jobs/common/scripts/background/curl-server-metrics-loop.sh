@@ -2,6 +2,8 @@
 
 set -x
 
+rm -rf /var/log/puppetlabs/puppetserver/metrics.json
+
 while true ; do
   curl -sS -w "\n" -k https://localhost:8140/status/v1/services?level=debug >> /var/log/puppetlabs/puppetserver/metrics.json
   # this value was chosen somewhat arbitrarily... but here are some napkin math numbers:

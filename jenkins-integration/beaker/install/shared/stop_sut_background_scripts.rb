@@ -8,5 +8,7 @@ step "Stop background scripts on SUT" do
   pids.each do |k, v|
     Beaker::Log.notify("Stopping script '#{k}' with pid '#{v}'")
     on(master, "kill #{v}")
+    Beaker::Log.notify("Waiting for bg script '#{k}' with pid '#{v}' to exit.")
+    on(master, "while kill -0 #{v} 2>/dev/null; do sleep 0.5; done")
   end
 end

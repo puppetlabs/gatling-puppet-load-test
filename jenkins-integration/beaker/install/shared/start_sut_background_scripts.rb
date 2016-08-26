@@ -12,7 +12,7 @@ step "Launch background scripts on SUT" do
     Beaker::Log.notify("Launching script '#{s}'")
     scp_to(master, s, master_tempdir)
     result = on(master, "#{remote_path} > #{master_tempdir}/stdout.log 2> #{master_tempdir}/stderr.log & echo $!")
-    Beaker::Log.notify("GOT RESULT FROM SCRIPT EXECUTION: '#{result}'")
+    Beaker::Log.notify("GOT RESULT FROM SCRIPT EXECUTION:")
     Beaker::Log.notify("\tEXIT CODE: '#{result.exit_code}'")
     Beaker::Log.notify("\tSTDOUT: '#{result.stdout}'")
     Beaker::Log.notify("\tSTDERR: '#{result.stderr}'")

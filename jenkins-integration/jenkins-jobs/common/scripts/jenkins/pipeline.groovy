@@ -89,7 +89,8 @@ def get_oss_server_era(oss_version) {
                 r10k_version: "2.3.0",
                 file_sync_available: false,
                 file_sync_enabled: false,
-                node_classifier: false]
+                node_classifier: false,
+                facter_structured_facts: true]
     } else {
         error "Unrecognized OSS version: '${oss_version}'"
     }

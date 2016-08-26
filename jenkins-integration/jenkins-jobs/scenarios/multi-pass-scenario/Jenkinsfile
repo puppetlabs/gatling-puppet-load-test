@@ -15,7 +15,13 @@ pipeline.multipass_pipeline([
                  basedir: "/etc/puppetlabs/code-staging/environments",
                  environments: ["production"],
                  hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"],
-         server_java_args: "-Xms12g -Xmx12g"],
+         server_java_args: "-Xms12g -Xmx12g",
+         background_scripts: [
+                 "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh"
+         ],
+         archive_sut_files: [
+                 "/var/log/puppetlabs/puppetserver/metrics.json"
+         ]],
         [job_name: 'secondtest',
          gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-10.json',
          server_version: [
@@ -28,4 +34,11 @@ pipeline.multipass_pipeline([
                  basedir: "/etc/puppetlabs/code-staging/environments",
                  environments: ["production"],
                  hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"],
-         server_java_args: "-Xms12g -Xmx12g"]])
+         server_java_args: "-Xms12g -Xmx12g",
+         background_scripts: [
+                 "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh"
+         ],
+         archive_sut_files: [
+                 "/var/log/puppetlabs/puppetserver/metrics.json"
+         ]
+        ]])

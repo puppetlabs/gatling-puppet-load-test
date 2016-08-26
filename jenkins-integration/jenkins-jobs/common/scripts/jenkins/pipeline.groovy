@@ -3,6 +3,15 @@
 // viable yet.  See https://issues.jenkins-ci.org/browse/JENKINS-37125 and
 // https://issues.jenkins-ci.org/browse/JENKINS-31155 .
 
+def get_filename(path) {
+    // This is a bummer, but all of the JVM built-ins for manipulating file paths
+    // appear to be blacklisted in their groovy security sandbox thingy, so rather
+    // than trying to figure out how to puppetize changes to the whitelist, we're
+    // just rolling our own for now.
+    return path.substring(path.lastIndexOf("/") + 1,
+            path.length())
+}
+
 def get_pe_server_era(pe_version) {
     // A normal groovy switch/case statement with regex matchers doesn't seem
     // to work in Jenkins: https://issues.jenkins-ci.org/browse/JENKINS-37214
@@ -236,20 +245,52 @@ def step080_customize_settings(script_dir, server_java_args, server_era) {
     }
 }
 
-def step090_launch_bg_scripts() {
-    echo "Hi! TODO: I should be launching background scripts on your SUT, but I'm not."
+def step090_launch_bg_scripts(script_dir, background_scripts) {
+    if (background_scripts == null) {
+        echo "No background scripts configured, skipping."
+    } else {
+        withEnv(["SUT_BACKGROUND_SCRIPTS=${background_scripts.join("\n")}"]) {
+            sh "${script_dir}/090_start_bg_scripts.sh"
+        }
+    }
 }
 
 def step100_run_gatling_sim(job_name, gatling_simulation_config, script_dir) {
     withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${gatling_simulation_config}",
              "PUPPET_GATLING_SIMULATION_ID=${job_name}",
              "SUT_HOST=${SUT_HOST}"]) {
-        sh "${script_dir}/090_run_simulation.sh"
+        sh "${script_dir}/100_run_simulation.sh"
     }
 }
 
-def step110_collect_sut_artifacts() {
-    echo "Hi! TODO: I should be collecting artifacts from your SUT, but I'm not."
+def step105_stop_bg_scripts(script_dir, background_scripts) {
+    if (background_scripts == null) {
+        echo "No background scripts configured, skipping."
+    } else {
+        sh "${script_dir}/105_stop_bg_scripts.sh"
+    }
+}
+
+def step110_collect_sut_artifacts(script_dir, job_name, archive_sut_files) {
+    if (archive_sut_files == null) {
+        echo "No SUT archive files configured, skipping."
+    } else {
+        echo "Collecting SUT archive files for job '${job_name}'"
+        withEnv(["SUT_ARCHIVE_FILES=${archive_sut_files.join("\n")}",
+                 "PUPPET_GATLING_JOB_NAME=${job_name}"]) {
+            sh "${script_dir}/110_archive_sut_files.sh"
+        }
+        for (f in archive_sut_files) {
+            String filename = get_filename(f);
+            // TODO: probably would be nicer for the scripts to be saving
+            // the files somewhere outside of the git working directory,
+            // but didn't want to hassle with figuring that out for the moment.
+            String filePath = "jenkins-integration/sut_archive_files/${job_name}/${filename}"
+            echo "Archiving SUT file: '${filePath}'"
+            sh "if [ ! -f './${filePath}' ] ; then echo 'ERROR! FILE DOES NOT EXIST!'; false ; fi"
+            archive "${filePath}"
+        }
+    }
 }
 
 def step900_collect_driver_artifacts() {
@@ -267,6 +308,8 @@ def single_pipeline(job) {
         SKIP_SERVER_INSTALL = (SKIP_SERVER_INSTALL == "true")
         SKIP_PROVISIONING = (SKIP_PROVISIONING == "true")
 
+        job_name = job['job_name']
+
         stage '000-provision-sut'
         step000_provision_sut(SKIP_PROVISIONING, SCRIPT_DIR)
 
@@ -279,7 +322,7 @@ def single_pipeline(job) {
         step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era)
 
         stage '025-collect-facter-data'
-        step025_collect_facter_data(job['job_name'],
+        step025_collect_facter_data(job_name,
                 job['gatling_simulation_config'],
                 SCRIPT_DIR,
                 server_era)
@@ -308,15 +351,18 @@ def single_pipeline(job) {
         step080_customize_settings(SCRIPT_DIR, job["server_java_args"], server_era)
 
         stage '090-launch-bg-scripts'
-        step090_launch_bg_scripts()
+        step090_launch_bg_scripts(SCRIPT_DIR, job['background_scripts'])
 
         stage '100-run-gatling-sim'
-        step100_run_gatling_sim(job['job_name'],
+        step100_run_gatling_sim(job_name,
                 job["gatling_simulation_config"],
                 SCRIPT_DIR)
 
+        stage '105-stop-bg-scripts'
+        step105_stop_bg_scripts(SCRIPT_DIR, job['background_scripts'])
+
         stage '110-collect-sut-artifacts'
-        step110_collect_sut_artifacts()
+        step110_collect_sut_artifacts(SCRIPT_DIR, job_name, job['archive_sut_files'])
 
         stage '900-collect-driver-artifacts'
         step900_collect_driver_artifacts()
@@ -359,11 +405,12 @@ def multipass_pipeline(jobs) {
             step080_customize_settings(SCRIPT_DIR,
                     job["server_java_args"],
                     server_era)
-            step090_launch_bg_scripts()
+            step090_launch_bg_scripts(SCRIPT_DIR, job['background_scripts'])
             step100_run_gatling_sim(job_name,
                     job['gatling_simulation_config'],
                     SCRIPT_DIR)
-            step110_collect_sut_artifacts()
+            step105_stop_bg_scripts(SCRIPT_DIR, job['background_scripts'])
+            step110_collect_sut_artifacts(SCRIPT_DIR, job_name, job['archive_sut_files'])
         }
 
         // it's critical that the gatling archiving happens outside

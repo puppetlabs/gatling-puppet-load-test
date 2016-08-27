@@ -16,5 +16,11 @@ pipeline.single_pipeline([
                 basedir: "/etc/puppetlabs/code/environments",
                 environments: ["production"],
                 hiera_config_source_file: "/etc/puppetlabs/code/environments/production/root_files/hiera.yaml"
+        ],
+        background_scripts: [
+                "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh"
+        ],
+        archive_sut_files: [
+                "/var/log/puppetlabs/puppetserver/metrics.json"
         ]
 ])

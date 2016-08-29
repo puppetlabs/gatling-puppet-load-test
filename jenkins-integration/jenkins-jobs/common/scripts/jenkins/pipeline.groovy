@@ -278,15 +278,12 @@ def step110_collect_sut_artifacts(script_dir, job_name, archive_sut_files) {
     } else {
         echo "Collecting SUT archive files for job '${job_name}'"
         withEnv(["SUT_ARCHIVE_FILES=${archive_sut_files.join("\n")}",
-                 "PUPPET_GATLING_JOB_NAME=${job_name}"]) {
+                 "PUPPET_GATLING_SIMULATION_ID=${job_name}"]) {
             sh "${script_dir}/110_archive_sut_files.sh"
         }
         for (f in archive_sut_files) {
             String filename = get_filename(f);
-            // TODO: probably would be nicer for the scripts to be saving
-            // the files somewhere outside of the git working directory,
-            // but didn't want to hassle with figuring that out for the moment.
-            String filePath = "jenkins-integration/sut_archive_files/${job_name}/${filename}"
+            String filePath = "puppet-gatling/${job_name}/sut_archive_files/${filename}"
             echo "Archiving SUT file: '${filePath}'"
             sh "if [ ! -f './${filePath}' ] ; then echo 'ERROR! FILE DOES NOT EXIST!'; false ; fi"
             archive "${filePath}"

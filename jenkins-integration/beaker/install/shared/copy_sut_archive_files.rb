@@ -2,13 +2,15 @@ require 'fileutils'
 
 step "Copy archive files from SUT" do
   archive_files = ENV['SUT_ARCHIVE_FILES'].split("\n")
-  job_name = ENV['PUPPET_GATLING_JOB_NAME']
+  job_name = ENV['PUPPET_GATLING_SIMULATION_ID']
   Beaker::Log.notify("Copying #{archive_files.count} archive files from SUT")
 
-  FileUtils.mkdir_p("./sut_archive_files/#{job_name}")
+  archive_dir = "../puppet-gatling/#{job_name}/sut_archive_files"
+
+  FileUtils.mkdir_p(archive_dir)
 
   archive_files.each do |s|
     Beaker::Log.notify("Copying archive file '#{s}'")
-    scp_from(master, s, "./sut_archive_files/#{job_name}")
+    scp_from(master, s, archive_dir)
   end
 end

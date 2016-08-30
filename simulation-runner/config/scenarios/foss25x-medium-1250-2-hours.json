@@ -1,5 +1,5 @@
 {
-    "run_description": "'medium' role from perf control repo",
+    "run_description": "'medium' role from perf control repo, 1250 agents, 2 hours",
     "nodes": [
         {
             "node_config": "FOSS25xPerfMedium.json",

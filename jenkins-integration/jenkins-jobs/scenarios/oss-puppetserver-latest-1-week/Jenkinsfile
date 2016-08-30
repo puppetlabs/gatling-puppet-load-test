@@ -4,8 +4,8 @@ node {
 }
 
 pipeline.single_pipeline([
-        job_name: 'oss-latest',
-        gatling_simulation_config: '../simulation-runner/config/scenarios/foss25x-medium-1250-2-hours.json',
+        job_name: 'oss-latest-1-week',
+        gatling_simulation_config: '../simulation-runner/config/scenarios/foss25x-medium-1250-1-week.json',
         server_version: [
                 type: "oss",
                 version: "latest"

@@ -33,7 +33,7 @@ scenarios_dir.eachFileRecurse (FileType.FILES) { file ->
             // the 'properties' step, see https://issues.jenkins-ci.org/browse/JENKINS-32780
             parameters {
                 stringParam('SUT_HOST',
-                        'puppetserver-perf-sut54.delivery.puppetlabs.net',
+                        'foo-sut.delivery.puppetlabs.net',
                         'The host/IP address of the system to use as the SUT')
                 booleanParam('SKIP_SERVER_INSTALL', false, 'If checked, will skip over the PE/OSS Server Install step.  Useful if you are doing development and already have a server SUT.')
                 booleanParam('SKIP_PROVISIONING', true, 'If checked, will skip over the Razor provisioning step.  Useful if you already have an SUT provisioned, e.g. via the VM Pooler.')

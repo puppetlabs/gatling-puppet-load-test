@@ -18,4 +18,6 @@ javaOptions in run ++= Seq("-Xms512M", "-Xmx8g", "-Xmn100M",
   "-Drecorder.proxy.https.mode=ProvidedKeyStore",
   "-Drecorder.proxy.https.keyStore.path=./target/tmp/ssl/gatling-proxy-keystore.jks",
   "-Drecorder.proxy.https.keyStore.password=puppet",
-  "-Drecorder.proxy.https.keyStore.type=JKS")
+  "-Drecorder.proxy.https.keyStore.type=JKS",
+  "-Drecorder.core.outputFolder=../simulation-runner/src/main/scala"
+)

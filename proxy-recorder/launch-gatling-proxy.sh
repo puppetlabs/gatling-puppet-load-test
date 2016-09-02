@@ -1,11 +1,36 @@
 #!/usr/bin/env bash
 
-set -e
-
 echo "
 
 So you'd like to capture a puppet agent run, eh?
 
+First thing we're going to do is to check the state of your git working
+tree, because this script is going to make some commits containing
+the output of your recording.  If you have a dirty work tree, you can clean
+it up now if you like.  Otherwise, after you press ENTER and we do the check,
+the script will fail.
+PRESS ENTER"
+read
+
+git diff-index --quiet HEAD --
+RESULT=$?
+echo "RESULT IS: ${RESULT}"
+
+if [ $RESULT -ne 0 ]
+then
+  echo "
+ERROR!  Your git working tree appears to be dirty.  Please commit or stash your
+changes, and then run this script again.  Exiting.
+"
+  exit 1
+fi
+
+set -e
+
+echo "
+
+Great, your git working tree appears to be clean.  Let's move on to capturing
+the recording.
 
 Here are some assumptions that this program makes.  Please make sure that
 they are accurate.

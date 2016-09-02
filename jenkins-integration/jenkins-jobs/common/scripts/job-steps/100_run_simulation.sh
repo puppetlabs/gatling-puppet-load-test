@@ -34,9 +34,12 @@ set +x
 popd
 pushd simulation-runner
 
-set -x
-
 echo "SUT_HOST IS: '${SUT_HOST}'"
+echo "PUPPET_GATLING_SIMULATION_ID IS: '${PUPPET_GATLING_SIMULATION_ID}'"
+echo "PUPPET_GATLING_SIMULATION_CONFIG ('${PUPPET_GATLING_SIMULATION_CONFIG}') IS:"
+cat "${PUPPET_GATLING_SIMULATION_CONFIG}"
+
+set -x
 
 PUPPET_GATLING_MASTER_BASE_URL=https://$SUT_HOST:8140 sbt run
 # without this set +x, rvm will log 10 gigs of garbage

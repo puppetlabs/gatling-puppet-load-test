@@ -64,7 +64,7 @@ The `driver` nodes uses a broker called `pe`.  This broker was set up by ops and
 will handle the work of automatically bootstrapping a Puppet agent that is
 configured to talk to their PE master.
 
-Note that whenever these box are reprovisioned, they will end up creating a new
+Note that whenever these boxes are reprovisioned, they will end up creating a new
 certificate, and we will need to work with the Ops team to get the old certificate
 removed and the new certificate signed.
 

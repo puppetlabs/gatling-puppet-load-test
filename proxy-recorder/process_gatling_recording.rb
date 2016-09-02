@@ -1,5 +1,11 @@
 #!/usr/bin/env ruby
 
+unless RUBY_VERSION =~ /^2\.\d+\.\d+$/
+  puts "ERROR!  This script requires ruby 2.x."
+  exit 1
+end
+
+
 require 'json'
 
 TERMINOLOGY = {

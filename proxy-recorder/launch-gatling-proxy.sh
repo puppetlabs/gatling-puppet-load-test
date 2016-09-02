@@ -156,12 +156,77 @@ PRESS ENTER"
 read
 
 echo "
-All done!  You should now have a .scala file in your output directory that
-contains everything that we need in order to simulate this node in a scale test.
 
-If your node sent any requests with text bodies, such as reports, they will be
-in proxy-recorder/user-files/bodies/, not in the output directory.
+Great!  At this point your recording should be completed, which means we
+should have one new .scala file (containing the recording data), and one
+.txt file (containing the body of the agent's report request) on disk.
 
-The next step is to take that scala file and hack it up just a tiny bit
-so that it's compatible with the gatling-puppet-scale-test project.  Head
-on over to that project for more info.  Good luck!"
+The script will now make sure it can find these, so we can move them to
+the proper locations and commit the raw files to git before we modify
+them to work with the puppet-gatling-load-test framework.
+PRESS ENTER"
+read
+
+FIND_COMMAND='find ./user-files/bodies -name *.txt'
+FIND_COUNT=`${FIND_COMMAND} |wc -l`
+if [ "${FIND_COUNT}" != "1" ]
+then
+   echo "
+ERROR!
+Uh-oh, something's gone wrong.  The script can't seem to find the report body;
+expected '${FIND_COMMAND}' to return \"1\", but it returned \"${FIND_COUNT}\".
+Exiting.
+"
+    exit 1
+fi
+
+REPORT_BODY=`${FIND_COMMAND}`
+REPORT_FILENAME=`basename "${REPORT_BODY}"`
+REPORT_FINAL_PATH="../simulation-runner/user-files/bodies/${REPORT_FILENAME}"
+SIMULATION_NAME=`echo "${REPORT_BODY}" |sed 's/^\.\/user-files\/bodies\///g' |sed 's/_[[:digit:]]*_request\.txt$//g'`
+
+echo "Found report body file at '${REPORT_BODY}'"
+echo "Simulation name: '${SIMULATION_NAME}'"
+
+SIMULATION_FILE="../simulation-runner/src/main/scala/com/puppetlabs/gatling/node_simulations/${SIMULATION_NAME}.scala"
+
+if [ -f ${SIMULATION_FILE} ]
+then
+    echo "Found simulation file: '${SIMULATION_FILE}'"
+else
+    echo "ERROR!  Could not find simulation file '${SIMULATION_FILE}'!  Exiting."
+    exit 1
+fi
+
+echo "Moving report body file to correct directory."
+mv ${REPORT_BODY} ${REPORT_FINAL_PATH}
+
+echo "Preparing for git commit of raw output from gatling recorder."
+git add ${REPORT_FINAL_PATH}
+git add ${SIMULATION_FILE}
+
+git commit -m "(MAINT) Raw output of gatling recorder for ${SIMULATION_NAME}"
+
+echo "
+
+OK.  Found the required output files from the recorder and moved them to the
+appropriate locations.  Performed a 'git commit' to capture the raw recording
+output.  Now we'll run our post-processing script that converts the recording
+for use with gatling-puppet-load-test, and then commit that to git as well.
+PRESS ENTER"
+read
+
+./process_gatling_recording.rb ${SIMULATION_FILE}
+mv ${REPORT_FINAL_PATH}.new ${REPORT_FINAL_PATH}
+mv ${SIMULATION_FILE}.new ${SIMULATION_FILE}
+
+git add ${REPORT_FINAL_PATH}
+git add ${SIMULATION_FILE}
+git add ../simulation-runner/config/nodes/${SIMULATION_NAME}.json
+
+git commit -m "(MAINT) Processed gatling recording for ${SIMULATION_NAME}"
+
+echo "
+Done!  The recording has been modified successfully and committed to git.
+"
+

@@ -1,0 +1,9 @@
+{
+ "name": "puppetserver-perf-driver-dev",
+ "hostname": "puppetserver-perf-driver${id}-dev.delivery.puppetlabs.net",
+ "root-password": "puppet",
+ "tags": "puppetserver-perf-driver-dev",
+ "repo": "centos-7",
+ "task": "centos/7",
+ "broker": "pe"
+} 

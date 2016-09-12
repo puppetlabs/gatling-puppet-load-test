@@ -1,0 +1,4 @@
+{
+ "name": "puppetserver-perf-driver-dev",
+ "rule": ["=", ["fact", "macaddress"], "48:8b:2c:25:3e:3d"]
+}

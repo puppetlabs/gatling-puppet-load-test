@@ -11,13 +11,16 @@ the hostnames are:
 * puppetserver-perf-sut56.delivery.puppetlabs.net
 * puppetserver-perf-sut57.delivery.puppetlabs.net
 * puppetserver-perf-driver55.delivery.puppetlabs.net
+* puppetserver-perf-driver68-dev.delivery.puppetlabs.net
 
 More details on the hardware can be found [here](https://confluence.puppetlabs.com/display/PERF/Hardware+Assets).
 
 The three SUT boxes are intended to be where we install and run PE.  These nodes
 will need to have their operating systems wiped and re-installed frequently to
-ensure that we get clean data from run to run.  The "driver" box is where we
-will run Jenkins and Gatling to drive the perf tests.
+ensure that we get clean data from run to run.  The "driver" boxes are where we
+will run Jenkins and Gatling to drive the perf tests.  We have one "production"
+driver (driver55) and one "dev" driver (driver68-dev), for experimenting with
+different types of tests and new features.
 
 To make sure that this environment is reproducible and to make it easy to get
 the operating systems re-installed, we are using the SysOps team's razor instance,
@@ -55,17 +58,17 @@ The files corresponding to the "broker types" are managed by Puppet; see the ops
 modules.  The broker object that goes into the Razor database can be represented
 as JSON; it's in the `*-broker.json` file in this directory.
 
-### Broker for the `driver` node
+### Broker for the `driver` nodes
 
-The `driver` node uses a broker called `pe`.  This broker was set up by ops and
+The `driver` nodes uses a broker called `pe`.  This broker was set up by ops and
 will handle the work of automatically bootstrapping a Puppet agent that is
 configured to talk to their PE master.
 
-Note that whenever this box is reprovisioned, it will end up creating a new
+Note that whenever these boxes are reprovisioned, they will end up creating a new
 certificate, and we will need to work with the Ops team to get the old certificate
 removed and the new certificate signed.
 
-Hopefully this box will be failry stable, and we won't need to re-provision it
+Hopefully these boxes will be fairly stable, and we won't need to re-provision them
 unless something big and crazy happens.
 
 ### Broker for the `SUT` nodes
@@ -121,10 +124,11 @@ aren't tied to any files on disk (like brokers and tasks are).
 
 When a node first boots via razor, it runs facter in a microkernel and sends the
 fact data up to the razor server.  Tags allow you to express a PuppetDB-like query
-against these facts to identify and group nodes.  We have two tags, `puppetserver-perf-driver`
-and `puppetserver-perf-sut`.  At the time of this writing, these tags just have
-the mac addresses of the appropriate blades hard-coded, and we can use that information
-to identify the nodes and decide what to do with them.
+against these facts to identify and group nodes.  We have three tags:
+`puppetserver-perf-driver`, `puppetserver-perf-driver-dev`, and `puppetserver-perf-sut`.
+At the time of this writing, these tags just have the mac addresses of the appropriate
+blades hard-coded, and we can use that information to identify the nodes and decide
+what to do with them.
 
 Tags in razor can be represented (and added to the database) via JSON; see the
 two `*-tag.json` files in this directory.
@@ -132,11 +136,13 @@ two `*-tag.json` files in this directory.
 ### Policies
 
 Policies are used to map nodes (identified via tags) to brokers and tasks.  So,
-we have two policies:
+we have three policies:
 
 * `puppetserver-perf-sut`, which maps the corresponding tag to our special SUT
   broker and our Cent7 task with the custom kickstart file.
 * `puppetserver-perf-driver`, which maps the corresponding tag to the `pe` broker,
+  and to the default Cent7 task.
+* `puppetserver-perf-driver-dev`, which maps the corresponding tag to the `pe` broker,
   and to the default Cent7 task.
 
 These can also be represented as JSON - see the `*-policy.json` files in this

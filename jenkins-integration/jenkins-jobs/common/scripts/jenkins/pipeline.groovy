@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 // NOTE: would really like to start writing some classes/enums for some of this stuff,
 // and importing them here, but it doesn't seem like support for that is really
 // viable yet.  See https://issues.jenkins-ci.org/browse/JENKINS-37125 and
@@ -164,8 +166,16 @@ def step025_collect_facter_data(job_name, gatling_simulation_config, script_dir,
     }
 }
 
-def step030_customize_settings() {
-    echo "Hi! TODO: I should be customizing PE settings on the SUT, but I'm not."
+def step030_customize_settings(script_dir, puppet_settings) {
+    if (puppet_settings == null) {
+        echo "Skipping settings customization; no overrides found in `puppet_settings`."
+    } else {
+        puppet_settings_json = JsonOutput.toJson(puppet_settings)
+        withEnv(["PUPPET_GATLING_PUPPET_SETTINGS=${puppet_settings_json}",
+                 "PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}"]) {
+            sh "${script_dir}/030_customize_settings.sh"
+        }
+    }
 }
 
 def step040_install_puppet_code(script_dir, code_deploy, server_era) {
@@ -326,7 +336,7 @@ def single_pipeline(job) {
                 server_era)
 
         stage '030-customize-settings'
-        step030_customize_settings()
+        step030_customize_settings(job['puppet_settings'])
 
         stage '040-install-puppet-code'
         step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
@@ -392,7 +402,7 @@ def multipass_pipeline(jobs) {
                     job['gatling_simulation_config'],
                     SCRIPT_DIR,
                     server_era)
-            step030_customize_settings()
+            step030_customize_settings(SCRIPT_DIR, job['puppet_settings'])
             step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
             step045_install_hiera_config(SCRIPT_DIR, job["code_deploy"], server_era)
             step050_file_sync(SCRIPT_DIR, server_era)

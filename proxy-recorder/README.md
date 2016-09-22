@@ -1,7 +1,4 @@
-gatling-puppet-agent-capture
-============================
-
-This project is designed to help you capture request/response data from
+These tools are designed to help you capture request/response data from
 a Puppet agent run, for use in a Gatling load test simulation.
 
 Prerequisites:

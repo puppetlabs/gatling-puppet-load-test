@@ -1,0 +1,12 @@
+{
+    "run_description": "'medium' role from perf control repo",
+    "nodes": [
+        {
+            "node_config": "PECouchPerfMediumNoStaticCatalogs.json",
+            "num_instances": 1000,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 4,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}

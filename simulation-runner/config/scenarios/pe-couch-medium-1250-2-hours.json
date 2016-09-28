@@ -3,9 +3,9 @@
     "nodes": [
         {
             "node_config": "PECouchPerfMedium.json",
-            "num_instances": 1500,
+            "num_instances": 1250,
             "ramp_up_duration_seconds": 1800,
-            "num_repetitions": 2,
+            "num_repetitions": 4,
             "sleep_duration_seconds": 1800
         }
     ]

@@ -4,8 +4,7 @@ node {
 }
 
 def static_catalogs_base_config() {
-    [job_name: 'pe-couch-static-catalogs',
-     server_version: [
+    [server_version: [
              type: "pe",
              pe_version: "2016.2.0"
      ],
@@ -27,7 +26,9 @@ def static_catalogs_base_config() {
 }
 
 static_catalogs_500 = static_catalogs_base_config()
-static_catalogs_500.put("gatling_simulation_config", '../simulation-runner/config/scenarios/pe-couch-medium-500-2-hours.json')
+static_catalogs_500.putAll(
+        [job_name: 'pe-couch-static-catalogs',
+         gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-500-2-hours.json'])
 
 pipeline.multipass_pipeline([
 //        [job_name: 'pe-couch-medium-no-static-catalogs',

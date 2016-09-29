@@ -54,27 +54,27 @@ def static_catalogs_base_config() {
 
 static_catalogs_500 = static_catalogs_base_config()
 static_catalogs_500.put('job_name', 'pe-couch-static-500')
-static_catalogs_500.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-500.json')
+static_catalogs_500.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-500-2-hours.json')
 
 no_static_catalogs_500 = no_static_catalogs_base_config()
 no_static_catalogs_500.put('job_name', 'pe-couch-no-static-500')
-no_static_catalogs_500.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-no-static-catalogs-500.json')
+no_static_catalogs_500.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-no-static-catalogs-500-2-hours.json')
 
 static_catalogs_1000 = static_catalogs_base_config()
 static_catalogs_1000.put('job_name', 'pe-couch-static-1000')
-static_catalogs_1000.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-1000.json')
+static_catalogs_1000.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-1000-2-hours.json')
 
 no_static_catalogs_1000 = no_static_catalogs_base_config()
 no_static_catalogs_1000.put('job_name', 'pe-couch-no-static-1000')
-no_static_catalogs_1000.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-no-static-catalogs-1000.json')
+no_static_catalogs_1000.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-no-static-catalogs-1000-2-hours.json')
 
 static_catalogs_1250 = static_catalogs_base_config()
 static_catalogs_1250.put('job_name', 'pe-couch-static-1250')
-static_catalogs_1250.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-1250.json')
+static_catalogs_1250.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-1250-2-hours.json')
 
 no_static_catalogs_1250 = no_static_catalogs_base_config()
 no_static_catalogs_1250.put('job_name', 'pe-couch-no-static-1250')
-no_static_catalogs_1250.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-no-static-catalogs-1250.json')
+no_static_catalogs_1250.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-no-static-catalogs-1250-2-hours.json')
 
 
 pipeline.multipass_pipeline([

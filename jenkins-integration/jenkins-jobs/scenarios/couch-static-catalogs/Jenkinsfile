@@ -79,5 +79,9 @@ no_static_catalogs_1250.put('gatling_simulation_config', '../simulation-runner/c
 
 pipeline.multipass_pipeline([
     no_static_catalogs_500,
-    static_catalogs_500
+    static_catalogs_500,
+    no_static_catalogs_1000,
+    static_catalogs_1000,
+    no_static_catalogs_1250,
+    static_catalogs_1250
 ])

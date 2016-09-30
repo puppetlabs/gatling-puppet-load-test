@@ -3,7 +3,7 @@
     "nodes": [
         {
             "node_config": "PECouchPerfMediumNoStaticCatalogs.json",
-            "num_instances": 1250,
+            "num_instances": 250,
             "ramp_up_duration_seconds": 1800,
             "num_repetitions": 4,
             "sleep_duration_seconds": 1800

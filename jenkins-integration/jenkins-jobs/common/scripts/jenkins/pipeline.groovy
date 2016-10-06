@@ -336,7 +336,7 @@ def single_pipeline(job) {
                 server_era)
 
         stage '030-customize-settings'
-        step030_customize_settings(job['puppet_settings'])
+        step030_customize_settings(SCRIPT_DIR, job['puppet_settings'])
 
         stage '040-install-puppet-code'
         step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)

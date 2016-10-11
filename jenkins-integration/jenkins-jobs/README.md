@@ -23,21 +23,21 @@ Currently:
   You can also look at the existing jobs for examples.  A couple of noteworthy
   ones:
 
-** `scenarios/single-pass-scenario`: this shows an example of a single-pass pipeline,
-   where one specific PE perf test is executed on a single SUT and the job can
-   be visualized in several very granular stages.  This would be appropriate for
-   jobs where you just want to monitor the change in performance of a single branch
-   or feature over time, but is not as useful for comparing multiple different
-   branches or features against one another.  It is also useful for seeing how long the
-   different phases of the perf job (install PE, install puppet code, file sync,
-   run gatling sim, etc.) take, relative to one another.
+  * `scenarios/single-pass-scenario`: this shows an example of a single-pass pipeline,
+     where one specific PE perf test is executed on a single SUT and the job can
+     be visualized in several very granular stages.  This would be appropriate for
+     jobs where you just want to monitor the change in performance of a single branch
+     or feature over time, but is not as useful for comparing multiple different
+     branches or features against one another.  It is also useful for seeing how long the
+     different phases of the perf job (install PE, install puppet code, file sync,
+     run gatling sim, etc.) take, relative to one another.
 
-** `scenarios/multi-pass-scenario`: this example shows how you can define multiple
-   different things to do a perf test on; e.g., different versions of PE, different
-   versions of a setting, etc.  The job will loop over each of the perf tests that
-   you'd specified, serially, and for each one, spin up a new SUT and run the test.
-   At the end it can aggregate perf data (e.g. gatling reports) for all of the
-   runs and visualize them compared to one another.
+  * `scenarios/multi-pass-scenario`: this example shows how you can define multiple
+     different things to do a perf test on; e.g., different versions of PE, different
+     versions of a setting, etc.  The job will loop over each of the perf tests that
+     you'd specified, serially, and for each one, spin up a new SUT and run the test.
+     At the end it can aggregate perf data (e.g. gatling reports) for all of the
+     runs and visualize them compared to one another.
 
 * The `common/scripts/jenkins` directory contains groovy library code that can be re-used
   across multiple perf test jobs; typically you'll load this code via your Jenkinsfile.

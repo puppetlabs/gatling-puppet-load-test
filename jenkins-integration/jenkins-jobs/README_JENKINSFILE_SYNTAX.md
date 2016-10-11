@@ -44,7 +44,7 @@ it into a proper groovy Class in the future, but haven't quite had time to figur
 
 The most interesting / important part of these Jenkinsfiles is the data structure that describes the PE/Puppet Server
 configuration and the perf test to run.  Here is an example of one of those data structures.  (Several of the fields in
-this map are optional, but this example excercises all of the fields that are currently available.)
+this map are optional, but this example exercises all of the fields that are currently available.)
 
 NOTE: I would really like to port this stuff over to use some simple groovy classes (think POJOs... POGOs?) in the future,
 to be able to get some more compile-time validation and error checking, but haven't had time to figure out how to do that
@@ -87,13 +87,15 @@ Here's some info about each of these sections:
 * `server_version`: used to choose whether to do a PE install or an OSS puppetserver install, and to specify the version.
 * `code_deploy`: specifies what puppet code we need to deploy to the server in order to be able to compile the catalogs for
   the selected gatling simulation.  Currently only supports a `type` value of `r10k`, with the following additional arguments:
-** `control_repo`: the URL for the r10k control repo
-** `basedir`: the directory that r10k should deploy environments to; use $codedir for setups that don't have file sync,
+  * `control_repo`: the URL for the r10k control repo
+  * `basedir`: the directory that r10k should deploy environments to; use $codedir for setups that don't have file sync,
    and code-staging for setups that do.
-** `environments`: the list of environments that r10k should deploy
-** `hiera_config_source_file`: if your tests will exercise hiera, you'll need a "main" hiera config file.  This argument
+  * `environments`: the list of environments that r10k should deploy
+  * `hiera_config_source_file`: if your tests will exercise hiera, you'll need a "main" hiera config file.  This argument
    specifies the path where the framework should find that file.  The framework will copy it into the correct location
-   for the configured PE/Puppet Server setup.
+   for the configured PE/Puppet Server setup.  NOTE: the path is expected to be a local file on the SUT, so the easiest
+   way to get this working is to include the control repo so that it will be available at a known location on the SUT
+   after the r10k deploy.
 * `server_java_args`: if you wish to override any of the Java args (for Puppet Server only, at this time), specify the
   args here.
 * `puppet_settings`: if you wish to modify any of the settings in puppet.conf, provide a nested map here.  The first level

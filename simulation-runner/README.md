@@ -19,7 +19,7 @@ directory.  For more information on the file format of these node config files,
 see [./config/nodes/README.md](./config/nodes/README.md).
 
 Once you have a recording and a node configuration file, you may reference this
-node  in one or more "scenario" config file, which are defined in `config/scenarios`.
+node  in one or more "scenario" config files, which are defined in `config/scenarios`.
 These allow you to define scenarios that combine multiple types of agent recordings,
 potentially with different amounts of load for each type of agent.  For more
 information on these config files, see [./config/scenarios/README.md](./config/scenarios/README.md).

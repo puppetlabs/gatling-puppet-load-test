@@ -1,7 +1,7 @@
 ## Welcome to load testing Puppet with Gatling!
 
 This repo contains tools for load testing Puppet Enterprise, Puppet Server, and other components.  It works by building
-an existing [open source load testing called Gatling](http://gatling.io), which allows you to record HTTP traffic
+an existing [open source load testing tool called Gatling](http://gatling.io), which allows you to record HTTP traffic
 and replay it, and then generate reports about the performance of the simulated requests.  We use this to simulate
 Puppet agent requests to Puppet Server, but in a full PE installation, since Puppet Server is driving communication
 with PuppetDB, the Node Classifier, etc., we end up exercising all of the PE components.

@@ -108,14 +108,5 @@ new jobs.
 ##### perf test jobs
 
 Once the `refresh-gplt-jobs` job has been run once, you'll see some other jobs in
-Jenkins based on the YAML files in the `jenkins-integration/jenkins-jobs` directory.
-
-At the time of this writing there are two jobs in there, and they are fairly early
-POCs.  For more information see the
-[docs in the `jenkins-jobs` directory](./jenkins-jobs).
-
-The `run_ops_deployment` job in there is a working example that does and end-to-end
-run, including installing PE, deploying the Ops modules and catalog zero, triggering
-file sync, classifying the nodes, and running a short gatling simulation.  There is
-a lot of cleanup work left to do; this is where the majority of the remaining work
-on this project will be focused.  Stay tuned.
+Jenkins based on the `Jenkinsfile`s in the `jenkins-integration/jenkins-jobs/scenarios/*`
+directories.  For more info, see the [README.md in the `jenkins-jobs` directory](./jenkins-jobs).

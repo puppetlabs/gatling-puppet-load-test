@@ -5,5 +5,6 @@ test_name 'Run puppet agent on the master to prime directories' do
   # ahead of the Gatling run avoids collisions in the priming that can happen
   # when multiple agent runs happen at the same time.  See PUP-6651 for more
   # information.
-  on(master, 'puppet agent -t --server `hostname`')
+  fqdn = fact_on(master, 'fqdn')
+  on(master, "puppet agent -t --server #{fqdn}")
 end

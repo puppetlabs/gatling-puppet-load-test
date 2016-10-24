@@ -178,6 +178,17 @@ def step030_customize_settings(script_dir, puppet_settings) {
     }
 }
 
+def step035_customize_hocon_settings(script_dir, settings) {
+    if (settings == null) {
+        echo "Skipping hocon settings customization; no overrides found in `hocon_settings`."
+    } else {
+        settings_json = JsonOutput.toJson(settings)
+        withEnv(["PUPPET_GATLING_HOCON_SETTINGS=${settings_json}"]) {
+            sh "${script_dir}/035_customize_hocon_settings.sh"
+        }
+    }
+}
+
 def step040_install_puppet_code(script_dir, code_deploy, server_era) {
     switch (code_deploy["type"]) {
         case "r10k":
@@ -338,6 +349,9 @@ def single_pipeline(job) {
         stage '030-customize-settings'
         step030_customize_settings(SCRIPT_DIR, job['puppet_settings'])
 
+        stage '035-customize-hocon-settings'
+        step035_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'])
+
         stage '040-install-puppet-code'
         step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
 
@@ -403,6 +417,7 @@ def multipass_pipeline(jobs) {
                     SCRIPT_DIR,
                     server_era)
             step030_customize_settings(SCRIPT_DIR, job['puppet_settings'])
+            step035_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'])
             step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
             step045_install_hiera_config(SCRIPT_DIR, job["code_deploy"], server_era)
             step050_file_sync(SCRIPT_DIR, server_era)

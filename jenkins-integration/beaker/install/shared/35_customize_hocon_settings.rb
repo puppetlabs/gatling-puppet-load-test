@@ -14,15 +14,14 @@ test_name 'Configure hocon settings on SUT'
 
 hocon_settings = JSON.parse(ENV['PUPPET_GATLING_HOCON_SETTINGS'])
 
-p hocon_settings
 hocon_settings.each do |setting|
-  case setting["action"]
-    when 'set'
+  case setting['action']
+    when 'set', nil
       set_hocon_setting(setting['file'], setting['path'], setting['value'])
     when 'unset'
       unset_hocon_setting(setting['file'], setting['path'])
     else
-      raise Exception.new("Invalid hocon action '#{setting["action"]}'. Must be one of 'set', 'unset'")
+      raise Exception.new("Invalid hocon action '#{setting['action']}'. Must be 'set', 'unset', or omitted (defaults to 'set')")
   end
 end
 

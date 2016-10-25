@@ -158,6 +158,19 @@ def step020_install_server(SKIP_SERVER_INSTALL, script_dir, server_era) {
     }
 }
 
+def step023_install_system_gems(script_dir, gem_list){
+    if (gem_list == null) {
+        echo "Skipping installing system gems; no gem list given"
+    }
+    else{
+        gem_string = gem_list.join(",")
+        withEnv(["PUPPET_GATLING_SYSTEM_GEMS=${gem_string}"]) {
+            sh "${script_dir}/023_install_system_gems.sh"
+        }
+    }
+}
+
+
 def step025_collect_facter_data(job_name, gatling_simulation_config, script_dir, server_era) {
     withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${gatling_simulation_config}",
              "PUPPET_GATLING_SIMULATION_ID=${job_name}",
@@ -340,6 +353,9 @@ def single_pipeline(job) {
         stage '020-install-server'
         step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era)
 
+        stage '023-install-system-gems'
+        step023_install_system_gems(SCRIPT_DIR, job['system_gems'])
+
         stage '025-collect-facter-data'
         step025_collect_facter_data(job_name,
                 job['gatling_simulation_config'],
@@ -412,6 +428,7 @@ def multipass_pipeline(jobs) {
             step010_setup_beaker(SCRIPT_DIR, job["server_version"])
             server_era = get_server_era(job["server_version"])
             step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era)
+            step023_install_system_gems(SCRIPT_DIR, job['system_gems'])
             step025_collect_facter_data(job_name,
                     job['gatling_simulation_config'],
                     SCRIPT_DIR,

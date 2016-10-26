@@ -16,9 +16,24 @@ Currently:
   eventually it'd be nice to figure out another way to bootstrap this seed job so we can get
   rid of JJB and all of its dependencies, since we are no longer using them for anything else.)
 
-* The `scenarios` directory is where you go to create new perf testing jobs.  Create a subdirectory
-  therein, and add a `Jenkinsfile` defining your new job.  For more info on the syntax
-  of a `Jenkinsfile`, see [README_JENKINSFILE_SYNTAX.md](./README_JENKINSFILE_SYNTAX.md).
+* The `scenarios` directory is where you go to create new perf testing jobs.  Each subdirectory
+  inside the `scenarios` directory can define a single perf testing job on the Jenkins server.
+  There are two files that you can create inside these subdirectories:
+
+  * Required: a `Jenkinsfile` defining your new job.  This file defines the behavior of your
+    job once it is launched and executing.  It uses the [Jenkins Pipeline Plugin](https://jenkins.io/solutions/pipeline/),
+    and specifically the [Pipeline DSL syntax](https://jenkins.io/doc/pipeline/steps/).  The
+    presence of this file is what will cause the seed job to create your perf testing job on
+    the Jenkins server.  For more info on the syntax of one of these `Jenkinsfile`s, see
+    [README_JENKINSFILE_SYNTAX.md](./README_JENKINSFILE_SYNTAX.md).
+
+  * Optional: a `JobDSL.groovy` file.  This can be used to configure *metadata* about your job;
+    for example, overriding the number of builds to retain history for, scheduling the job to run
+    automatically on a cron-type interval, adding extra build parameters, etc.  Basically anything
+    about the configuration of the job *before* it begins executing.  Note that this file uses
+    the [Jenkins JobDSL plugin](https://github.com/jenkinsci/job-dsl-plugin/wiki) to configure jobs;
+    the JobDSL API is a completely distinct API/DSL from the Pipeline DSL used in the `Jenkinsfile`.
+    For more information on the syntax of one of these files, see [README_JOBDSL_SYNTAX.md](./README_JOBDSL_SYNTAX.md).
 
   You can also look at the existing jobs for examples.  A couple of noteworthy
   ones:
@@ -38,6 +53,10 @@ Currently:
      you'd specified, serially, and for each one, spin up a new SUT and run the test.
      At the end it can aggregate perf data (e.g. gatling reports) for all of the
      runs and visualize them compared to one another.
+
+  * `scenarios/oss-puppetserver-latest-1-week/JobDSL.groovy`: this contains an example
+    of how to use the JobDSL to override the maximum number of builds of a specific job
+    that should be retained in the history stored on the Jenkins server.
 
 * The `common/scripts/jenkins` directory contains groovy library code that can be re-used
   across multiple perf test jobs; typically you'll load this code via your Jenkinsfile.

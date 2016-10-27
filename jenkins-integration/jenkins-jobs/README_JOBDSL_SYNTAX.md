@@ -26,7 +26,7 @@ is completely distinct from the Jenkins Pipeline DSL that is used in the
 `Jenkinsfile`.)
 
 When the script is run, it will be executed with
-a binding context that makes two variables available in it's local scope:
+a binding context that makes two variables available in its local scope:
 
 * `out`: this is the [JobDSL logging stream](https://github.com/jenkinsci/job-dsl-plugin/wiki/Job-DSL-Commands#logging).
   Basically, you can call `println` on this object to have log messages show up

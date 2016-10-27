@@ -191,12 +191,13 @@ def step030_customize_settings(script_dir, puppet_settings) {
     }
 }
 
-def step035_customize_hocon_settings(script_dir, settings) {
+def step035_customize_hocon_settings(script_dir, settings, server_era) {
     if (settings == null) {
         echo "Skipping hocon settings customization; no overrides found in `hocon_settings`."
     } else {
         settings_json = JsonOutput.toJson(settings)
-        withEnv(["PUPPET_GATLING_HOCON_SETTINGS=${settings_json}"]) {
+        withEnv(["PUPPET_GATLING_HOCON_SETTINGS=${settings_json}",
+                 "PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}"]) {
             sh "${script_dir}/035_customize_hocon_settings.sh"
         }
     }
@@ -353,9 +354,6 @@ def single_pipeline(job) {
         stage '020-install-server'
         step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era)
 
-        stage '023-install-system-gems'
-        step023_install_system_gems(SCRIPT_DIR, job['system_gems'])
-
         stage '025-collect-facter-data'
         step025_collect_facter_data(job_name,
                 job['gatling_simulation_config'],
@@ -366,7 +364,7 @@ def single_pipeline(job) {
         step030_customize_settings(SCRIPT_DIR, job['puppet_settings'])
 
         stage '035-customize-hocon-settings'
-        step035_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'])
+        step035_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'], server_era)
 
         stage '040-install-puppet-code'
         step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
@@ -428,13 +426,12 @@ def multipass_pipeline(jobs) {
             step010_setup_beaker(SCRIPT_DIR, job["server_version"])
             server_era = get_server_era(job["server_version"])
             step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era)
-            step023_install_system_gems(SCRIPT_DIR, job['system_gems'])
             step025_collect_facter_data(job_name,
                     job['gatling_simulation_config'],
                     SCRIPT_DIR,
                     server_era)
             step030_customize_settings(SCRIPT_DIR, job['puppet_settings'])
-            step035_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'])
+            step035_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'], server_era)
             step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
             step045_install_hiera_config(SCRIPT_DIR, job["code_deploy"], server_era)
             step050_file_sync(SCRIPT_DIR, server_era)

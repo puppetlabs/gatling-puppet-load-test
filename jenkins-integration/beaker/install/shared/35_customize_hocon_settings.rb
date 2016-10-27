@@ -1,13 +1,19 @@
 require 'json'
+require 'beaker/dsl/helpers/hocon_helpers'
+
 
 def set_hocon_setting(file_path, setting_path, value)
   step "Set #{setting_path} in #{file_path}"
-  on(master, "hocon -f #{file_path} set #{setting_path} #{value}")
+  hocon_file_edit_in_place_on([master], file_path) do |host, doc|
+    doc.set_value(setting_path, value)
+  end
 end
 
 def unset_hocon_setting(file_path, setting_path)
   step "Unset #{setting_path} in #{file_path}"
-  on(master, "hocon -f #{file_path} unset #{setting_path}")
+  hocon_file_edit_in_place_on([master], file_path) do |host, doc|
+    doc.remove_value(setting_path, value)
+  end
 end
 
 test_name 'Configure hocon settings on SUT'

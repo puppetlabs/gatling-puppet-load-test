@@ -28,9 +28,12 @@ scenarios_dir.eachFileRecurse (FileType.FILES) { file ->
     if (file.name.equals("Jenkinsfile")) {
         job_prefix = file.parentFile.name
         relative_jenkinsfile = relativize(root_dir, file)
-        workflowJob(job_prefix) {
+
+        def job = workflowJob(job_prefix) {
             // TODO: this should be moved into the Jenkinsfile by use of
-            // the 'properties' step, see https://issues.jenkins-ci.org/browse/JENKINS-32780
+            // the 'properties' step, see https://issues.jenkins-ci.org/browse/JENKINS-32780,
+            // or alternately it could be handled in the JobDSL.groovy files alongside
+            // each Jenkinsfile.
             parameters {
                 stringParam('SUT_HOST',
                         'foo-sut.delivery.puppetlabs.net',
@@ -51,6 +54,22 @@ scenarios_dir.eachFileRecurse (FileType.FILES) { file ->
                     scriptPath(relative_jenkinsfile)
                 }
             }
+            // Default number of builds to retain history for.  This can be overridden
+            // for specific jobs by creating a JobDSL.groovy file alongside the Jenkinsfile.
+            logRotator {
+                numToKeep(50)
+            }
+        }
+
+        jobdslfile = new File(scenarios_dir, "${job_prefix}/JobDSL.groovy")
+        if (jobdslfile.isFile()) {
+            out.println("Found JobDSL script: '${jobdslfile.getAbsolutePath()}', executing")
+            def engine = new GroovyScriptEngine('.')
+            engine.run(jobdslfile.getAbsolutePath(),
+                    new Binding([job: job,
+                                 out: out])
+            )
         }
     }
+
 }

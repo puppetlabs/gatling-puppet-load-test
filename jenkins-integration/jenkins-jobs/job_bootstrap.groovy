@@ -1,6 +1,54 @@
 import groovy.io.FileType
 import java.nio.file.Paths
 
+class DSLHelper {
+    PrintStream out;
+
+    DSLHelper(out) {
+        this.out = out
+    }
+    def overrideParameterDefault(job, param_name, new_default_value) {
+        this.out.println("\tAttempting to override '${param_name}' default value to '${new_default_value}' for job '${job.name}'")
+
+        // NOTE: HACK.  for some reason, the 'configure' block may get called
+        //  several times.  See https://issues.jenkins-ci.org/browse/JENKINS-39417 .
+        // Worse, it seems like on the subsequent calls to the configure block,
+        // the state of the job is reset to still include the original parameter
+        // data.  It seems harmless to simply execute the overrides multiple times,
+        // but logging the messages about the overrides multiple times looks very
+        // confusing in the seed job output.  By closing over this local variable,
+        // we can make sure the log messages only show up once, which makes
+        // the seed job output a little less confusing.
+        def param_checked = false
+
+        job.with {
+            configure { Node project ->
+                    Node node = project / 'properties' / 'hudson.model.ParametersDefinitionProperty' / 'parameterDefinitions'
+                    def result = node.children().find { child ->
+                        def my_name_node = child.get("name")
+                        def my_default_value_node = child.get("defaultValue")
+                        def my_name = my_name_node[0].value()
+                        if (my_name == param_name) {
+                            def old_value = my_default_value_node[0].value()
+                            my_default_value_node[0].setValue(new_default_value)
+                            if (!param_checked) {
+                                out.println("\tParameter '${param_name}' found, default value changed from '${old_value}' to '${new_default_value}'")
+                            }
+                            return true
+                        }
+                        return false
+                    }
+                    if (! result) {
+                        if (!param_checked) {
+                            out.println("\tWARNING!! Parameter '${param_name}' not found, ignoring attempt to override!")
+                        }
+                    }
+                    param_checked = true
+            }
+        }
+    }
+}
+
 // NOTE: these determine the default repo/branch that the seed job will
 // poll to look for Jenkinsfiles.  For production they should always
 // be set to the PL gplt repo's master branch.  For dev, you may want
@@ -23,6 +71,8 @@ while (root_dir.name != "jenkins-integration") {
 }
 root_dir = root_dir.parentFile
 scenarios_dir = new File(dir, "scenarios")
+
+def helper = new DSLHelper(out);
 
 scenarios_dir.eachFileRecurse (FileType.FILES) { file ->
     if (file.name.equals("Jenkinsfile")) {
@@ -67,7 +117,8 @@ scenarios_dir.eachFileRecurse (FileType.FILES) { file ->
             def engine = new GroovyScriptEngine('.')
             engine.run(jobdslfile.getAbsolutePath(),
                     new Binding([job: job,
-                                 out: out])
+                                 out: out,
+                                 helper: helper])
             )
         }
     }

@@ -45,5 +45,11 @@ job.with {
 }
 ```
 
+* `helper`: this variable has an instance of the `DSLHelper` class that is defined in the `job_bootstrap.groovy` file.
+  The purpose of it is to encapsulate some common, re-usable job configuration logic that may be useful in many of our
+  jobs, but would be a little unwieldy to duplicate in every `JobDSL.groovy` that might want to take advantage of it.
+  At the time of this writing, the only method is `overrideParameterDefault(job, param_name, new_default_value)`, which
+  allows you to override the default value for a parameter such as `SUT_HOST`.
+
 Theoretically you should be able to use any feature of the JobDSL within these scripts; refer to the
 [JobDSL API](https://jenkinsci.github.io/job-dsl-plugin/) for more info.

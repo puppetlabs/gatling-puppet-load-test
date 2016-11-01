@@ -16,7 +16,7 @@ bundle exec beaker \
         --log-level debug \
         --no-color \
         --tests \
-beaker/install/shared/35_customize_hocon_settings.rb,\
+beaker/install/shared/85_customize_hocon_settings.rb,\
 beaker/install/shared/99_restart_server.rb
 
 # without this set +x, rvm will log 10 gigs of garbage

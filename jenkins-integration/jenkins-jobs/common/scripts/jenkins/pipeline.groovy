@@ -158,19 +158,6 @@ def step020_install_server(SKIP_SERVER_INSTALL, script_dir, server_era) {
     }
 }
 
-def step023_install_system_gems(script_dir, gem_list){
-    if (gem_list == null) {
-        echo "Skipping installing system gems; no gem list given"
-    }
-    else{
-        gem_string = gem_list.join(",")
-        withEnv(["PUPPET_GATLING_SYSTEM_GEMS=${gem_string}"]) {
-            sh "${script_dir}/023_install_system_gems.sh"
-        }
-    }
-}
-
-
 def step025_collect_facter_data(job_name, gatling_simulation_config, script_dir, server_era) {
     withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${gatling_simulation_config}",
              "PUPPET_GATLING_SIMULATION_ID=${job_name}",

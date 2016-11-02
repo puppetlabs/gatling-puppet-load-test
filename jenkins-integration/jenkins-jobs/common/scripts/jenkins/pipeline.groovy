@@ -256,6 +256,19 @@ def step080_customize_settings(script_dir, server_java_args, server_era) {
     }
 }
 
+
+def step085_customize_hocon_settings(script_dir, settings, server_era) {
+    if (settings == null) {
+        echo "Skipping hocon settings customization; no overrides found in `hocon_settings`."
+    } else {
+        settings_json = JsonOutput.toJson(settings)
+        withEnv(["PUPPET_GATLING_HOCON_SETTINGS=${settings_json}",
+                 "PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}"]) {
+            sh "${script_dir}/085_customize_hocon_settings.sh"
+        }
+    }
+}
+
 def step090_launch_bg_scripts(script_dir, background_scripts) {
     if (background_scripts == null) {
         echo "No background scripts configured, skipping."
@@ -358,6 +371,9 @@ def single_pipeline(job) {
         stage '080-customize-java-args'
         step080_customize_settings(SCRIPT_DIR, job["server_java_args"], server_era)
 
+        stage '085-customize-hocon-settings'
+        step085_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'], server_era)
+
         stage '090-launch-bg-scripts'
         step090_launch_bg_scripts(SCRIPT_DIR, job['background_scripts'])
 
@@ -413,6 +429,7 @@ def multipass_pipeline(jobs) {
             step080_customize_settings(SCRIPT_DIR,
                     job["server_java_args"],
                     server_era)
+            step085_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'], server_era)
             step090_launch_bg_scripts(SCRIPT_DIR, job['background_scripts'])
             step100_run_gatling_sim(job_name,
                     job['gatling_simulation_config'],

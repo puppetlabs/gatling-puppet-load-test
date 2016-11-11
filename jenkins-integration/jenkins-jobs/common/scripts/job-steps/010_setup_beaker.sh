@@ -20,10 +20,7 @@ bundle install --path vendor/bundle
 
 # NOTE that this beaker task uses the `pe_version` and `pe_family`
 # environment variables, which are set in `pipeline.groovy`.
-        bundle exec beaker-hostgenerator centos7-64mdca \
-        | sed -e "s/centos7-64-1/$SUT_HOST/1" \
-        | sed -e 's/hypervisor: vmpooler/hypervisor: none/1' \
-        > hosts.yaml
+        bundle exec beaker-hostgenerator --pe_dir "${pe_dir}" --hypervisor "none" centos7-64mdca{hostname=${SUT_HOST}} > hosts.yaml
 
 echo "CREATED HOSTS.YAML FILE:"
 cat hosts.yaml

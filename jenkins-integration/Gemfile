@@ -1,7 +1,7 @@
 source ENV['GEM_SOURCE'] || 'https://rubygems.org'
 
 gem 'beaker', '~>3.2.0'
-gem 'beaker-hostgenerator', '0.3.2'
+gem 'beaker-hostgenerator', '0.8.0'
 gem 'beaker-pe', '~>1.4'
 
 gem 'scooter', :git => 'git@github.com:puppetlabs/scooter.git', :tag => '3.2.19'

@@ -7,4 +7,4 @@ test_name 'Install PE'
 # The environment variables need to be specified on the CLI when invoking beaker,
 # or alternately they can be set on the master host in the hosts.yaml file.
 
-install_pe_on(master, {})
+install_pe_on(master, options)

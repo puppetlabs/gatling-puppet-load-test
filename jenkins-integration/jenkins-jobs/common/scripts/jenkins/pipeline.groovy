@@ -14,13 +14,14 @@ def get_filename(path) {
             path.length())
 }
 
-def get_pe_server_era(pe_version) {
+def get_pe_server_era(pe_version, find_latest) {
     // A normal groovy switch/case statement with regex matchers doesn't seem
     // to work in Jenkins: https://issues.jenkins-ci.org/browse/JENKINS-37214
     if (pe_version ==~ /^3\.[78]\..*/) {
         return [type: "pe",
                 service_name: "pe-puppetserver",
                 version: pe_version,
+                find_latest: find_latest,
                 tk_auth: false,
                 puppet_bin_dir: "/opt/puppet/bin",
                 r10k_version: "1.5.1",
@@ -32,6 +33,7 @@ def get_pe_server_era(pe_version) {
         return [type: "pe",
                 service_name: "pe-httpd",
                 version: pe_version,
+                find_latest: find_latest,
                 tk_auth     : false,
                 puppet_bin_dir: "/opt/puppet/bin",
                 r10k_version: "1.5.1",
@@ -39,10 +41,11 @@ def get_pe_server_era(pe_version) {
                 file_sync_enabled: false,
                 node_classifier: false,
                 facter_structured_facts: false]
-    } else if (pe_version ==~ /^2016\..*/) {
+    } else if (pe_version ==~ /^201[67]\..*/) {
         return [type: "pe",
                 service_name: "pe-puppetserver",
                 version: pe_version,
+                find_latest: find_latest,
                 tk_auth     : true,
                 puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
                 r10k_version: "2.3.0",
@@ -54,6 +57,7 @@ def get_pe_server_era(pe_version) {
         return [type: "pe",
                 service_name: "pe-puppetserver",
                 version: pe_version,
+                find_latest: find_latest,
                 tk_auth     : true,
                 puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
                 r10k_version: "2.3.0",
@@ -65,6 +69,7 @@ def get_pe_server_era(pe_version) {
         return [type: "pe",
                 service_name: "pe-puppetserver",
                 version: pe_version,
+                find_latest: find_latest,
                 tk_auth     : false,
                 puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
                 r10k_version: "2.3.0",
@@ -100,7 +105,7 @@ def get_oss_server_era(oss_version) {
 
 def get_server_era(server_version) {
     if (server_version["type"] == "pe") {
-        return get_pe_server_era(server_version["pe_version"])
+        return get_pe_server_era(server_version["pe_version"], server_version["find_latest"])
     } else if (server_version["type"] == "oss") {
         return get_oss_server_era(server_version["version"])
     } else {
@@ -120,10 +125,18 @@ def step000_provision_sut(SKIP_PROVISIONING, script_dir) {
 
 def step010_setup_beaker(script_dir, server_version) {
     if (server_version["type"] == "pe") {
-        withEnv(["SUT_HOST=${SUT_HOST}",
-                 "pe_version=${server_version["pe_version"]}",
-                 "pe_family=${server_version["pe_version"]}"]) {
-            sh "${script_dir}/010_setup_beaker.sh"
+        if (server_version["find_latest"] == true) {
+            withEnv(["SUT_HOST=${SUT_HOST}",
+                     "pe_dir=http://enterprise.delivery.puppetlabs.net/${server_version["pe_version"]}/ci-ready/",
+                     "pe_family=${server_version["pe_version"]}"]) {
+                sh "${script_dir}/010_setup_beaker.sh"
+            }
+        } else {
+            withEnv(["SUT_HOST=${SUT_HOST}",
+                     "pe_version=${server_version["pe_version"]}",
+                     "pe_family=${server_version["pe_version"]}"]) {
+                sh "${script_dir}/010_setup_beaker.sh"
+            }
         }
     } else if (server_version["type"] == "oss") {
         withEnv(["SUT_HOST=${SUT_HOST}"]) {

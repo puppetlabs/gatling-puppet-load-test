@@ -39,7 +39,7 @@ pipeline.multipass_pipeline([
          gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-no-static-catalogs-1000-2-hours.json',
          server_version: [
                  type: "pe",
-                 pe_version: "2016.2.0"
+                 pe_version: "2016.2.1"
          ],
          code_deploy: [
                  type: "r10k",
@@ -65,7 +65,7 @@ pipeline.multipass_pipeline([
          gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-1000-2-hours.json',
          server_version: [
                  type: "pe",
-                 pe_version: "2016.2.0"
+                 pe_version: "2016.2.1"
          ],
          code_deploy: [
                  type: "r10k",

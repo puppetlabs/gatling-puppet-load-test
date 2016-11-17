@@ -51,5 +51,13 @@ job.with {
   At the time of this writing, the only method is `overrideParameterDefault(job, param_name, new_default_value)`, which
   allows you to override the default value for a parameter such as `SUT_HOST`.
 
+* `serverConfig`: this is a map, containing some basic configuration information about the server that the job is
+  being created on.  The data for this is loaded from `./server_config.json`.  The keys that it will contain are:
+
+  * "hostname": the hostname of the server.
+  * "environment": an identifier that can be used to distinguish between different classes of servers; most common
+    values will be either "development" or "production".  You can use this as a condition in your JobDSL script,
+    e.g. to set up a time-based trigger for a job on production without doing so on dev servers.
+
 Theoretically you should be able to use any feature of the JobDSL within these scripts; refer to the
 [JobDSL API](https://jenkinsci.github.io/job-dsl-plugin/) for more info.

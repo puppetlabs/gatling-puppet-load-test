@@ -1,4 +1,6 @@
 import groovy.io.FileType
+import groovy.json.JsonSlurper
+
 import java.nio.file.Paths
 
 class DSLHelper {
@@ -74,6 +76,16 @@ scenarios_dir = new File(dir, "scenarios")
 
 def helper = new DSLHelper(out);
 
+def allServersConfigFile = new File(dir, "server_config.json")
+def allServersConfig = new JsonSlurper().parseText(allServersConfigFile.text)
+
+def defaultServerConfig = [environment: "development"]
+def serverHostname = "hostname -f".execute().text.trim()
+def serverConfig = defaultServerConfig + [hostname: serverHostname]
+if (allServersConfig.containsKey(serverHostname)) {
+    serverConfig += allServersConfig[serverHostname]
+}
+
 scenarios_dir.eachFileRecurse (FileType.FILES) { file ->
     if (file.name.equals("Jenkinsfile")) {
         job_prefix = file.parentFile.name
@@ -118,7 +130,9 @@ scenarios_dir.eachFileRecurse (FileType.FILES) { file ->
             engine.run(jobdslfile.getAbsolutePath(),
                     new Binding([job: job,
                                  out: out,
-                                 helper: helper])
+                                 helper: helper,
+                                 serverConfig: serverConfig
+                    ])
             )
         }
     }

@@ -179,18 +179,6 @@ def step025_collect_facter_data(job_name, gatling_simulation_config, script_dir,
     }
 }
 
-def step030_customize_settings(script_dir, puppet_settings) {
-    if (puppet_settings == null) {
-        echo "Skipping settings customization; no overrides found in `puppet_settings`."
-    } else {
-        puppet_settings_json = JsonOutput.toJson(puppet_settings)
-        withEnv(["PUPPET_GATLING_PUPPET_SETTINGS=${puppet_settings_json}",
-                 "PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}"]) {
-            sh "${script_dir}/030_customize_settings.sh"
-        }
-    }
-}
-
 def step040_install_puppet_code(script_dir, code_deploy, server_era) {
     switch (code_deploy["type"]) {
         case "r10k":
@@ -257,7 +245,19 @@ def step070_validate_classification() {
     echo "Hi! TODO: I should be validating classification on your SUT, but I'm not."
 }
 
-def step080_customize_settings(script_dir, server_java_args, server_era) {
+def step075_customize_puppet_settings(script_dir, puppet_settings) {
+    if (puppet_settings == null) {
+        echo "Skipping settings customization; no overrides found in `puppet_settings`."
+    } else {
+        puppet_settings_json = JsonOutput.toJson(puppet_settings)
+        withEnv(["PUPPET_GATLING_PUPPET_SETTINGS=${puppet_settings_json}",
+                 "PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}"]) {
+            sh "${script_dir}/075_customize_puppet_settings.sh"
+        }
+    }
+}
+
+def step080_customize_java_args(script_dir, server_java_args, server_era) {
     if ((server_java_args == null) || (server_java_args == "")) {
         echo "Skipping java_args configuration because none specified in job"
     } else {
@@ -361,9 +361,6 @@ def single_pipeline(job) {
                 SCRIPT_DIR,
                 server_era)
 
-        stage '030-customize-settings'
-        step030_customize_settings(SCRIPT_DIR, job['puppet_settings'])
-
         stage '040-install-puppet-code'
         step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
 
@@ -381,8 +378,11 @@ def single_pipeline(job) {
         stage '070-validate-classification'
         step070_validate_classification()
 
+        stage '075-customize-puppet-settings'
+        step075_customize_puppet_settings(SCRIPT_DIR, job['puppet_settings'])
+
         stage '080-customize-java-args'
-        step080_customize_settings(SCRIPT_DIR, job["server_java_args"], server_era)
+        step080_customize_java_args(SCRIPT_DIR, job["server_java_args"], server_era)
 
         stage '085-customize-hocon-settings'
         step085_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'], server_era)
@@ -431,7 +431,6 @@ def multipass_pipeline(jobs) {
                     job['gatling_simulation_config'],
                     SCRIPT_DIR,
                     server_era)
-            step030_customize_settings(SCRIPT_DIR, job['puppet_settings'])
             step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
             step045_install_hiera_config(SCRIPT_DIR, job["code_deploy"], server_era)
             step050_file_sync(SCRIPT_DIR, server_era)
@@ -439,7 +438,8 @@ def multipass_pipeline(jobs) {
                     job['gatling_simulation_config'],
                     server_era)
             step070_validate_classification()
-            step080_customize_settings(SCRIPT_DIR,
+            step075_customize_puppet_settings(SCRIPT_DIR, job['puppet_settings'])
+            step080_customize_java_args(SCRIPT_DIR,
                     job["server_java_args"],
                     server_era)
             step085_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'], server_era)

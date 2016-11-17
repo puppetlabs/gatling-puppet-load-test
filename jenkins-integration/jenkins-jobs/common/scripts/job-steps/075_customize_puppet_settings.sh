@@ -18,7 +18,7 @@ bundle exec beaker \
         --log-level debug \
         --no-color \
         --tests \
-beaker/install/shared/30_customize_settings.rb,\
+beaker/install/shared/75_customize_puppet_settings.rb,\
 beaker/install/shared/99_restart_server.rb
 
 # without this set +x, rvm will log 10 gigs of garbage

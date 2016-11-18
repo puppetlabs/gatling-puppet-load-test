@@ -6,7 +6,7 @@ node {
 def no_static_catalogs_base_config() {
     [server_version: [
              type: "pe",
-             pe_version: "2016.2.0"
+             pe_version: "2016.2.1"
      ],
      code_deploy: [
              type: "r10k",
@@ -33,7 +33,7 @@ def no_static_catalogs_base_config() {
 def static_catalogs_base_config() {
     [server_version: [
              type: "pe",
-             pe_version: "2016.2.0"
+             pe_version: "2016.2.1"
      ],
      code_deploy: [
              type: "r10k",

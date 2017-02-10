@@ -9,6 +9,6 @@ if (serverConfig["environment"] == "production") {
         }
     }
 
-    helper.overrideParameterDefault(job, "SUT_HOST", "puppetserver-perf-sut54.delivery.puppetlabs.net")
+    helper.overrideParameterDefault(job, "SUT_HOST", "puppetserver-perf-sut56.delivery.puppetlabs.net")
     helper.overrideParameterDefault(job, "SKIP_PROVISIONING", false)
 }

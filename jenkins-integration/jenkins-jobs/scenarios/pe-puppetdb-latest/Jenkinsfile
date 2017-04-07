@@ -8,7 +8,7 @@ pipeline.single_pipeline([
         gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-1250-2-hours.json',
         server_version: [
                 type: "pe",
-                pe_version: "2017.1",
+                pe_version: "2017.2",
                 find_latest: true
         ],
         code_deploy: [

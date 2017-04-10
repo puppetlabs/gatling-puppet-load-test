@@ -178,16 +178,15 @@ FIND_COUNT=`${FIND_COMMAND} |wc -l`
 if [ ${FIND_COUNT} -gt 1 ]	# Use numeric comparison, not string
 then
    echo "
-WARNING!
-There are left-over recording bodies in the \"./user-files/bodies\" directory 
+OOPS!
+There is left-over recording data in the \"./user-files/bodies\" directory 
 and the \"../simulation-runner/src/main/scala/com/puppetlabs/gatling/node_simulations/\"
 directory (.txt and .scala files).  If the recording information for them is complete, 
 then you can manually copy the existing files to the proper directories or delete them 
 and re-run this recording if necessary.
-
-Attempting to continue.
+Exiting.
+exit 1 
 "
-  FIND_COUNT=1			# Force completion for the current recording
 fi
 
 if [ "${FIND_COUNT}" != "1" ]

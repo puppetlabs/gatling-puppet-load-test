@@ -185,8 +185,8 @@ directory (.txt and .scala files).  If the recording information for them is com
 then you can manually copy the existing files to the proper directories or delete them 
 and re-run this recording if necessary.
 Exiting.
-exit 1 
 "
+   exit 1
 fi
 
 if [ "${FIND_COUNT}" != "1" ]

@@ -169,26 +169,6 @@ read
 
 FIND_COMMAND='find ./user-files/bodies -name *.txt'
 FIND_COUNT=`${FIND_COMMAND} |wc -l`
-  
-# The find count will return the number of things found, which will
-# be greater than 1 when there are "leftover" results in the directories
-# due to past aborts (like with ^C).  Issue a warning about needing
-# a little house cleaning, then try to recover and continue on 
-#
-if [ ${FIND_COUNT} -gt 1 ]	# Use numeric comparison, not string
-then
-   echo "
-OOPS!
-There is left-over recording data in the \"./user-files/bodies\" directory 
-and the \"../simulation-runner/src/main/scala/com/puppetlabs/gatling/node_simulations/\"
-directory (.txt and .scala files).  If the recording information for them is complete, 
-then you can manually copy the existing files to the proper directories or delete them 
-and re-run this recording if necessary.
-Exiting.
-"
-   exit 1
-fi
-
 if [ "${FIND_COUNT}" != "1" ]
 then
    echo "

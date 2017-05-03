@@ -181,6 +181,8 @@ def step020_install_server(SKIP_SERVER_INSTALL, script_dir, server_era) {
         } else {
             error "Unsupported server type: ${server_era["type"]}"
         }
+
+        sh "${script_dir}/021_install_common.sh"
     }
 }
 

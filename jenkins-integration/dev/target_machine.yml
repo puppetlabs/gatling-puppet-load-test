@@ -6,8 +6,8 @@ HOSTS:
     pe_upgrade_dir:
     pe_upgrade_ver:
     hypervisor: none
-    platform: el-6-x86_64
-    template: centos-6-x86_64
+    platform: el-7-x86_64
+    template: centos-7-x86_64
     roles:
     - jenkins
 CONFIG:

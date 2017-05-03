@@ -46,7 +46,9 @@ bundle exec beaker \
 	--tests beaker/
 ```
 
-If everything goes well, the beaker output should show no errors.
+Note that =~/.ssh/id_rsa-acceptance= is the private key used to ssh
+into the driver. If using VMPooler VM, this is the VMPooler private
+key. If everything goes well, the beaker output should show no errors.
 
 Jenkins should be available on port `8080` of your "driver" machine.  There should
 be one or more initial jobs configured; for more detail on what these jobs do,
@@ -79,6 +81,9 @@ followed the steps above.)  To run it:
 e.g.:
 
     ./add-public-key.sh ~/.ssh/id_rsa-acceptance  yw72peu78u7zcxv.delivery.puppetlabs.net
+
+If using a VMPooler VM, this key will likely be the same one used in
+the beaker invocation above.
 
 ##### SUT vmpooler node - disk space
 
@@ -120,6 +125,12 @@ On a CentOS 7 VM, perform the following steps:
 
 The VM should now have increased disk space. Mounting or symlinking the new disk
 should not be necessary.
+
+## Metrics
+
+After the test run completes successfuly, metrics are downloaded from
+the SUT. Those metrics are available in the archive associated with
+the Jenkins job and is downloadable via the Jenkins UI.
 
 ## Working on Jobs
 

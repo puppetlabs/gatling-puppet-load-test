@@ -3,50 +3,62 @@ repo_config_dir = 'tmp/repo_configs'
 
 require 'net/http'
 
-BASE_URL = 'http://builds.puppetlabs.lan/puppetserver'
+BASE_URL = 'http://builds.puppetlabs.lan'
 
-def has_cent7_repo?(version)
-  cent7_uri = URI("#{BASE_URL}/#{version}/repo_configs/rpm/pl-puppetserver-#{version}-el-7-x86_64.repo")
+def has_cent7_repo?(package, version)
+  cent7_uri = URI("#{BASE_URL}/#{package}/#{version}/repo_configs/rpm/pl-#{package}-#{version}-el-7-x86_64.repo")
 
   response_code = Net::HTTP.start(cent7_uri.host, cent7_uri.port) do |http|
     http.head(cent7_uri.path).code
   end
 
   if response_code != "200"
-    Beaker::Log.notify("Skipping version #{version} because it doesn't appear to have a cent7 repo")
+    Beaker::Log.notify("Skipping #{package} version #{version} because it doesn't appear to have a cent7 repo")
     false
   else
-    Beaker::Log.notify("Found Cent7 repo for version #{version}")
+    Beaker::Log.notify("Found Cent7 repo for #{package} version #{version}")
     true
   end
 end
 
+def get_cent7_repo(response_lines, package)
+  response_lines.
+      map { |l| l.match(/^.*href="([^"]+)\/\?C=M&amp;O=D".*$/)[1] }.
+      find { |v| has_cent7_repo?(package, v) }
+end
+
 def get_latest_master_version(branch)
-  response = Net::HTTP.get(URI(BASE_URL + '/?C=M&O=D'))
+  response = Net::HTTP.get(URI(BASE_URL + '/puppetserver/?C=M&O=D'))
 
   if branch == "latest"
     branch = "master"
   end
 
-  response.lines.
-      select { |l| l =~ /<td><a / }.
-      select { |l| l =~ /#{branch}/}.
-      map { |l| l.match(/^.*href="([^"]+)\/\?C=M&amp;O=D".*$/)[1] }.
-      find { |v| has_cent7_repo?(v) }
+  # Scrape the puppetserver repo page for available puppetserver builds and
+  # filter down to only ones matching the specified branch.  The list of builds
+  # is ordered from most recent to oldest.  The resulting list is passed along
+  # to the get_cent7_repo routine, which returns a URL for the first build which
+  # has a cent7 repo in it.
+  get_cent7_repo(
+      response.lines.
+          select { |l| l =~ /<td><a / }.
+          select { |l| l =~ /#{branch}/}, "puppetserver")
 end
 
 def get_latest_agent_version
-  response = Net::HTTP.get(URI('http://builds.puppetlabs.lan/puppet-agent/?C=M&O=D'))
+  response = Net::HTTP.get(URI(BASE_URL + '/puppet-agent/?C=M&O=D'))
 
-  response.lines do |l|
-    next unless l =~ /<td><a /
-    match = l.match(/^.*href="(\d+\.\d+\.\d+)\/\?C=M&amp;O=D".*$/)
-    next unless match
-    return match[1]
-  end
+  # Scrape the puppet-agent repo page for available puppet-agent builds and
+  # filter down to only released builds (e.g., 1.2.3) vs.
+  # some mergely/SHA version.  The list of builds is ordered from most recent to
+  # oldest.  The resulting list is passed along to the get_cent7_repo routine,
+  # which returns a URL for the first build which has a cent7 repo in it.
+  get_cent7_repo(
+      response.lines.
+          select { |l| l =~ /<td><a / }.
+          select { |l| l.match(/^.*href="(\d+\.\d+\.\d+)\/\?C=M&amp;O=D".*$/) },
+      "puppet-agent")
 end
-
-
 
 step "Setup Puppet Server repositories." do
   package_build_version = ENV['PACKAGE_BUILD_VERSION']

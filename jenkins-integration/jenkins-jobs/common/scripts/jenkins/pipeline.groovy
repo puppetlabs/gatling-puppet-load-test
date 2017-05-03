@@ -86,20 +86,33 @@ def get_oss_server_era(oss_version) {
     // TODO: eventually we will probably want to do something more sophisticated
     //  here; currently only support 'latest'/'master'/'stable' OSS puppetserver,
     //  and 'latest' agent
-    if (["latest", "master", "stable"].contains(oss_version)) {
-        return [type: "oss",
-                service_name: "puppetserver",
-                version: oss_version,
-                agent_version: "latest",
-                tk_auth: false,
-                puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
-                r10k_version: "2.3.0",
-                file_sync_available: false,
-                file_sync_enabled: false,
-                node_classifier: false,
-                facter_structured_facts: true]
-    } else {
-        error "Unrecognized OSS version: '${oss_version}'"
+    switch (oss_version) {
+        case ["latest", "master"]:
+            return [type: "oss",
+                    service_name: "puppetserver",
+                    version: oss_version,
+                    agent_version: "latest",
+                    tk_auth: true,
+                    puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
+                    r10k_version: "2.3.0",
+                    file_sync_available: false,
+                    file_sync_enabled: false,
+                    node_classifier: false,
+                    facter_structured_facts: true]
+        case "stable":
+            return [type: "oss",
+                    service_name: "puppetserver",
+                    version: oss_version,
+                    agent_version: "latest",
+                    tk_auth: false,
+                    puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
+                    r10k_version: "2.3.0",
+                    file_sync_available: false,
+                    file_sync_enabled: false,
+                    node_classifier: false,
+                    facter_structured_facts: true]
+        default:
+            error "Unrecognized OSS version: '${oss_version}'"
     }
 }
 

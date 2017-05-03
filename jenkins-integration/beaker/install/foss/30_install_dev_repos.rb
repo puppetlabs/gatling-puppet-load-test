@@ -34,6 +34,11 @@ def get_latest_master_version(branch)
     branch = "master"
   end
 
+  # Scrape the puppetserver repo page for available puppetserver builds and
+  # filter down to only ones matching the specified branch.  The list of builds
+  # is ordered from most recent to oldest.  The resulting list is passed along
+  # to the get_cent7_repo routine, which returns a URL for the first build which
+  # has a cent7 repo in it.
   get_cent7_repo(
       response.lines.
           select { |l| l =~ /<td><a / }.
@@ -43,6 +48,11 @@ end
 def get_latest_agent_version
   response = Net::HTTP.get(URI(BASE_URL + '/puppet-agent/?C=M&O=D'))
 
+  # Scrape the puppet-agent repo page for available puppet-agent builds and
+  # filter down to only released builds (e.g., 1.2.3) vs.
+  # some mergely/SHA version.  The list of builds is ordered from most recent to
+  # oldest.  The resulting list is passed along to the get_cent7_repo routine,
+  # which returns a URL for the first build which has a cent7 repo in it.
   get_cent7_repo(
       response.lines.
           select { |l| l =~ /<td><a / }.

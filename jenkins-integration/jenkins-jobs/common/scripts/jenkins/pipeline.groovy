@@ -285,14 +285,14 @@ def step080_customize_java_args(script_dir, server_java_args, server_era) {
 }
 
 def step081_customize_jruby_jar(script_dir, jruby_jar, server_era) {
-    if ((jruby_jar == null) || (jruby_jar == "")) {
-        echo "Skipping jruby jar configuration because none specified in job"
-    } else {
-        withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
-                 "PUPPET_GATLING_JRUBY_JAR=${jruby_jar}"
-        ]) {
-            sh "${script_dir}/081_configure_jruby_jar.sh"
-        }
+    // Setting the jruby jar to an empty string will effectively cause the
+    // beaker script to tell puppetserver to use the default jar path
+    def jar_string = jruby_jar ?: ""
+
+    withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
+             "PUPPET_GATLING_JRUBY_JAR=${jar_string}"
+    ]) {
+        sh "${script_dir}/081_configure_jruby_jar.sh"
     }
 }
 

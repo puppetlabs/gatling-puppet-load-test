@@ -190,3 +190,35 @@ def get_r10k_config_from_env()
    :environments => environments
   }
 end
+
+################################################################################
+### service defaults
+
+def service_config_name(service_name)
+  "/etc/sysconfig/#{service_name}"
+end
+
+def set_service_environment_variable(host, filepath, variable_name, value)
+  tmp_module_dir = master.tmpdir('configure_inifile')
+
+  step 'Configure inifile module' do
+    on(master, puppet('module', 'install', 'puppetlabs-inifile', '--codedir', tmp_module_dir))
+  end
+
+  teardown do
+    on(master, "rm -rf #{tmp_module_dir}")
+  end
+
+  manifest = <<-MANIFEST
+ini_setting { "#{variable_name}":
+  ensure  => present,
+  path    => "#{filepath}",
+  section => "",
+  setting => "#{variable_name}",
+  key_val_separator => "=",
+  value   => "\\\"#{value}\\\"",
+}
+  MANIFEST
+
+  on host, puppet('apply', '-e', "'#{manifest}'", '--codedir', tmp_module_dir)
+end

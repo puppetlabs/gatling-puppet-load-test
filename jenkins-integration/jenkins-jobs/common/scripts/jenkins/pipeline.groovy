@@ -284,6 +284,17 @@ def step080_customize_java_args(script_dir, server_java_args, server_era) {
     }
 }
 
+def step081_customize_jruby_jar(script_dir, jruby_jar, server_era) {
+    // Setting the jruby jar to an empty string will effectively cause the
+    // beaker script to tell puppetserver to use the default jar path
+    def jar_string = jruby_jar ?: ""
+
+    withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
+             "PUPPET_GATLING_JRUBY_JAR=${jar_string}"
+    ]) {
+        sh "${script_dir}/081_configure_jruby_jar.sh"
+    }
+}
 
 def step085_customize_hocon_settings(script_dir, settings, server_era) {
     if (settings == null) {
@@ -399,6 +410,9 @@ def single_pipeline(job) {
         stage '080-customize-java-args'
         step080_customize_java_args(SCRIPT_DIR, job["server_java_args"], server_era)
 
+        stage '081-customize-jruby-jar'
+        step081_customize_jruby_jar(SCRIPT_DIR, job["jruby_jar"], server_era)
+
         stage '085-customize-hocon-settings'
         step085_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'], server_era)
 
@@ -456,6 +470,9 @@ def multipass_pipeline(jobs) {
             step075_customize_puppet_settings(SCRIPT_DIR, job['puppet_settings'])
             step080_customize_java_args(SCRIPT_DIR,
                     job["server_java_args"],
+                    server_era)
+            step081_customize_jruby_jar(SCRIPT_DIR,\
+                    job["jruby_jar"],
                     server_era)
             step085_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'], server_era)
             step090_launch_bg_scripts(SCRIPT_DIR, job['background_scripts'])

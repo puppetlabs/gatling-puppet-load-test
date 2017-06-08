@@ -91,7 +91,6 @@ def get_oss_server_era(oss_version) {
             return [type: "oss",
                     service_name: "puppetserver",
                     version: oss_version,
-                    agent_version: "latest",
                     tk_auth: true,
                     puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
                     r10k_version: "2.3.0",
@@ -103,7 +102,6 @@ def get_oss_server_era(oss_version) {
             return [type: "oss",
                     service_name: "puppetserver",
                     version: oss_version,
-                    agent_version: "latest",
                     tk_auth: false,
                     puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
                     r10k_version: "2.3.0",
@@ -126,6 +124,14 @@ def get_server_era(server_version) {
     }
 }
 
+// default to latest if unspecified
+def get_agent_version(agent_version) {
+  if (agent_version == null) {
+    return "latest"
+  } else {
+    return agent_version["version"]
+  }
+}
 
 def step000_provision_sut(SKIP_PROVISIONING, script_dir) {
     echo "SKIP PROVISIONING?: ${SKIP_PROVISIONING} (${SKIP_PROVISIONING.class})"
@@ -161,7 +167,7 @@ def step010_setup_beaker(script_dir, server_version) {
     }
 }
 
-def step020_install_server(SKIP_SERVER_INSTALL, script_dir, server_era) {
+def step020_install_server(SKIP_SERVER_INSTALL, script_dir, server_era, agent_version) {
     echo "SKIP SERVER INSTALL?: ${SKIP_SERVER_INSTALL} (${SKIP_SERVER_INSTALL.class})"
     if (SKIP_SERVER_INSTALL) {
         echo "Skipping server install because SKIP_SERVER_INSTALL is set."
@@ -175,7 +181,7 @@ def step020_install_server(SKIP_SERVER_INSTALL, script_dir, server_era) {
             withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
                      "PUPPET_SERVER_TK_AUTH=${server_era["tk_auth"]}",
                      "PACKAGE_BUILD_VERSION=${server_era["version"]}",
-                     "PUPPET_AGENT_VERSION=${server_era["agent_version"]}"]) {
+                     "PUPPET_AGENT_VERSION=${agent_version}"]) {
                 sh "${script_dir}/020_install_oss.sh"
             }
         } else {
@@ -377,9 +383,10 @@ def single_pipeline(job) {
         step010_setup_beaker(SCRIPT_DIR, job["server_version"])
 
         server_era = get_server_era(job["server_version"])
+        agent_version = get_agent_version(job["agent_version"])
 
         stage '020-install-server'
-        step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era)
+        step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era, agent_version)
 
         stage '025-collect-facter-data'
         step025_collect_facter_data(job_name,
@@ -455,7 +462,8 @@ def multipass_pipeline(jobs) {
             step000_provision_sut(SKIP_PROVISIONING, SCRIPT_DIR)
             step010_setup_beaker(SCRIPT_DIR, job["server_version"])
             server_era = get_server_era(job["server_version"])
-            step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era)
+            agent_version = get_agent_version(job["agent_version"])
+            step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era, agent_version)
             step025_collect_facter_data(job_name,
                     job['gatling_simulation_config'],
                     SCRIPT_DIR,

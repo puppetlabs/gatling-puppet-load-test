@@ -170,3 +170,8 @@ commit)!*
 
 You'll need to temporarily change any git references to point to your IP address
 instead of GitHub.
+
+If you run into an error with `repository not exported`, create a file in the
+`.git` directory of `gatling-puppet-load-test` called `git-daemon-export-ok`,
+and restart the git daemon. This file doesn't need to have any content, it
+just needs to exist.

@@ -57,6 +57,9 @@ yet.  So they are just raw maps for now.
              type: "pe",
              pe_version: "2016.2.0"
     ],
+    agent_version: [
+             version: "4.10.0"
+    ],
     code_deploy: [
              type: "r10k",
              control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",
@@ -85,6 +88,7 @@ Here's some info about each of these sections:
 * `gatling_simulation_config`: path to the [scenario config file](../simulation-runner/config/scenarios) that you want to
   use for this perf test.
 * `server_version`: used to choose whether to do a PE install or an OSS puppetserver install, and to specify the version.
+* `agent_version`: used to specify the version of puppet agent to install alongside puppetserver. Specify 'latest' to retrieve latest tagged build.
 * `code_deploy`: specifies what puppet code we need to deploy to the server in order to be able to compile the catalogs for
   the selected gatling simulation.  Currently only supports a `type` value of `r10k`, with the following additional arguments:
   * `control_repo`: the URL for the r10k control repo

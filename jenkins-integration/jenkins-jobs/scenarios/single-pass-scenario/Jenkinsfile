@@ -10,6 +10,9 @@ pipeline.single_pipeline([
                 type: "pe",
                 pe_version: "2016.2.1"
         ],
+        agent_version: [
+                version: "latest"
+        ],
         code_deploy: [
                 type: "r10k",
                 control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",

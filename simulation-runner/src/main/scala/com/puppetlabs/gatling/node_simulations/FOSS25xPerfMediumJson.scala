@@ -18,6 +18,11 @@ class FOSS25xPerfMediumJson extends SimulationWithScenario {
 	val reportBody = ELFileBody("FOSS25xPerfMediumJson_0127_request.txt")
 
 	val headers_0 = Map("X-Puppet-Version" -> "5.0.0")
+	val headers_1 = Map(
+		"X-Puppet-Version" -> "5.0.0",
+		"Accept" -> "application/json",
+		"Content-Type" -> "application/json",
+		"Connection" -> "close")
 // val uri1 = "https://${node}:8140/puppet/v3"
 
 	val chain_0 = exec(http("node")
@@ -485,7 +490,7 @@ val chain_1 = exec(http("filemeta")
 		})
 		.exec(http("report")
 			.put("/puppet/v3/report/${node}?environment=production&")
-			.headers(headers_0)
+			.headers(headers_1)
 			.body(reportBody))
 
 					

@@ -59,12 +59,12 @@ end
 
 step "Set up SSH key for github access" do
   if !master.file_exist?("/root/.ssh/id_rsa")
-    result = curl_on master, "-o /root/.ssh/id_rsa 'http://int-resources.ops.puppetlabs.net/QE%20Shared%20Resources/travis_keys/id_rsa'"
+    result = curl_on master, "-o /root/.ssh/id_rsa 'http://int-resources.ops.puppetlabs.net/QE%20Shared%20Resources/gatling_test_keys/id_rsa'"
     assert_equal 0, result.exit_code
 
     on(master, "chmod 600 /root/.ssh/id_rsa")
 
-    result = curl_on master, "-o /root/.ssh/id_rsa.pub 'http://int-resources.ops.puppetlabs.net/QE%20Shared%20Resources/travis_keys/id_rsa.pub'"
+    result = curl_on master, "-o /root/.ssh/id_rsa.pub 'http://int-resources.ops.puppetlabs.net/QE%20Shared%20Resources/gatling_test_keys/id_rsa.pub'"
     assert_equal 0, result.exit_code
   end
 end

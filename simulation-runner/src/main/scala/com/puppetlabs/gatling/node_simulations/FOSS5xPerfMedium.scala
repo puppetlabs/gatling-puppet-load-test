@@ -10,12 +10,12 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 // import io.gatling.jdbc.Predef._
 
-class FOSS25xPerfMediumJson extends SimulationWithScenario {
+class FOSS5xPerfMedium extends SimulationWithScenario {
 
 // 	val httpProtocol = http
 // 		.baseURL("https://${node}:8140")
 
-	val reportBody = ELFileBody("FOSS25xPerfMediumJson_0127_request.txt")
+	val reportBody = ELFileBody("FOSS5xPerfMedium_0127_request.txt")
 
 	val headers_0 = Map("X-Puppet-Version" -> "5.0.0")
 	val headers_1 = Map(
@@ -494,7 +494,7 @@ val chain_1 = exec(http("filemeta")
 			.body(reportBody))
 
 					
-	val scn = scenario("FOSS25xPerfMediumJson").exec(
+	val scn = scenario("FOSS5xPerfMedium").exec(
 		chain_0, chain_1)
 // setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
 }

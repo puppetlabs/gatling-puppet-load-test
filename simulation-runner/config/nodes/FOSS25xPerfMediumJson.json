@@ -1,7 +1,0 @@
-{
-  "simulation_class": "com.puppetlabs.gatling.node_simulations.FOSS25xPerfMediumJson",
-  "certname_prefix": "pgtomcat",
-  "classes": [
-    "role::by_size::medium"
-  ]
-}

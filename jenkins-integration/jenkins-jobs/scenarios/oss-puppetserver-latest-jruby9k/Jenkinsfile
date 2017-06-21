@@ -4,14 +4,14 @@ node {
 }
 
 pipeline.single_pipeline([
-        job_name: 'oss-latest-9k',
-        gatling_simulation_config: '../simulation-runner/config/scenarios/foss25x-medium-1250-2-hours.json',
+        job_name: 'oss-latest-jruby9k',
+        gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1250-2-hours.json',
         server_version: [
                 type: "oss",
                 version: "latest"
         ],
         agent_version: [
-                version: "444de23514f48759705356fc39acae3f630fa75d"
+                version: "latest"
         ],
         code_deploy: [
                 type: "r10k",

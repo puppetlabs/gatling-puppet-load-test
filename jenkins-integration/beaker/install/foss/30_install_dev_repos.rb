@@ -46,6 +46,25 @@ def get_latest_master_version(branch)
 end
 
 def get_latest_agent_version
+  url = "https://jenkins-master-prod-1.delivery.puppetlabs.net/view/puppet-agent%20suite%20pipelines/job/platform_puppet-agent_intn-van-promote_suite-daily-promotion-master/lastSuccessfulBuild/api/json"
+
+  uri = URI.parse(url)
+  response = Net::HTTP.get_response(uri)
+
+  if response.code == "200"
+    json = JSON.parse(response.body)
+    actions = json["actions"].find { |hash| hash["_class"] == "hudson.model.ParametersAction" }
+    parameters = actions["parameters"]
+    pkg_build_param = parameters.find { |hash| hash["name"] == "SUITE_COMMIT" }
+    pkg_build_param["value"]
+  else
+    Beaker::Log.notify("Unable to get last successful build from: #{url}, " +
+           "error: #{response.code}, #{response.message}")
+    nil
+  end
+end
+
+def get_latest_release_agent_version
   response = Net::HTTP.get(URI(BASE_URL + '/puppet-agent/?C=M&O=D'))
 
   # Scrape the puppet-agent repo page for available puppet-agent builds and
@@ -76,9 +95,14 @@ end
 
 step "Setup Puppet repositories" do
   puppet_agent_version = ENV['PUPPET_AGENT_VERSION']
-  if puppet_agent_version == "latest"
-    puppet_agent_version = get_latest_agent_version()
+
+  case puppet_agent_version
+    when "latest"
+      puppet_agent_version = get_latest_agent_version
+    when "latest-release"
+      puppet_agent_version = get_latest_release_agent_version
   end
+
   if puppet_agent_version
     Beaker::Log.notify("Installing OSS Puppet AGENT version '#{puppet_agent_version}'")
     install_puppetlabs_dev_repo master, 'puppet-agent', puppet_agent_version,

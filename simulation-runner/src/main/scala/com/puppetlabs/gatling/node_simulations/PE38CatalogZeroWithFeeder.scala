@@ -30,7 +30,7 @@ class PE38_CatalogZeroWithFeeder extends SimulationWithScenario {
 
 //    val uri1 = "https://jb-centos7:8140/production"
 
-  val	reportBody = ELFileBody("PE38CatalogZeroWithFeeder_0107_request.txt")
+  val	reportBody = ElFileBody("PE38CatalogZeroWithFeeder_0107_request.txt")
 
 	val chain_0 = feed(nodeNames)
       .exec(http("node")

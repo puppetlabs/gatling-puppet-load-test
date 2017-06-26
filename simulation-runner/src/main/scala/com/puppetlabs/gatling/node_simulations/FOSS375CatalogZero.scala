@@ -25,7 +25,7 @@ class FOSS375CatalogZero extends SimulationWithScenario {
 		"Content-Type" -> "text/pson",
 		"Connection" -> "close")
 
-    val reportBody = ELFileBody("FOSS375CatalogZero_0108_request.txt")
+    val reportBody = ElFileBody("FOSS375CatalogZero_0108_request.txt")
 
     val uri1 = "https://puppets-macbook-pro-3.local:8140/production"
 

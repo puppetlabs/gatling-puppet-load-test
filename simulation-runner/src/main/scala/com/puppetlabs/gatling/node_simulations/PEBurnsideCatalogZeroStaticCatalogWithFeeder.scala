@@ -17,7 +17,7 @@ class PEBurnsideCatalogZeroStaticCatalogWithFeeder extends SimulationWithScenari
 // 	val httpProtocol = http
 // 		.baseURL("https://${node}:8140")
 
-	val reportBody = ELFileBody("PEBurnsideCatalogZeroStaticCatalogWithFeeder_0010_request.txt")
+	val reportBody = ElFileBody("PEBurnsideCatalogZeroStaticCatalogWithFeeder_0010_request.txt")
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.4.0")
 

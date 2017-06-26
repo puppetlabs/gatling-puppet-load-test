@@ -27,7 +27,7 @@ class PE372_CatalogZero extends SimulationWithScenario {
 
 //    val uri1 = "https://perf-bl15.delivery.puppetlabs.net:8140/production"
 
-val reportBody = ELFileBody("PE372_CatalogZero_request.txt")
+val reportBody = ElFileBody("PE372_CatalogZero_request.txt")
 
   val chain_0 = exec(http("node")
       .get("/production/node/rxgin3yubplp14r.delivery.puppetlabs.net?transaction_uuid=099ea391-5fa5-4e82-bc95-0190c927a362&fail_on_404=true"))

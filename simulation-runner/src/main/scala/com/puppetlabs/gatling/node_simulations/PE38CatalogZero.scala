@@ -28,7 +28,7 @@ class PE38_CatalogZero extends SimulationWithScenario {
 
 //    val uri1 = "https://jb-centos7:8140/production"
 
-  val	reportBody = ELFileBody("PE38CatalogZero_0107_request.txt")
+  val	reportBody = ElFileBody("PE38CatalogZero_0107_request.txt")
 
 	val chain_0 = exec(http("node")
 			.get("/production/node/jb-centos7-agent.localdomain?transaction_uuid=2eabf4c0-acf8-466f-a0e4-d75519be6afc&fail_on_404=true"))

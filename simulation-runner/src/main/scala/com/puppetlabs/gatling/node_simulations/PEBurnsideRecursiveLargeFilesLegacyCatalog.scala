@@ -15,7 +15,7 @@ class PEBurnsideRecursiveLargeFilesLegacyCatalog extends SimulationWithScenario 
 // 	val httpProtocol = http
 // 		.baseURL("https://${node}:8140")
 
-	val reportBody = ELFileBody("PEBurnsideRecursiveLargeFilesLegacyCatalog_0036_request.txt")
+	val reportBody = ElFileBody("PEBurnsideRecursiveLargeFilesLegacyCatalog_0036_request.txt")
 
 	val headers_0 = Map(
 		"Accept" -> "pson, yaml, binary",

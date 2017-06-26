@@ -17,7 +17,7 @@ class PE201530CatalogZero extends SimulationWithScenario {
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.3.0")
 
-  val reportBody = ELFileBody("PE201530CatalogZero_0105_request.txt")
+  val reportBody = ElFileBody("PE201530CatalogZero_0105_request.txt")
 
 	val headers_3 = Map(
 		"Accept" -> "pson, yaml, dot, binary",

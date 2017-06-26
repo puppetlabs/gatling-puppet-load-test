@@ -32,7 +32,7 @@ class PE33PerfMedium extends SimulationWithScenario {
 
 //    val uri1 = "https://puppetserver-perf-sut54.delivery.puppetlabs.net:8140/production"
 
-	val reportBody = ELFileBody("PE33PerfMedium_0127_request.txt")
+	val reportBody = ElFileBody("PE33PerfMedium_0127_request.txt")
 
 	val chain_0 = exec(http("node")
 			.get("/production/node/${node}?transaction_uuid=080a6528-a4ee-43aa-91e0-3897492b971a&fail_on_404=true"))

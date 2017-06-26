@@ -25,7 +25,7 @@ class PE371_CloseWaitRepro extends SimulationWithScenario {
 
 //    val uri1 = "https://ec2-closewait-split-master.localdomain:8140/production"
 
-  val reportBody = ELFileBody("PE371_CloseWaitRepro_0009_request.txt")
+  val reportBody = ElFileBody("PE371_CloseWaitRepro_0009_request.txt")
 
 	val scn = scenario("PE371_CloseWaitRepro")
 		.exec(http("node")

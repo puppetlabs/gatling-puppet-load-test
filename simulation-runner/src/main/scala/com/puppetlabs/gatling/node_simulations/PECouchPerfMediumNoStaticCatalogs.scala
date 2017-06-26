@@ -15,7 +15,7 @@ class PECouchPerfMediumNoStaticCatalogs extends SimulationWithScenario {
 // 	val httpProtocol = http
 // 		.baseURL("https://puppetserver-perf-sut54.delivery.puppetlabs.net:8140")
 
-	val reportBody = ELFileBody("PECouchPerfMediumNoStaticCatalogs_0128_request.txt")
+	val reportBody = ElFileBody("PECouchPerfMediumNoStaticCatalogs_0128_request.txt")
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.5.2")
 

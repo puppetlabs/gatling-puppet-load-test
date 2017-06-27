@@ -169,7 +169,7 @@ read
 
 FIND_COMMAND='find ./user-files/bodies -name *.txt'
 FIND_COUNT=`${FIND_COMMAND} |wc -l`
-if [ "${FIND_COUNT}" != "1" ]
+if [[ "${FIND_COUNT}" -ne "1" ]]
 then
    echo "
 ERROR!

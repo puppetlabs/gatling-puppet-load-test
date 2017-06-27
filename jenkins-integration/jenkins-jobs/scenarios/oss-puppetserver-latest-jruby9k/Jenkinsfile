@@ -4,10 +4,13 @@ node {
 }
 
 pipeline.single_pipeline([
-        job_name: 'oss-latest',
+        job_name: 'oss-latest-jruby9k',
         gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1250-2-hours.json',
         server_version: [
                 type: "oss",
+                version: "latest"
+        ],
+        agent_version: [
                 version: "latest"
         ],
         code_deploy: [
@@ -22,5 +25,6 @@ pipeline.single_pipeline([
         ],
         archive_sut_files: [
                 "/var/log/puppetlabs/puppetserver/metrics.json"
-        ]
+        ],
+        jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar"
 ])

@@ -300,7 +300,7 @@ end
 def step12_add_dynamic_timestamp(text, report_text, report_request_info)
   puts "STEP 12: Use dynamic timestamp and transaction UUID"
   text.gsub!(/(\/\/\s*val httpProtocol[^\n]+\n\/\/\s*\.baseURL\([^\n]+\n)/,
-             "\\1\n\tval reportBody = ELFileBody(\"#{report_request_info[:request_txt_file]}\")\n")
+             "\\1\n\tval reportBody = ElFileBody(\"#{report_request_info[:request_txt_file]}\")\n")
 
   report_session_vars = <<EOS
 

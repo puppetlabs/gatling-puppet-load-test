@@ -87,7 +87,11 @@ Here's some info about each of these sections:
 * `job_name`: arbitrary string that will be used in a few places in the Jenkins UI to represent this job.
 * `gatling_simulation_config`: path to the [scenario config file](../simulation-runner/config/scenarios) that you want to
   use for this perf test.
-* `server_version`: used to choose whether to do a PE install or an OSS puppetserver install, and to specify the version.
+* `server_version`: hashmap used to specify info about the version of the server to install, with the following additional arguments:
+  * `type`: `pe` or `oss`
+  * `pe_version` (only supported for a `type` of `pe`)
+  * `find_latest` (only supported for a `type` of `pe`): `true` if the latest internal build for the `pe_version` should be installed.  `false` if a released version of PE should be installed.
+  * `version` (only supported for a `type` of `oss`): Specify `latest` to retrieve the latest build from the master branch.  If the value ends with `SNAPSHOT`, the value is treated as a regular expression and the latest build whose version matches the regular expression is retrieved.
 * `agent_version`: used to specify the version of puppet agent to install alongside puppetserver. Specify `latest` to retrieve latest successful build from the puppet-agent master branch or `latest-release` to retrieve the latest tagged release of puppet-agent.
 * `code_deploy`: specifies what puppet code we need to deploy to the server in order to be able to compile the catalogs for
   the selected gatling simulation.  Currently only supports a `type` value of `r10k`, with the following additional arguments:

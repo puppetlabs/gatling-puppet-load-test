@@ -8,6 +8,13 @@ end
 
 require 'json'
 
+# Maps httpProtocol helper method names to http header names
+HELPER_TO_HEADER = {
+    "acceptHeader" => "Accept",
+    "acceptEncodingHeader" => "Accept-Encoding",
+    "userAgentHeader" => "User-Agent"
+}
+
 TERMINOLOGY = {
   "catalog"                                                 => "catalog",
   "file_metadata[s]?/modules/puppet_enterprise/mcollective" => "filemeta mco plugins",
@@ -166,6 +173,15 @@ def generate_node_config(simulation_class, certname)
   puts "Wrote node config file to '#{node_config_file}'"
 end
 
+# Creates a scala map from a ruby hash
+def generate_scala_map(new_hash)
+  inner = new_hash.map {|k, v| "\"#{k}\" -> \"#{v}\""}.join(",\n\t\t")
+
+  "Map(#{inner})"
+end
+
+######################
+#### Steps
 
 def step1_look_for_inferred_html_resources(text)
   puts "STEP 1: Look for inferred HTML resources"
@@ -221,55 +237,103 @@ def step5_update_extends(text)
   text.gsub!(/^class (.*) extends Simulation/, 'class \1 extends SimulationWithScenario')
 end
 
-# Step 6
-def step6_comment_out_http_protocol(text)
-  puts "STEP 6: Comment out `httpProtocol` variable"
-  begin_comment = false
-  end_comment = false
+def step6_extract_http_protocol_headers(text)
+  puts 'STEP 6: Extract common headers from httpProtocol'
+  lines = text.lines
+  found_header_data = {}
+
+  http_protocol_start = lines.find_index {|line| line.match(/^.*val httpProtocol/)}
+
+  if http_protocol_start.nil?
+    puts "Can't find headers after httpProtocol definition"
+    exit 1
+  end
+
+  # +2 to skip .baseURL call
+  index = http_protocol_start + 2
+  loop do
+    # Match header helper method calls, and the argument passed to them
+    matches = lines[index].match(/\.(?<header_name>[^(]+)\(\"(?<header_value>[^"]+)\"\)/)
+    if matches.nil?
+      break
+    end
+
+    header_name = HELPER_TO_HEADER[matches[:header_name]]
+    header_value = matches[:header_value]
+
+    found_header_data[header_name] = header_value
+    index += 1
+  end
+
+  found_header_data
+end
+
+def step7_add_extracted_headers(text, headers)
+  puts 'STEP 7: Merge headers with new common headers'
+
+  # Match until 2 newlines, meaning the whole block of code
+  multiline_http_protocol_regex = /(val httpProtocol.*?)(?=\n\n)/m
+  header_map_string = generate_scala_map(headers)
+
+  text = text.gsub(multiline_http_protocol_regex, "\\1\n\n\tval baseHeaders = #{header_map_string}")
+
+  # Insert the baseHeaders map before each headers_xxx variable. '++' merges scala maps
+  text = text.gsub(/(val headers_\d+ = )/, '\1baseHeaders ++ ')
+
+  text
+end
+
+# Step 8
+def step8_comment_out_http_protocol(text)
+  puts "STEP 8: Comment out `httpProtocol` variable"
+  found_begin_comment = false
+  found_end_comment = false
 
   out_text = text.lines.map do |line|
-    retline = ""
-    begin_comment = true if line.match(/^.*val httpProtocol/)
-    if begin_comment && !end_comment
+    found_begin_comment = true if line.match(/^.*val httpProtocol/)
+    found_end_comment = true if found_begin_comment && line.match(/^$/)
+    if found_begin_comment && !found_end_comment
       retline = comment_line(line)
     else
       retline = line
     end
     # This end check won't work with long chains
-    end_comment = true if line.match(/\..*\)/)
+
     retline
   end
   out_text.flatten.join
+
+  # puts text.gsub(multiline_http_protocol_regex, )
 end
 
-# Step 7
-def step7_add_connection_close(text, report_headers_var)
-  puts "STEP 7: Add 'Connection: close' after report request"
+# Step 9
+def step9_add_connection_close(text, report_headers_var)
+  puts "STEP 9: Add 'Connection: close' after report request"
   text.gsub!(/(\s*val #{report_headers_var} = Map\(\s*\n(?:\s*"[^"]+" -> "[^"]+",\s*\n)*(?:\s*"[^"]+" -> "[^"]+"))\)/,
        "\\1,\n\t\t\"Connection\" -> \"close\")\n//\n")
 end
 
-# Step 8
-def step8_comment_out_uri1(text)
-  puts "STEP 8: Comment out `uri1` variable"
+# Step 10
+def step10_comment_out_uri1(text)
+  puts "STEP 10: Comment out `uri1` variable"
   text.gsub!(/^\s*(val uri1 = ".*")/, '// \1')
 end
 
-# Step 9
-def step9_update_expiration(text)
-  puts "STEP 9: Update facts expiration date"
+# Step 11
+def step11_update_expiration(text)
+  puts "STEP 11: Update facts expiration date"
   text.gsub!(/(expiration%22%3A%22)(\d{4})/, '\12125')
 end
 
-# Step 10
-def step10_comment_out_setup(text)
-  puts "STEP 10: Comment out SCN setUp call since driver will handle it"
+# Step 12
+def step12_comment_out_setup(text)
+  puts "STEP 12: Comment out SCN setUp call since driver will handle it"
   text.gsub!(/^\s*(setUp\(.*\))/, '// \1')
 end
 
-# Step 11
-def step11_rename_request_bodies(text)
-  puts "STEP 11: Add names for HTTP requests"
+# Step 13
+def step13_rename_request_bodies(text)
+  puts "STEP 13: Add names for HTTP requests"
   current_replacement = ""
   out_lines = []
   # Here we replace request types according to step 12 in
@@ -296,11 +360,14 @@ def step11_rename_request_bodies(text)
   out_lines.reverse.join
 end
 
-# Step 12
-def step12_add_dynamic_timestamp(text, report_text, report_request_info)
-  puts "STEP 12: Use dynamic timestamp and transaction UUID"
-  text.gsub!(/(\/\/\s*val httpProtocol[^\n]+\n\/\/\s*\.baseURL\([^\n]+\n)/,
-             "\\1\n\tval reportBody = ElFileBody(\"#{report_request_info[:request_txt_file]}\")\n")
+# Step 14
+def step14_add_dynamic_timestamp(text, report_text, report_request_info)
+  # Match until 2 newlines, meaning the whole block of code
+  multiline_http_protocol_regex = /(\/\/\s*val httpProtocol.*?)(?=\n\n)/m
+
+  puts "STEP 14: Use dynamic timestamp and transaction UUID"
+  text.gsub!(multiline_http_protocol_regex,
+             "\\1\n\n\tval reportBody = ElFileBody(\"#{report_request_info[:request_txt_file]}\")")
 
   report_session_vars = <<EOS
 
@@ -325,8 +392,8 @@ EOS
                     '"transaction_uuid":"${transactionUuid}"')
 end
 
-def step13_setup_node_feeder(text, report_text, certname)
-  puts "STEP 13: Set up ${node} var for feeder"
+def step15_setup_node_feeder(text, report_text, certname)
+  puts "STEP 15: Set up ${node} var for feeder"
   text.gsub!(certname, "${node}")
   report_text.gsub!(certname, "${node}")
 end
@@ -355,14 +422,20 @@ def main(infile, outfile)
   output = step3_add_new_imports(output)
   step4_remove_unneeded_import(output)
   step5_update_extends(output)
-  output = step6_comment_out_http_protocol(output)
-  step7_add_connection_close(output, report_request_info[:request_headers_varname])
-  step8_comment_out_uri1(output)
-  step9_update_expiration(output)
-  step10_comment_out_setup(output)
-  output = step11_rename_request_bodies(output)
-  step12_add_dynamic_timestamp(output, report_request_output, report_request_info)
-  step13_setup_node_feeder(output, report_request_output, certname)
+
+  headers = step6_extract_http_protocol_headers(output)
+
+  output = step7_add_extracted_headers(output, headers)
+
+  output = step8_comment_out_http_protocol(output)
+
+  step9_add_connection_close(output, report_request_info[:request_headers_varname])
+  step10_comment_out_uri1(output)
+  step11_update_expiration(output)
+  step12_comment_out_setup(output)
+  output = step13_rename_request_bodies(output)
+  step14_add_dynamic_timestamp(output, report_request_output, report_request_info)
+  step15_setup_node_feeder(output, report_request_output, certname)
 
   puts "All steps completed, writing output to file '#{outfile}'"
   # Dump the reformatted file to disk

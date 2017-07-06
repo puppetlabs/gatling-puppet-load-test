@@ -4,11 +4,11 @@ node {
 }
 
 pipeline.single_pipeline([
-        job_name: 'oss-5.0.x',
+        job_name: 'oss-5.x',
         gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1250-2-hours.json',
         server_version: [
                 type: "oss",
-                version: "5\\.0\\.\\d+.SNAPSHOT"
+                version: "5\\.\\d+\\.\\d+.SNAPSHOT"
         ],
         code_deploy: [
                 type: "r10k",

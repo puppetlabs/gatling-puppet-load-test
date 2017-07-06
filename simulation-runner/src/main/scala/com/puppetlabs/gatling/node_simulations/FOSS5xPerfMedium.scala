@@ -12,11 +12,11 @@ import io.gatling.http.Predef._
 
 class FOSS5xPerfMedium extends SimulationWithScenario {
 
-	// 	val httpProtocol = http
-	// 		.baseURL("https://puppetserver-perf-sut57.delivery.puppetlabs.net:8140")
-	// 		.acceptHeader("application/json, text/pson")
-	// 		.acceptEncodingHeader("gzip;q=1.0,deflate;q=0.6,identity;q=0.3")
-	// 		.userAgentHeader("Puppet/5.0.0 Ruby/2.4.1-p111 (x86_64-linux)")
+// 	val httpProtocol = http
+// 		.baseURL("https://puppetserver-perf-sut57.delivery.puppetlabs.net:8140")
+// 		.acceptHeader("application/json, text/pson")
+// 		.acceptEncodingHeader("gzip;q=1.0,deflate;q=0.6,identity;q=0.3")
+// 		.userAgentHeader("Puppet/5.0.0 Ruby/2.4.1-p111 (x86_64-linux)")
 
 	val reportBody = ElFileBody("FOSS5xPerfMedium_0127_request.txt")
 
@@ -27,13 +27,14 @@ class FOSS5xPerfMedium extends SimulationWithScenario {
 	val headers_0 = baseHeaders ++ Map("X-Puppet-Version" -> "5.0.0")
 
 	val headers_127 = baseHeaders ++ Map(
+		"Connection" -> "close",
 		"Content-Type" -> "application/json",
 		"X-Puppet-Version" -> "5.0.0")
-	// val uri1 = "https://puppetserver-perf-sut57.delivery.puppetlabs.net:8140/puppet/v3"
+// val uri1 = "https://puppetserver-perf-sut57.delivery.puppetlabs.net:8140/puppet/v3"
 
 	val chain_0 = exec(http("node")
-		.get("/puppet/v3/node/${node}?environment=production&transaction_uuid=6646b2f9-ddcb-485d-aec0-b7687659d7ff&fail_on_404=true")
-		.headers(headers_0))
+			.get("/puppet/v3/node/${node}?environment=production&transaction_uuid=6646b2f9-ddcb-485d-aec0-b7687659d7ff&fail_on_404=true")
+			.headers(headers_0))
 		.pause(101 milliseconds)
 		.exec(http("filemeta pluginfacts")
 			.get("/puppet/v3/file_metadatas/pluginfacts?environment=production&links=follow&recurse=true&source_permissions=use&ignore=.svn&ignore=CVS&ignore=.git&ignore=.hg&checksum_type=md5")
@@ -373,10 +374,10 @@ class FOSS5xPerfMedium extends SimulationWithScenario {
 			.get("/puppet/v3/file_metadatas/modules/userwrapper/userdir_default?environment=production&links=manage&recurse=true&source_permissions=ignore&checksum_type=md5")
 			.headers(headers_0))
 
-	val chain_1 = exec(http("filemeta")
-		.get("/puppet/v3/file_metadatas/modules/userwrapper/userdirs/citizen44?environment=production&links=manage&recurse=true&source_permissions=ignore&checksum_type=md5")
-		.headers(headers_0)
-		.check(status.is(404)))
+val chain_1 = exec(http("filemeta")
+			.get("/puppet/v3/file_metadatas/modules/userwrapper/userdirs/citizen44?environment=production&links=manage&recurse=true&source_permissions=ignore&checksum_type=md5")
+			.headers(headers_0)
+			.check(status.is(404)))
 		.exec(http("filemeta")
 			.get("/puppet/v3/file_metadatas/modules/userwrapper/userdir_default?environment=production&links=manage&recurse=true&source_permissions=ignore&checksum_type=md5")
 			.headers(headers_0))
@@ -499,8 +500,8 @@ class FOSS5xPerfMedium extends SimulationWithScenario {
 			.headers(headers_127)
 			.body(reportBody))
 
-
+					
 	val scn = scenario("FOSS5xPerfMedium").exec(
 		chain_0, chain_1)
-	// setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
+// setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
 }

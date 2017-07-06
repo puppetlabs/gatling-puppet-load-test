@@ -27,12 +27,8 @@ def get_cent7_repo(response_lines, package)
       find { |v| has_cent7_repo?(package, v) }
 end
 
-def get_latest_master_version(branch)
+def get_latest_master_version(version)
   response = Net::HTTP.get(URI(BASE_URL + '/puppetserver/?C=M&O=D'))
-
-  if branch == "latest"
-    branch = "master"
-  end
 
   # Scrape the puppetserver repo page for available puppetserver builds and
   # filter down to only ones matching the specified branch.  The list of builds
@@ -42,7 +38,7 @@ def get_latest_master_version(branch)
   get_cent7_repo(
       response.lines.
           select { |l| l =~ /<td><a / }.
-          select { |l| l =~ /#{branch}/}, "puppetserver")
+          select { |l| l =~ /">.*#{version}.*\/<\/a>/}, "puppetserver")
 end
 
 def get_latest_agent_version
@@ -81,9 +77,16 @@ end
 
 step "Setup Puppet Server repositories." do
   package_build_version = ENV['PACKAGE_BUILD_VERSION']
-  if ["latest","stable","master"].include?(package_build_version)
+
+  if package_build_version == "latest"
+    package_build_version = "master"
+  end
+
+  if ((package_build_version =~ /SNAPSHOT$/) ||
+      (package_build_version == "master"))
     package_build_version = get_latest_master_version(package_build_version)
   end
+
   if package_build_version
     Beaker::Log.notify("Installing OSS Puppet Server version '#{package_build_version}'")
     install_puppetlabs_dev_repo master, 'puppetserver', package_build_version,

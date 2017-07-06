@@ -83,34 +83,28 @@ def get_pe_server_era(pe_version, find_latest) {
 }
 
 def get_oss_server_era(oss_version) {
-    // TODO: eventually we will probably want to do something more sophisticated
-    //  here; currently only support 'latest'/'master'/'stable' OSS puppetserver,
-    //  and 'latest' agent
-    switch (oss_version) {
-        case ["latest", "master"]:
-            return [type: "oss",
-                    service_name: "puppetserver",
-                    version: oss_version,
-                    tk_auth: true,
-                    puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
-                    r10k_version: "2.3.0",
-                    file_sync_available: false,
-                    file_sync_enabled: false,
-                    node_classifier: false,
-                    facter_structured_facts: true]
-        case "stable":
-            return [type: "oss",
-                    service_name: "puppetserver",
-                    version: oss_version,
-                    tk_auth: false,
-                    puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
-                    r10k_version: "2.3.0",
-                    file_sync_available: false,
-                    file_sync_enabled: false,
-                    node_classifier: false,
-                    facter_structured_facts: true]
-        default:
-            error "Unrecognized OSS version: '${oss_version}'"
+    if (oss_version ==~ /^2\\?\..*/) {
+        return [type: "oss",
+                service_name: "puppetserver",
+                version: oss_version,
+                tk_auth: false,
+                puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
+                r10k_version: "2.3.0",
+                file_sync_available: false,
+                file_sync_enabled: false,
+                node_classifier: false,
+                facter_structured_facts: true]
+    } else {
+        return [type: "oss",
+                service_name: "puppetserver",
+                version: oss_version,
+                tk_auth: true,
+                puppet_bin_dir: "/opt/puppetlabs/puppet/bin",
+                r10k_version: "2.3.0",
+                file_sync_available: false,
+                file_sync_enabled: false,
+                node_classifier: false,
+                facter_structured_facts: true]
     }
 }
 

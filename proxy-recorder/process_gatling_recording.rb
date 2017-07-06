@@ -309,8 +309,15 @@ end
 # Step 9
 def step9_add_connection_close(text, report_headers_var)
   puts "STEP 9: Add 'Connection: close' after report request"
-  text.gsub!(/(\s*val #{report_headers_var} = Map\(\s*\n(?:\s*"[^"]+" -> "[^"]+",\s*\n)*(?:\s*"[^"]+" -> "[^"]+"))\)/,
-       "\\1,\n\t\t\"Connection\" -> \"close\")\n//\n")
+  report_header_regex = /(\s*val #{report_headers_var} =.*Map\()/
+
+  if !text.match(report_header_regex)
+    puts "Could not find report header variable (#{report_headers_var})"
+    exit 1
+  end
+
+  text.gsub!(report_header_regex,
+       "\\1\n\t\t\"Connection\" -> \"close\",")
 end
 
 # Step 10

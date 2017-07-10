@@ -249,19 +249,24 @@ def step6_extract_http_protocol_headers(text)
     exit 1
   end
 
-  # +2 to skip .baseURL call
-  index = http_protocol_start + 2
+  # + 1 to skip the "val httpProtocol" line
+  index = http_protocol_start + 1
   loop do
     # Match header helper method calls, and the argument passed to them
     matches = lines[index].match(/\.(?<header_name>[^(]+)\(\"(?<header_value>[^"]+)\"\)/)
+
+    # Bail if we've reached the end of the code block
     if matches.nil?
       break
     end
 
     header_name = HELPER_TO_HEADER[matches[:header_name]]
-    header_value = matches[:header_value]
+    # Will skip any function call that isn't in HELPER_TO_HEADER
+    if header_name
+      header_value = matches[:header_value]
+      found_header_data[header_name] = header_value
+    end
 
-    found_header_data[header_name] = header_value
     index += 1
   end
 
@@ -301,9 +306,8 @@ def step8_comment_out_http_protocol(text)
 
     retline
   end
-  out_text.flatten.join
 
-  # puts text.gsub(multiline_http_protocol_regex, )
+  out_text.flatten.join
 end
 
 # Step 9

@@ -15,7 +15,7 @@ class PEBurnsideCatalogZeroLegacyCatalogWithFeeder extends SimulationWithScenari
 // 	val httpProtocol = http
 // 		.baseURL("https://${node}:8140")
 
-	val reportBody = ELFileBody("PEBurnsideCatalogZeroLegacyCatalogWithFeeder_0111_request.txt")
+	val reportBody = ElFileBody("PEBurnsideCatalogZeroLegacyCatalogWithFeeder_0111_request.txt")
         val nodeNames = csv("nodes.1000.csv").circular
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.4.0")

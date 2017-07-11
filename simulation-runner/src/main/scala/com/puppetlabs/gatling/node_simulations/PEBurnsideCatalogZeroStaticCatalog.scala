@@ -15,7 +15,7 @@ class PEBurnsideCatalogZeroStaticCatalog extends SimulationWithScenario {
 // 	val httpProtocol = http
 // 		.baseURL("https://perf-bl15.delivery.puppetlabs.net:8140")
 
-	val reportBody = ELFileBody("PEBurnsideCatalogZeroStaticCatalog_0010_request.txt")
+	val reportBody = ElFileBody("PEBurnsideCatalogZeroStaticCatalog_0010_request.txt")
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.4.0")
 

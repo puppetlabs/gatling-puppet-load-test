@@ -15,7 +15,7 @@ class FOSS25xPerfMedium extends SimulationWithScenario {
 // 	val httpProtocol = http
 // 		.baseURL("https://puppetserver-perf-sut54.delivery.puppetlabs.net:8140")
 
-	val reportBody = ELFileBody("FOSS25xPerfMedium_0127_request.txt")
+	val reportBody = ElFileBody("FOSS25xPerfMedium_0127_request.txt")
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.6.1")
 

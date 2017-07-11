@@ -15,7 +15,7 @@ class PECouchCatalogZeroLegacyCatalog extends SimulationWithScenario {
 // 	val httpProtocol = http
 // 		.baseURL("https://puppetserver-perf-sut57.delivery.puppetlabs.net:8140")
 
-	val reportBody = ELFileBody("PECouchCatalogZeroLegacyCatalog_0106_request.txt")
+	val reportBody = ElFileBody("PECouchCatalogZeroLegacyCatalog_0106_request.txt")
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.4.2")
 

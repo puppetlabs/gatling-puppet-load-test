@@ -27,7 +27,7 @@ class PE201523CatalogZero extends SimulationWithScenario {
 		"X-Puppet-Version" -> "4.2.3",
     "Connection" -> "close")
 
-val reportBody = ELFileBody("PE201523CatalogZero_0106_request.txt")
+val reportBody = ElFileBody("PE201523CatalogZero_0106_request.txt")
 
 //    val uri1 = "https://perf-bl14.delivery.puppetlabs.net:8140/puppet/v3"
 

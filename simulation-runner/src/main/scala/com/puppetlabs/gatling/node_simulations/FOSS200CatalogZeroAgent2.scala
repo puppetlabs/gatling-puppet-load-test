@@ -726,7 +726,7 @@ val chain_2 = exec(http("filemeta")
 		.exec(http("report")
 			.put("/puppet/v3/report/ie3wxblmt55k552.delivery.puppetlabs.net?environment=env1&")
 			.headers(headers_206)
-			.body(ELFileBody("FOSS200CatalogZeroAgent2_0206_request.txt")))
+			.body(ElFileBody("FOSS200CatalogZeroAgent2_0206_request.txt")))
 
 	val scn = scenario("FOSS200CatalogZeroAgent2").exec(
 		chain_0, chain_1, chain_2)

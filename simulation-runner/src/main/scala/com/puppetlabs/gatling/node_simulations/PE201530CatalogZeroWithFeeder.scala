@@ -17,7 +17,7 @@ class PE201530CatalogZeroWithFeeder extends SimulationWithScenario {
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.3.0")
 
-  val reportBody = ELFileBody("PE201530CatalogZeroWithFeeder_0105_request.txt")
+  val reportBody = ElFileBody("PE201530CatalogZeroWithFeeder_0105_request.txt")
 
   val nodeNames = csv("nodes.1500.csv").circular
 

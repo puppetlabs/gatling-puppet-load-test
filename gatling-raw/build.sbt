@@ -6,9 +6,9 @@ scalaVersion := "2.11.5"
 
 net.virtualvoid.sbt.graph.Plugin.graphSettings
 
-libraryDependencies += "io.gatling" % "gatling-app" % "2.1.4"
+libraryDependencies += "io.gatling" % "gatling-app" % "2.2.5"
 
-libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.4" exclude("io.gatling", "gatling-recorder")
+libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.2.5" exclude("io.gatling", "gatling-recorder")
 
 libraryDependencies += "joda-time" % "joda-time" % "2.7"
 

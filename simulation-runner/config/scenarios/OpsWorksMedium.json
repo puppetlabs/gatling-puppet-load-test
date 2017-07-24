@@ -1,0 +1,12 @@
+{
+    "run_description": "role::by_size::medium, 225 agents, 4 hours",
+    "nodes": [
+        {
+            "node_config": "OpsWorksMedium.json",
+            "num_instances": 225,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 8,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}

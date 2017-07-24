@@ -1,0 +1,12 @@
+{
+    "run_description": "role::by_size::small, 150 agents, 4 hours",
+    "nodes": [
+        {
+            "node_config": "OpsWorksSmall.json",
+            "num_instances": 150,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 8,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}

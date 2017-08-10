@@ -52,7 +52,8 @@ def get_latest_agent_version
     actions = json["actions"].find { |hash| hash["_class"] == "hudson.model.ParametersAction" }
     parameters = actions["parameters"]
     pkg_build_param = parameters.find { |hash| hash["name"] == "SUITE_COMMIT" }
-    pkg_build_param["value"]
+
+    pkg_build_param["value"].strip
   else
     Beaker::Log.notify("Unable to get last successful build from: #{url}, " +
            "error: #{response.code}, #{response.message}")

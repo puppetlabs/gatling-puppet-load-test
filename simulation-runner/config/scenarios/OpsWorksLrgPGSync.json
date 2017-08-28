@@ -1,0 +1,12 @@
+{
+    "run_description": "role::by_size::medium, 240 agents, 480 second rampup, 0-240 second splay, once",
+    "nodes": [
+        {
+            "node_config": "OpsWorksMedPGSync.json",
+            "num_instances": 240,
+            "ramp_up_duration_seconds": 480,
+            "num_repetitions": 1,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}

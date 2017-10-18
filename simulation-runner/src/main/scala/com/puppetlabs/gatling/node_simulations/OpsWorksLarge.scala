@@ -15,7 +15,7 @@ class OpsWorksLarge extends SimulationWithScenario {
 // 	val httpProtocol = http
 // 		.baseURL("https://aws-lrg-mom.us-west-2.compute.internal:8140")
 
-	val reportBody = ELFileBody("OpsWorksLarge_0005_request.txt")
+	val reportBody = ElFileBody("OpsWorksLarge_0005_request.txt")
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.10.4")
 

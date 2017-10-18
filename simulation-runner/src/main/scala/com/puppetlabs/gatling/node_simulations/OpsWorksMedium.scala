@@ -15,7 +15,7 @@ class OpsWorksMedium extends SimulationWithScenario {
 // 	val httpProtocol = http
 // 		.baseURL("https://aws-med-mom.us-west-2.compute.internal:8140")
 
-	val reportBody = ELFileBody("OpsWorksMedium_0005_request.txt")
+	val reportBody = ElFileBody("OpsWorksMedium_0005_request.txt")
 
 	val headers_0 = Map("X-Puppet-Version" -> "4.10.4")
 

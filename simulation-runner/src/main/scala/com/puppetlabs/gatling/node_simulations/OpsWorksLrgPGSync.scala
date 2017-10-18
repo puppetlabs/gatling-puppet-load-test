@@ -15,7 +15,7 @@ class OpsWorksLrgPGSync extends SimulationWithScenario {
 // 	val httpProtocol = http
 // 		.baseURL("https://aws-lrg-mom.us-west-2.compute.internal:8140")
 
-	val reportBody = ELFileBody("OpsWorksLrgPGSync_0600_request.txt")
+	val reportBody = ElFileBody("OpsWorksLrgPGSync_0600_request.txt")
 
 	val headers_0 = Map(
 		"Accept" -> "pson, binary",

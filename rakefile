@@ -1,0 +1,97 @@
+require 'rototiller'
+
+task :default => :performance
+
+desc 'Run Performance setup'
+rototiller_task :performance do |t|
+  t.add_env({:name => 'ENVIRONMENT_TYPE', :message => 'Either gatling or clamps', :default => 'gatling'})
+
+  if ENV['ENVIRONMENT_TYPE'] == 'clamps'
+    default_tests = 'setup/install'
+  else
+    default_tests = 'setup/install/00_pre_install/,setup/install/10_install/00_install_pe.rb,setup/install/30_post_install/'
+  end
+
+  # env vars needed for Beaker
+  t.add_command do |command|
+    command.name = "bundle exec beaker"
+    command.add_env({:name => 'BEAKER_EXECUTABLE'})
+
+    command.add_option do |option|
+      option.name = '--hosts'
+      option.message = 'The configuration file that Beaker will use'
+      option.add_argument do |arg|
+        arg.add_env({:name => 'BEAKER_HOSTS'})
+      end
+    end
+    command.add_option do |option|
+      option.name = '--keyfile'
+      option.message = 'The SSH key used to access a SUT'
+      option.add_argument do |arg|
+        arg.name = "#{ENV['HOME']}/.ssh/id_rsa-acceptance"
+        arg.add_env({:name => 'BEAKER_KEYFILE'})
+      end
+    end
+    command.add_option do |option|
+      option.name = '--log-level'
+      option.message = 'The log level under which you want beaker to run'
+      option.add_argument do |arg|
+        arg.name = 'debug'
+        arg.add_env({:name => 'BEAKER_LOG_LEVEL'})
+      end
+    end
+    unless ENV['BEAKER_PRE_SUITE'] == ''
+      command.add_option do |option|
+        option.name = '--pre-suite'
+        option.message = 'Beaker pre-suite'
+        option.add_argument do |arg|
+          arg.name = default_tests
+          arg.add_env({:name => 'BEAKER_PRE_SUITE'})
+        end
+      end
+    end
+    unless ENV['HELPER_PATH'] == ''
+      command.add_option do |option|
+        option.name = '--helper'
+        option.message = 'Setup helper required for installing PE'
+        option.add_argument do |arg|
+          arg.name = 'setup/helpers/classification_helper.rb,setup/helpers/ldap_helper.rb'
+          arg.add_env({:name => 'BEAKER_HELPER'})
+        end
+      end
+    end
+    command.add_option do |option|
+      option.name = '--preserve-hosts'
+      option.message = 'Whether to preserve hosts or not'
+      option.add_argument do |arg|
+        arg.name = 'always'
+        arg.add_env({:name => 'BEAKER_PRESERVE_HOSTS'})
+      end
+    end
+    command.add_option do |option|
+      option.name = '--type'
+      option.message = 'pe or foss'
+      option.add_argument do |arg|
+        arg.name = 'pe'
+        arg.add_env({:name => 'BEAKER_INSTALL_TYPE'})
+      end
+    end
+    puts command.to_str
+    # Default:
+    # "bundle exec beaker --hosts  --keyfile /Users/samwoods/.ssh/id_rsa-acceptance --log-level debug
+    # --pre-suite setup/install/00_pre_install/,setup/install/10_install/00_install_pe.rb,setup/install/30_post_install/
+    # --helper setup/helpers/classification_helper.rb,setup/helpers/ldap_helper.rb --preserve-hosts always --type pe"
+  end
+end
+
+desc 'Run Performance setup for clamps'
+rototiller_task :performance_clamps do |t|
+  ENV['ENVIRONMENT_TYPE'] = 'clamps'
+  Rake::Task["performance"].execute
+end
+
+desc 'Run Performance setup for gatling'
+rototiller_task :performance_gatling do |t|
+  ENV['ENVIRONMENT_TYPE'] = 'gatling'
+  Rake::Task["performance"].execute
+end

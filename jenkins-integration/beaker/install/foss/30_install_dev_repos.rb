@@ -27,7 +27,7 @@ def get_cent7_repo(response_lines, package)
       find { |v| has_cent7_repo?(package, v) }
 end
 
-def get_latest_master_version(version)
+def get_latest_server_version(version)
   response = Net::HTTP.get(URI(BASE_URL + '/puppetserver/?C=M&O=D'))
 
   # Scrape the puppetserver repo page for available puppetserver builds and
@@ -42,21 +42,17 @@ def get_latest_master_version(version)
 end
 
 def get_latest_agent_version
-  url = "https://jenkins-master-prod-1.delivery.puppetlabs.net/view/puppet-agent%20suite%20pipelines/job/platform_puppet-agent_intn-van-promote_suite-daily-promotion-master/lastSuccessfulBuild/api/json"
+  url = "http://builds.delivery.puppetlabs.net/passing-agent-SHAs/api/v1/json/report-master"
 
   uri = URI.parse(url)
   response = Net::HTTP.get_response(uri)
 
   if response.code == "200"
     json = JSON.parse(response.body)
-    actions = json["actions"].find { |hash| hash["_class"] == "hudson.model.ParametersAction" }
-    parameters = actions["parameters"]
-    pkg_build_param = parameters.find { |hash| hash["name"] == "SUITE_COMMIT" }
-
-    pkg_build_param["value"].strip
+    json["suite-commit"].strip
   else
     Beaker::Log.notify("Unable to get last successful build from: #{url}, " +
-           "error: #{response.code}, #{response.message}")
+                           "error: #{response.code}, #{response.message}")
     nil
   end
 end
@@ -80,12 +76,13 @@ step "Setup Puppet Server repositories." do
   package_build_version = ENV['PACKAGE_BUILD_VERSION']
 
   if package_build_version == "latest"
+    Beaker::Log.notify("Looking for the very latest Puppet Server build")
     package_build_version = "master"
   end
 
   if ((package_build_version =~ /SNAPSHOT$/) ||
       (package_build_version == "master"))
-    package_build_version = get_latest_master_version(package_build_version)
+    package_build_version = get_latest_server_version(package_build_version)
   end
 
   if package_build_version

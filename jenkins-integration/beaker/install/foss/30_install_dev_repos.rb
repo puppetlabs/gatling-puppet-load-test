@@ -42,7 +42,7 @@ def get_latest_server_version(version)
 end
 
 def get_latest_agent_version
-  url = "http://builds.puppetlabs.lan/passing-agent-SHAs/api/v1/json/report-master"
+  url = "http://builds.delivery.puppetlabs.net/passing-agent-SHAs/api/v1/json/report-master"
 
   uri = URI.parse(url)
   response = Net::HTTP.get_response(uri)

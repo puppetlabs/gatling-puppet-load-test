@@ -27,7 +27,7 @@ def get_cent7_repo(response_lines, package)
       find { |v| has_cent7_repo?(package, v) }
 end
 
-def get_latest_master_version(version)
+def get_latest_server_version(version)
   response = Net::HTTP.get(URI(BASE_URL + '/puppetserver/?C=M&O=D'))
 
   # Scrape the puppetserver repo page for available puppetserver builds and
@@ -81,7 +81,7 @@ step "Setup Puppet Server repositories." do
 
   if ((package_build_version =~ /SNAPSHOT$/) ||
       (package_build_version == "master"))
-    package_build_version = get_latest_master_version(package_build_version)
+    package_build_version = get_latest_server_version(package_build_version)
   end
 
   if package_build_version

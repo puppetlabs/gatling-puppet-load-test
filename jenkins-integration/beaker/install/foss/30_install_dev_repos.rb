@@ -42,21 +42,17 @@ def get_latest_master_version(version)
 end
 
 def get_latest_agent_version
-  url = "https://jenkins-master-prod-1.delivery.puppetlabs.net/view/puppet-agent%20suite%20pipelines/job/platform_puppet-agent_intn-van-promote_suite-daily-promotion-master/lastSuccessfulBuild/api/json"
+  url = "http://builds.puppetlabs.lan/passing-agent-SHAs/api/v1/json/report-master"
 
   uri = URI.parse(url)
   response = Net::HTTP.get_response(uri)
 
   if response.code == "200"
     json = JSON.parse(response.body)
-    actions = json["actions"].find { |hash| hash["_class"] == "hudson.model.ParametersAction" }
-    parameters = actions["parameters"]
-    pkg_build_param = parameters.find { |hash| hash["name"] == "SUITE_COMMIT" }
-
-    pkg_build_param["value"].strip
+    json["suite-commit"].strip
   else
     Beaker::Log.notify("Unable to get last successful build from: #{url}, " +
-           "error: #{response.code}, #{response.message}")
+                           "error: #{response.code}, #{response.message}")
     nil
   end
 end

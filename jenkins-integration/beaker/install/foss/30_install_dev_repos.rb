@@ -76,6 +76,7 @@ step "Setup Puppet Server repositories." do
   package_build_version = ENV['PACKAGE_BUILD_VERSION']
 
   if package_build_version == "latest"
+    Beaker::Log.notify("Looking for the very latest Puppet Server build")
     package_build_version = "master"
   end
 

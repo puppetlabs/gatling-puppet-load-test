@@ -22,6 +22,13 @@ test_name 'Setup and configure machines for metrics gathering' do
     on metric, 'setenforce 0 || true'
   end
 
+  step 'disable selinux on agents to allow apache to run when needed'
+    # disable selinux immediately, but not persistent after a reboot
+    on agents, 'setenforce 0 || true'
+    # required to disable selinux between reboots
+    on agents, 'sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/sysconfig/selinux && cat /etc/sysconfig/selinux'
+  end
+
   step 'install nc for agents to report run times to graphite' do
     on agents, 'yum install -y nc || true'
   end

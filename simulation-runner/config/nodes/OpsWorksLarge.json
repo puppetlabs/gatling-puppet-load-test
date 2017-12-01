@@ -1,0 +1,7 @@
+{
+  "simulation_class": "com.puppetlabs.gatling.node_simulations.OpsWorksLarge",
+  "certname_prefix": "gat-",
+  "classes": [
+    "role::by_size::large"
+  ]
+}

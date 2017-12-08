@@ -1,0 +1,7 @@
+{
+  "simulation_class": "com.puppetlabs.gatling.node_simulations.FOSS5xEmptyRepo",
+  "certname_prefix": "cpauq9t2043v47v",
+  "classes": [
+    "role::by_size::empty"
+  ]
+}

@@ -12,6 +12,7 @@ gatling-recorder.log
 cache
 ivy2.tgz
 ivy-tmp
+*.swp
 
 # Bundler
 .bundle

@@ -8,15 +8,8 @@ import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-// import io.gatling.jdbc.Predef._
 
 class FOSS5xEmptyRepo extends SimulationWithScenario {
-
-// 	val httpProtocol = http
-// 		.baseURL("https://sbbr2c2w66jmcpm.delivery.puppetlabs.net:8140")
-// 		.acceptHeader("application/json, text/pson")
-// 		.acceptEncodingHeader("gzip;q=1.0,deflate;q=0.6,identity;q=0.3")
-// 		.userAgentHeader("Puppet/5.3.3 Ruby/2.4.2-p198 (x86_64-linux)")
 
 	val reportBody = ElFileBody("FOSS5xEmptyRepo_0004_request.txt")
 
@@ -30,7 +23,6 @@ class FOSS5xEmptyRepo extends SimulationWithScenario {
 		"Connection" -> "close",
 		"Content-Type" -> "application/json",
 		"X-Puppet-Version" -> "5.3.3")
-// val uri1 = "https://sbbr2c2w66jmcpm.delivery.puppetlabs.net:8140/puppet/v3"
 
 	val scn = scenario("FOSS5xEmptyRepo")
 		.exec(http("node")
@@ -67,5 +59,4 @@ class FOSS5xEmptyRepo extends SimulationWithScenario {
 			.headers(headers_4)
 			.body(reportBody))
 
-// setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
 }

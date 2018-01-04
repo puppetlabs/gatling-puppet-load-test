@@ -7,7 +7,7 @@ test_name 'Configure Gatling SSL authorization'
 # Sbt is be configured to look for them under simulation-runner/target/ssl.
 step 'Generate Gatling SSL keystore & trustore' do
   # Make room for local copies
-  ssldir = '../simulation-runner/target/ssl'
+  ssldir = 'simulation-runner/target/ssl'
   FileUtils.rm_rf(ssldir)
   FileUtils.mkdir_p(ssldir)
 

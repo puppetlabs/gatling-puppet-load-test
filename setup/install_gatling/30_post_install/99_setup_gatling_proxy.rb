@@ -10,8 +10,14 @@ test_name 'Setup and configure gatling proxy machine' do
     on metric, 'curl -sSL https://get.rvm.io | bash -s stable --ruby=2.2.5'
     on metric, 'gem install bundler'
   end
-  step 'put keys on the MOM' do
-    on metric, "ssh-copy-id root@#{master.hostname}"
+  step 'create key for metrics to talk to primary master' do
+    on metric, 'yes | ssh-keygen -q -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" -C "gatling"'
+  end
+  step 'put keys on the primary master' do
+    results = on metric, 'cat /root/.ssh/id_rsa.pub'
+    key = results.stdout.strip
+    on master, "echo \"#{key}\" >> /root/.ssh/authorized_keys"
+    # on metric, "ssh-copy-id root@#{master.hostname}"
   end
   step 'install git' do
     on metric, 'yum install -y git'

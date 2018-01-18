@@ -272,12 +272,22 @@ def step075_customize_puppet_settings(script_dir, puppet_settings) {
     }
 }
 
-def step080_customize_java_args(script_dir, server_java_args, server_era) {
-    if ((server_java_args == null) || (server_java_args == "")) {
+def step080_customize_java_args(script_dir, server_heap_settings, server_era) {
+    if ((server_heap_settings == null || server_heap_settings == "") && "${JAVA_ARGS_ADDITIONS}" == "" && "${HEAP_OVERRIDES}" == "") {
         echo "Skipping java_args configuration because none specified in job"
     } else {
+        if (server_heap_settings == null) {
+            server_heap_settings = ""
+        }
+
+        if ("${HEAP_OVERRIDES}" != "" && "${HEAP_OVERRIDES}" != null) {
+            server_heap_settings = "${HEAP_OVERRIDES}"
+        }
+
+        server_java_args = "${server_heap_settings} ${JAVA_ARGS_ADDITIONS}"
+
         withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
-                 "PUPPET_SERVER_JAVA_ARGS=${server_java_args}"
+                 "PUPPET_SERVER_JAVA_ARGS=${server_heap_settings} ${JAVA_ARGS_ADDITIONS}"
         ]) {
             sh "${script_dir}/080_configure_java_args.sh"
         }
@@ -409,7 +419,7 @@ def single_pipeline(job) {
         step075_customize_puppet_settings(SCRIPT_DIR, job['puppet_settings'])
 
         stage '080-customize-java-args'
-        step080_customize_java_args(SCRIPT_DIR, job["server_java_args"], server_era)
+        step080_customize_java_args(SCRIPT_DIR, job["server_heap_settings"], server_era)
 
         stage '081-customize-jruby-jar'
         step081_customize_jruby_jar(SCRIPT_DIR, job["jruby_jar"], server_era)
@@ -471,7 +481,7 @@ def multipass_pipeline(jobs) {
             step070_validate_classification()
             step075_customize_puppet_settings(SCRIPT_DIR, job['puppet_settings'])
             step080_customize_java_args(SCRIPT_DIR,
-                    job["server_java_args"],
+                    job["server_heap_settings"],
                     server_era)
             step081_customize_jruby_jar(SCRIPT_DIR,\
                     job["jruby_jar"],

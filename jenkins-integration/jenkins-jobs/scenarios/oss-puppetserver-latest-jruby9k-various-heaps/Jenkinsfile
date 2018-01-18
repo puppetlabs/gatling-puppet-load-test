@@ -28,7 +28,7 @@ pipeline.multipass_pipeline([
                         "/var/log/puppetlabs/puppetserver/metrics.json"
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
-                server_java_args: "-Xms4g -Xmx4g",
+                server_heap_settings: "-Xms4g -Xmx4g",
         ],
         [
                 job_name: 'oss-latest-9k-8g-heap',
@@ -54,7 +54,7 @@ pipeline.multipass_pipeline([
                         "/var/log/puppetlabs/puppetserver/metrics.json"
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
-                server_java_args: "-Xms8g -Xmx8g",
+                server_heap_settings: "-Xms8g -Xmx8g",
         ],
         [
                 job_name: 'oss-latest-9k-12g-heap',
@@ -80,6 +80,6 @@ pipeline.multipass_pipeline([
                         "/var/log/puppetlabs/puppetserver/metrics.json"
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
-                server_java_args: "-Xms12g -Xmx12g",
+                server_heap_settings: "-Xms12g -Xmx12g",
         ],
 ])

@@ -15,7 +15,7 @@ pipeline.multipass_pipeline([
                  basedir: "/etc/puppetlabs/code-staging/environments",
                  environments: ["production"],
                  hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"],
-         server_java_args: "-Xms12g -Xmx12g",
+         server_heap_settings: "-Xms12g -Xmx12g",
          background_scripts: [
                  "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh"
          ],
@@ -34,7 +34,7 @@ pipeline.multipass_pipeline([
                  basedir: "/etc/puppetlabs/code-staging/environments",
                  environments: ["production"],
                  hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"],
-         server_java_args: "-Xms12g -Xmx12g",
+         server_heap_settings: "-Xms12g -Xmx12g",
          background_scripts: [
                  "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh"
          ],

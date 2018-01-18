@@ -1,8 +1,8 @@
 test_name "Classify Puppet agents on master"
-skip_test 'Installing PE, not FOSS' unless ENV['BEAKER_INSTALL_TYPE'].casecmp('foss') == 0
+skip_test 'Installing PE, not FOSS' unless ENV['BEAKER_INSTALL_TYPE'] == 'foss'
 
 def generate_sitepp()
-  "node /.*agent.*/ { include #{ENV['PUPPET_SCALE_CLASS']} }\nnode 'default' {}"
+  "node /.*agent.*/ { include #{ENV['PUPPET_SCALE_CLASS']} }\nnode /#{agent.hostname}/ { include #{ENV['PUPPET_SCALE_CLASS']} }\nnode 'default' {}"
 end
 
 def classify_foss_nodes(host)

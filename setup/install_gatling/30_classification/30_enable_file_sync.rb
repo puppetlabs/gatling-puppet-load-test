@@ -1,6 +1,5 @@
 require 'scooter'
 test_name 'Enable file_sync' do
-  skip_test 'Installing FOSS, not PE' unless ENV['BEAKER_INSTALL_TYPE'].casecmp('pe') == 0
   api = Scooter::HttpDispatchers::ConsoleDispatcher.new(dashboard)
   pe_master_group = api.get_node_group_by_name('PE Master')
   pe_master_group['classes']['puppet_enterprise::profile::master']['file_sync_enabled'] = true

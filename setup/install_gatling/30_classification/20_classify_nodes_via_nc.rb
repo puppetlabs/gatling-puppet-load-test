@@ -1,6 +1,7 @@
 require 'scooter'
 
 test_name "Classify PE agents via Node Classifier"
+  skip_test 'Installing FOSS, not PE' unless ENV['BEAKER_INSTALL_TYPE'].casecmp('pe') == 0
 
 # Classify any agent with the word 'agent' in it's hostname.
 def classify_nodes(classifier)

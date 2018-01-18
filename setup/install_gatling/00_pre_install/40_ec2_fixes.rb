@@ -14,9 +14,8 @@ test_name 'Workaround various EC2 host config issues.' do
 
   step 'Download Puppet installer and set pe_dir' do
     # If the installer download is on the internal network, EC2 instance can't access it, so copy it locally.
-    if master['pe_dir'] =~ /puppetlabs\.net/
+    if master['pe_dir'] =~ /puppetlabs\.net/ && ENV['BEAKER_INSTALL_TYPE'] == 'pe'
       tmp_dir = Dir.mktmpdir
-      # TODO: Need this to work for FOSS too
       file = "puppet-enterprise-#{master[:pe_ver]}-#{master[:platform]}.tar.gz"
       curl_cmd = "curl -o #{tmp_dir}/#{file} #{master[:pe_dir]}/#{file}"
       puts curl_cmd

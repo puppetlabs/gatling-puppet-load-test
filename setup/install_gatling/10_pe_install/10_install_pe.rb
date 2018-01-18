@@ -1,6 +1,7 @@
 require 'beaker-pe-large-environments'
 
 test_name 'install PE for a scale environment' do
+  skip_test 'Installing FOSS, not PE' unless ENV['BEAKER_INSTALL_TYPE'].casecmp('pe') == 0
   if !is_pre_aio_version?
     # Must include the dashboard so that split installs add these answers to classification
     r10k_remote = '/opt/puppetlabs/server/data/puppetserver/r10k/control-repo'

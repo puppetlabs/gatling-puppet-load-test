@@ -28,6 +28,13 @@ pipeline.multipass_pipeline([
                         "/var/log/puppetlabs/puppetserver/metrics.json"
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
+                hocon_settings: [
+                          [
+                            file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                            path: "jruby-puppet.compile-mode",
+                            value: "jit"
+                          ]
+                        ]
         ],
         [
                 job_name: 'oss-latest-jruby9k-pson',
@@ -53,5 +60,12 @@ pipeline.multipass_pipeline([
                         "/var/log/puppetlabs/puppetserver/metrics.json"
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
+                hocon_settings: [
+                          [
+                            file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                            path: "jruby-puppet.compile-mode",
+                            value: "jit"
+                          ]
+                        ]
         ],
 ])

@@ -26,5 +26,8 @@ test_name 'Setup and configure gatling proxy machine' do
   step 'setup shill git user' do
     on metric, 'cd gatling-puppet-load-test; git config --global user.email "beaker@puppet.com"; git config --global user.name "meep"'
   end
-  scp_to(metric, 'simulation-runner/target/ssl', 'gatling-puppet-load-test/simulation-runner/target/ssl')
+  step 'copy ssl certs to metrics box' do
+    on metric, 'mkdir /root/gatling-puppet-load-test/simulation-runner/target'
+    scp_to(metric, 'simulation-runner/target/ssl', 'gatling-puppet-load-test/simulation-runner/target/ssl')
+  end
 end

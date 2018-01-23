@@ -28,7 +28,7 @@ pipeline.multipass_pipeline([
                         "/var/log/puppetlabs/puppetserver/metrics.json"
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
-                server_java_args: "-Xms4g -Xmx4g",
+                server_heap_settings: "-Xms4g -Xmx4g",
                 hocon_settings: [
                           [
                             file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
@@ -61,7 +61,7 @@ pipeline.multipass_pipeline([
                         "/var/log/puppetlabs/puppetserver/metrics.json"
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
-                server_java_args: "-Xms8g -Xmx8g",
+                server_heap_settings: "-Xms8g -Xmx8g",
                 hocon_settings: [
                           [
                             file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
@@ -94,7 +94,7 @@ pipeline.multipass_pipeline([
                         "/var/log/puppetlabs/puppetserver/metrics.json"
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
-                server_java_args: "-Xms12g -Xmx12g",
+                server_heap_settings: "-Xms12g -Xmx12g",
                 hocon_settings: [
                           [
                             file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",

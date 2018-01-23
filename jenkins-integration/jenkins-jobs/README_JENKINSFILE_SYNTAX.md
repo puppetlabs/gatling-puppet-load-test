@@ -67,7 +67,7 @@ yet.  So they are just raw maps for now.
              environments: ["production"],
              hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"
     ],
-    server_java_args: "-Xms12g -Xmx12g",
+    server_heap_settings: "-Xms12g -Xmx12g",
     puppet_settings: [
              master: [
                      "static_catalogs": "false"
@@ -104,7 +104,7 @@ Here's some info about each of these sections:
    for the configured PE/Puppet Server setup.  NOTE: the path is expected to be a local file on the SUT, so the easiest
    way to get this working is to include the control repo so that it will be available at a known location on the SUT
    after the r10k deploy.
-* `server_java_args`: if you wish to override any of the Java args (for Puppet Server only, at this time), specify the
+* `server_heap_settings`: if you wish to override the heap settings of the Java args (for Puppet Server only, at this time), specify the
   args here.
 * `puppet_settings`: if you wish to modify any of the settings in puppet.conf, provide a nested map here.  The first level
   in the map controls the section of puppet.conf that the setting should go in, and then the next level has setting key/value

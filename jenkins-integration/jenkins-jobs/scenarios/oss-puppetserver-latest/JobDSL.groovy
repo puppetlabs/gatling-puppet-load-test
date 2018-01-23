@@ -5,7 +5,8 @@ if (serverConfig["environment"] == "production") {
         triggers {
             // This should run the job at a semi-random time between 9:00 and 10:59PM,
             //  on Mondays.
-            cron('H H(21-22) * * 1')
+            // Disabling via comment for now as this is getting in the way of other tests.
+            //cron('H H(21-22) * * 1')
         }
     }
 

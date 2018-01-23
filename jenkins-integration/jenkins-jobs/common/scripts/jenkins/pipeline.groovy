@@ -280,7 +280,7 @@ def step080_customize_java_args(script_dir, server_heap_settings, server_era) {
             server_heap_settings = ""
         }
 
-        if ("${HEAP_OVERRIDES}" != "" && "${HEAP_OVERRIDES}" != null) {
+        if ("${HEAP_OVERRIDES}" != "") {
             server_heap_settings = "${HEAP_OVERRIDES}"
         }
 

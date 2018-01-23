@@ -4,17 +4,20 @@ node {
 }
 
 pipeline.single_pipeline([
-        job_name: 'oss-5.x-puppetserver-empty-jruby9k',
-        gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-empty-500-2-hours.json',
+        job_name: 'oss-latest-jruby9k',
+        gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1250-2-hours.json',
         server_version: [
                 type: "oss",
-                version: "5\\.\\d+\\.\\d+.SNAPSHOT"
+                version: "latest"
+        ],
+        agent_version: [
+                version: "latest"
         ],
         code_deploy: [
                 type: "r10k",
                 control_repo: "git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git",
                 basedir: "/etc/puppetlabs/code/environments",
-                environments: ["20171208_empty_repo"],
+                environments: ["production"],
                 hiera_config_source_file: "/etc/puppetlabs/code/environments/production/root_files/hiera.yaml"
         ],
         background_scripts: [
@@ -25,10 +28,15 @@ pipeline.single_pipeline([
         ],
         jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
         hocon_settings: [
-                  [
-                    file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
-                    path: "jruby-puppet.compile-mode",
-                    value: "jit"
-                  ]
-                ]
+          [
+            file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+            path: "jruby-puppet.compile-mode",
+            value: "jit"
+          ],
+          [
+            file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+            path: "jruby-puppet.max-requests-per-instance",
+            value: 100000
+          ]
+        ]
 ])

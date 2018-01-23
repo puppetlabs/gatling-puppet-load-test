@@ -51,5 +51,12 @@ pipeline.multipass_pipeline([
                 archive_sut_files: [
                         "/var/log/puppetlabs/puppetserver/metrics.json"
                 ],
-                jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar"
+                jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
+                hocon_settings: [
+                          [
+                            file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                            path: "jruby-puppet.compile-mode",
+                            value: "jit"
+                          ]
+                        ]
         ]])

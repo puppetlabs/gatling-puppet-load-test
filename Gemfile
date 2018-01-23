@@ -1,6 +1,6 @@
-source ENV['GEM_SOURCE'] || 'http://rubygems.delivery.puppetlabs.net'
+source ENV['GEM_SOURCE'] || 'https://artifactory.delivery.puppetlabs.net/artifactory/api/gems/rubygems/'
 
-gem 'beaker', '~>3.2'
+gem 'beaker', :git => 'https://github.com/puppetlabs/beaker.git', :branch => 'fix/master/BKR-487_preserved_hosts_yml_fix'
 gem 'beaker-pe', '~>1.4'
 gem 'beaker-pe-large-environments', '~>0.2'
 gem 'scooter', '~>4.0'

@@ -29,6 +29,13 @@ pipeline.multipass_pipeline([
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
                 server_heap_settings: "-Xms4g -Xmx4g",
+                hocon_settings: [
+                          [
+                            file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                            path: "jruby-puppet.compile-mode",
+                            value: "jit"
+                          ]
+                        ]
         ],
         [
                 job_name: 'oss-latest-9k-8g-heap',
@@ -55,6 +62,13 @@ pipeline.multipass_pipeline([
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
                 server_heap_settings: "-Xms8g -Xmx8g",
+                hocon_settings: [
+                          [
+                            file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                            path: "jruby-puppet.compile-mode",
+                            value: "jit"
+                          ]
+                        ]
         ],
         [
                 job_name: 'oss-latest-9k-12g-heap',
@@ -81,5 +95,12 @@ pipeline.multipass_pipeline([
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
                 server_heap_settings: "-Xms12g -Xmx12g",
+                hocon_settings: [
+                          [
+                            file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                            path: "jruby-puppet.compile-mode",
+                            value: "jit"
+                          ]
+                        ]
         ],
 ])

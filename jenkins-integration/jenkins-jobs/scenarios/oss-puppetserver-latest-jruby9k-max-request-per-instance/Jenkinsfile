@@ -36,7 +36,7 @@ pipeline.single_pipeline([
           [
             file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
             path: "jruby-puppet.max-requests-per-instance",
-            value: 100000
+            value: "100000"
           ]
         ]
 ])

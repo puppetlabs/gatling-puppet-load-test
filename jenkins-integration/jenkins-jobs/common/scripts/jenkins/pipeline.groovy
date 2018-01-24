@@ -367,6 +367,12 @@ def step900_collect_driver_artifacts() {
     // NOTE: this DSL step requires the puppet-gatling-jenkins plugin.  It also
     // depends on some data that gets created via 025_collect_facter_data.sh
     puppetGatlingArchive()
+
+    // Always archive the simulation.log.gz from the run.
+    archive "simulation-runner/results/**/*.log.gz"
+    dir('simulation-runner/results') {
+        deleteDir()
+    }
 }
 
 SCRIPT_DIR = "./jenkins-integration/jenkins-jobs/common/scripts/job-steps"

@@ -6,7 +6,7 @@ desc 'Run Performance setup'
 rototiller_task :performance do |t|
   t.add_env({:name => 'ENVIRONMENT_TYPE', :message => 'Either gatling or clamps', :default => 'gatling'})
   t.add_env({:name => 'PUPPET_GATLING_R10K_CONTROL_REPO', :default => 'git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git'})
-  t.add_env({:name => 'PUPPET_GATLING_R10K_BASEDIR', :default => '/etc/puppetlabs/code/environments'})
+  t.add_env({:name => 'PUPPET_GATLING_R10K_BASEDIR', :default => '/etc/puppetlabs/code-staging/environments'})
   t.add_env({:name => 'PUPPET_GATLING_R10K_ENVIRONMENTS', :default => 'production'})
   t.add_env({:name => 'PUPPET_BIN_DIR', :default => '/opt/puppetlabs/puppet/bin'})
   t.add_env({:name => 'PUPPET_R10K_VERSION', :default => '2.3.0'})

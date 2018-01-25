@@ -1,5 +1,7 @@
 ## Welcome to load testing Puppet with Gatling!
 
+To use the new rake tasks to run in AWS, follow the instructions here: [`NEW_README.md`](./NEW_README.md)
+
 This repo contains tools for load testing Puppet Enterprise, Puppet Server, and other components.  It works by building
 an existing [open source load testing tool called Gatling](http://gatling.io), which allows you to record HTTP traffic
 and replay it, and then generate reports about the performance of the simulated requests.  We use this to simulate

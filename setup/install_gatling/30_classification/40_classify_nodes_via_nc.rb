@@ -12,7 +12,7 @@ def classify_nodes(classifier)
                  ['~', ['fact', 'clientcert'], "#{agent.hostname}"]],
       'classes' => { ENV['PUPPET_SCALE_CLASS'] => nil } )
 end
-ENV['PUPPET_SCALE_CLASS'] = 'role::by_size::large'
+
 classifier = Scooter::HttpDispatchers::ConsoleDispatcher.new(dashboard, {:login => 'admin', :password => 'puppetlabs', :resolve_dns => true})
 
 # Updating classes can take a VERY long time, like the OPS deployment

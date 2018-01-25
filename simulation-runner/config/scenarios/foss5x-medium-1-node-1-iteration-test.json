@@ -1,0 +1,12 @@
+{
+    "run_description": "'medium' role from perf control repo, 1 agent, 1 iteration for testing changes",
+    "nodes": [
+        {
+            "node_config": "FOSS5xPerfMedium.json",
+            "num_instances": 1,
+            "ramp_up_duration_seconds": 10,
+            "num_repetitions": 1,
+            "sleep_duration_seconds": 10
+        }
+    ]
+}

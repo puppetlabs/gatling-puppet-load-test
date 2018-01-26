@@ -22,5 +22,6 @@ pipeline.single_pipeline([
         ],
         archive_sut_files: [
                 "/var/log/puppetlabs/puppetserver/metrics.json"
-        ]
+        ],
+        server_heap_settings: "-Xms2g -Xmx2g",
 ])

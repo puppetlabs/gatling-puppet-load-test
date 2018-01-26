@@ -38,5 +38,6 @@ pipeline.single_pipeline([
             path: "jruby-puppet.max-requests-per-instance",
             value: "100000"
           ]
-        ]
+        ],
+        server_heap_settings: "-Xms2g -Xmx2g",
 ])

@@ -5,11 +5,9 @@ This will configure multiple nodes.  In the simplest case you need 2 nodes: a Pu
 * Clone the gatling-puppet-load-test repo locally: https://github.com/puppetlabs/gatling-puppet-load-test
 * cd into the gatling-puppet-load-test root directory
 * For apples to apples runs, you can use the checked-in hosts files: pe-perf-test.cfg or foss-perf-test.cfg (default for the performance rake task).
-* If you want to do something custom: create a beaker config file using this as a template: https://github.com/puppetlabs/gatling-puppet-load-test/blob/master/config/beaker_hosts/perf-test.cfg
-    * Replace pe_dir with a valid pe_dir (past versions can be found at http://enterprise.delivery.puppetlabs.net/archives/releases/)
-        * Local dir or http url of a pe tarball
-    * Replace pe_ver with the pe version to install
-        * The version string after ‘enterprise’ and before the platform name/version
+* For a run against a PE build set BEAKER_INSTALL_TYPE=pe and provide values for BEAKER_PE_VER and BEAKER_PE_DIR environment variables
+* For a run against a FOSS build set BEAKER_INSTALL_TYPE=foss and provide values for PACKAGE_BUILD_VERSION and PUPPET_AGENT_VERSION environment variables
+* If you want to do something custom (which should not normally be necessary): create a beaker config file using one of the configs in this directory as a template: https://github.com/puppetlabs/gatling-puppet-load-test/blob/master/config/beaker_hosts/
 * If you are using an aws puppet-bastion account
     * Assume the ESO role
         * aws sts assume-role --role-arn arn:aws:iam::028918822489:role/\<user> --role-session-name example --serial-number arn:aws:iam::103716600232:mfa/\<user> --token-code \<mfa token code>

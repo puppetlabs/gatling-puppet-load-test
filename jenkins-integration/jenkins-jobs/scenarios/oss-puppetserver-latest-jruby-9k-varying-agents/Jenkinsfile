@@ -31,7 +31,8 @@ pipeline.multipass_pipeline([
                             path: "jruby-puppet.compile-mode",
                             value: "jit"
                           ]
-                        ]
+                ],
+                server_heap_settings: "-Xms2g -Xmx2g",
         ],
         [
                 job_name: 'oss-latest-jruby-9k-1000-agents',
@@ -60,7 +61,8 @@ pipeline.multipass_pipeline([
                             path: "jruby-puppet.compile-mode",
                             value: "jit"
                           ]
-                        ]
+                ],
+                server_heap_settings: "-Xms2g -Xmx2g",
         ],
         [
                 job_name: 'oss-latest-jruby-9k-1250-agents',
@@ -89,5 +91,6 @@ pipeline.multipass_pipeline([
                             path: "jruby-puppet.compile-mode",
                             value: "jit"
                           ]
-                        ]
+                ],
+                server_heap_settings: "-Xms2g -Xmx2g",
         ]])

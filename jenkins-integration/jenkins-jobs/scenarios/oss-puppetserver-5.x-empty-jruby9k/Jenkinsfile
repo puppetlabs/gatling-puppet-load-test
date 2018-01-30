@@ -30,5 +30,6 @@ pipeline.single_pipeline([
                     path: "jruby-puppet.compile-mode",
                     value: "jit"
                   ]
-                ]
+        ],
+        server_heap_settings: "-Xms2g -Xmx2g",
 ])

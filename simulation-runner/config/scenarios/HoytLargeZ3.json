@@ -1,5 +1,5 @@
 {
-    "run_description": "Hoyt 2017.3.3-rc0-136-g1ddab5e, role::by_size::medium, 600 agents, 4 hours",
+    "run_description": "Hoyt 2017.3.3-rc0-136-g1ddab5e, role::by_size::large, 600 agents, 4 hours",
     "nodes": [
         {
             "node_config": "HoytLargeZ3.json",

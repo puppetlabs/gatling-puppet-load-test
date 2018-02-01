@@ -1,5 +1,5 @@
 {
-    "run_description": "Irving 2018.1.0-RC3, role::by_size::medium, 600 agents, 4 hours",
+    "run_description": "Irving 2018.1.0-RC3, role::by_size::large, 600 agents, 4 hours",
     "nodes": [
         {
             "node_config": "IrvingLargeRC3.json",

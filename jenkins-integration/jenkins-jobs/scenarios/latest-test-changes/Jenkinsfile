@@ -4,7 +4,7 @@ node {
 }
 
 pipeline.single_pipeline([
-        job_name: 'oss-latest',
+        job_name: 'latest-test-changes',
         gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1-node-1-iteration-test.json',
         server_version: [
                 type: "oss",

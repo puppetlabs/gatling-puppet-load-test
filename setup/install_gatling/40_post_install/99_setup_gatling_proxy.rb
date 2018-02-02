@@ -30,4 +30,7 @@ test_name 'Setup and configure gatling proxy machine' do
     on metric, 'mkdir /root/gatling-puppet-load-test/simulation-runner/target'
     scp_to(metric, 'simulation-runner/target/ssl', 'gatling-puppet-load-test/simulation-runner/target/ssl')
   end
+  step 'adjust scala build tool mem' do
+    on metric, "echo '-mem   2048' >> /usr/share/sbt/conf/sbtopts"
+  end
 end

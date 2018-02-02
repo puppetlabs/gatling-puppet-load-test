@@ -8,8 +8,7 @@ def classify_nodes(classifier)
   classifier.find_or_create_node_group_model(
       'parent' => '00000000-0000-4000-8000-000000000000',
       'name' => 'perf-agent-group',
-      'rule' => ['or', ['~', ['fact', 'clientcert'], '.*agent.*'],
-                 ['~', ['fact', 'clientcert'], "#{agent.hostname}"]],
+      'rule' => ['~', ['fact', 'clientcert'], '.*agent.*'],
       'classes' => { ENV['PUPPET_SCALE_CLASS'] => nil } )
 end
 

@@ -22,7 +22,10 @@ rototiller_task :performance do |t|
 
   # TODO: This is a temporary step... going to get a working workflow for gatling runs,
   # then a separate workflow for clamps and then work on combining them.
-  default_setup = 'setup/install_gatling' if ENV['ENVIRONMENT_TYPE'] == 'gatling'
+  if ENV['ENVIRONMENT_TYPE'] == 'gatling'
+    default_setup = 'setup/install_gatling'
+    default_tests = 'tests'
+  end
 
   # env vars needed for Beaker
   t.add_command do |command|
@@ -61,6 +64,16 @@ rototiller_task :performance do |t|
         option.add_argument do |arg|
           arg.name = default_setup
           arg.add_env({:name => 'BEAKER_PRE_SUITE'})
+        end
+      end
+    end
+    unless ENV['BEAKER_TESTS'] == ''
+      command.add_option do |option|
+        option.name = '--tests'
+        option.message = 'Beaker tests'
+        option.add_argument do |arg|
+          arg.name = default_tests
+          arg.add_env({:name => 'BEAKER_TESTS'})
         end
       end
     end

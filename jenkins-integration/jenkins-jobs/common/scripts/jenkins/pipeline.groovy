@@ -127,6 +127,32 @@ def get_agent_version(agent_version) {
   }
 }
 
+String generate_gatling_scenario(hours, size, count) {
+    // Note: the caller of this method needs to make sure it is called in the
+    // correct directory (simulation-runner/config/scenarios), otherwise the
+    // referenced node_config will not be where the rest of the automation
+    // expects it to be (which is relative to the scenario config).
+    repetitions = hours.toInteger() * 2
+    filename = "foss5x-${size}-${count}-${hours}-hours-dynamic.json"
+    node_configs = [
+            EMPTY: "FOSS5xEmptyRepo.json",
+            MEDIUM: "FOSS5xPerfMedium.json",
+    ]
+    scenario_hash = [
+            run_description: "${size} role from perf control repo, ${count} agents, ${hours} hours",
+            nodes: [[
+                            node_config: node_configs[size],
+                            num_instances: count.toInteger(),
+                            ramp_up_duration_seconds: 1800,
+                            num_repetitions: repetitions,
+                            sleep_duration_seconds: 1800,
+                    ]]
+    ]
+    scenario_json = JsonOutput.toJson(scenario_hash)
+    writeFile(file: filename, text: scenario_json)
+    return filename
+}
+
 def step000_provision_sut(SKIP_PROVISIONING, script_dir) {
     echo "SKIP PROVISIONING?: ${SKIP_PROVISIONING} (${SKIP_PROVISIONING.class})"
     if (!SKIP_PROVISIONING) {
@@ -385,6 +411,17 @@ def single_pipeline(job) {
         SKIP_PROVISIONING = (SKIP_PROVISIONING == "true")
 
         job_name = job['job_name']
+
+        if (job_name == "puppetserver-infinite") {
+
+            dir('simulation-runner/config/scenarios') {
+                job["gatling_simulation_config"] = generate_gatling_scenario(NUMBER_OF_HOURS, CATALOG_SIZE, NODE_COUNT)
+            }
+
+            if (CATALOG_SIZE == "EMPTY") {
+                job["code_deploy"]["environments"] = ['20171208_empty_repo']
+            }
+        }
 
         stage '000-provision-sut'
         step000_provision_sut(SKIP_PROVISIONING, SCRIPT_DIR)

@@ -128,6 +128,10 @@ def get_agent_version(agent_version) {
 }
 
 String generate_gatling_scenario(hours, size, count) {
+    // Note: the caller of this method needs to make sure it is called in the
+    // correct directory (simulation-runner/config/scenarios), otherwise the
+    // referenced node_config will not be where the rest of the automation
+    // expects it to be (which is relative to the scenario config).
     repetitions = hours.toInteger() * 2
     filename = "foss5x-${size}-${count}-${hours}-hours-dynamic.json"
     node_configs = [

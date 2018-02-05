@@ -424,7 +424,8 @@ def single_pipeline(job) {
         if (job_name == "puppetserver-infinite") {
 
             dir('simulation-runner/config/scenarios') {
-                job["gatling_simulation_config"] = generate_gatling_scenario(NUMBER_OF_HOURS, CATALOG_SIZE, NODE_COUNT)
+                scenario_name = generate_gatling_scenario(NUMBER_OF_HOURS, CATALOG_SIZE, NODE_COUNT)
+                job["gatling_simulation_config"] = "../simulation-runner/config/scenarios/${scenario_name}"
             }
 
             if (CATALOG_SIZE == "EMPTY") {

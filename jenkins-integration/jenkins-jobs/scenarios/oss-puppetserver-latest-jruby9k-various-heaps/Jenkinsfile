@@ -25,7 +25,8 @@ pipeline.multipass_pipeline([
                         "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh"
                 ],
                 archive_sut_files: [
-                        "/var/log/puppetlabs/puppetserver/metrics.json"
+                        "/var/log/puppetlabs/puppetserver/metrics.json",
+                        "/var/log/puppetlabs/puppetserver/gc.log"
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
                 server_heap_settings: "-Xms4g -Xmx4g",
@@ -58,7 +59,8 @@ pipeline.multipass_pipeline([
                         "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh"
                 ],
                 archive_sut_files: [
-                        "/var/log/puppetlabs/puppetserver/metrics.json"
+                        "/var/log/puppetlabs/puppetserver/metrics.json",
+                        "/var/log/puppetlabs/puppetserver/gc.log"
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
                 server_heap_settings: "-Xms8g -Xmx8g",
@@ -91,7 +93,8 @@ pipeline.multipass_pipeline([
                         "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh"
                 ],
                 archive_sut_files: [
-                        "/var/log/puppetlabs/puppetserver/metrics.json"
+                        "/var/log/puppetlabs/puppetserver/metrics.json",
+                        "/var/log/puppetlabs/puppetserver/gc.log"
                 ],
                 jruby_jar: "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar",
                 server_heap_settings: "-Xms12g -Xmx12g",

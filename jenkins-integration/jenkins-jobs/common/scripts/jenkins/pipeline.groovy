@@ -382,9 +382,18 @@ def step110_collect_sut_artifacts(script_dir, job_name, archive_sut_files) {
         for (f in archive_sut_files) {
             String filename = get_filename(f);
             String filePath = "puppet-gatling/${job_name}/sut_archive_files/${filename}"
-            echo "Archiving SUT file: '${filePath}'"
-            sh "if [ ! -f './${filePath}' ] ; then echo 'ERROR! FILE DOES NOT EXIST!'; false ; fi"
-            archive "${filePath}"
+            if (fileExists(filePath)) {
+                echo "Archiving SUT file: '${filePath}'"
+                sh "if [ ! -f './${filePath}' ] ; then echo 'ERROR! FILE DOES NOT EXIST!'; false; fi"
+                archive "${filePath}"
+            } else {
+                echo "Not archiving SUT file: '${filePath}' as it does not exist!"
+            }
+
+        }
+        // Clean up the sut_archive_files so they don't appear in the next run by accident
+        dir("puppet-gatling/${job_name}/sut_archive_files") {
+            deleteDir()
         }
     }
 }

@@ -10,7 +10,11 @@ step "Copy archive files from SUT" do
   FileUtils.mkdir_p(archive_dir)
 
   archive_files.each do |s|
-    Beaker::Log.notify("Copying archive file '#{s}'")
-    scp_from(master, s, archive_dir)
+    if on(master, "test -f '#{s}'", :acceptable_exit_codes => [0,1]).exit_code == 0
+      Beaker::Log.notify("Copying archive file '#{s}'")
+      scp_from(master, s, archive_dir)
+    else
+      Beaker::Log.warn("Not copying archive file '#{s}' as it does not seem to exist")
+    end
   end
 end

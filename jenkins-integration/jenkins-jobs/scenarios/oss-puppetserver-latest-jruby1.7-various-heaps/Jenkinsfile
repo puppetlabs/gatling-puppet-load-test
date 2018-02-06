@@ -6,7 +6,7 @@ node {
 pipeline.multipass_pipeline([
         [
                 job_name: 'oss-latest-1.7-4g-heap',
-                gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1250-2-hours.json',
+                gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1200-2-hours.json',
                 server_version: [
                         type: "oss",
                         version: "latest"
@@ -32,7 +32,7 @@ pipeline.multipass_pipeline([
         ],
         [
                 job_name: 'oss-latest-1.7-8g-heap',
-                gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1250-2-hours.json',
+                gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1200-2-hours.json',
                 server_version: [
                         type: "oss",
                         version: "latest"
@@ -58,7 +58,7 @@ pipeline.multipass_pipeline([
         ],
         [
                 job_name: 'oss-latest-1.7-12g-heap',
-                gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1250-2-hours.json',
+                gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1200-2-hours.json',
                 server_version: [
                         type: "oss",
                         version: "latest"

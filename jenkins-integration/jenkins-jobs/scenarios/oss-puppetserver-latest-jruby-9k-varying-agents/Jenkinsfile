@@ -6,7 +6,7 @@ node {
 pipeline.multipass_pipeline([
         [
                 job_name: 'oss-latest-jruby-9k-500-agents',
-                gatling_simulation_config: '../simulation-runner/config/scenarios/foss25x-medium-500-2-hours.json',
+                gatling_simulation_config: '../simulation-runner/config/scenarios/foss25x-medium-600-2-hours.json',
                 server_version: [
                         type: "oss",
                         version: "latest"
@@ -37,7 +37,7 @@ pipeline.multipass_pipeline([
         ],
         [
                 job_name: 'oss-latest-jruby-9k-1000-agents',
-                gatling_simulation_config: '../simulation-runner/config/scenarios/foss25x-medium-1000-2-hours.json',
+                gatling_simulation_config: '../simulation-runner/config/scenarios/foss25x-medium-900-2-hours.json',
                 server_version: [
                         type: "oss",
                         version: "latest"
@@ -68,7 +68,7 @@ pipeline.multipass_pipeline([
         ],
         [
                 job_name: 'oss-latest-jruby-9k-1250-agents',
-                gatling_simulation_config: '../simulation-runner/config/scenarios/foss25x-medium-1250-2-hours.json',
+                gatling_simulation_config: '../simulation-runner/config/scenarios/foss25x-medium-1200-2-hours.json',
                 server_version: [
                         type: "oss",
                         version: "latest"

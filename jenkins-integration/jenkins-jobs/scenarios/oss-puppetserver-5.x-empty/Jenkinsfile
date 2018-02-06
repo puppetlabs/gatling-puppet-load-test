@@ -5,7 +5,7 @@ node {
 
 pipeline.single_pipeline([
         job_name: 'oss-5.x-puppetserver-empty',
-        gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-empty-500-2-hours.json',
+        gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-empty-600-2-hours.json',
         server_version: [
                 type: "oss",
                 version: "5\\.\\d+\\.\\d+.SNAPSHOT"

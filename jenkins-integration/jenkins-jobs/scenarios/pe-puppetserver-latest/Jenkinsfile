@@ -7,7 +7,7 @@ pipeline.single_pipeline([
         job_name: 'pe-latest',
         // TODO: take a new recording for flanders, just using the existing couch
         // recording right now to get things up and running.
-        gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-1250-2-hours.json',
+        gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-1200-2-hours.json',
         server_version: [
                 type: "pe",
                 pe_version: "2017.1",

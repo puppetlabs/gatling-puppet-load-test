@@ -16,7 +16,7 @@ Here is an example "scenario" configuration file:
     "nodes": [
         {
             "node_config": "PECouchPerfMedium.json",
-            "num_instances": 1250,
+            "num_instances": 1200,
             "ramp_up_duration_seconds": 1800,
             "num_repetitions": 4,
             "sleep_duration_seconds": 1800
@@ -34,8 +34,11 @@ Here is a breakdown of the fields:
   * `node_config`: this is the name of the node config json file in [the `../nodes` directory](../nodes).  This ends up
    providing us with the information about how to create and classify a node group for this node, as well as indicating
    which Gatling recording we should be playing back.
-  * `num_instance`: this tells gatling how many concurrent instances of this particular node to simulate.  This is basically
+  * `num_instances`: this tells gatling how many concurrent instances of this particular node to simulate.  This is basically
    equivalent to specifying the number of agents that will be running against our Puppet Server instance during the test.
+   NOTE: Due to issues with how gatling distributes agents, choosing a value for `num_instances` that does not divide
+   `ramp_up_duration_seconds` will result in gaps between intervals or extra agents at the end of intervals. This can be
+   avoided by choosing, for example, 100, 200, 300, 600, 900, 1200, 1500, 1800 for an 1800 second `ramp_up_duration_seconds`.
   * `ramp_up_duration_seconds`: this is akin to puppet's `splay` setting.  Gatling will spread out the initial launching
    of the simulated agents, evenly, over this amount of time.  We typically set this to 30 minutes (1800 seconds), meaning
    that the load will be distributed roughly evenly over a 30-minute interval, because this mimics the puppet agent's

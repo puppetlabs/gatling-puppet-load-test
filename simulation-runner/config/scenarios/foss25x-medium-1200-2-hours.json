@@ -1,9 +1,9 @@
 {
-    "run_description": "'medium' role from perf control repo, 1250 agents, 2 hours",
+    "run_description": "'medium' role from perf control repo, 1200 agents, 2 hours",
     "nodes": [
         {
             "node_config": "FOSS25xPerfMedium.json",
-            "num_instances": 1250,
+            "num_instances": 1200,
             "ramp_up_duration_seconds": 1800,
             "num_repetitions": 4,
             "sleep_duration_seconds": 1800

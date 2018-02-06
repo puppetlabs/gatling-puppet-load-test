@@ -1,5 +1,5 @@
 {
-    "run_description": "'role::by_size_large' role from perf control repo, 750 agents, 8 iterations",
+    "run_description": "'role::by_size_large' role from perf control repo, 600 agents, 8 iterations",
     "nodes": [
         {
             "node_config": "PerfTestLarge.json",

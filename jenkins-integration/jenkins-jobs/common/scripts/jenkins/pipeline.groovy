@@ -322,8 +322,18 @@ def step080_customize_java_args(script_dir, server_heap_settings, server_era) {
 
 def step081_customize_jruby_jar(script_dir, jruby_jar, server_era) {
     def jar_string = ""
+    def JRUBY_VERSION_SET = true
 
-    if ("${JRUBY_VERSION}" == "") {
+    // This garbage can be replaced with either getBinding().hasVariable("JRUBY_VERSION")
+    // or via a params map (params.JRUBY_VERSION == null)
+    // https://wiki.jenkins.io/display/JENKINS/Pipeline+Groovy+Plugin#PipelineGroovyPlugin-2.18%28Sep23%2C2016%29
+    try {
+        println("JRUBY_VERSION is ${JRUBY_VERSION}")
+    } catch (MissingPropertyException e) {
+        JRUBY_VERSION_SET = false
+    }
+
+    if (!JRUBY_VERSION_SET) {
         // Setting the jruby jar to an empty string will effectively cause the
         // beaker script to tell puppetserver to use the default jar path
         jar_string = jruby_jar ?: ""

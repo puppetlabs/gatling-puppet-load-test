@@ -1,0 +1,10 @@
+{
+ "name": "puppetserver-perf-sut-small",
+ "hostname": "perf-bl${id}.delivery.puppetlabs.net",
+ "root-password": "puppet",
+ "tags": "puppetserver-perf-sut-small",
+ "repo": "centos-7",
+ "task": "puppetserver-sut-centos/7",
+ "broker": "puppetserver-perf-sut",
+ "node_metadata": {"sut_size": "small"}
+}

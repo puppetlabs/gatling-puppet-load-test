@@ -579,4 +579,69 @@ def multipass_pipeline(jobs) {
     }
 }
 
+def spin_up_puppetserver(job) {
+    // This is just a way of setting up a system that's easy to try stuff out
+    // with, reusing much of what we've written for the gatling tests. It won't
+    // actually run gatling.
+    node {
+        checkout scm
+
+        SKIP_SERVER_INSTALL = (SKIP_SERVER_INSTALL == "true")
+        SKIP_PROVISIONING = (SKIP_PROVISIONING == "true")
+
+        job_name = job['job_name']
+
+        stage '000-provision-sut'
+        step000_provision_sut(SKIP_PROVISIONING, SCRIPT_DIR)
+
+        stage '010-setup-beaker'
+        step010_setup_beaker(SCRIPT_DIR, job["server_version"])
+
+        server_era = get_server_era(job["server_version"])
+        agent_version = get_agent_version(job["agent_version"])
+
+        stage '020-install-server'
+        step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era, agent_version)
+
+        stage '025-collect-facter-data'
+        step025_collect_facter_data(job_name,
+                job['gatling_simulation_config'],
+                SCRIPT_DIR,
+                server_era)
+
+        stage '040-install-puppet-code'
+        step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
+
+        stage '045-install-hiera-config'
+        step045_install_hiera_config(SCRIPT_DIR, job["code_deploy"], server_era)
+
+        stage '050-file-sync'
+        step050_file_sync(SCRIPT_DIR, server_era)
+
+        stage '060-classify-nodes'
+        step060_classify_nodes(SCRIPT_DIR,
+                job["gatling_simulation_config"],
+                server_era)
+
+        stage '070-validate-classification'
+        step070_validate_classification()
+
+        stage '075-customize-puppet-settings'
+        step075_customize_puppet_settings(SCRIPT_DIR, job['puppet_settings'])
+
+        stage '080-customize-java-args'
+        step080_customize_java_args(SCRIPT_DIR, job["server_heap_settings"], server_era)
+
+        stage '081-customize-jruby-jar'
+        step081_customize_jruby_jar(SCRIPT_DIR, job["jruby_jar"], server_era)
+
+        stage '085-customize-hocon-settings'
+        step085_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'], server_era)
+
+        stage '090-launch-bg-scripts'
+        step090_launch_bg_scripts(SCRIPT_DIR, job['background_scripts'])
+    }
+}
+
+
 return this;

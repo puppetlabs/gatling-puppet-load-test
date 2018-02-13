@@ -23,6 +23,15 @@ case $SUT_HOST in
   puppetserver-perf-sut57.delivery.puppetlabs.net)
     RAZOR_NODE="node57"
     ;;
+  perf-bl11.delivery.puppetlabs.net)
+    RAZOR_NODE="node3994"
+    ;;
+  perf-bl12.delivery.puppetlabs.net)
+    RAZOR_NODE="node3995"
+    ;;
+  perf-bl13.delivery.puppetlabs.net)
+    RAZOR_NODE="node3996"
+    ;;
   *)
     echo "Unrecognized SUT_HOST: '${SUT_HOST}'!!  Don't know how to request razor reprovisioning."
     exit 1

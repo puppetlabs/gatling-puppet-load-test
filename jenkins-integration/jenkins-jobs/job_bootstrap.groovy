@@ -104,8 +104,8 @@ scenarios_dir.eachFileRecurse (FileType.FILES) { file ->
                         '',
                         'Setting to override the heap java args for a run.')
                 stringParam('JAVA_ARGS_ADDITIONS',
-                        '-XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/puppetlabs/puppetserver/gc.log',
-                        'Custom java args to use for our friendly server. Will be added onto existing JAVA_ARGS for the job. Please be kind. Defaults to some good gc logging.')
+                        '-XX:+PrintTenuringDistribution -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/puppetlabs/puppetserver/gc.log',
+                        'Custom java args to use for our friendly server. Will be added onto existing JAVA_ARGS for the job. Please be kind. Defaults to some really good gc logging.')
                 booleanParam('SKIP_SERVER_INSTALL', false, 'If checked, will skip over the PE/OSS Server Install step.  Useful if you are doing development and already have a server SUT.')
                 booleanParam('SKIP_PROVISIONING', false, 'If checked, will skip over the Razor provisioning step.  Useful if you already have an SUT provisioned, e.g. via the VM Pooler.')
             }

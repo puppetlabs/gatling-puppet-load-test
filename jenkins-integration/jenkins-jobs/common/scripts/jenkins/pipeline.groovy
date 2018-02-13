@@ -321,9 +321,21 @@ def step080_customize_java_args(script_dir, server_heap_settings, server_era) {
 }
 
 def step081_customize_jruby_jar(script_dir, jruby_jar, server_era) {
-    // Setting the jruby jar to an empty string will effectively cause the
-    // beaker script to tell puppetserver to use the default jar path
-    def jar_string = jruby_jar ?: ""
+    def jar_string = ""
+
+    if ("${JRUBY_VERSION}" == "") {
+        // Setting the jruby jar to an empty string will effectively cause the
+        // beaker script to tell puppetserver to use the default jar path
+        jar_string = jruby_jar ?: ""
+    } else {
+        // This branch indicates there is a JRUBY_VERSION parameter on the jenkins job,
+        // so we use that instead.
+        if ("${JRUBY_VERSION}" == "1.7") {
+            jar_string = "/opt/puppetlabs/server/apps/puppetserver/jruby-1_7.jar"
+        } else if ("${JRUBY_VERSION}" == "9k") {
+            jar_string = "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar"
+        }
+    }
 
     withEnv(["PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}",
              "PUPPET_GATLING_JRUBY_JAR=${jar_string}"

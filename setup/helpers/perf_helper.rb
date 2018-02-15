@@ -48,9 +48,11 @@ module PerfHelper
     end
 
     step 'ensure iptables chkconfig is disabled on el6' do
-      if :platform == 'el-6-x86_64'
-        on hosts, 'chkconfig iptables off'
-      end
+      hosts.each { |host|
+        if host['platform'] == 'el-6-x86_64'
+          on host, 'chkconfig iptables off'
+        end
+      }
     end
   end
 

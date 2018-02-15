@@ -8,10 +8,10 @@ pipeline.single_pipeline([
         gatling_simulation_config: '../simulation-runner/config/scenarios/foss5x-medium-1200-2-hours.json',
         server_version: [
                 type: "oss",
-                version: "latest"
+                version: "5.2.0"
         ],
         agent_version: [
-                version: "latest"
+                version: "5.4.0"
         ],
         code_deploy: [
                 type: "r10k",

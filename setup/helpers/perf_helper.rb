@@ -669,7 +669,7 @@ authorization: {
       on metric, 'yum -y install java-1.8.0-openjdk java-1.8.0-openjdk-devel xauth'
     end
     step 'install scala build tool (sbt)' do
-      on metric, 'rpm -ivh http://dl.bintray.com/sbt/rpm/sbt-0.13.16.rpm'
+      on metric, 'rpm -ivh http://dl.bintray.com/sbt/rpm/sbt-0.13.7.rpm'
     end
     step 'install rvm, bundler' do
       on metric, 'gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3'
@@ -697,6 +697,7 @@ authorization: {
       scp_to(metric, 'simulation-runner/target/ssl', 'gatling-puppet-load-test/simulation-runner/target/ssl')
     end
     step 'adjust scala build tool mem' do
+      metric.mkdir_p '/usr/share/sbt/conf/'
       on metric, "echo '-mem   2048' >> /usr/share/sbt/conf/sbtopts"
     end
   end

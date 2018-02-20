@@ -4,6 +4,9 @@ task :default => :performance
 
 desc 'Run Performance setup'
 rototiller_task :performance do |t|
+  raise "The BEAKER_INSTALL_TYPE env var must be set to either 'pe' or 'foss' to continue" unless
+      ENV['BEAKER_INSTALL_TYPE'] == 'pe' || ENV['BEAKER_INSTALL_TYPE'] == 'foss'
+
   t.add_env({:name => 'BEAKER_PE_DIR', :message => 'The PE download directory, example: http://enterprise.delivery.puppetlabs.net/archives/releases/2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'BEAKER_PE_VER', :message => 'The PE version to install on hosts, example: 2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'ENVIRONMENT_TYPE', :message => 'Either gatling or clamps', :default => 'gatling'})
@@ -65,6 +68,16 @@ rototiller_task :performance do |t|
         option.add_argument do |arg|
           arg.name = default_setup
           arg.add_env({:name => 'BEAKER_PRE_SUITE'})
+        end
+      end
+    end
+    unless ENV['BEAKER_POST_SUITE'] == ''
+      command.add_option do |option|
+        option.name = '--post-suite'
+        option.message = 'Beaker post-suite'
+        option.add_argument do |arg|
+          arg.name = 'post/zzz_copy_sut_archive_files.rb'
+          arg.add_env({:name => 'BEAKER_POST_SUITE'})
         end
       end
     end

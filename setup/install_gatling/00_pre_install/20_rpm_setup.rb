@@ -33,11 +33,6 @@ test_name 'Setup and configure machines for metrics gathering' do
     on hosts, 'yum install -y lsof || true'
   end
 
-  step 'enable atop service' do
-    on hosts, 'chkconfig atop on'
-    on hosts, 'service atop start'
-  end
-
   step 'ensure iptables chkconfig is disabled on el6' do
     if :platform == 'el-6-x86_64'
       on hosts, 'chkconfig iptables off'

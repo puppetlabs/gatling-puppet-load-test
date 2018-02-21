@@ -432,6 +432,26 @@ def step900_collect_driver_artifacts() {
     }
 }
 
+def step905_publish_artifacts_to_s3(script_dir, job_name) {
+    def archive_dir = job_name + '-' + (new Date().format("yyyy-MM-dd-HH:mm:ss"))
+    sh "mkdir -p ${archive_dir}/results"
+    sh "cp -R ./puppet-gatling/${job_name}/sut_archive_files ${archive_dir}"
+    sh "cp simulation-runner/results/**/*.log.gz ${archive_dir}/results"
+    step([
+        $class: 'S3BucketPublisher',
+        entries: [
+            [
+                bucket: 'puppetserver-perf-data',
+                selectedRegion: 'us-west-2',
+                sourceFile: "${archive_dir}",
+                storageClass: 'STANDARD',
+            ]
+        ],
+        profileName: 'Jenkins_coordinator_machine_account',
+        userMetadata: []
+    ])
+}
+
 SCRIPT_DIR = "./jenkins-integration/jenkins-jobs/common/scripts/job-steps"
 
 def single_pipeline(job) {
@@ -518,6 +538,9 @@ def single_pipeline(job) {
 
         stage '900-collect-driver-artifacts'
         step900_collect_driver_artifacts()
+
+        stage '905-publish-artifacts-to-s3'
+        step905_publish_artifacts_to_s3()
     }
 }
 

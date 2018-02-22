@@ -13,7 +13,7 @@ node {
         entries: [
             [
                 bucket: 'puppetserver-perf-data',
-                selectedRegion: 'us-west-1',
+                selectedRegion: 'us-west-2',
                 sourceFile: 'hello.txt, hello_again.txt, greetings/**',
                 storageClass: 'STANDARD',
             ]

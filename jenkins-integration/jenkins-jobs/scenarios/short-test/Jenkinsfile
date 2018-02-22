@@ -1,0 +1,20 @@
+node {
+    checkout scm
+
+    stage '001-create-file'
+    sh "echo 'hello!' > hello.txt"
+
+    stage '002-upload-to-s3'
+    step([
+        $class: 'S3BucketPublisher',
+        entries: [
+            [
+                bucket: 'puppetserver-perf-data',
+                selectedRegion: 'us-west-1',
+                sourceFile: 'hello.txt',
+                storageClass: 'STANDARD',
+            ]
+        ],
+        profileName: 'Jenkins_coordinator_machine_account'
+    ])
+}

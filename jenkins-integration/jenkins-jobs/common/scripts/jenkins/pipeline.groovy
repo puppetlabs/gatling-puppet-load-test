@@ -603,12 +603,6 @@ def spin_up_puppetserver(job) {
         stage '020-install-server'
         step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR, server_era, agent_version)
 
-        stage '025-collect-facter-data'
-        step025_collect_facter_data(job_name,
-                job['gatling_simulation_config'],
-                SCRIPT_DIR,
-                server_era)
-
         stage '040-install-puppet-code'
         step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
 
@@ -617,14 +611,6 @@ def spin_up_puppetserver(job) {
 
         stage '050-file-sync'
         step050_file_sync(SCRIPT_DIR, server_era)
-
-        stage '060-classify-nodes'
-        step060_classify_nodes(SCRIPT_DIR,
-                job["gatling_simulation_config"],
-                server_era)
-
-        stage '070-validate-classification'
-        step070_validate_classification()
 
         stage '075-customize-puppet-settings'
         step075_customize_puppet_settings(SCRIPT_DIR, job['puppet_settings'])

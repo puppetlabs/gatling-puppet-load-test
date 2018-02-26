@@ -685,6 +685,9 @@ authorization: {
       on master, "echo \"#{key}\" >> /root/.ssh/authorized_keys"
       # on metric, "ssh-copy-id root@#{master.hostname}"
     end
+    step 'update nss, curl and libcurl to support ssh to github' do
+      on metric, 'yum update -y nss curl libcurl'
+    end
     step 'install git' do
       on metric, 'yum install -y git'
     end

@@ -24,6 +24,8 @@ step "Cleanup the directory first"
 on(master, 'rm -rf puppet')
 
 step "Cloning desired puppet repo '#{ENV['PUPPET_REMOTE']}'"
+# Add github known_hosts entry otherwise host verification will fail
+on(master, "ssh-keyscan -H github.com >> ~/.ssh/known_hosts")
 clone_puppet_repo(ENV['PUPPET_REMOTE'])
 
 step "Checking out desired ref '#{ENV['PUPPET_REF']} from puppet repo"

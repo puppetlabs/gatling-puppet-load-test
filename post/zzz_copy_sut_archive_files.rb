@@ -17,7 +17,7 @@ step "Copy archive files from SUT" do
 
   # Archive the gatling result htmls from the metrics box and the atop results from the master (which are already copied locally)
   if (Dir.exist?("tmp/atop/#{@@session_timestamp}/#{master.hostname}"))
-    Dir.mkdir_p "#{archive_root}/#{master.hostname}"
+    FileUtils.mkdir_p "#{archive_root}/#{master.hostname}"
     FileUtils.cp_r "tmp/atop/#{@@session_timestamp}/#{master.hostname}", "#{archive_root}/#{master.hostname}"
     archive_file_from(metric, '/root/gatling-puppet-load-test/simulation-runner/results', {}, archive_root, archive_name)
   end

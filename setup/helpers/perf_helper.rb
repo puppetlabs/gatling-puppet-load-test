@@ -42,11 +42,6 @@ module PerfHelper
       on agents, 'yum install -y nc || true'
     end
 
-    step 'install atop, lsof for metrics gathering' do
-      on hosts, 'yum install -y atop || true'
-      on hosts, 'yum install -y lsof || true'
-    end
-
     step 'ensure iptables chkconfig is disabled on el6' do
       hosts.each { |host|
         if host['platform'] == 'el-6-x86_64'

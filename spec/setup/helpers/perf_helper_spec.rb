@@ -34,10 +34,6 @@ describe PerfHelperClass do
       expect(subject).to receive(:on).with(hosts, 'setenforce 0 || true').once
       expect(subject).to receive(:on).with(hosts, "sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/sysconfig/selinux && cat /etc/sysconfig/selinux").once
       expect(subject).to receive(:on).with(hosts, 'yum install -y nc || true').once
-      expect(subject).to receive(:on).with(hosts, 'yum install -y atop || true').once
-      expect(subject).to receive(:on).with(hosts, 'yum install -y lsof || true').once
-      expect(subject).to receive(:on).with(hosts, 'chkconfig atop on').once
-      expect(subject).to receive(:on).with(hosts, 'service atop start').once
       subject.install_epel_packages
     end
 

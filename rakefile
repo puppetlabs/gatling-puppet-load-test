@@ -1,13 +1,80 @@
 require 'rototiller'
 require 'rspec/core/rake_task'
+require 'net/http'
+require 'timeout'
+require 'json'
+
+BASE_ABS_URI = 'https://cinext-abs.delivery.puppetlabs.net/api/v2/'
 
 task :default => :performance
 
-desc 'Run Performance setup'
-rototiller_task :performance do |t|
+desc 'Provision systems using ABS (or use already set ABS_RESOURCE_HOSTS) and then execute beaker performance setup and tests'
+rototiller_task :performance do
+  Rake::Task["performance_provision_with_abs"].execute unless ENV['ABS_RESOURCE_HOSTS']
+  Rake::Task["performance_without_provision"].execute
+  Rake::Task["performance_deprovision_with_abs"].execute unless ENV['BEAKER_PRESERVE_HOSTS'] == 'always' || ((@beaker_cmd.nil? || @beaker_cmd.result.exit_code != 0) && ENV['BEAKER_PRESERVE_HOSTS'] == 'onfail')
+end
+
+
+def retry_abs_request(uri, body, timeout, time_increment, invalid_response_bodies = [], valid_response_codes = [202, 200])
+  req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
+  req.body = body
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+
+  puts "sending request body: #{body}"
+  puts "to uri: #{uri}"
+
+  res = nil
+  Timeout::timeout(timeout) do
+    while res.nil? || invalid_response_bodies.include?(res.body) || !valid_response_codes.include?(res.code)
+      begin
+        res = http.request(req)
+      rescue => ex
+        puts ex
+        puts ex.backtrace
+      end
+      if res.nil? || invalid_response_bodies.include?(res.body)
+        puts "#{Time.now} - Retrying ABS request..."
+        sleep(time_increment)
+      else
+        break
+      end
+    end
+  end
+  res
+end
+
+desc 'Provision systems for the performance task with ABS - included in the performance task'
+rototiller_task :performance_provision_with_abs do
+  # Creating a random job id, since this is required by ABS and needs to be unique. In CI, this task will not be executed.
+  ENV['ABS_JOB_ID'] = rand(100000..999999).to_s unless ENV['ABS_JOB_ID']
+  uri = URI("#{BASE_ABS_URI}request")
+  req_body = {'resources': {'centos-7-x86-64-west': 2},'job': { 'id': "#{ENV['ABS_JOB_ID']}", 'tags': {'user': "#{ENV['USER']}"}}}.to_json
+
+  # Wait up to 20 minutes for a response from ABS with provisioned hosts
+  res = retry_abs_request(uri, req_body, 1200, 10, ['', nil])
+
+  ENV['ABS_RESOURCE_HOSTS'] = res.body
+  puts "ABS_RESOURCE_HOSTS=#{ENV['ABS_RESOURCE_HOSTS']}"
+end
+
+desc 'Task to deprovision systems that were provisioned with ABS - included in the performance task following the rules of BEAKER_PRESERVE_HOSTS env var.'
+rototiller_task :performance_deprovision_with_abs do
+  raise 'performance_deprovision_with_abs task requires values for env variables: ABS_RESOURCE_HOSTS and ABS_JOB_ID' unless ENV['ABS_RESOURCE_HOSTS'] && ENV['ABS_JOB_ID']
+  uri = URI("#{BASE_ABS_URI}return")
+  req_body = {'job_id': ENV['ABS_JOB_ID'], 'hosts': JSON.parse(ENV['ABS_RESOURCE_HOSTS'])}.to_json
+
+  # Wait up to 30 seconds for a non error response from ABS when de-provisioning
+  retry_abs_request(uri, req_body, 30, 5)
+end
+
+desc 'Execute beaker performance setup and tests against existing hosts specified by ABS_RESOURCE_HOSTS env var, intended to be used in CI - use task "performance" for local/dev execution'
+rototiller_task :performance_without_provision do |t|
   raise "The BEAKER_INSTALL_TYPE env var must be set to either 'pe' or 'foss' to continue" unless
       ENV['BEAKER_INSTALL_TYPE'] == 'pe' || ENV['BEAKER_INSTALL_TYPE'] == 'foss'
 
+  t.add_env({:name => 'ABS_RESOURCE_HOSTS', :message => 'The string returned from the ABS service describing your hosts'})
   t.add_env({:name => 'BEAKER_PE_DIR', :message => 'The PE download directory, example: http://enterprise.delivery.puppetlabs.net/archives/releases/2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'BEAKER_PE_VER', :message => 'The PE version to install on hosts, example: 2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'ENVIRONMENT_TYPE', :message => 'Either gatling or clamps', :default => 'gatling'})
@@ -33,7 +100,7 @@ rototiller_task :performance do |t|
   end
 
   # env vars needed for Beaker
-  t.add_command do |command|
+  @beaker_cmd = t.add_command do |command|
     command.name = "bundle exec beaker"
     command.add_env({:name => 'BEAKER_EXECUTABLE'})
 
@@ -104,7 +171,7 @@ rototiller_task :performance do |t|
     end
     command.add_option do |option|
       option.name = '--preserve-hosts'
-      option.message = 'Whether to preserve hosts or not'
+      option.message = 'Whether to preserve hosts or not, if using the default ABS workflow, this will not be respected.'
       option.add_argument do |arg|
         arg.name = 'always'
         arg.add_env({:name => 'BEAKER_PRESERVE_HOSTS'})
@@ -125,6 +192,7 @@ rototiller_task :performance do |t|
     # setup/helpers/classification_helper.rb,setup/helpers/ldap_helper.rb,setup/helpers/gatling_config_helper.rb
     # --preserve-hosts always --type pe"
   end
+
 end
 
 desc 'Run Performance setup for clamps'
@@ -151,4 +219,3 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = ['--color']
   t.pattern = 'spec/'
 end
-

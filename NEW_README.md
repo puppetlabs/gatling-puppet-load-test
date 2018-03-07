@@ -7,15 +7,12 @@ At the end of the run, the gatling results and atop results will be copied back 
 * Clone the gatling-puppet-load-test repo locally: https://github.com/puppetlabs/gatling-puppet-load-test
 * cd into the gatling-puppet-load-test root directory
 * For apples to apples runs, you can use the checked-in hosts files: pe-perf-test.cfg or foss-perf-test.cfg (default for the performance rake task).
+* In order for us to take advantage of the new AWS account with access to internal network resources, you need to use ABS. The 'performance' task will automatically use ABS to provision 2 AWS instances and then execute tests against those instances.
+* If the hosts are preserved via Beaker's 'preserve_hosts' setting, then you will need to manually execute the 'performance_deprovision_with_abs' rake task when you are done with the hosts.
 * For a run against a PE build set BEAKER_INSTALL_TYPE=pe and provide values for BEAKER_PE_VER and BEAKER_PE_DIR environment variables
 * For a run against a FOSS build set BEAKER_INSTALL_TYPE=foss and provide values for PACKAGE_BUILD_VERSION and PUPPET_AGENT_VERSION environment variables
 * If you want to do something custom (which should not normally be necessary): create a beaker config file using one of the configs in this directory as a template: https://github.com/puppetlabs/gatling-puppet-load-test/blob/master/config/beaker_hosts/
     *  export BEAKER_HOSTS=\<your hosts file>
-* If you are using an aws puppet-bastion account
-    * Assume the ESO role
-        * aws sts assume-role --role-arn arn:aws:iam::028918822489:role/\<user> --role-session-name example --serial-number arn:aws:iam::103716600232:mfa/\<user> --token-code \<mfa token code>
-        * Place the returned creds in your .fog file
-            * Beaker-aws will look for the aws_access_key_id, aws_secret_access_key and aws_session_token keys
 * Execute:
     * bundle install
     * bundle exec rake performance_gatling (takes about 2 hours)
@@ -23,7 +20,7 @@ At the end of the run, the gatling results and atop results will be copied back 
 ### Set up Puppet Enterprise and Gatling but do not execute a gatling scenario
 Another use for the performance task would be to record and playback a new scenario either for one-off testing,
 or for a new scenario that will be checked in and used.  Additionally, you may just want to execute the setup standalone and then execute the tests later.
-* Follow the above instructions, but also `export BEAKER_TESTS=` prior to executing the rake task to tell beaker not to execute any tests.
+* Follow the above instructions, but also `export BEAKER_TESTS=` and `BEAKER_PRESERVE_HOSTS=true` prior to executing the rake task to tell beaker not to execute any tests and preserve the machines.
 
 ### Record a Gatling run:
 Assuming that you ran the performance task with no tests, you can follow the directions below to record and then play back a recording manually.

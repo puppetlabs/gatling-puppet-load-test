@@ -15,12 +15,18 @@ At the end of the run, the gatling results and atop results will be copied back 
     *  export BEAKER_HOSTS=\<your hosts file>
 * Execute:
     * bundle install
-    * bundle exec rake performance_gatling (takes about 2 hours)
+    * bundle exec rake performance_gatling (takes about 4 hours)
+
+### Acceptance tests
+You can execute the 'acceptance' rake task which will run everything in VMPooler rather than AWS and do a much shorter gatling run. This is useful for quickly testing changes to the performance test setup. If you need to execute acceptance tests in the AWS environment, you can set the following env vars:
+
+`ABS_OS=centos-7-x86-64-west BEAKER_HOSTS=config/beaker_hosts/pe-perf-test.cfg`
 
 ### Set up Puppet Enterprise and Gatling but do not execute a gatling scenario
 Another use for the performance task would be to record and playback a new scenario either for one-off testing,
 or for a new scenario that will be checked in and used.  Additionally, you may just want to execute the setup standalone and then execute the tests later.
 * Follow the above instructions, but also `export BEAKER_TESTS=` and `BEAKER_PRESERVE_HOSTS=true` prior to executing the rake task to tell beaker not to execute any tests and preserve the machines.
+* Depending on your use case, you can also choose to execute the 'acceptance' task which will run in vmpooler rather than AWS. This is useful when testing/debugging but not for actual performance measurement.
 
 ### Record a Gatling run:
 Assuming that you ran the performance task with no tests, you can follow the directions below to record and then play back a recording manually.

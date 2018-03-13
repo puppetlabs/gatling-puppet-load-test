@@ -12,9 +12,10 @@ desc 'Provision systems using ABS (or use already set ABS_RESOURCE_HOSTS) and th
 rototiller_task :performance do
   Rake::Task["performance_provision_with_abs"].execute unless ENV['ABS_RESOURCE_HOSTS']
   Rake::Task["performance_without_provision"].execute
-  Rake::Task["performance_deprovision_with_abs"].execute unless ENV['BEAKER_PRESERVE_HOSTS'] == 'always' || ((@beaker_cmd.nil? || @beaker_cmd.result.exit_code != 0) && ENV['BEAKER_PRESERVE_HOSTS'] == 'onfail')
+  Rake::Task["performance_deprovision_with_abs"].execute unless ENV['BEAKER_PRESERVE_HOSTS'] == 'always' ||
+      ((@beaker_cmd.nil? || @beaker_cmd.result.exit_code != 0)&&
+          ENV['BEAKER_PRESERVE_HOSTS'] == 'onfail')
 end
-
 
 def retry_abs_request(uri, body, timeout, time_increment, invalid_response_bodies = [], valid_response_codes = [202, 200])
   req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
@@ -46,11 +47,15 @@ def retry_abs_request(uri, body, timeout, time_increment, invalid_response_bodie
 end
 
 desc 'Provision systems for the performance task with ABS - included in the performance task'
-rototiller_task :performance_provision_with_abs do
+rototiller_task :performance_provision_with_abs do |t|
+  t.add_env({:name => 'ABS_OS', :default => 'centos-7-x86-64-west', :message => 'The OS to provision with ABS: centos-7-x86-64-west (for AWS), or centos-7-x86_64 (for vmpooler)'})
   # Creating a random job id, since this is required by ABS and needs to be unique. In CI, this task will not be executed.
   ENV['ABS_JOB_ID'] = rand(100000..999999).to_s unless ENV['ABS_JOB_ID']
   uri = URI("#{BASE_ABS_URI}request")
-  req_body = {'resources': {'centos-7-x86-64-west': 2},'job': { 'id': "#{ENV['ABS_JOB_ID']}", 'tags': {'user': "#{ENV['USER']}"}}}.to_json
+
+  # Allows us to switch between AWS and VMPooler by selecting different ABS os's.
+  # centos-7-x86-64-west is an AWS image, centos-7-x86_64 is vmpooler
+  req_body = {'resources': {"#{ENV['ABS_OS']}": 2},'job': { 'id': "#{ENV['ABS_JOB_ID']}", 'tags': {'user': "#{ENV['USER']}"}}}.to_json
 
   # Wait up to 20 minutes for a response from ABS with provisioned hosts
   res = retry_abs_request(uri, req_body, 1200, 10, ['', nil])
@@ -171,7 +176,7 @@ rototiller_task :performance_without_provision do |t|
     end
     command.add_option do |option|
       option.name = '--preserve-hosts'
-      option.message = 'Whether to preserve hosts or not, if using the default ABS workflow, this will not be respected.'
+      option.message = 'Whether to preserve hosts or not.'
       option.add_argument do |arg|
         arg.name = 'always'
         arg.add_env({:name => 'BEAKER_PRESERVE_HOSTS'})
@@ -211,6 +216,9 @@ desc 'Run Performance setup and a very short iteration of gatling tests'
 rototiller_task :acceptance do |t|
   ENV['ENVIRONMENT_TYPE'] = 'gatling'
   ENV['PUPPET_GATLING_SCENARIO'] = 'acceptance.json'
+  ENV['BEAKER_HOSTS'] ||= 'config/beaker_hosts/pe-vmpooler.cfg'
+  # Need to change this from an AWS OS image to a vmpooler OS image
+  ENV['ABS_OS'] ||= 'centos-7-x86_64'
   Rake::Task["performance"].execute
 end
 

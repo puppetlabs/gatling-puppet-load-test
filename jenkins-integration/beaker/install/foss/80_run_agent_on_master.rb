@@ -5,5 +5,9 @@ test_name 'Run puppet agent on the master to prime directories' do
   # ahead of the Gatling run avoids collisions in the priming that can happen
   # when multiple agent runs happen at the same time.  See PUP-6651 for more
   # information.
-  on(master, "puppet agent -t --server #{master}")
+  #
+  # We have to use `hostname` here instead of "master" because some of the
+  # perf blades use their razor ID as their hostname instead of the node
+  # name used by beaker, which comes from DNS.
+  on(master, "puppet agent -t --server `hostname`")
 end

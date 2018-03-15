@@ -2,11 +2,9 @@ require 'scooter'
 require 'tmpdir'
 require 'yaml'
 require 'beaker'
+require 'net/http'
 
 module PerfHelper
-  def perf_init
-    @install_opts = options.merge( { :dev_builds_repos => ["PC1"] })
-  end
   BASE_URL = 'http://builds.puppetlabs.lan'
   R10K_DIR = '/opt/puppetlabs/scratch/perf_testing/r10k'
   R10K_CONFIG_PATH = "#{R10K_DIR}/r10k.yaml"
@@ -108,34 +106,6 @@ SSH_CONFIG
     end
   end
 
-  def cloud_config(host)
-    if host.file_exist?("/etc/cloud/cloud.cfg")
-      on host, "if grep 'preserve_hostname: true' /etc/cloud/cloud.cfg ; then echo 'already set' ; else echo 'preserve_hostname: true' >> /etc/cloud/cloud.cfg ; fi"
-    end
-  end
-
-  def ec2_workarounds
-    step 'Fix cloud.cfg' do
-      hosts.each do |host|
-        cloud_config(host)
-      end
-    end
-
-    step 'Download Puppet installer and set pe_dir' do
-      # If the installer download is on the internal network, EC2 instance can't access it, so copy it locally.
-      if master['pe_dir'] =~ /puppetlabs\.net/ && ENV['BEAKER_INSTALL_TYPE'] == 'pe'
-        tmp_dir = Dir.mktmpdir
-        file = "puppet-enterprise-#{master[:pe_ver]}-#{master[:platform]}.tar"
-        curl_cmd = "curl -o #{tmp_dir}/#{file} #{master[:pe_dir]}/#{file}"
-        puts curl_cmd
-        system(curl_cmd)
-        hosts.each do |host|
-          host[:pe_dir] = tmp_dir
-        end
-      end
-    end
-  end
-
   def perf_install_pe
     if !is_pre_aio_version?
       # Must include the dashboard so that split installs add these answers to classification
@@ -217,8 +187,7 @@ puppet_enterprise::master::code_manager::timeouts_deploy: 600
 
     if response.code == "200"
       json = JSON.parse(response.body)
-      @install_opts[:puppet_agent_commit] = json["suite-commit"].strip
-      @install_opts[:puppet_agent_version] = json["suite-version"].strip
+      json["suite-commit"].strip
     else
       Beaker::Log.notify("Unable to get last successful build from: #{url}, " +
                              "error: #{response.code}, #{response.message}")
@@ -234,100 +203,37 @@ puppet_enterprise::master::code_manager::timeouts_deploy: 600
     # some mergely/SHA version.  The list of builds is ordered from most recent to
     # oldest.  The resulting list is passed along to the get_cent7_repo routine,
     # which returns a URL for the first build which has a cent7 repo in it.
-    opts[:puppet_agent_version] = get_cent7_repo(
+    get_cent7_repo(
         response.lines.
             select { |l| l =~ /<td><a / }.
             select { |l| l.match(/^.*href="(\d+\.\d+\.\d+)\/\?C=M&amp;O=D".*$/) },
         "puppet-agent")
   end
 
-  # Mostly copied from: install_puppet_agent_dev_repo_on in Beaker's foss_utils.rb
-  def install_puppet_agent_dev_repo_from_local_file( host, opts )
-    opts[:copy_base_local]    ||= File.join('tmp', 'repo_configs')
-    opts = FOSS_DEFAULT_DOWNLOAD_URLS.merge(opts)
-
-    variant, version, arch, codename = host['platform'].to_array
-    add_role(host, 'aio') #we are installing agent, so we want aio role
-    copy_dir_local = File.join(opts[:copy_base_local], variant)
-    onhost_copy_base = opts[:copy_dir_external] || host.external_copy_base
-
-    release_path_end, release_file = host.puppet_agent_dev_package_info(
-        "PC1", opts[:puppet_agent_version], opts )
-    release_path = "#{opts[:dev_builds_url]}/puppet-agent/#{ opts[:puppet_agent_commit] }/repos/"
-    release_path << release_path_end
-    logger.trace("#install_puppet_agent_dev_repo_on: dev_package_info, continuing...")
-
-    if variant =~ /eos/
-      host.get_remote_file( "#{release_path}/#{release_file}" )
-    else
-      onhost_copied_file = File.join(onhost_copy_base, release_file)
-      fetch_http_file( release_path, release_file, copy_dir_local)
-      scp_to host, File.join(copy_dir_local, release_file), onhost_copy_base
-    end
-
-    case variant
-      when /eos/
-        host.install_from_file( release_file )
-      when /^(sles|aix|fedora|el|centos)$/
-        # NOTE: AIX does not support repo management. This block assumes
-        # that the desired rpm has been mirrored to the 'repos' location.
-        # NOTE: the AIX 7.1 package will only install on 7.2 with
-        # --ignoreos. This is a bug in package building on AIX 7.1's RPM
-        if variant == "aix" and version == "7.2"
-          aix_72_ignoreos_hack = "--ignoreos"
-        end
-        on host, "rpm -ivh #{aix_72_ignoreos_hack} #{onhost_copied_file}"
-      when /^windows$/
-        result = on host, "echo #{onhost_copied_file}"
-        onhost_copied_file = result.raw_output.chomp
-        msi_opts = { :debug => host[:pe_debug] || opts[:pe_debug] }
-        install_msi_on(host, onhost_copied_file, {}, msi_opts)
-      when /^osx$/
-        host.install_package("puppet-agent-#{opts[:puppet_agent_version]}*")
-      when /^solaris$/
-        host.solaris_install_local_package( release_file, onhost_copy_base )
-    end
-    configure_type_defaults_on( host )
-
-  end
-
-  def install_repo_configs(host, buildserver_url, package_name, build_version, copy_dir)
-    filename =  "#{package_name}-#{build_version.sub('master.SNAPSHOT', 'master-0.1SNAPSHOT')}.el7.noarch.rpm"
-    repo_config_folder_url = "%s/%s/%s/repos/el/7/puppet5/x86_64" %
-        [ buildserver_url, package_name, build_version ]
-
-    puppetserver_installer_url = "#{ repo_config_folder_url }/#{ filename }"
-    Beaker::Log.info puppetserver_installer_url
-    system "curl -O #{puppetserver_installer_url}"
-    scp_to host, filename, "/tmp/#{filename}"
-    on host, "yum install -y /tmp/#{filename}"
-  end
-
   def perf_install_foss
+    install_opts = options.merge( { :dev_builds_repos => ["PC1"] })
     repo_config_dir = 'tmp/repo_configs'
 
-    step "Setup Puppet agents" do
+    step "Setup Puppet repositories" do
       puppet_agent_version = ENV['PUPPET_AGENT_VERSION']
 
       case puppet_agent_version
         when "latest"
-          get_latest_agent_version
+          puppet_agent_version = get_latest_agent_version
         when "latest-release"
-          get_latest_release_agent_version
+          puppet_agent_version = get_latest_release_agent_version
       end
 
-      if @install_opts[:puppet_agent_version]
-        Beaker::Log.notify("Installing OSS Puppet AGENT version '#{@install_opts[:puppet_agent_version]}'")
-        #install_puppet_agent_dev_repo_on hosts, @install_opts
-        hosts.each do |host|
-          install_puppet_agent_dev_repo_from_local_file host, @install_opts
-        end
+      if puppet_agent_version
+        Beaker::Log.notify("Installing OSS Puppet AGENT version '#{puppet_agent_version}'")
+        install_puppetlabs_dev_repo master, 'puppet-agent', puppet_agent_version,
+                                    repo_config_dir, install_opts
       else
         abort("Environment variable PUPPET_AGENT_VERSION required for package installs!")
       end
     end
 
-    step "Setup Puppet Server." do
+    step "Setup Puppet Server repositories." do
       package_build_version = ENV['PACKAGE_BUILD_VERSION']
 
       if package_build_version == "latest"
@@ -343,19 +249,33 @@ puppet_enterprise::master::code_manager::timeouts_deploy: 600
       if package_build_version
         Beaker::Log.notify("Installing OSS Puppet Server version '#{package_build_version}'")
         install_puppetlabs_dev_repo master, 'puppetserver', package_build_version,
-                                    repo_config_dir, @install_opts
+                                    repo_config_dir, install_opts
       else
         abort("Environment variable PACKAGE_BUILD_VERSION required for package installs!")
       end
-
-      on master, 'puppet resource service puppetserver ensure=running enable=true'
     end
 
-    step "Sign agent certificates" do
-      # Failed agent run will request a certificate
-      on agents, 'puppet agent -t', {:accept_all_exit_codes => true}
-      on master, 'puppet cert sign --all'
+    step "Upgrade nss to version that is hopefully compatible with jdk version puppetserver will use." do
+      nss_package=nil
+      variant, _, _, _ = master['platform'].to_array
+      case variant
+        when /^(debian|ubuntu)$/
+          nss_package_name="libnss3"
+        when /^(redhat|el|centos)$/
+          nss_package_name="nss"
+      end
+      if nss_package_name
+        master.upgrade_package(nss_package_name)
+      else
+        Beaker::Log.warn("Don't know what nss package to use for #{variant} so not installing one")
+      end
     end
+
+    step "Install Puppet Server." do
+      install_package master, 'puppetserver'
+      on(master, "puppet agent -t --server #{master}")
+    end
+
   end
 
   ## TODO This probably needs more work to finish hooking up everything that
@@ -572,22 +492,6 @@ node 'default' {}
     on(host, "chmod 644 #{@target_hiera_config_path}")
   end
 
-  def use_internal_ips
-    step "modify /etc/hosts to use internal ip" do
-      hosts.each do |host|
-        if host[:private_ip]
-          manifest =<<-EOS.gsub /^\s+/, ""
-          host { '#{host.hostname}':
-            \tensure       => present,
-            \tip           => '#{host[:private_ip]}',
-          }
-          EOS
-          apply_manifest_on(metric, manifest)
-        end
-      end
-    end
-  end
-
   def configure_gatling_auth
     # Make room for local copies
     ssldir = 'simulation-runner/target/ssl'
@@ -668,7 +572,9 @@ authorization: {
     end
     step 'install rvm, bundler' do
       on metric, 'gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3'
-      on metric, 'curl -sSL https://get.rvm.io | bash -s stable --ruby=2.2.5'
+      on metric, 'curl -sSL https://get.rvm.io | bash -s stable'
+      # Work around install issue in Centos7: https://github.com/rvm/rvm/issues/4234
+      on metric, 'rvm install 2.2.5 --disable-binary'
       on metric, 'gem install bundler'
     end
     step 'create key for metrics to talk to primary master' do

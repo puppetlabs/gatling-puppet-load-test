@@ -572,7 +572,9 @@ authorization: {
     end
     step 'install rvm, bundler' do
       on metric, 'gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3'
-      on metric, 'curl -sSL https://get.rvm.io | bash -s stable --ruby=2.2.5'
+      on metric, 'curl -sSL https://get.rvm.io | bash -s stable'
+      # Work around install issue in Centos7: https://github.com/rvm/rvm/issues/4234
+      on metric, 'rvm install 2.2.5 --disable-binary'
       on metric, 'gem install bundler'
     end
     step 'create key for metrics to talk to primary master' do

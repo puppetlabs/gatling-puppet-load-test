@@ -551,6 +551,9 @@ def single_configurable_pipeline(job) {
 
         stage '900-collect-driver-artifacts'
         step900_collect_driver_artifacts()
+
+        stage '905-publish-artifacts-to-s3'
+        step905_publish_artifacts_to_s3()
     }
 }
 

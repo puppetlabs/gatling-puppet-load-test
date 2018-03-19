@@ -1,6 +1,6 @@
 {
   "simulation_class": "com.puppetlabs.gatling.node_simulations.IrvingFactsChange",
-  "certname_prefix": "gat-agent-",
+  "certname_prefix": "perf-agent-",
   "classes": [
     "role::by_size::large"
   ]

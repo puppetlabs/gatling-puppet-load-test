@@ -438,7 +438,7 @@ def step900_collect_driver_artifacts() {
     }
 }
 
-def step905_publish_artifacts_to_s3(script_dir, job_name) {
+def step905_publish_artifacts_to_s3(job_name) {
     def archive_dir = job_name + '-' + (new Date().format("yyyy-MM-dd-HH:mm:ss"))
     sh "mkdir -p ${archive_dir}/results"
     sh "cp -R ./puppet-gatling/${job_name}/sut_archive_files ${archive_dir}"
@@ -553,7 +553,7 @@ def single_configurable_pipeline(job) {
         step900_collect_driver_artifacts()
 
         stage '905-publish-artifacts-to-s3'
-        step905_publish_artifacts_to_s3()
+        step905_publish_artifacts_to_s3(job_name)
     }
 }
 
@@ -643,7 +643,7 @@ def single_pipeline(job) {
         step900_collect_driver_artifacts()
 
         stage '905-publish-artifacts-to-s3'
-        step905_publish_artifacts_to_s3()
+        step905_publish_artifacts_to_s3(job_name)
     }
 }
 

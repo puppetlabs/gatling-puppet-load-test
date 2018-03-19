@@ -361,14 +361,28 @@ def step081_customize_jruby_jar(script_dir, jruby_jar, server_era) {
 }
 
 def step085_customize_hocon_settings(script_dir, settings, server_era) {
-    if (settings == null) {
-        echo "Skipping hocon settings customization; no overrides found in `hocon_settings`."
-    } else {
-        settings_json = JsonOutput.toJson(settings)
-        withEnv(["PUPPET_GATLING_HOCON_SETTINGS=${settings_json}",
-                 "PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}"]) {
-            sh "${script_dir}/085_customize_hocon_settings.sh"
-        }
+    settings = settings ?: []
+
+    if (params.MAX_REQUESTS_PER_INSTANCE != null) {
+        settings << [
+                      file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                      path: "jruby-puppet.max-requests-per-instance",
+                      value: "${params.MAX_REQUESTS_PER_INSTANCE}"
+                    ]
+    }
+
+    if (params.MAX_INSTANCES && "${params.MAX_INSTANCES}" != "default") {
+        settings << [
+                      file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                      path: "jruby-puppet.max-active-instances",
+                      value: "${params.MAX_INSTANCES}"
+                    ]
+    }
+
+    settings_json = JsonOutput.toJson(settings)
+    withEnv(["PUPPET_GATLING_HOCON_SETTINGS=${settings_json}",
+             "PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}"]) {
+        sh "${script_dir}/085_customize_hocon_settings.sh"
     }
 }
 

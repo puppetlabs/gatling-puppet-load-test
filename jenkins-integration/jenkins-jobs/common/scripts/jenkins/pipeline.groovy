@@ -435,12 +435,24 @@ def step900_collect_driver_artifacts() {
     archive "simulation-runner/results/**/*.log.gz"
 }
 
+def create_params_file(archive_dir) {
+    def keys = params.keySet()
+    def param_string = ""
+    for (i = 0 i < keys.length; i++) {
+        param_string += "${keys[i]}: ${params.get(keys[i])}\n"
+    }
+    sh "echo ${param_string} > ${archive_dir}/job_params.txt"
+}
+
 def step905_publish_artifacts_to_s3(job_name) {
     def archive_dir = job_name + '-' + (new Date().format("yyyy-MM-dd-HH:mm:ss"))
     sh "mkdir -p ${archive_dir}/results"
     // Copy all gatling output info into the dir to be uploaded
     sh "cp -R ./puppet-gatling/${job_name}/* ${archive_dir}"
     sh "cp simulation-runner/results/**/*.log.gz ${archive_dir}/results"
+
+    create_params_file(archive_dir)
+
     step([
         $class: 'S3BucketPublisher',
         entries: [

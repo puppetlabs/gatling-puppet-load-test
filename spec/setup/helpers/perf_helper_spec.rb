@@ -27,30 +27,16 @@ end
 describe PerfHelperClass do
   let!(:hosts) {[{'platform' => Beaker::Platform.new('centos-6.5-x86_64')}]}
 
-  context '.perf_init' do
-    let!(:options) { {} }
-
-    it 'it sets @install_opts to options with :dev_builds_repos option => ["PC1"]' do
-      # TODO: test that @install_opts is set?
-      allow(subject).to receive(:options).and_return(options)
-      expect(subject.options).to receive(:merge).with({:dev_builds_repos => ["PC1"]})
-      subject.perf_init
-    end
-
-  end
-
   context '.set_etc_hosts' do
     let!(:master) {[]}
 
     it 'it sets the puppet ip in /etc/hosts' do
 
-      # TODO: is this the best way to handle loadbalancer.ip / master.ip
       master_ip = '127.0.0.1'
       allow(subject).to receive(:hosts).and_return(hosts)
       allow(master).to receive(:ip).and_return(master_ip)
       allow(subject).to receive(:master).and_return(master)
 
-      # TODO: test both true and false (loadbalancer.ip / master.ip)?
       expect(subject).to receive(:any_hosts_as?).with((:loadbalancer)).and_return(false)
       expect(subject).to receive(:on).with(hosts, "echo \"#{master_ip} puppet\" >> /etc/hosts").once
       subject.set_etc_hosts
@@ -85,7 +71,6 @@ describe PerfHelperClass do
 
   context '.setup_r10k' do
 
-    # TODO: is this the best way to handle masters?
     let!(:masters) {[{'platform' => Beaker::Platform.new('centos-6.5-x86_64')}]}
 
     it 'adds the private key, configures ssh, and installs git on each master' do
@@ -93,7 +78,6 @@ describe PerfHelperClass do
       allow(subject).to receive(:masters).and_return(masters)
       expect(subject).to receive(:select_hosts).with({:roles => ['master', 'compile_master']}).and_return(masters)
 
-      # TODO: should these use the private_key and ssh_config variables or are these matchers sufficient?
       expect(subject).to receive(:create_remote_file).with(masters[0], "/root/.ssh/id_rsa", /PRIVATE/ )
       expect(subject).to receive(:create_remote_file).with(masters[0], "/root/.ssh/config", /StrictHostKeyChecking/ )
 
@@ -105,78 +89,178 @@ describe PerfHelperClass do
 
   end
 
-  describe '#cloud_config' do
-    let(:host) {:hosts[0]}
+  # TODO: refactor to remove duplication
+  describe '#perf_install_pe' do
 
-    context 'when the cloud.cfg file exists' do
-      it 'ensures preserve_hostname is set to true' do
-        expect(host).to receive(:file_exist?).with(("/etc/cloud/cloud.cfg")).and_return(true)
-        expect(subject).to receive(:on).with(host, "if grep 'preserve_hostname: true' /etc/cloud/cloud.cfg ; then echo 'already set' ; else echo 'preserve_hostname: true' >> /etc/cloud/cloud.cfg ; fi").once
-        subject.cloud_config(host)
+    context 'when pe is not a pre-aio version' do
+
+      test_is_pre_aio_version = false
+
+      context 'when we are using meep' do
+
+        test_use_meep = true
+
+        test_pe_ver = '2017.3'
+        let!(:master) { {'pe_ver' => test_pe_ver} }
+
+        # TODO: how should @options / @options[:answers] be handled?
+        before {
+          subject.instance_variable_set(:@options, { })
+        }
+
+        it 'includes the dashboard and installs pe' do
+
+          expect(subject).to receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
+          expect(subject).to receive(:use_meep?).with(master['pe_ver'] || options['pe_ver']).and_return(test_use_meep)
+          expect(subject).to receive(:master).and_return(master)
+
+          # TODO: how to handle @options[:answers] ?
+          expect(subject.instance_variable_get(:@options)). to eq({})
+
+          expect(subject).to receive(:install_lei).once
+          subject.perf_install_pe
+
+        end
+
       end
+
+      context 'when we are not using meep' do
+
+        test_is_pre_aio_version = false
+        test_use_meep = false
+
+        test_boundary_version = '2016.2'
+
+        context 'when version is less than 2016.2' do
+
+          test_pe_ver = '2016.1'
+          test_version_is_less = true
+
+          let!(:master) { {'pe_ver' => test_pe_ver} }
+          let!(:compile_masters) { {'pe_ver' => test_pe_ver} }
+          let!(:dashboard) { {'pe_ver' => test_pe_ver} }
+
+          it 'includes the dashboard and installs pe' do
+
+            expect(subject).to receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
+            expect(subject).to receive(:use_meep?).with(master['pe_ver'] || options['pe_ver']).and_return(test_use_meep)
+
+            # TODO: is allow acceptable here? expect error with '5 times'
+            allow(subject).to receive(:master).and_return(master)
+
+            expect(subject).to receive(:compile_masters).and_return(compile_masters)
+            expect(subject).to receive(:dashboard).and_return(dashboard)
+
+            # TODO: handle custom answers
+
+            # TODO: handle pe_version master / options
+
+            # TODO: version_is_less??
+            expect(subject).to receive(:version_is_less).with(test_pe_ver, test_boundary_version).and_return(test_version_is_less)
+
+            # TODO: pre_config_hiera - with?
+            expect(subject).to receive(:pre_config_hiera)
+
+            # TODO: master['hieradata_dir_used_in_install']
+
+            expect(subject).to receive(:install_lei).once
+            subject.perf_install_pe
+
+          end
+
+        end
+
+        context 'when version is not less than 2016.2' do
+
+          test_pe_ver = '2016.3'
+          test_version_is_less = false
+
+          let!(:master) { {'pe_ver' => test_pe_ver} }
+          let!(:compile_masters) { {'pe_ver' => test_pe_ver} }
+          let!(:dashboard) { {'pe_ver' => test_pe_ver} }
+
+          it 'includes the dashboard and installs pe' do
+
+            expect(subject).to receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
+            expect(subject).to receive(:use_meep?).with(master['pe_ver'] || options['pe_ver']).and_return(test_use_meep)
+
+            # TODO: is allow acceptable here? expect caused error with '3 times'
+            allow(subject).to receive(:master).and_return(master)
+
+            expect(subject).to receive(:compile_masters).and_return(compile_masters)
+            expect(subject).to receive(:dashboard).and_return(dashboard)
+
+            # TODO: handle custom answers?
+
+            # TODO: handle pe_version master / options?
+
+            # TODO: version_is_less??
+            expect(subject).to receive(:version_is_less).with(test_pe_ver, test_boundary_version).and_return(test_version_is_less)
+
+            expect(subject).to receive(:install_lei).once
+            subject.perf_install_pe
+
+          end
+
+        end
+
+      end
+
     end
 
-    context 'when the cloud.cfg file does not exist' do
-      it 'does nothing' do
-        expect(host).to receive(:file_exist?).with(("/etc/cloud/cloud.cfg")).and_return(false)
-        expect(subject).to_not receive(:on)
-        subject.cloud_config(host)
+    context 'when pe is a pre-aio version' do
+
+      test_is_pre_aio_version = true
+
+      it 'installs pe without including the dashboard' do
+
+        expect(subject).to receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
+        expect(subject).to receive(:install_lei)
+        subject.perf_install_pe
+
       end
+
+
     end
 
   end
 
-  describe '#ec2_workarounds' do
+  describe '#has_cent7_repo?' do
 
-    # TODO: refactor to avoid repeated steps
+    context 'when the package is not available' do
 
-    context 'when the installer download is on the internal network' do
-      let!(:master) { {'pe_dir' => 'puppetlabs.net'} }
+      test_package = 'testing'
+      test_version = '1.2.3'
 
-      it 'runs cloud_config,then copies the file locally' do
-
-        ENV['BEAKER_INSTALL_TYPE']='pe'
-
-        allow(subject).to receive(:hosts).and_return(hosts)
-        allow(subject).to receive(:master).and_return(master)
-
-        expect(subject).to receive(:cloud_config).with(hosts[0])
-
-        # TODO: verify curl_cmd?
-        expect(subject).to receive(:system)
-
-        subject.ec2_workarounds
+      it 'returns false' do
+        pending ('has_cent7_repo? : NameError: uninitialized constant Beaker::Log')
+        subject.has_cent7_repo?(test_package,test_version)
 
       end
     end
 
-    context 'when the installer download is not on the internal network' do
-      let!(:master) { {'pe_dir' => 'other.net'} }
+    context 'when the package is available but the version is not' do
 
-      it 'runs cloud_config, then does nothing' do
+      test_package = 'testing'
+      test_version = '1.2.3'
 
-        # TODO: include additional test cases with alternate value?
-        ENV['BEAKER_INSTALL_TYPE']='pe'
+      it 'returns false' do
 
-        allow(subject).to receive(:hosts).and_return(hosts)
-        allow(subject).to receive(:master).and_return(master)
 
-        expect(subject).to receive(:cloud_config).with(hosts[0])
-        expect(subject).to_not receive(:system)
+      end
 
-        subject.ec2_workarounds
+    end
+
+    context 'when the package / version is available' do
+
+      test_package = 'testing'
+      test_version = '1.2.3'
+
+      it 'returns true' do
+
 
       end
     end
-
-  end
-
-
-  context '.perf_install_pe' do
-
-  end
-
-  context '.has_cent7_repo?' do
 
   end
 
@@ -205,7 +289,6 @@ describe PerfHelperClass do
   end
 
   context '.install_repo_configs' do
-
 
   end
 
@@ -275,9 +358,17 @@ describe PerfHelperClass do
 
   context '.install_deps' do
 
-      it 'sets the tmp_module_dir'
+      it 'sets the tmp_module_dir' do
+        pending('.install_deps')
 
-      it 'installs the jq package'
+        subject.install_deps
+      end
+
+      it 'installs the jq package' do
+        pending('.install_deps')
+
+        subject.install_deps
+      end
 
   end
 

@@ -433,10 +433,6 @@ def step110_collect_sut_artifacts(script_dir, job_name, archive_sut_files) {
             }
 
         }
-        // Clean up the sut_archive_files so they don't appear in the next run by accident
-        dir("puppet-gatling/${job_name}/sut_archive_files") {
-            deleteDir()
-        }
     }
 }
 
@@ -447,15 +443,13 @@ def step900_collect_driver_artifacts() {
 
     // Always archive the simulation.log.gz from the run.
     archive "simulation-runner/results/**/*.log.gz"
-    dir('simulation-runner/results') {
-        deleteDir()
-    }
 }
 
 def step905_publish_artifacts_to_s3(job_name) {
     def archive_dir = job_name + '-' + (new Date().format("yyyy-MM-dd-HH:mm:ss"))
     sh "mkdir -p ${archive_dir}/results"
-    sh "cp -R ./puppet-gatling/${job_name}/sut_archive_files ${archive_dir}"
+    // Copy all gatling output info into the dir to be uploaded
+    sh "cp -R ./puppet-gatling/${job_name}/* ${archive_dir}"
     sh "cp simulation-runner/results/**/*.log.gz ${archive_dir}/results"
     step([
         $class: 'S3BucketPublisher',
@@ -476,6 +470,9 @@ SCRIPT_DIR = "./jenkins-integration/jenkins-jobs/common/scripts/job-steps"
 
 def single_configurable_pipeline(job) {
     node {
+        // Clear out anything left over from the last time this workspace was used
+        deleteDir()
+
         checkout scm
 
         SKIP_SERVER_INSTALL = (SKIP_SERVER_INSTALL == "true")
@@ -573,6 +570,9 @@ def single_configurable_pipeline(job) {
 
 def single_pipeline(job) {
     node {
+        // Clear out anything left over from the last time this workspace was used
+        deleteDir()
+
         checkout scm
 
         SKIP_SERVER_INSTALL = (SKIP_SERVER_INSTALL == "true")

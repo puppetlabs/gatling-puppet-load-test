@@ -1,0 +1,12 @@
+{
+    "run_description": "Irving 2018.1.0-devel, role::by_size::large, 600 agents, 4 hours",
+    "nodes": [
+        {
+            "node_config": "IrvingFactsChange.json",
+            "num_instances": 600,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 8,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}

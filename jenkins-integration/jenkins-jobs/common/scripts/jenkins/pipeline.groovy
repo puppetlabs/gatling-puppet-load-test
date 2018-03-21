@@ -438,7 +438,7 @@ def step900_collect_driver_artifacts() {
 def create_params_file(archive_dir) {
     def keys = params.keySet()
     def param_string = ""
-    for (i = 0; i < keys.length; i++) {
+    for (i = 0; i < keys.size(); i++) {
         param_string += "${keys[i]}: ${params.get(keys[i])}\n"
     }
     sh "echo ${param_string} > ${archive_dir}/job_params.txt"

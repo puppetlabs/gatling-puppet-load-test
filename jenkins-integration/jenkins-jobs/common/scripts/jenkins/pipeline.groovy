@@ -449,7 +449,7 @@ def create_params_file(archive_dir) {
     for (i = 0; i < keys.size(); i++) {
         param_string += "${keys[i]}: ${params.get(keys[i])}\n"
     }
-    sh "echo ${param_string} > ${archive_dir}/job_params.txt"
+    sh "echo '${param_string}' > ${archive_dir}/job_params.txt"
 }
 
 def step905_publish_artifacts_to_s3(job_name) {

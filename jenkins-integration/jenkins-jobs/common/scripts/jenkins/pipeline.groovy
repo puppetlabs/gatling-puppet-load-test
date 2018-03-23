@@ -361,12 +361,20 @@ def step085_customize_hocon_settings(script_dir, settings, server_era) {
                     ]
     }
 
-    if (params.MAX_INSTANCES && "${params.MAX_INSTANCES}" != "default") {
-        settings << [
+    if (params.MAX_INSTANCES) {
+        if ("${params.MAX_INSTANCES}" == "default") {
+            settings << [
+                      action: "unset",
+                      file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                      path: "jruby-puppet.max-active-instances",
+                    ]
+        } else {
+            settings << [
                       file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
                       path: "jruby-puppet.max-active-instances",
                       value: "${params.MAX_INSTANCES}"
                     ]
+        }
     }
 
     settings_json = JsonOutput.toJson(settings)

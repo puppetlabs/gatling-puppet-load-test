@@ -361,12 +361,20 @@ def step085_customize_hocon_settings(script_dir, settings, server_era) {
                     ]
     }
 
-    if (params.MAX_INSTANCES && "${params.MAX_INSTANCES}" != "default") {
-        settings << [
+    if (params.MAX_INSTANCES) {
+        if ("${params.MAX_INSTANCES}" == "default") {
+            settings << [
+                      action: "unset",
+                      file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                      path: "jruby-puppet.max-active-instances",
+                    ]
+        } else {
+            settings << [
                       file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
                       path: "jruby-puppet.max-active-instances",
                       value: "${params.MAX_INSTANCES}"
                     ]
+        }
     }
 
     settings_json = JsonOutput.toJson(settings)
@@ -441,7 +449,7 @@ def create_params_file(archive_dir) {
     for (i = 0; i < keys.size(); i++) {
         param_string += "${keys[i]}: ${params.get(keys[i])}\n"
     }
-    sh "echo ${param_string} > ${archive_dir}/job_params.txt"
+    sh "echo '${param_string}' > ${archive_dir}/job_params.txt"
 }
 
 def step905_publish_artifacts_to_s3(job_name) {

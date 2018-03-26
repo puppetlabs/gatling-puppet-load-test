@@ -11,6 +11,15 @@ class PerfHelperClass
     @logger = Beaker::Logger.new({:log_level => 'error'})
   end
 
+
+
+  # TODO???
+  # def logger
+  #   @log = Beaker::Log.new({:log_level => 'error'})
+  # end
+  #
+  #
+
   # Override the Beaker::TestCase step method since we execute all of our code within those blocks and can't just mock it out.
   # We also don't want to call the original because then we would have to also mock out a million other Beaker methods.
   def step(msg, &block)
@@ -227,38 +236,42 @@ describe PerfHelperClass do
 
   describe '#has_cent7_repo?' do
 
+    let(:test_beaker_log) { Class.new }
+
     context 'when the package is not available' do
 
       test_package = 'testing'
       test_version = '1.2.3'
 
       it 'returns false' do
-        pending ('has_cent7_repo? : NameError: uninitialized constant Beaker::Log')
-        subject.has_cent7_repo?(test_package,test_version)
-
+        stub_const('Beaker::Log', test_beaker_log)
+        expect(test_beaker_log).to receive(:notify).with(a_string_starting_with("Skipping #{test_package} version #{test_version}"))
+        expect(subject.has_cent7_repo?(test_package, test_version)).to eq(false)
       end
     end
 
     context 'when the package is available but the version is not' do
 
-      test_package = 'testing'
-      test_version = '1.2.3'
+      test_package = 'bolt'
+      test_version = '0.0.0'
 
       it 'returns false' do
-
-
+        stub_const('Beaker::Log', test_beaker_log)
+        expect(test_beaker_log).to receive(:notify).with(a_string_starting_with("Skipping #{test_package} version #{test_version}"))
+        expect(subject.has_cent7_repo?(test_package, test_version)).to eq(false)
       end
 
     end
 
     context 'when the package / version is available' do
 
-      test_package = 'testing'
-      test_version = '1.2.3'
+      test_package = 'bolt'
+      test_version = '0.2'
 
       it 'returns true' do
-
-
+        stub_const('Beaker::Log', test_beaker_log)
+        expect(test_beaker_log).to receive(:notify).with(a_string_starting_with("Found Cent7 repo for #{test_package} version #{test_version}"))
+        expect(subject.has_cent7_repo?(test_package, test_version)).to eq(true)
       end
     end
 

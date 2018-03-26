@@ -467,7 +467,7 @@ def step905_publish_artifacts_to_s3(job_name) {
             [
                 bucket: 'puppetserver-perf-data',
                 selectedRegion: 'us-west-2',
-                sourceFile: "${archive_dir}",
+                sourceFile: "${archive_dir}/",
                 storageClass: 'STANDARD',
             ]
         ],

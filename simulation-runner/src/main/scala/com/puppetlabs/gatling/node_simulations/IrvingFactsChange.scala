@@ -21,9 +21,9 @@ class IrvingFactsChange extends SimulationWithScenario {
 // 		.userAgentHeader("Puppet/5.3.3 Ruby/2.4.2-p198 (x86_64-linux)")
 
 	val reportBody = ElFileBody("IrvingFactsChange_0006_request.txt")
-	val facts_str  = scala.io.Source.fromFile("user-files/facts/IrvingFactsChange_facts_raw.txt").mkString
-	val facts_fdr  = csv("user-files/facts/IrvingFactsChange_custom_facts.csv")
-        val hostf_fdr  = csv("user-files/facts/IrvingFactsChange_custom_hostf.csv").circular
+	val facts_str  = scala.io.Source.fromFile("facts/IrvingFactsChange_facts_raw.txt").mkString
+	val facts_fdr  = csv("facts/IrvingFactsChange_custom_facts.csv")
+        val hostf_fdr  = csv("facts/IrvingFactsChange_custom_hostf.csv").circular
 
 	val baseHeaders = Map("Accept" -> "application/json, text/pson",
 		"Accept-Encoding" -> "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",

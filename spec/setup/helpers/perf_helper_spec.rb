@@ -11,15 +11,6 @@ class PerfHelperClass
     @logger = Beaker::Logger.new({:log_level => 'error'})
   end
 
-
-
-  # TODO???
-  # def logger
-  #   @log = Beaker::Log.new({:log_level => 'error'})
-  # end
-  #
-  #
-
   # Override the Beaker::TestCase step method since we execute all of our code within those blocks and can't just mock it out.
   # We also don't want to call the original because then we would have to also mock out a million other Beaker methods.
   def step(msg, &block)
@@ -30,11 +21,13 @@ class PerfHelperClass
     @options = {}
   end
 
-
 end
 
 describe PerfHelperClass do
   let!(:hosts) {[{'platform' => Beaker::Platform.new('centos-6.5-x86_64')}]}
+  let(:test_beaker_log) { Class.new }
+  let(:test_net_http) { Class.new }
+  let(:test_http_response) { Class.new }
 
   context '.set_etc_hosts' do
     let!(:master) {[]}
@@ -107,15 +100,18 @@ describe PerfHelperClass do
 
       context 'when we are using meep' do
 
-        test_use_meep = true
+        # TODO: how should @options / @options[:answers] be handled?
+        before {
+          test_options = { :answers => {} }
+          #subject.instance_variable_set(:@options, { })
+          subject.instance_variable_set(:@options, test_options)
+        }
 
+        test_use_meep = true
         test_pe_ver = '2017.3'
         let!(:master) { {'pe_ver' => test_pe_ver} }
 
-        # TODO: how should @options / @options[:answers] be handled?
-        before {
-          subject.instance_variable_set(:@options, { })
-        }
+        test_updated_options = {:answers=>{"puppet_enterprise::profile::master::r10k_remote"=>"/opt/puppetlabs/server/data/puppetserver/r10k/control-repo", "puppet_enterprise::profile::master::r10k_private_key"=>"/root/.ssh/id_rsa"}}
 
         it 'includes the dashboard and installs pe' do
 
@@ -123,8 +119,8 @@ describe PerfHelperClass do
           expect(subject).to receive(:use_meep?).with(master['pe_ver'] || options['pe_ver']).and_return(test_use_meep)
           expect(subject).to receive(:master).and_return(master)
 
-          # TODO: how to handle @options[:answers] ?
-          expect(subject.instance_variable_get(:@options)). to eq({})
+          # TODO: @options[:answers] ?
+          # expect(subject.instance_variable_get(:@options)). to eq(test_updated_options)
 
           expect(subject).to receive(:install_lei).once
           subject.perf_install_pe
@@ -135,9 +131,7 @@ describe PerfHelperClass do
 
       context 'when we are not using meep' do
 
-        test_is_pre_aio_version = false
         test_use_meep = false
-
         test_boundary_version = '2016.2'
 
         context 'when version is less than 2016.2' do
@@ -222,13 +216,10 @@ describe PerfHelperClass do
       test_is_pre_aio_version = true
 
       it 'installs pe without including the dashboard' do
-
         expect(subject).to receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
         expect(subject).to receive(:install_lei)
         subject.perf_install_pe
-
       end
-
 
     end
 
@@ -236,64 +227,271 @@ describe PerfHelperClass do
 
   describe '#has_cent7_repo?' do
 
-    let(:test_beaker_log) { Class.new }
-
-    context 'when the package is not available' do
-
-      test_package = 'testing'
-      test_version = '1.2.3'
-
-      it 'returns false' do
-        stub_const('Beaker::Log', test_beaker_log)
-        expect(test_beaker_log).to receive(:notify).with(a_string_starting_with("Skipping #{test_package} version #{test_version}"))
-        expect(subject.has_cent7_repo?(test_package, test_version)).to eq(false)
-      end
-    end
-
-    context 'when the package is available but the version is not' do
-
-      test_package = 'bolt'
-      test_version = '0.0.0'
-
-      it 'returns false' do
-        stub_const('Beaker::Log', test_beaker_log)
-        expect(test_beaker_log).to receive(:notify).with(a_string_starting_with("Skipping #{test_package} version #{test_version}"))
-        expect(subject.has_cent7_repo?(test_package, test_version)).to eq(false)
-      end
-
-    end
+    # TODO: stub Net::HTTP to provide the expected response or test the actual URLs?
 
     context 'when the package / version is available' do
 
+      test_response_code = '200'
       test_package = 'bolt'
       test_version = '0.2'
 
       it 'returns true' do
         stub_const('Beaker::Log', test_beaker_log)
+
+        stub_const('Net::HTTP', test_net_http)
+        allow(test_net_http).to receive(:start).and_return(test_response_code)
+
         expect(test_beaker_log).to receive(:notify).with(a_string_starting_with("Found Cent7 repo for #{test_package} version #{test_version}"))
         expect(subject.has_cent7_repo?(test_package, test_version)).to eq(true)
       end
+
+    end
+
+    context 'when the package is not available' do
+
+      test_response_code = '404'
+      test_package = 'testing'
+      test_version = '1.2.3'
+
+      it 'returns false' do
+        stub_const('Beaker::Log', test_beaker_log)
+
+        stub_const('Net::HTTP', test_net_http)
+        allow(test_net_http).to receive(:start).and_return(test_response_code)
+
+        expect(test_beaker_log).to receive(:notify).with(a_string_starting_with("Skipping #{test_package} version #{test_version}"))
+        expect(subject.has_cent7_repo?(test_package, test_version)).to eq(false)
+      end
+
+    end
+
+    context 'when the package is available but the version is not' do
+
+      test_response_code = '404'
+      test_package = 'bolt'
+      test_version = '0.0.0'
+
+      it 'returns false' do
+        stub_const('Beaker::Log', test_beaker_log)
+
+        stub_const('Net::HTTP', test_net_http)
+        allow(test_net_http).to receive(:start).and_return(test_response_code)
+
+        expect(test_beaker_log).to receive(:notify).with(a_string_starting_with("Skipping #{test_package} version #{test_version}"))
+        expect(subject.has_cent7_repo?(test_package, test_version)).to eq(false)
+      end
+
     end
 
   end
 
-  context '.get_cent7_repo' do
+  describe '#get_cent7_repo' do
+
+    context 'when response_lines contains the package' do
+
+      test_response_lines = ['<tr><td><a href="5.2.1.master.SNAPSHOT.2018.03.15T0954/?C=M&amp;O=D">5.2.1.master.SNAPSHOT.2018.03.15T0954/</a></td><td>-</td><td>15-Mar-2018 09:57</td></tr>']
+      test_package = 'puppetserver'
+      test_expected_result = '5.2.1.master.SNAPSHOT.2018.03.15T0954'
+
+      it 'returns the package' do
+        stub_const('Beaker::Log', test_beaker_log)
+        allow(test_beaker_log).to receive(:notify)
+        expect(subject.get_cent7_repo(test_response_lines, test_package)).to eq(test_expected_result)
+      end
+
+    end
+
+    context 'when response_lines does not contain the package' do
+
+      test_response_lines = ['<tr><td><a href="xyz/?C=M&amp;O=D">xyz/</a></td><td>-</td><td>15-Mar-2018 09:57</td></tr>']
+      test_package = 'puppetserver'
+      test_expected_result = nil
+
+      it 'returns nil' do
+        stub_const('Beaker::Log', test_beaker_log)
+        allow(test_beaker_log).to receive(:notify)
+        expect(subject.get_cent7_repo(test_response_lines, test_package)).to eq(test_expected_result)
+      end
+
+    end
 
   end
 
-  context '.get_latest_server_version' do
+  describe '#get_latest_server_version' do
+
+    test_response_lines = [
+        '<tr><td><a href="5.3.1.SNAPSHOT.2018.03.26T1400/?C=M&amp;O=D">5.3.1.SNAPSHOT.2018.03.26T1400/</a></td><td>-</td><td>26-Mar-2018 14:03</td></tr>',
+        '<tr><td><a href="5.3.1.SNAPSHOT.2018.03.26T0851/?C=M&amp;O=D">5.3.1.SNAPSHOT.2018.03.26T0851/</a></td><td>-</td><td>26-Mar-2018 10:24</td></tr>',
+        '<tr><td><a href="6.0.0.master.SNAPSHOT.2018.03.26T1014/?C=M&amp;O=D">6.0.0.master.SNAPSHOT.2018.03.26T1014/</a></td><td>-</td><td>26-Mar-2018 10:17</td></tr>'
+    ]
+
+    context 'when version is included in test_response_lines' do
+
+      test_version = '5.3.1.SNAPSHOT.2018.03.26T0851'
+      test_response_code = '200'
+      test_expected_result = test_version
+
+      it 'returns the expected server version' do
+        stub_const('Beaker::Log', test_beaker_log)
+        allow(test_beaker_log).to receive(:notify)
+
+        stub_const('Net::HTTP', test_net_http)
+        allow(test_net_http).to receive(:get).and_return(test_http_response)
+        allow(test_net_http).to receive(:start).and_return(test_response_code)
+        allow(test_http_response).to receive(:lines).and_return(test_response_lines)
+
+        expect(subject.get_latest_server_version(test_version)).to eq(test_expected_result)
+
+      end
+
+    end
+
+    context 'when version is not included in test_response_lines' do
+
+      test_version = '0.0.0.SNAPSHOT.2018.03.26T0851'
+      test_response_code = '200'
+      test_expected_result = nil
+
+      it 'returns nil' do
+        stub_const('Net::HTTP', test_net_http)
+        allow(test_net_http).to receive(:get).and_return(test_http_response)
+        allow(test_net_http).to receive(:start).and_return(test_response_code)
+        allow(test_http_response).to receive(:lines).and_return(test_response_lines)
+
+        expect(subject.get_latest_server_version(test_version)).to eq(test_expected_result)
+
+      end
+
+    end
 
   end
 
-  context '.get_latest_agent_version' do
+  describe '#get_latest_agent_version' do
+
+    context 'when the URL response code is 200' do
+
+      test_response_code = '200'
+      test_response_body = '{"build-date":"1521577908","suite-version":"5.4.0.580.g88a47a8","suite-commit":"88a47a8e2fbcd6009d6fdaf9f388dcd441ce4850","puppet":"bf26912312ff3481527452782a684c639e9b466e","facter":"00da6691664829baac33c9a9a07c522cd4d57649","hiera":"5150beae7aab405c21c2072a9c79f57cbfda104a","pxp-agent":"c648a3a12a5cf7adbe56e45d56216c6a7966bd8d"}'
+      test_response_message = 'success message'
+      test_expected_result = '88a47a8e2fbcd6009d6fdaf9f388dcd441ce4850'
+
+      it 'returns the agent version' do
+
+        stub_const('Beaker::Log', test_beaker_log)
+        allow(test_beaker_log).to receive(:notify)
+
+        stub_const('Net::HTTP', test_net_http)
+        allow(test_net_http).to receive(:get_response).and_return(test_http_response)
+        allow(test_http_response).to receive(:code).and_return(test_response_code)
+        allow(test_http_response).to receive(:body).and_return(test_response_body)
+        allow(test_http_response).to receive(:message).and_return(test_response_message)
+
+        expect(subject.get_latest_agent_version).to eq(test_expected_result)
+
+      end
+
+    end
+
+    context 'when the URL response code is not 200' do
+
+      test_response_code = '404'
+      test_response_message = 'error message'
+      test_expected_log_output = /.*http.*, error: #{test_response_code}, #{test_response_message}/
+      test_expected_result = nil
+
+      it 'logs the error' do
+
+        stub_const('Beaker::Log', test_beaker_log)
+        allow(test_beaker_log).to receive(:notify)
+
+        stub_const('Net::HTTP', test_net_http)
+        allow(test_net_http).to receive(:get_response).and_return(test_http_response)
+        allow(test_http_response).to receive(:code).and_return(test_response_code)
+        allow(test_http_response).to receive(:message).and_return(test_response_message)
+
+        expect(test_beaker_log).to receive(:notify).with(match(test_expected_log_output))
+        expect(subject.get_latest_agent_version).to eq(test_expected_result)
+
+      end
+
+    end
 
   end
 
-  context '.get_latest_agent_version' do
+  describe '#get_latest_release_agent_version' do
 
-  end
+    context 'when the response contains the agent version' do
 
-  context '.get_latest_release_agent_version' do
+      test_response_lines = [
+                              '<tr><td><a href="xyz/?C=M&amp;O=D"> xyz/</a></td><td>-</td><td>20-Mar-2018 20:38</td></tr>',
+                              '<tr><td><a href="5.5.0/?C=M&amp;O=D">5.5.0/</a></td><td>-</td><td>20-Mar-2018 19:37</td></tr>',
+                              '<tr><td><a href="abc/?C=M&amp;O=D"> abc/</a></td><td>-</td><td>20-Mar-2018 17:58</td></tr>',
+                              '<tr><td><a href="123/?C=M&amp;O=D"> 123/</a></td><td>-</td><td>12-Mar-2018 17:54</td></tr>',
+                              '<tr><td><a href="5.4.0/?C=M&amp;O=D">5.4.0/</a></td><td>-</td><td>16-Feb-2018 17:18</td></tr>',
+                              '<tr><td><a href="5.3.5/?C=M&amp;O=D">5.3.5/</a></td><td>-</td><td>13-Feb-2018 21:25</td></tr>'
+                            ]
+
+      test_response_code = '200'
+      test_expected_result = '5.5.0'
+
+      it 'returns the agent version' do
+
+        stub_const('Beaker::Log', test_beaker_log)
+        allow(test_beaker_log).to receive(:notify)
+
+        stub_const('Net::HTTP', test_net_http)
+        allow(test_net_http).to receive(:get).and_return(test_http_response)
+        allow(test_net_http).to receive(:start).and_return(test_response_code)
+        allow(test_http_response).to receive(:lines).and_return(test_response_lines)
+
+        expect(subject.get_latest_release_agent_version).to eq(test_expected_result)
+      end
+
+    end
+
+    context 'when the response does not contain the agent version' do
+
+      test_response_lines = ['<tr><td><a href="xyz/?C=M&amp;O=D">xyz/</a></td><td>-</td><td>13-Feb-2018 21:25</td></tr>']
+      test_response_code = '200'
+      test_expected_result = nil
+
+      it 'returns nil' do
+
+        stub_const('Beaker::Log', test_beaker_log)
+        allow(test_beaker_log).to receive(:notify)
+
+        stub_const('Net::HTTP', test_net_http)
+        allow(test_net_http).to receive(:get).and_return(test_http_response)
+        allow(test_net_http).to receive(:start).and_return(test_response_code)
+        allow(test_http_response).to receive(:lines).and_return(test_response_lines)
+
+        expect(subject.get_latest_release_agent_version).to eq(test_expected_result)
+
+        end
+
+    end
+
+    context 'when the response code is not 200' do
+
+      test_response_lines = ['<tr><td><a href="5.3.5/?C=M&amp;O=D">5.3.5/</a></td><td>-</td><td>13-Feb-2018 21:25</td></tr>']
+      test_response_code = '404'
+      test_expected_result = nil
+
+      it 'returns nil' do
+
+        stub_const('Beaker::Log', test_beaker_log)
+        allow(test_beaker_log).to receive(:notify)
+
+        stub_const('Net::HTTP', test_net_http)
+        allow(test_net_http).to receive(:get).and_return(test_http_response)
+        allow(test_net_http).to receive(:start).and_return(test_response_code)
+        allow(test_http_response).to receive(:lines).and_return(test_response_lines)
+
+        expect(subject.get_latest_release_agent_version).to eq(test_expected_result)
+
+      end
+
+    end
 
   end
 

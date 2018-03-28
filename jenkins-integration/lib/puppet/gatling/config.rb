@@ -202,7 +202,9 @@ def set_service_environment_variable(host, filepath, variable_name, value)
   tmp_module_dir = master.tmpdir('configure_inifile')
 
   step 'Configure inifile module' do
-    on(master, puppet('module', 'install', 'puppetlabs-inifile', '--codedir', tmp_module_dir))
+    # Workaround for MODULES-6687 where the inifile won't manage existing configfile lines
+    # on puppet > 5.4.0 and inifile >= 1.6.0. 1.5.0 is the last inifile release before the refreshonly param went in.
+    on(master, puppet('module', 'install', 'puppetlabs-inifile', '--codedir', tmp_module_dir, '--version', '1.5.0'))
   end
 
   teardown do

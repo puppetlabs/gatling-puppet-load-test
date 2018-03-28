@@ -212,6 +212,12 @@ def step020_install_server(SKIP_SERVER_INSTALL, script_dir, server_era, agent_ve
     }
 }
 
+def step021_clone_and_rsync(script_dir, remote, ref) {
+    withEnv(["PUPPET_REMOTE=${remote}", "PUPPET_REF=${ref}"]) {
+        sh "${script_dir}/021_clone_and_rsync.sh"
+    }
+}
+
 def step025_collect_facter_data(job_name, gatling_simulation_config, script_dir, server_era) {
     withEnv(["PUPPET_GATLING_SIMULATION_CONFIG=${gatling_simulation_config}",
              "PUPPET_GATLING_SIMULATION_ID=${job_name}",
@@ -322,27 +328,17 @@ def step080_customize_java_args(script_dir, server_heap_settings, server_era) {
 
 def step081_customize_jruby_jar(script_dir, jruby_jar, server_era) {
     def jar_string = ""
-    def JRUBY_VERSION_SET = true
 
-    // This garbage can be replaced with either getBinding().hasVariable("JRUBY_VERSION")
-    // or via a params map (params.JRUBY_VERSION == null)
-    // https://wiki.jenkins.io/display/JENKINS/Pipeline+Groovy+Plugin#PipelineGroovyPlugin-2.18%28Sep23%2C2016%29
-    try {
-        println("JRUBY_VERSION is ${JRUBY_VERSION}")
-    } catch (MissingPropertyException e) {
-        JRUBY_VERSION_SET = false
-    }
-
-    if (!JRUBY_VERSION_SET) {
+    if (params.JRUBY_VERSION == null) {
         // Setting the jruby jar to an empty string will effectively cause the
         // beaker script to tell puppetserver to use the default jar path
         jar_string = jruby_jar ?: ""
     } else {
         // This branch indicates there is a JRUBY_VERSION parameter on the jenkins job,
         // so we use that instead.
-        if ("${JRUBY_VERSION}" == "1.7") {
+        if ("${params.JRUBY_VERSION}" == "1.7") {
             jar_string = "/opt/puppetlabs/server/apps/puppetserver/jruby-1_7.jar"
-        } else if ("${JRUBY_VERSION}" == "9k") {
+        } else if ("${params.JRUBY_VERSION}" == "9k") {
             jar_string = "/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar"
         }
     }
@@ -355,14 +351,36 @@ def step081_customize_jruby_jar(script_dir, jruby_jar, server_era) {
 }
 
 def step085_customize_hocon_settings(script_dir, settings, server_era) {
-    if (settings == null) {
-        echo "Skipping hocon settings customization; no overrides found in `hocon_settings`."
-    } else {
-        settings_json = JsonOutput.toJson(settings)
-        withEnv(["PUPPET_GATLING_HOCON_SETTINGS=${settings_json}",
-                 "PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}"]) {
-            sh "${script_dir}/085_customize_hocon_settings.sh"
+    settings = settings ?: []
+
+    if (params.MAX_REQUESTS_PER_INSTANCE != null) {
+        settings << [
+                      file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                      path: "jruby-puppet.max-requests-per-instance",
+                      value: "${params.MAX_REQUESTS_PER_INSTANCE}"
+                    ]
+    }
+
+    if (params.MAX_INSTANCES) {
+        if ("${params.MAX_INSTANCES}" == "default") {
+            settings << [
+                      action: "unset",
+                      file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                      path: "jruby-puppet.max-active-instances",
+                    ]
+        } else {
+            settings << [
+                      file: "/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf",
+                      path: "jruby-puppet.max-active-instances",
+                      value: "${params.MAX_INSTANCES}"
+                    ]
         }
+    }
+
+    settings_json = JsonOutput.toJson(settings)
+    withEnv(["PUPPET_GATLING_HOCON_SETTINGS=${settings_json}",
+             "PUPPET_SERVER_SERVICE_NAME=${server_era["service_name"]}"]) {
+        sh "${script_dir}/085_customize_hocon_settings.sh"
     }
 }
 
@@ -413,10 +431,6 @@ def step110_collect_sut_artifacts(script_dir, job_name, archive_sut_files) {
             }
 
         }
-        // Clean up the sut_archive_files so they don't appear in the next run by accident
-        dir("puppet-gatling/${job_name}/sut_archive_files") {
-            deleteDir()
-        }
     }
 }
 
@@ -427,15 +441,148 @@ def step900_collect_driver_artifacts() {
 
     // Always archive the simulation.log.gz from the run.
     archive "simulation-runner/results/**/*.log.gz"
-    dir('simulation-runner/results') {
-        deleteDir()
+}
+
+def create_params_file(archive_dir) {
+    def keys = params.keySet().toArray()
+    def param_string = ""
+    for (i = 0; i < keys.size(); i++) {
+        param_string += "${keys[i]}: ${params.get(keys[i])}\n"
     }
+    sh "echo '${param_string}' > ${archive_dir}/job_params.txt"
+}
+
+def step905_publish_artifacts_to_s3(job_name) {
+    def archive_dir = job_name + '-' + (new Date().format("yyyy-MM-dd-HH:mm:ss"))
+    sh "mkdir -p ${archive_dir}/results"
+    // Copy all gatling output info into the dir to be uploaded
+    sh "cp -R ./puppet-gatling/${job_name}/* ${archive_dir}"
+    sh "cp simulation-runner/results/**/*.log.gz ${archive_dir}/results"
+
+    create_params_file(archive_dir)
+
+    step([
+        $class: 'S3BucketPublisher',
+        entries: [
+            [
+                bucket: 'puppetserver-perf-data',
+                selectedRegion: 'us-west-2',
+                sourceFile: "${archive_dir}/",
+                storageClass: 'STANDARD',
+            ]
+        ],
+        profileName: 'Jenkins_coordinator_machine_account',
+        userMetadata: []
+    ])
 }
 
 SCRIPT_DIR = "./jenkins-integration/jenkins-jobs/common/scripts/job-steps"
 
+def single_configurable_pipeline(job) {
+    node {
+        // Clear out anything left over from the last time this workspace was used
+        deleteDir()
+
+        checkout scm
+
+        SKIP_SERVER_INSTALL = (SKIP_SERVER_INSTALL == "true")
+        SKIP_PROVISIONING = (SKIP_PROVISIONING == "true")
+        job['server_version'] = [type: "oss", service_name: "puppetserver", version: SERVER_VERSION, tk_auth: true]
+        job['agent_version'] = [version: AGENT_VERSION]
+
+        job_name = job['job_name']
+
+        if (job_name == "puppetserver-infinite") {
+            dir('simulation-runner/config/scenarios') {
+                scenario_name = generate_gatling_scenario(NUMBER_OF_HOURS, CATALOG_SIZE, NODE_COUNT)
+                job["gatling_simulation_config"] = "../simulation-runner/config/scenarios/${scenario_name}"
+            }
+
+            if (CATALOG_SIZE == "EMPTY") {
+                job["code_deploy"]["environments"] = ['20171208_empty_repo']
+            }
+        }
+
+        stage '000-provision-sut'
+        step000_provision_sut(SKIP_PROVISIONING, SCRIPT_DIR)
+
+        stage '010-setup-beaker'
+        step010_setup_beaker(SCRIPT_DIR, job["server_version"])
+
+        server_era = get_server_era(job["server_version"])
+        agent_version = get_agent_version(job["agent_version"])
+
+        stage '020-install-server'
+        step020_install_server(SKIP_SERVER_INSTALL, SCRIPT_DIR,
+                job['server_version'], AGENT_VERSION)
+
+        stage '021-rsync-git-clone-of-puppet-from-branch'
+        if (PUPPET_REMOTE && PUPPET_REF) {
+            step021_clone_and_rsync(SCRIPT_DIR, PUPPET_REMOTE, PUPPET_REF)
+        }
+
+        stage '025-collect-facter-data'
+        step025_collect_facter_data(job_name,
+                job['gatling_simulation_config'],
+                SCRIPT_DIR,
+                server_era)
+
+        stage '040-install-puppet-code'
+        step040_install_puppet_code(SCRIPT_DIR, job["code_deploy"], server_era)
+
+        stage '045-install-hiera-config'
+        step045_install_hiera_config(SCRIPT_DIR, job["code_deploy"], server_era)
+
+        stage '050-file-sync'
+        step050_file_sync(SCRIPT_DIR, server_era)
+
+        stage '060-classify-nodes'
+        step060_classify_nodes(SCRIPT_DIR,
+                job["gatling_simulation_config"],
+                server_era)
+
+        stage '070-validate-classification'
+        step070_validate_classification()
+
+        stage '075-customize-puppet-settings'
+        step075_customize_puppet_settings(SCRIPT_DIR, job['puppet_settings'])
+
+        stage '080-customize-java-args'
+        step080_customize_java_args(SCRIPT_DIR, job["server_heap_settings"], server_era)
+
+        stage '081-customize-jruby-jar'
+        step081_customize_jruby_jar(SCRIPT_DIR, job["jruby_jar"], server_era)
+
+        stage '085-customize-hocon-settings'
+        step085_customize_hocon_settings(SCRIPT_DIR, job['hocon_settings'], server_era)
+
+        stage '090-launch-bg-scripts'
+        step090_launch_bg_scripts(SCRIPT_DIR, job['background_scripts'])
+
+        stage '100-run-gatling-sim'
+        step100_run_gatling_sim(job_name,
+                job["gatling_simulation_config"],
+                SCRIPT_DIR)
+
+        stage '105-stop-bg-scripts'
+        step105_stop_bg_scripts(SCRIPT_DIR, job['background_scripts'])
+
+        stage '110-collect-sut-artifacts'
+        step110_collect_sut_artifacts(SCRIPT_DIR, job_name, job['archive_sut_files'])
+
+        stage '900-collect-driver-artifacts'
+        step900_collect_driver_artifacts()
+
+        stage '905-publish-artifacts-to-s3'
+        step905_publish_artifacts_to_s3(job_name)
+    }
+}
+
 def single_pipeline(job) {
     node {
+        // Clear out anything left over from the last time this workspace was used
+        deleteDir()
+
         checkout scm
 
         SKIP_SERVER_INSTALL = (SKIP_SERVER_INSTALL == "true")
@@ -518,6 +665,9 @@ def single_pipeline(job) {
 
         stage '900-collect-driver-artifacts'
         step900_collect_driver_artifacts()
+
+        stage '905-publish-artifacts-to-s3'
+        step905_publish_artifacts_to_s3(job_name)
     }
 }
 

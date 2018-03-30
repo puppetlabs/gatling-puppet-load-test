@@ -24,7 +24,7 @@ class PerfTestLarge extends SimulationWithScenario {
 		"Content-Type" -> "application/json",
 		"X-Puppet-Version" -> "5.3.3")
 
-	val scn = scenario("samtest")
+	val scn = scenario("perf_test_large")
 		.exec(http("node")
 			.get("/puppet/v3/node/${node}?environment=production&transaction_uuid=feaf75a3-c82c-4e06-9d02-5387f14034a0&fail_on_404=true")
 			.headers(headers_0))

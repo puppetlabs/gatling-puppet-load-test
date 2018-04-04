@@ -48,6 +48,11 @@ end
 
 desc 'Provision systems for the performance task with ABS - included in the performance task'
 rototiller_task :performance_provision_with_abs do |t|
+  raise "The BEAKER_INSTALL_TYPE env var must be set to either 'pe' or 'foss' to continue" unless
+      ENV['BEAKER_INSTALL_TYPE'] == 'pe' || ENV['BEAKER_INSTALL_TYPE'] == 'foss'
+  t.add_env({:name => 'BEAKER_PE_DIR', :message => 'The PE download directory, example: http://enterprise.delivery.puppetlabs.net/archives/releases/2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
+  t.add_env({:name => 'BEAKER_PE_VER', :message => 'The PE version to install on hosts, example: 2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
+
   t.add_env({:name => 'ABS_OS', :default => 'centos-7-x86-64-west', :message => 'The OS to provision with ABS: centos-7-x86-64-west (for AWS), or centos-7-x86_64 (for vmpooler)'})
   # Creating a random job id, since this is required by ABS and needs to be unique. In CI, this task will not be executed.
   ENV['ABS_JOB_ID'] = rand(100000..999999).to_s unless ENV['ABS_JOB_ID']
@@ -62,26 +67,34 @@ rototiller_task :performance_provision_with_abs do |t|
 
   ENV['ABS_RESOURCE_HOSTS'] = res.body
   puts "ABS_RESOURCE_HOSTS=#{ENV['ABS_RESOURCE_HOSTS']}"
+  open('last_abs_resource_hosts.log', 'w') { |f|
+    f.puts res.body
+    f.puts ENV['ABS_JOB_ID']
+  }
 end
 
 desc 'Task to deprovision systems that were provisioned with ABS - included in the performance task following the rules of BEAKER_PRESERVE_HOSTS env var.'
 rototiller_task :performance_deprovision_with_abs do
-  raise 'performance_deprovision_with_abs task requires values for env variables: ABS_RESOURCE_HOSTS and ABS_JOB_ID' unless ENV['ABS_RESOURCE_HOSTS'] && ENV['ABS_JOB_ID']
+  abs_resource_hosts = ENV['ABS_RESOURCE_HOSTS'].nil? ? File.open(last_abs_resource_hosts.log).readlines[0] : ENV['ABS_RESOURCE_HOSTS']
+  abs_job_id = ENV['ABS_JOB_ID'].nil? ? File.open(last_abs_resource_hosts.log).readlines[1] : ENV['ABS_JOB_ID']
+  raise 'performance_deprovision_with_abs task requires values for env variables: ABS_RESOURCE_HOSTS and ABS_JOB_ID' unless abs_resource_hosts && abs_job_id
   uri = URI("#{BASE_ABS_URI}return")
-  req_body = {'job_id': ENV['ABS_JOB_ID'], 'hosts': JSON.parse(ENV['ABS_RESOURCE_HOSTS'])}.to_json
+  req_body = {'job_id': abs_job_id, 'hosts': JSON.parse(abs_resource_hosts)}.to_json
 
   # Wait up to 30 seconds for a non error response from ABS when de-provisioning
   retry_abs_request(uri, req_body, 30, 5)
 end
 
+rototiller_task :performance_against_already_provisioned do
+  ENV['BEAKER_HOSTS'] ||= "log/latest/hosts_preserved.yml"
+  ENV['ABS_RESOURCE_HOSTS'] = File.open("last_abs_resource_hosts.log").readlines[0] if File.exist? "last_abs_resource_hosts.log"
+  ENV['BEAKER_PRE_SUITE'] = ""
+  Rake::Task["performance_without_provision"].execute
+end
+
 desc 'Execute beaker performance setup and tests against existing hosts specified by ABS_RESOURCE_HOSTS env var, intended to be used in CI - use task "performance" for local/dev execution'
 rototiller_task :performance_without_provision do |t|
-  raise "The BEAKER_INSTALL_TYPE env var must be set to either 'pe' or 'foss' to continue" unless
-      ENV['BEAKER_INSTALL_TYPE'] == 'pe' || ENV['BEAKER_INSTALL_TYPE'] == 'foss'
-
   t.add_env({:name => 'ABS_RESOURCE_HOSTS', :message => 'The string returned from the ABS service describing your hosts'})
-  t.add_env({:name => 'BEAKER_PE_DIR', :message => 'The PE download directory, example: http://enterprise.delivery.puppetlabs.net/archives/releases/2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
-  t.add_env({:name => 'BEAKER_PE_VER', :message => 'The PE version to install on hosts, example: 2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'ENVIRONMENT_TYPE', :message => 'Either gatling or clamps', :default => 'gatling'})
   t.add_env({:name => 'PUPPET_GATLING_R10K_CONTROL_REPO', :default => 'git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git'})
   t.add_env({:name => 'PUPPET_GATLING_R10K_BASEDIR', :default => '/etc/puppetlabs/code-staging/environments'})

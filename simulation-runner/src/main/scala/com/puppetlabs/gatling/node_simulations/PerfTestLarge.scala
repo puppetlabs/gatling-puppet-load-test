@@ -5,13 +5,20 @@ import org.joda.time.format.ISODateTimeFormat
 import java.util.UUID
 
 import scala.concurrent.duration._
+import scala.io.Source._
+import scala.util.parsing.json._
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class PerfTestLarge extends SimulationWithScenario {
 
-	val reportBody = ElFileBody("PerfTestLarge_0006_request.txt")
+	val reportFeeder = Array(
+                         Map("reportFile" -> "NoChangesReport_0006_request.txt"),
+                         Map("reportFile" -> "FailureReport_0006_request.txt"),
+                         Map("reportFile" -> "CorrectiveChangeReport_0006_request.txt"),
+                         Map("reportFile" -> "IntentionalChangeReport_0044_request.txt")
+                       ).circular
 
 	val baseHeaders = Map("Accept" -> "application/json, text/pson",
 		"Accept-Encoding" -> "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
@@ -24,7 +31,8 @@ class PerfTestLarge extends SimulationWithScenario {
 		"Content-Type" -> "application/json",
 		"X-Puppet-Version" -> "5.3.3")
 
-	val scn = scenario("samtest")
+	val scn = scenario("perf_test_large")
+	    .feed(reportFeeder)
 		.exec(http("node")
 			.get("/puppet/v3/node/${node}?environment=production&transaction_uuid=feaf75a3-c82c-4e06-9d02-5387f14034a0&fail_on_404=true")
 			.headers(headers_0))
@@ -67,6 +75,6 @@ class PerfTestLarge extends SimulationWithScenario {
 		.exec(http("report")
 			.put("/puppet/v3/report/${node}?environment=production&")
 			.headers(headers_6)
-			.body(reportBody))
+			.body(ElFileBody("${reportFile}"))
 
 }

@@ -4,11 +4,7 @@ gem 'beaker', '~>3.2.0'
 gem 'beaker-hostgenerator', '0.8.0'
 gem 'beaker-pe', '~>1.4'
 
-gem 'scooter', :git => 'git@github.com:puppetlabs/scooter.git', :tag => '3.2.19'
-# Pin to the last version of net-ldap that works on ruby 1.9.3. We can get rid
-# of this once a new release of scooter is done that has an upper bound on this
-# gem dependency.
-gem 'net-ldap', '0.12.1'
+gem 'scooter', '~> 3.2.0'
 
 if File.exists? "#{__FILE__}.local"
   eval(File.read("#{__FILE__}.local"), binding)

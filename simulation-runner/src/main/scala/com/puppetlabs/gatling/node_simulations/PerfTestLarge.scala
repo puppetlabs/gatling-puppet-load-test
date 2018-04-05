@@ -75,6 +75,6 @@ class PerfTestLarge extends SimulationWithScenario {
 		.exec(http("report")
 			.put("/puppet/v3/report/${node}?environment=production&")
 			.headers(headers_6)
-			.body(ElFileBody("${reportFile}"))
+			.body(ElFileBody("${reportFile}")))
 
 }

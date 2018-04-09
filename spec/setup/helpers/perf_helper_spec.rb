@@ -220,6 +220,7 @@ describe PerfHelperClass do
       it 'returns nil' do
         stub_const('Beaker::Log', test_beaker_log)
         allow(test_beaker_log).to receive(:notify)
+        allow(subject).to receive(:has_cent7_repo?).and_return(false)
         expect(subject.get_cent7_repo(test_response_lines, test_package)).to eq(test_expected_result)
       end
 

@@ -99,114 +99,24 @@ describe PerfHelperClass do
 
       test_is_pre_aio_version = false
 
-      context 'when we are using meep' do
+      before {
+        test_options = { :answers => {} }
+        subject.instance_variable_set(:@options, test_options)
+      }
 
-        # TODO: how should @options / @options[:answers] be handled?
-        before {
-          test_options = { :answers => {} }
-          #subject.instance_variable_set(:@options, { })
-          subject.instance_variable_set(:@options, test_options)
-        }
+      test_pe_ver = '2017.3'
+      let!(:master) { {'pe_ver' => test_pe_ver} }
 
-        test_use_meep = true
-        test_pe_ver = '2017.3'
-        let!(:master) { {'pe_ver' => test_pe_ver} }
+      test_updated_options = {:answers=>{"puppet_enterprise::profile::master::r10k_remote"=>"/opt/puppetlabs/server/data/puppetserver/r10k/control-repo", "puppet_enterprise::profile::master::r10k_private_key"=>"/root/.ssh/id_rsa"}}
 
-        test_updated_options = {:answers=>{"puppet_enterprise::profile::master::r10k_remote"=>"/opt/puppetlabs/server/data/puppetserver/r10k/control-repo", "puppet_enterprise::profile::master::r10k_private_key"=>"/root/.ssh/id_rsa"}}
+      it 'includes the dashboard and installs pe' do
 
-        it 'includes the dashboard and installs pe' do
+        expect(subject).to receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
 
-          expect(subject).to receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
-          expect(subject).to receive(:use_meep?).with(master['pe_ver'] || options['pe_ver']).and_return(test_use_meep)
-          expect(subject).to receive(:master).and_return(master)
+        expect(subject).to receive(:install_lei).once
+        subject.perf_install_pe
 
-          # TODO: @options[:answers] ?
-          # expect(subject.instance_variable_get(:@options)). to eq(test_updated_options)
-
-          expect(subject).to receive(:install_lei).once
-          subject.perf_install_pe
-
-        end
-
-      end
-
-      context 'when we are not using meep' do
-
-        test_use_meep = false
-        test_boundary_version = '2016.2'
-
-        context 'when version is less than 2016.2' do
-
-          test_pe_ver = '2016.1'
-          test_version_is_less = true
-
-          let!(:master) { {'pe_ver' => test_pe_ver} }
-          let!(:compile_masters) { {'pe_ver' => test_pe_ver} }
-          let!(:dashboard) { {'pe_ver' => test_pe_ver} }
-
-          it 'includes the dashboard and installs pe' do
-
-            expect(subject).to receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
-            expect(subject).to receive(:use_meep?).with(master['pe_ver'] || options['pe_ver']).and_return(test_use_meep)
-
-            # TODO: is allow acceptable here? expect error with '5 times'
-            allow(subject).to receive(:master).and_return(master)
-
-            expect(subject).to receive(:compile_masters).and_return(compile_masters)
-            expect(subject).to receive(:dashboard).and_return(dashboard)
-
-            # TODO: handle custom answers
-
-            # TODO: handle pe_version master / options
-
-            # TODO: version_is_less??
-            expect(subject).to receive(:version_is_less).with(test_pe_ver, test_boundary_version).and_return(test_version_is_less)
-
-            # TODO: pre_config_hiera - with?
-            expect(subject).to receive(:pre_config_hiera)
-
-            # TODO: master['hieradata_dir_used_in_install']
-
-            expect(subject).to receive(:install_lei).once
-            subject.perf_install_pe
-
-          end
-
-        end
-
-        context 'when version is not less than 2016.2' do
-
-          test_pe_ver = '2016.3'
-          test_version_is_less = false
-
-          let!(:master) { {'pe_ver' => test_pe_ver} }
-          let!(:compile_masters) { {'pe_ver' => test_pe_ver} }
-          let!(:dashboard) { {'pe_ver' => test_pe_ver} }
-
-          it 'includes the dashboard and installs pe' do
-
-            expect(subject).to receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
-            expect(subject).to receive(:use_meep?).with(master['pe_ver'] || options['pe_ver']).and_return(test_use_meep)
-
-            # TODO: is allow acceptable here? expect caused error with '3 times'
-            allow(subject).to receive(:master).and_return(master)
-
-            expect(subject).to receive(:compile_masters).and_return(compile_masters)
-            expect(subject).to receive(:dashboard).and_return(dashboard)
-
-            # TODO: handle custom answers?
-
-            # TODO: handle pe_version master / options?
-
-            # TODO: version_is_less??
-            expect(subject).to receive(:version_is_less).with(test_pe_ver, test_boundary_version).and_return(test_version_is_less)
-
-            expect(subject).to receive(:install_lei).once
-            subject.perf_install_pe
-
-          end
-
-        end
+        expect(subject.instance_variable_get(:@options)). to eq(test_updated_options)
 
       end
 
@@ -227,8 +137,6 @@ describe PerfHelperClass do
   end
 
   describe '#has_cent7_repo?' do
-
-    # TODO: stub Net::HTTP to provide the expected response or test the actual URLs?
 
     context 'when the package / version is available' do
 
@@ -297,6 +205,7 @@ describe PerfHelperClass do
       it 'returns the package' do
         stub_const('Beaker::Log', test_beaker_log)
         allow(test_beaker_log).to receive(:notify)
+        allow(subject).to receive(:has_cent7_repo?).and_return(true)
         expect(subject.get_cent7_repo(test_response_lines, test_package)).to eq(test_expected_result)
       end
 

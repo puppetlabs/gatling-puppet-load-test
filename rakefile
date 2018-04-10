@@ -75,8 +75,8 @@ end
 
 desc 'Task to deprovision systems that were provisioned with ABS - included in the performance task following the rules of BEAKER_PRESERVE_HOSTS env var.'
 rototiller_task :performance_deprovision_with_abs do
-  abs_resource_hosts = ENV['ABS_RESOURCE_HOSTS'].nil? ? File.open(last_abs_resource_hosts.log).readlines[0] : ENV['ABS_RESOURCE_HOSTS']
-  abs_job_id = ENV['ABS_JOB_ID'].nil? ? File.open(last_abs_resource_hosts.log).readlines[1] : ENV['ABS_JOB_ID']
+  abs_resource_hosts = ENV['ABS_RESOURCE_HOSTS'].nil? ? File.open("last_abs_resource_hosts.log").readlines[0] : ENV['ABS_RESOURCE_HOSTS']
+  abs_job_id = ENV['ABS_JOB_ID'].nil? ? File.open("last_abs_resource_hosts.log").readlines[1] : ENV['ABS_JOB_ID']
   raise 'performance_deprovision_with_abs task requires values for env variables: ABS_RESOURCE_HOSTS and ABS_JOB_ID' unless abs_resource_hosts && abs_job_id
   uri = URI("#{BASE_ABS_URI}return")
   req_body = {'job_id': abs_job_id, 'hosts': JSON.parse(abs_resource_hosts)}.to_json

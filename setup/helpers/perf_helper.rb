@@ -602,7 +602,7 @@ authorization: {
     end
     step 'adjust scala build tool mem' do
       metric.mkdir_p '/usr/share/sbt/conf/'
-      on metric, "echo '-mem   2048' >> /usr/share/sbt/conf/sbtopts"
+      on metric, "echo '-mem 3072' >> /usr/share/sbt/conf/sbtopts"
     end
   end
 

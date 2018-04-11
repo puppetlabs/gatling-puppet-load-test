@@ -45,7 +45,7 @@ class PerfTestLarge extends SimulationWithScenario {
 			.get("/puppet/v3/file_metadatas/plugins?environment=production&links=follow&recurse=true&source_permissions=ignore&ignore=.svn&ignore=CVS&ignore=.git&ignore=.hg&ignore=%2A.pot&checksum_type=md5")
 			.headers(headers_0))
 		.pause(1)
-		.exec(http("")
+		.exec(http("locales")
 			.get("/puppet/v3/file_metadatas/locales?environment=production&links=follow&recurse=true&source_permissions=ignore&ignore=.svn&ignore=CVS&ignore=.git&ignore=.hg&ignore=%2A.pot&ignore=config.yaml&checksum_type=md5")
 			.headers(headers_0))
 		.pause(1)

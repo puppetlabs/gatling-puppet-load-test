@@ -228,6 +228,8 @@ puppet_enterprise::master::code_manager::timeouts_deploy: 600
         Beaker::Log.notify("Installing OSS Puppet AGENT version '#{puppet_agent_version}'")
         install_puppetlabs_dev_repo master, 'puppet-agent', puppet_agent_version,
                                     repo_config_dir, install_opts
+        install_puppetlabs_dev_repo agent, 'puppet-agent', puppet_agent_version,
+                                    repo_config_dir, install_opts
       else
         abort("Environment variable PUPPET_AGENT_VERSION required for package installs!")
       end
@@ -273,7 +275,14 @@ puppet_enterprise::master::code_manager::timeouts_deploy: 600
 
     step "Install Puppet Server." do
       install_package master, 'puppetserver'
+      on(master, "puppet config set --section master autosign true")
+      on(master, "service puppetserver start")
       on(master, "puppet agent -t --server #{master}")
+    end
+
+    step "Install Puppet Agent." do
+      install_package agent, 'puppet-agent'
+      on(agent, "puppet agent -t --server #{master}")
     end
 
   end

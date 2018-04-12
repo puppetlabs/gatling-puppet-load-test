@@ -584,21 +584,14 @@ authorization: {
       results = on metric, 'cat /root/.ssh/id_rsa.pub'
       key = results.stdout.strip
       on master, "echo \"#{key}\" >> /root/.ssh/authorized_keys"
-      # on metric, "ssh-copy-id root@#{master.hostname}"
     end
-    step 'update nss, curl and libcurl to support ssh to github' do
-      on metric, 'yum update -y nss curl libcurl'
-    end
-    step 'install git' do
-      on metric, 'yum install -y git'
-    end
-    clone_git_repo_on(metric, './', extract_repo_info_from(build_git_url('gatling-puppet-load-test')))
-    step 'setup shill git user' do
-      on metric, 'cd gatling-puppet-load-test; git config --global user.email "beaker@puppet.com"; git config --global user.name "meep"'
+    step 'setup target dirs and copy simulation-runner directory to metric host' do
+      metric.mkdir_p "gatling-puppet-load-test/simulation-runner/target/ssl"
+      metric.mkdir_p "gatling-puppet-load-test/simulation-runner/results"
+      scp_to(metric, "simulation-runner", "gatling-puppet-load-test")
     end
     step 'copy ssl certs to metrics box' do
-      on metric, 'mkdir /root/gatling-puppet-load-test/simulation-runner/target'
-      scp_to(metric, 'simulation-runner/target/ssl', 'gatling-puppet-load-test/simulation-runner/target/ssl')
+      scp_to(metric, 'simulation-runner/target/ssl', 'gatling-puppet-load-test/simulation-runner/target')
     end
     step 'adjust scala build tool mem' do
       metric.mkdir_p '/usr/share/sbt/conf/'

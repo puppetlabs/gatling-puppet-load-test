@@ -142,6 +142,8 @@ rototiller_task :performance_without_provision do |t|
   t.add_env({:name => 'PUPPET_R10K_VERSION', :default => '2.3.0'})
   t.add_env({:name => 'PUPPET_SCALE_CLASS', :default => 'role::by_size::large'})
   t.add_env({:name => 'PUPPET_GATLING_SCENARIO', :default => 'ApplesToApples.json'})
+  t.add_env({:name => 'BEAKER_TESTS', :default => 'tests/ApplesToApples.rb'})
+  t.add_env({:name => 'BEAKER_POST_SUITE', :default => ''})
   t.add_env({:name => 'PUPPET_SERVER_SERVICE_NAME', :default => 'pe-puppetserver'})
   t.add_env({:name => 'SUT_ARCHIVE_FILES', :default => ''})
   t.add_env({:name => 'PACKAGE_BUILD_VERSION', :default => 'latest'}) if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
@@ -276,6 +278,8 @@ rototiller_task :acceptance do |t|
   ENV['ENVIRONMENT_TYPE'] = 'gatling'
   ENV['PUPPET_GATLING_SCENARIO'] = 'acceptance.json'
   ENV['BEAKER_HOSTS'] ||= 'config/beaker_hosts/pe-vmpooler.cfg'
+  ENV['BEAKER_TESTS'] ||= 'tests/acceptance.rb'
+  ENV['BEAKER_POST_SUITE'] = ''
   # Need to change this from an AWS OS image to a vmpooler OS image
   ENV['ABS_OS'] ||= 'centos-7-x86_64'
   Rake::Task["performance"].execute

@@ -30,6 +30,35 @@ You can execute the 'acceptance' rake task which will run everything in VMPooler
 
 `ABS_OS=centos-7-x86-64-west BEAKER_HOSTS=config/beaker_hosts/pe-perf-test.cfg`
 
+### Assertions and Baseline Comparisons
+
+In order to use the BigQuery integration, you will need to perform the following steps:
+
+* Choose to create a new key for the perf-metrics service account - https://console.developers.google.com/iam-admin/serviceaccounts/project?project=perf-metrics&organizationId=635869474587
+* Download it and save locally.
+* `export GOOGLE_APPLICATION_CREDENTIALS=` setting to the location you have saved the json key file.
+
+If you want to push the metrics to BigQuery at the end of the test run set:
+
+`export PUSH_TO_BIGQUERY=true`
+
+By default this will be set to `false` when running locally and `true` when jobs run in CI.
+
+In order to have a baseline comparison performed at the end of the test run, set:
+
+`export BASELINE_PE_VER=`
+
+to the version of PE you want to compare against.
+
+Things to note:
+
+* If any of the test specific assertions fail, the baseline comparison assertions will not be executed.
+* If BASELINE_PE_VER has not been set than the baseline comparison assertions in the last test step will not be run (test step will be skipped).
+* Whatever string you pass to the job to indicate the BEAKER_PE_VER needs to be used consistently. For example, if you set the version in the format `2018.1.1-rc0-11-g8fbde83` you need to use this again as the BASELINE_PE_VER or the test will error/not return expected results.
+* If BASELINE_PE_VER is not found in BigQuery then the last step will error.
+* Results are not overwritten, we get the latest result that matches BASELINE_PE_VER and the current test name.
+* We currently only push up the data we need in order to perform the assertions.
+
 ### Set up Puppet Enterprise and Gatling but do not execute a gatling scenario
 Another use for the performance task would be to record and playback a new scenario either for one-off testing,
 or for a new scenario that will be checked in and used.  Additionally, you may just want to execute the setup standalone and then execute the tests later.

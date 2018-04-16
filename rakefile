@@ -10,7 +10,9 @@ task :default => :performance
 
 desc 'Provision systems using ABS (or use already set ABS_RESOURCE_HOSTS) and then execute beaker performance setup and tests'
 rototiller_task :performance do
-  Rake::Task["performance_provision_with_abs"].execute unless ENV['ABS_RESOURCE_HOSTS']
+  Rake::Task["performance_provision_with_abs"].execute unless ENV['ABS_RESOURCE_HOSTS'] ||
+      ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/pe-perf-test.cfg' ||
+      ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/foss-perf-test.cfg'
   Rake::Task["performance_without_provision"].execute
   Rake::Task["performance_deprovision_with_abs"].execute unless ENV['BEAKER_PRESERVE_HOSTS'] == 'always' ||
       ((@beaker_cmd.nil? || @beaker_cmd.result.exit_code != 0)&&
@@ -94,7 +96,8 @@ end
 
 desc 'Execute beaker performance setup and tests against existing hosts specified by ABS_RESOURCE_HOSTS env var, intended to be used in CI - use task "performance" for local/dev execution'
 rototiller_task :performance_without_provision do |t|
-  t.add_env({:name => 'ABS_RESOURCE_HOSTS', :message => 'The string returned from the ABS service describing your hosts'})
+  t.add_env({:name => 'ABS_RESOURCE_HOSTS', :message => 'The string returned from the ABS service describing your hosts'}) if ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/pe-perf-test.cfg' ||
+      ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/foss-perf-test.cfg'
   t.add_env({:name => 'ENVIRONMENT_TYPE', :message => 'Either gatling or clamps', :default => 'gatling'})
   t.add_env({:name => 'PUPPET_GATLING_R10K_CONTROL_REPO', :default => 'git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git'})
   t.add_env({:name => 'PUPPET_GATLING_R10K_BASEDIR', :default => '/etc/puppetlabs/code-staging/environments'})

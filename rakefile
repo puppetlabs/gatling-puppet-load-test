@@ -97,7 +97,11 @@ rototiller_task :performance_without_provision do |t|
   t.add_env({:name => 'ABS_RESOURCE_HOSTS', :message => 'The string returned from the ABS service describing your hosts'})
   t.add_env({:name => 'ENVIRONMENT_TYPE', :message => 'Either gatling or clamps', :default => 'gatling'})
   t.add_env({:name => 'PUPPET_GATLING_R10K_CONTROL_REPO', :default => 'git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git'})
-  t.add_env({:name => 'PUPPET_GATLING_R10K_BASEDIR', :default => '/etc/puppetlabs/code-staging/environments'})
+  if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
+    t.add_env({:name => 'PUPPET_GATLING_R10K_BASEDIR', :default => '/etc/puppetlabs/code/environments'})
+  else
+    t.add_env({:name => 'PUPPET_GATLING_R10K_BASEDIR', :default => '/etc/puppetlabs/code-staging/environments'})
+  end
   t.add_env({:name => 'PUPPET_GATLING_R10K_ENVIRONMENTS', :default => 'production'})
   t.add_env({:name => 'PUPPET_BIN_DIR', :default => '/opt/puppetlabs/puppet/bin'})
   t.add_env({:name => 'PUPPET_R10K_VERSION', :default => '2.3.0'})
@@ -107,15 +111,6 @@ rototiller_task :performance_without_provision do |t|
   t.add_env({:name => 'SUT_ARCHIVE_FILES', :default => ''})
   t.add_env({:name => 'PACKAGE_BUILD_VERSION', :default => 'latest'}) if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
   t.add_env({:name => 'PUPPET_AGENT_VERSION', :default => 'latest'}) if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
-
-  default_setup = 'setup/install'
-
-  # TODO: This is a temporary step... going to get a working workflow for gatling runs,
-  # then a separate workflow for clamps and then work on combining them.
-  if ENV['ENVIRONMENT_TYPE'] == 'gatling'
-    default_setup = 'setup/install_gatling'
-    default_tests = 'tests'
-  end
 
   # env vars needed for Beaker
   @beaker_cmd = t.add_command do |command|
@@ -131,12 +126,17 @@ rototiller_task :performance_without_provision do |t|
         arg.add_env({:name => 'BEAKER_HOSTS'})
       end
     end
-    command.add_option do |option|
-      option.name = '--keyfile'
-      option.message = 'The SSH key used to access a SUT'
-      option.add_argument do |arg|
-        arg.name = "#{ENV['HOME']}/.ssh/id_rsa-acceptance"
-        arg.add_env({:name => 'BEAKER_KEYFILE'})
+    # this is specified in the options file
+    #   this is here so it can be overridden in the rake task
+    #   there is no beaker built-in env var for this
+    unless (!ENV['BEAKER_KEYFILE'] || ENV['BEAKER_KEYFILE'] == '') #unless nil or empty
+      command.add_option do |option|
+        option.name = '--keyfile'
+        option.message = 'The SSH key used to access a SUT'
+        option.add_argument do |arg|
+          arg.name = "#{ENV['HOME']}/.ssh/id_rsa-acceptance"
+          arg.add_env({:name => 'BEAKER_KEYFILE'})
+        end
       end
     end
     command.add_option do |option|
@@ -147,12 +147,24 @@ rototiller_task :performance_without_provision do |t|
         arg.add_env({:name => 'BEAKER_LOG_LEVEL'})
       end
     end
-    unless ENV['BEAKER_PRE_SUITE'] == ''
+    unless ENV['BEAKER_OPTIONS_FILE'] == ''
+      command.add_option do |option|
+        option.name = '--options'
+        option.message = 'Beaker options file'
+        option.add_argument do |arg|
+          arg.name = 'setup/options/options_pe.rb' if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
+          arg.name = 'setup/options/options_foss.rb' if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
+          arg.add_env({:name => 'BEAKER_OPTIONS_FILE'})
+        end
+      end
+    end
+    #FIXME this disallows rototiller from showing this env, when it doesn't exist
+    unless (!ENV['BEAKER_PRE_SUITE'] || ENV['BEAKER_PRE_SUITE'] == '') #unless nil or empty
       command.add_option do |option|
         option.name = '--pre-suite'
         option.message = 'Beaker pre-suite'
         option.add_argument do |arg|
-          arg.name = default_setup
+          arg.name = ''
           arg.add_env({:name => 'BEAKER_PRE_SUITE'})
         end
       end
@@ -172,17 +184,16 @@ rototiller_task :performance_without_provision do |t|
         option.name = '--tests'
         option.message = 'Beaker tests'
         option.add_argument do |arg|
-          arg.name = default_tests
+          arg.name = 'tests/'
           arg.add_env({:name => 'BEAKER_TESTS'})
         end
       end
     end
-    unless ENV['HELPER_PATH'] == ''
+    unless (!ENV['BEAKER_HELPER'] || ENV['BEAKER_HELPER'] == '') #unless nil or empty
       command.add_option do |option|
         option.name = '--helper'
-        option.message = 'Setup helper required for installing PE'
+        option.message = 'Setup helper ruby scripts, comma separated'
         option.add_argument do |arg|
-          arg.name = 'setup/helpers/classification_helper.rb,setup/helpers/ldap_helper.rb,setup/helpers/gatling_config_helper.rb'
           arg.add_env({:name => 'BEAKER_HELPER'})
         end
       end

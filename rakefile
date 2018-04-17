@@ -11,8 +11,7 @@ task :default => :performance
 desc 'Provision systems using ABS (or use already set ABS_RESOURCE_HOSTS) and then execute beaker performance setup and tests'
 rototiller_task :performance do
   Rake::Task["performance_provision_with_abs"].execute unless ENV['ABS_RESOURCE_HOSTS'] ||
-      ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/pe-perf-test.cfg' ||
-      ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/foss-perf-test.cfg'
+      (ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/pe-perf-test.cfg' && ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/foss-perf-test.cfg')
   Rake::Task["performance_without_provision"].execute
   Rake::Task["performance_deprovision_with_abs"].execute unless ENV['BEAKER_PRESERVE_HOSTS'] == 'always' ||
       ((@beaker_cmd.nil? || @beaker_cmd.result.exit_code != 0)&&

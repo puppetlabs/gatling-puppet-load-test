@@ -12,7 +12,7 @@ end
 def unset_hocon_setting(file_path, setting_path)
   step "Unset #{setting_path} in #{file_path}"
   hocon_file_edit_in_place_on([master], file_path) do |host, doc|
-    doc.remove_value(setting_path, value)
+    doc.remove_value(setting_path)
   end
 end
 

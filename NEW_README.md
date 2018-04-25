@@ -55,6 +55,7 @@ Assuming that you ran the performance task with no tests, you can follow the dir
     * When asked for the certname prefix enter any value containing the string ‘agent’. For example perf-agent-0
     * When asked for Puppet classes, enter the configuration which defaults to: role::by_size::large
         * You can use a different puppet class by specifying it as the `PUPPET_SCALE_CLASS` environment variable for the performance_gatling rake task.
+
 ### Getting a pre-recorded run started
 For the following steps, GatlingClassName is the value entered into the ClassName field during the recording step.
 From root of the gatling-puppet-load-test source dir on the Gatling driver (metrics):
@@ -75,3 +76,17 @@ From root of the gatling-puppet-load-test source dir on the Gatling driver (metr
     * scp them locally and you can view them in your browser.
 * atop files containing cpu, mem, disk and network usage overall and broken down per process are available to view on the mom: atop -r /var/log/atop/atop_\<date>
     * See the atop man file for interactive commands
+    
+### Aborting a test run
+The easiest way to immediately kill a test run is to kill the corresponding Java process on the metrics node. Find the process id with top and then use `kill <PID>`.
+
+### Generating reports for aborted runs
+If a Gatling scenario is aborted the reports may not be generated. In this case you can run Gatling in reports-only mode to generate the reports for a previous run. 
+You'll need to specify the name of the folder on the metrics node containing the simulation.log file for the run. 
+Look in `~/gatling-puppet-load-test/simulation-runner/results` for a folder that starts with 'PerfTestLarge-' followed by the run id and verify that the folder contains a valid simulation.log file.
+
+If you find that the simulation.log file is not being populated during your run you may need to reduce the log buffer size from the 8kb default.
+Set `gatling.data.file.bufferSize` in gatling.conf to a smaller value like 256 (this may impact performance).
+
+To run in reports-only mode set PUPPET_GATLING_REPORTS_ONLY=true and PUPPET_GATLING_REPORTS_TARGET=<YOUR_RESULT_FOLDER>. 
+After the run you should see that the report files have been generated within the result folder and copied to your local machine.

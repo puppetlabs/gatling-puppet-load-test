@@ -26,7 +26,7 @@ You can execute the 'acceptance' rake task which will run everything in VMPooler
 ### Set up Puppet Enterprise and Gatling but do not execute a gatling scenario
 Another use for the performance task would be to record and playback a new scenario either for one-off testing,
 or for a new scenario that will be checked in and used.  Additionally, you may just want to execute the setup standalone and then execute the tests later.
-* Follow the above instructions, but also `export BEAKER_TESTS=` and `BEAKER_PRESERVE_HOSTS=true` prior to executing the rake task to tell beaker not to execute any tests and preserve the machines.
+* Follow the above instructions, but also `export BEAKER_TESTS=` and `BEAKER_PRESERVE_HOSTS=always` prior to executing the rake task to tell beaker not to execute any tests and preserve the machines.
 * Depending on your use case, you can also choose to execute the 'acceptance' task which will run in vmpooler rather than AWS. This is useful when testing/debugging but not for actual performance measurement.
 
 ### Record a Gatling run:
@@ -81,12 +81,15 @@ From root of the gatling-puppet-load-test source dir on the Gatling driver (metr
 The easiest way to immediately kill a test run is to kill the corresponding Java process on the metrics node. Find the process id with top and then use `kill <PID>`.
 
 ### Generating reports for aborted runs
-If a Gatling scenario is aborted the reports may not be generated. In this case you can run Gatling in reports-only mode to generate the reports for a previous run. 
+If a Gatling scenario is aborted the reports may not be generated. In this case you can run Gatling in reports-only mode to generate the reports for a previous run (assuming that the hosts have been preserved). 
 You'll need to specify the name of the folder on the metrics node containing the simulation.log file for the run. 
-Look in `~/gatling-puppet-load-test/simulation-runner/results` for a folder that starts with 'PerfTestLarge-' followed by the run id and verify that the folder contains a valid simulation.log file.
+Look in `~/gatling-puppet-load-test/simulation-runner/results` for a folder that starts with 'PerfTestLarge-' followed by the run id and verify that the folder contains a valid (non-empty) simulation.log file.
 
 If you find that the simulation.log file is not being populated during your run you may need to reduce the log buffer size from the 8kb default.
 Set `gatling.data.file.bufferSize` in gatling.conf to a smaller value like 256 (this may impact performance).
 
-To run in reports-only mode set PUPPET_GATLING_REPORTS_ONLY=true and PUPPET_GATLING_REPORTS_TARGET=<YOUR_RESULT_FOLDER>. 
+To run in reports-only mode, run as you normally would against previously provisioned hosts and set the environment variables PUPPET_GATLING_REPORTS_ONLY=true and PUPPET_GATLING_REPORTS_TARGET=<YOUR_RESULT_FOLDER>.
+
+For example: `bundle exec rake performance_against_already_provisioned BEAKER_INSTALL_TYPE=pe BEAKER_PRE_SUITE= BEAKER_PRESERVE_HOSTS=always BEAKER_HOSTS=log/hosts_preserved.yml PUPPET_GATLING_REPORTS_ONLY=true PUPPET_GATLING_REPORTS_TARGET=PerfTestLarge-1524773045554`
+
 After the run you should see that the report files have been generated within the result folder and copied to your local machine.

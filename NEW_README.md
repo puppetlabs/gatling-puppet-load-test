@@ -86,7 +86,7 @@ You'll need to specify the name of the folder on the metrics node containing the
 Look in `~/gatling-puppet-load-test/simulation-runner/results` for a folder that starts with 'PerfTestLarge-' followed by the run id and verify that the folder contains a valid (non-empty) simulation.log file.
 
 If you find that the simulation.log file is not being populated during your run you may need to reduce the log buffer size from the 8kb default.
-Set `gatling.data.file.bufferSize` in gatling.conf to a smaller value like 256 (this may impact performance).
+Set `gatling.data.file.bufferSize` in `simulation-runner/gatling.conf` to a smaller value like 256 (this may impact performance).
 
 To run in reports-only mode, run as you normally would against previously provisioned hosts and set the environment variables PUPPET_GATLING_REPORTS_ONLY=true and PUPPET_GATLING_REPORTS_TARGET=<YOUR_RESULT_FOLDER>.
 

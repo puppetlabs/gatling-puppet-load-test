@@ -25,6 +25,12 @@ object PuppetGatlingRunner {
     props.simulationClass(simClass)
     props.runDescription(config.runDescription)
     props.outputDirectoryBaseName(config.simulationId)
+
+    // This checks the values set in gatling_kickoff.rb
+    if (sys.env("PUPPET_GATLING_REPORTS_ONLY") == "true") {
+      props.reportsOnly(sys.env("PUPPET_GATLING_REPORTS_TARGET"))
+    }
+
     Gatling.fromMap(props.build)
 
   }

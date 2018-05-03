@@ -3,6 +3,7 @@ require 'rspec/core/rake_task'
 require 'net/http'
 require 'timeout'
 require 'json'
+require 'yaml'
 
 BASE_ABS_URI = 'https://cinext-abs.delivery.puppetlabs.net/api/v2/'
 
@@ -24,8 +25,28 @@ rototiller_task :performance do
           ENV['BEAKER_PRESERVE_HOSTS'] == 'onfail')
 end
 
+def get_abs_token_from_fog_file
+  home = ENV['HOME']
+  fog_path = "#{home}/.fog"
+  if File.exist?(fog_path)
+    fog = YAML.load(File.read(fog_path))
+  else
+    abort ".fog file not found in home directory: #{fog_path}"
+  end
+
+  token = fog[:default][:abs_token]
+  if !token
+    abort "ABS token not found in .fog file at #{fog_path}"
+  end
+  token
+end
+
+def get_abs_token
+  ENV['ABS_TOKEN'] || get_abs_token_from_fog_file
+end
+
 def retry_abs_request(uri, body, timeout, time_increment, invalid_response_bodies = [], valid_response_codes = [202, 200])
-  req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
+  req = Net::HTTP::Post.new(uri, {'Content-Type' => 'application/json', 'X-Auth-Token' => get_abs_token})
   req.body = body
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true

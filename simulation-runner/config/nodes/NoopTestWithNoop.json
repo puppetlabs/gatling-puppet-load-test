@@ -1,0 +1,7 @@
+{
+  "simulation_class": "com.puppetlabs.gatling.node_simulations.NoopTestWithNoop",
+  "certname_prefix": "perf-agent-with-noop",
+  "classes": [
+    "role::by_size::large"
+  ]
+}

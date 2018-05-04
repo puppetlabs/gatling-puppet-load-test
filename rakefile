@@ -28,21 +28,27 @@ end
 def get_abs_token_from_fog_file
   home = ENV['HOME']
   fog_path = "#{home}/.fog"
+  token = nil
+
   if File.exist?(fog_path)
     fog = YAML.load(File.read(fog_path))
+    token = fog[:default][:abs_token]
   else
-    abort ".fog file not found in home directory: #{fog_path}"
+    puts ".fog file not found in home directory: #{fog_path}"
   end
 
-  token = fog[:default][:abs_token]
   if !token
-    abort "ABS token not found in .fog file at #{fog_path}"
+    puts "ABS token not found in .fog file at #{fog_path}"
   end
   token
 end
 
 def get_abs_token
-  ENV['ABS_TOKEN'] || get_abs_token_from_fog_file
+  ENV['ABS_TOKEN'] ? token = ENV['ABS_TOKEN'] : token = get_abs_token_from_fog_file
+  if !token
+    abort "An ABS token must be set in either the ABS_TOKEN environment variable or the abs_token parameter in the .fog file"
+  end
+  token
 end
 
 def retry_abs_request(uri, body, timeout, time_increment, invalid_response_bodies = [], valid_response_codes = [202, 200])

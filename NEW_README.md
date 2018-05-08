@@ -6,7 +6,7 @@ At the end of the run, the gatling results and atop results will be copied back 
 
 * Clone the gatling-puppet-load-test repo locally: https://github.com/puppetlabs/gatling-puppet-load-test
 * cd into the gatling-puppet-load-test root directory
-* For apples to apples runs, you can use the checked-in hosts files: [pe-perf-test.cfg](config/pe-perf-test.cfg) or [foss-perf-test.cfg](/config/foss-perf-test.cfg) (default for the performance rake task).
+* For apples to apples runs, you can use the checked-in hosts files: [pe-perf-test.cfg](config/pe-perf-test.cfg) or [foss-perf-test.cfg](/config/foss-perf-test.cfg). These are the defaults for the performance rake task based on the specified BEAKER_INSTALL_TYPE (pe or foss).
 * In order for us to take advantage of the new AWS account with access to internal network resources, you need to use [ABS](https://github.com/puppetlabs/always-be-scheduling). The 'performance' task will automatically use ABS to provision 2 AWS instances and then execute tests against those instances.
 * ABS requires a token when making requests. See the [Token operations](https://github.com/puppetlabs/always-be-scheduling#token-operations) section of the ABS README file for instructions to generate a token. 
 Once generated, either set the ABS_TOKEN environment variable with your token or add it to the .fog file in your home directory using the abs_token parameter. For example:

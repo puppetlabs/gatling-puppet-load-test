@@ -6,8 +6,15 @@ At the end of the run, the gatling results and atop results will be copied back 
 
 * Clone the gatling-puppet-load-test repo locally: https://github.com/puppetlabs/gatling-puppet-load-test
 * cd into the gatling-puppet-load-test root directory
-* For apples to apples runs, you can use the checked-in hosts files: pe-perf-test.cfg or foss-perf-test.cfg (default for the performance rake task).
-* In order for us to take advantage of the new AWS account with access to internal network resources, you need to use ABS. The 'performance' task will automatically use ABS to provision 2 AWS instances and then execute tests against those instances.
+* For apples to apples runs, you can use the checked-in hosts files: [pe-perf-test.cfg](config/pe-perf-test.cfg) or [foss-perf-test.cfg](/config/foss-perf-test.cfg). These are the defaults for the performance rake task based on the specified BEAKER_INSTALL_TYPE (pe or foss).
+* In order for us to take advantage of the new AWS account with access to internal network resources, you need to use [ABS](https://github.com/puppetlabs/always-be-scheduling). The 'performance' task will automatically use ABS to provision 2 AWS instances and then execute tests against those instances.
+* ABS requires a token when making requests. See the [Token operations](https://github.com/puppetlabs/always-be-scheduling#token-operations) section of the ABS README file for instructions to generate a token. 
+Once generated, either set the ABS_TOKEN environment variable with your token or add it to the .fog file in your home directory using the abs_token parameter. For example:
+```
+:default:
+  :abs_token: <your abs token>
+```
+
 * To run additional tests against an existing set of hosts, run the performance_against_already_provisioned task. This task is only intended to be run against the very latest set of provisioned hosts.
 * If the hosts are preserved via Beaker's 'preserve_hosts' setting, then you will need to manually execute the 'performance_deprovision_with_abs' rake task when you are done with the hosts.
 * For a run against a PE build set BEAKER_INSTALL_TYPE=pe and provide values for BEAKER_PE_VER and BEAKER_PE_DIR environment variables

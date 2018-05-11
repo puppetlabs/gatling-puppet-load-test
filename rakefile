@@ -5,9 +5,53 @@ require 'timeout'
 require 'json'
 require 'yaml'
 
+require './setup/helpers/abs_helper'
+include AbsHelper
+
 BASE_ABS_URI = 'https://cinext-abs.delivery.puppetlabs.net/api/v2/'
 
 task :default => :performance
+
+# temporary alternate versions of the performace tasks that use awsdirect
+
+# TODO: replace original version and remove '_awsdirect'
+desc 'Provision systems using ABS (or use already set ABS_RESOURCE_HOSTS) and then execute beaker performance setup and tests'
+rototiller_task :performance_awsdirect do
+  if ENV['PUPPET_GATLING_REPORTS_ONLY'] == 'true' && (!ENV['PUPPET_GATLING_REPORTS_TARGET'] || ENV['PUPPET_GATLING_REPORTS_TARGET'] == '')
+    abort 'A valid result folder (i.e. PerfTestLarge-1524848074511) must be specified for PUPPET_GATLING_REPORTS_TARGET if PUPPET_GATLING_REPORTS_ONLY=true'
+  end
+
+  Rake::Task["performance_provision_with_abs_awsdirect"].execute unless ENV['ABS_RESOURCE_HOSTS'] ||
+      (ENV['BEAKER_HOSTS'] &&
+          ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/pe-perf-test.cfg' &&
+          ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/foss-perf-test.cfg')
+  Rake::Task["performance_without_provision"].execute
+  Rake::Task["performance_deprovision_with_abs_awsdirect"].execute unless ENV['BEAKER_PRESERVE_HOSTS'] == 'always' ||
+      ((@beaker_cmd.nil? || @beaker_cmd.result.exit_code != 0)&&
+          ENV['BEAKER_PRESERVE_HOSTS'] == 'onfail')
+end
+
+# TODO: replace original version and remove '_awsdirect'
+desc 'Provision systems for the performance task with ABS - included in the performance task'
+rototiller_task :performance_provision_with_abs_awsdirect do |t|
+  raise "The BEAKER_INSTALL_TYPE env var must be set to either 'pe' or 'foss' to continue" unless
+      ENV['BEAKER_INSTALL_TYPE'] == 'pe' || ENV['BEAKER_INSTALL_TYPE'] == 'foss'
+  t.add_env({:name => 'BEAKER_PE_DIR', :message => 'The PE download directory, example: http://enterprise.delivery.puppetlabs.net/archives/releases/2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
+  t.add_env({:name => 'BEAKER_PE_VER', :message => 'The PE version to install on hosts, example: 2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
+  t.add_env({:name => 'ABS_OS', :default => 'centos-7-x86-64-west', :message => 'The OS to provision with ABS: centos-7-x86-64-west (for AWS), or centos-7-x86_64 (for vmpooler)'})
+
+  abs_resource_hosts = abs_get_resource_hosts
+  raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
+end
+
+# TODO: replace original version and remove '_awsdirect'
+desc 'Task to deprovision systems that were provisioned with ABS - included in the performance task following the rules of BEAKER_PRESERVE_HOSTS env var.'
+rototiller_task :performance_deprovision_with_abs_awsdirect do
+  abs_resource_hosts = return_abs_resource_hosts
+  raise 'Failed to deprovision ABS hosts' unless abs_resource_hosts
+end
+
+#######
 
 desc 'Provision systems using ABS (or use already set ABS_RESOURCE_HOSTS) and then execute beaker performance setup and tests'
 rototiller_task :performance do
@@ -25,60 +69,61 @@ rototiller_task :performance do
           ENV['BEAKER_PRESERVE_HOSTS'] == 'onfail')
 end
 
-def get_abs_token_from_fog_file
-  home = ENV['HOME']
-  fog_path = "#{home}/.fog"
-  token = nil
-
-  if File.exist?(fog_path)
-    fog = YAML.load(File.read(fog_path))
-    token = fog[:default][:abs_token]
-  else
-    puts ".fog file not found in home directory: #{fog_path}"
-  end
-
-  if !token
-    puts "ABS token not found in .fog file at #{fog_path}"
-  end
-  token
-end
-
-def get_abs_token
-  ENV['ABS_TOKEN'] ? token = ENV['ABS_TOKEN'] : token = get_abs_token_from_fog_file
-  if !token
-    abort "An ABS token must be set in either the ABS_TOKEN environment variable or the abs_token parameter in the .fog file"
-  end
-  token
-end
-
-def retry_abs_request(uri, body, timeout, time_increment, invalid_response_bodies = [], valid_response_codes = [202, 200])
-  req = Net::HTTP::Post.new(uri, {'Content-Type' => 'application/json', 'X-Auth-Token' => get_abs_token})
-  req.body = body
-  http = Net::HTTP.new(uri.host, uri.port)
-  http.use_ssl = true
-
-  puts "sending request body: #{body}"
-  puts "to uri: #{uri}"
-
-  res = nil
-  Timeout::timeout(timeout) do
-    while res.nil? || invalid_response_bodies.include?(res.body) || !valid_response_codes.include?(res.code)
-      begin
-        res = http.request(req)
-      rescue => ex
-        puts ex
-        puts ex.backtrace
-      end
-      if res.nil? || invalid_response_bodies.include?(res.body)
-        puts "#{Time.now} - Retrying ABS request..."
-        sleep(time_increment)
-      else
-        break
-      end
-    end
-  end
-  res
-end
+# TODO: remove; these have been extracted to abs_helper
+# def get_abs_token_from_fog_file
+#   home = ENV['HOME']
+#   fog_path = "#{home}/.fog"
+#   token = nil
+#
+#   if File.exist?(fog_path)
+#     fog = YAML.load(File.read(fog_path))
+#     token = fog[:default][:abs_token]
+#   else
+#     puts ".fog file not found in home directory: #{fog_path}"
+#   end
+#
+#   if !token
+#     puts "ABS token not found in .fog file at #{fog_path}"
+#   end
+#   token
+# end
+#
+# def get_abs_token
+#   ENV['ABS_TOKEN'] ? token = ENV['ABS_TOKEN'] : token = get_abs_token_from_fog_file
+#   if !token
+#     abort "An ABS token must be set in either the ABS_TOKEN environment variable or the abs_token parameter in the .fog file"
+#   end
+#   token
+# end
+#
+# def retry_abs_request(uri, body, timeout, time_increment, invalid_response_bodies = [], valid_response_codes = [202, 200])
+#   req = Net::HTTP::Post.new(uri, {'Content-Type' => 'application/json', 'X-Auth-Token' => get_abs_token})
+#   req.body = body
+#   http = Net::HTTP.new(uri.host, uri.port)
+#   http.use_ssl = true
+#
+#   puts "sending request body: #{body}"
+#   puts "to uri: #{uri}"
+#
+#   res = nil
+#   Timeout::timeout(timeout) do
+#     while res.nil? || invalid_response_bodies.include?(res.body) || !valid_response_codes.include?(res.code)
+#       begin
+#         res = http.request(req)
+#       rescue => ex
+#         puts ex
+#         puts ex.backtrace
+#       end
+#       if res.nil? || invalid_response_bodies.include?(res.body)
+#         puts "#{Time.now} - Retrying ABS request..."
+#         sleep(time_increment)
+#       else
+#         break
+#       end
+#     end
+#   end
+#   res
+# end
 
 desc 'Provision systems for the performance task with ABS - included in the performance task'
 rototiller_task :performance_provision_with_abs do |t|
@@ -119,6 +164,7 @@ rototiller_task :performance_deprovision_with_abs do
   retry_abs_request(uri, req_body, 30, 5)
 end
 
+desc 'Run Performance tests using previously provisioned hosts'
 rototiller_task :performance_against_already_provisioned do
   ENV['BEAKER_HOSTS'] ||= "log/latest/hosts_preserved.yml"
   ENV['ABS_RESOURCE_HOSTS'] = File.open("last_abs_resource_hosts.log").readlines[0] if File.exist? "last_abs_resource_hosts.log"

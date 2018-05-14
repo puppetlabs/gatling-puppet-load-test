@@ -361,7 +361,7 @@ describe AbsHelperClass do
 
   end
 
-  describe '#return_abs_resource_hosts' do
+  describe '#abs_return_resource_hosts' do
 
     test_uri = TEST_AWSDIRECTRETURN_URI
     test_body = TEST_AWSDIRECTRETURN_REQUEST_BODY
@@ -373,10 +373,10 @@ describe AbsHelperClass do
 
         expect(subject).to receive(:abs_get_base_url).at_least(:once).and_return(TEST_BASE_URL)
 
-        expect(subject).to receive(:get_abs_awsdirectreturn_request_body).with(TEST_HOSTNAME).at_least(:once).and_return(test_body)
+        expect(subject).to receive(:abs_get_awsdirectreturn_request_body).with(TEST_HOSTNAME).at_least(:once).and_return(test_body)
         expect(subject).to receive(:abs_request_awsdirect).with(test_uri, test_body).at_least(:once).and_return(nil)
 
-        expect(subject.return_abs_resource_hosts).to include(TEST_ABS_RESOURCE_HOSTS)
+        expect(subject.abs_return_resource_hosts).to include(TEST_ABS_RESOURCE_HOSTS)
       end
 
     end
@@ -390,10 +390,10 @@ describe AbsHelperClass do
 
         expect(subject).to receive(:abs_get_last_abs_resource_hosts).at_least(:once).and_return(TEST_ABS_RESOURCE_HOSTS)
 
-        expect(subject).to receive(:get_abs_awsdirectreturn_request_body).with(TEST_HOSTNAME).at_least(:once).and_return(test_body)
+        expect(subject).to receive(:abs_get_awsdirectreturn_request_body).with(TEST_HOSTNAME).at_least(:once).and_return(test_body)
         expect(subject).to receive(:abs_request_awsdirect).with(test_uri, test_body).at_least(:once).and_return(nil)
 
-        expect(subject.return_abs_resource_hosts).to include(TEST_ABS_RESOURCE_HOSTS)
+        expect(subject.abs_return_resource_hosts).to include(TEST_ABS_RESOURCE_HOSTS)
       end
 
     end
@@ -407,7 +407,7 @@ describe AbsHelperClass do
         expect(subject).to receive(:abs_get_base_url).at_least(:once).and_return(TEST_BASE_URL)
 
         expect(subject).to receive(:abs_get_last_abs_resource_hosts).at_least(:once).and_return(nil)
-        expect(subject.return_abs_resource_hosts).to eq(nil)
+        expect(subject.abs_return_resource_hosts).to eq(nil)
 
       end
 

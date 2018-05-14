@@ -47,7 +47,7 @@ end
 # TODO: replace original version and remove '_awsdirect'
 desc 'Task to deprovision systems that were provisioned with ABS - included in the performance task following the rules of BEAKER_PRESERVE_HOSTS env var.'
 rototiller_task :performance_deprovision_with_abs_awsdirect do
-  abs_resource_hosts = return_abs_resource_hosts
+  abs_resource_hosts = abs_return_resource_hosts
   raise 'Failed to deprovision ABS hosts' unless abs_resource_hosts
 end
 

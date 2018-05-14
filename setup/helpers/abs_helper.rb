@@ -78,7 +78,7 @@ module AbsHelper
      'tags': abs_get_aws_tags(role)}.to_json
   end
 
-  def get_abs_awsdirectreturn_request_body(hostname)
+  def abs_get_awsdirectreturn_request_body(hostname)
     {"hostname": hostname}
   end
 
@@ -226,7 +226,7 @@ module AbsHelper
         puts 'Returning any provisioned hosts'
         if !responses.empty?
           ENV['ABS_RESOURCE_HOSTS'] = responses.to_json
-          return_abs_resource_hosts
+          abs_return_resource_hosts
         end
 
         # stop requesting hosts
@@ -260,7 +260,7 @@ module AbsHelper
     last_abs_resource_hosts
   end
 
-  def return_abs_resource_hosts
+  def abs_return_resource_hosts
     uri = URI("#{abs_get_base_url}/awsdirectreturn")
     abs_resource_hosts = ENV['ABS_RESOURCE_HOSTS'].nil? ? abs_get_last_abs_resource_hosts : ENV['ABS_RESOURCE_HOSTS']
 
@@ -274,7 +274,7 @@ module AbsHelper
         hostname = host['hostname']
 
         puts "Returning host: #{hostname}"
-        body = get_abs_awsdirectreturn_request_body(hostname)
+        body = abs_get_awsdirectreturn_request_body(hostname)
         abs_request_awsdirect(uri, body)
       end
     end

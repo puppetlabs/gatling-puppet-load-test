@@ -16,6 +16,8 @@ module AbsHelper
   ABS_AWS_METRICS_SIZE = 'c4.2xlarge'
   ABS_AWS_REGION = 'us-west-2'
 
+  # Allows us to switch between AWS and VMPooler by selecting different ABS os's
+  # centos-7-x86-64-west is an AWS image, centos-7-x86_64 is vmpooler
   ABS_BEAKER_TYPE = 'centos-7-x86-64-west'
   ABS_BEAKER_ENGINE = 'aws'
 
@@ -23,44 +25,15 @@ module AbsHelper
   # ABS_AWS_REAP_TIME = '86400'
   ABS_AWS_REAP_TIME = '1200'
 
-  def abs_get_base_url
-    ENV['ABS_BASE_URL'] = ABS_BASE_URL unless ENV['ABS_BASE_URL']
-    ENV['ABS_BASE_URL']
-  end
-
-  def abs_get_aws_platform
-    ENV['ABS_AWS_PLATFORM'] = ABS_AWS_PLATFORM unless ENV['ABS_AWS_PLATFORM']
-    ENV['ABS_AWS_PLATFORM']
-  end
-
-  def abs_get_aws_image_id
-    ENV['ABS_AWS_IMAGE_ID'] = ABS_AWS_IMAGE_ID unless ENV['ABS_AWS_IMAGE_ID']
-    ENV['ABS_AWS_IMAGE_ID']
-  end
-
-  def abs_get_aws_size
-    ENV['ABS_AWS_SIZE'] = ABS_AWS_SIZE unless ENV['ABS_AWS_SIZE']
-    ENV['ABS_AWS_SIZE']
-  end
-
-  def abs_get_aws_region
-    ENV['ABS_AWS_REGION'] = ABS_AWS_REGION unless ENV['ABS_AWS_REGION']
-    ENV['ABS_AWS_REGION']
-  end
-
-  def abs_get_aws_reap_time
-    ENV['ABS_AWS_REAP_TIME'] = ABS_AWS_REAP_TIME unless ENV['ABS_AWS_REAP_TIME']
-    ENV['ABS_AWS_REAP_TIME']
-  end
-
-  def abs_get_aws_mom_size
-    ENV['ABS_AWS_MOM_SIZE'] = ABS_AWS_MOM_SIZE unless ENV['ABS_AWS_MOM_SIZE']
-    ENV['ABS_AWS_MOM_SIZE']
-  end
-
-  def abs_get_aws_metrics_size
-    ENV['ABS_AWS_METRICS_SIZE'] = ABS_AWS_METRICS_SIZE unless ENV['ABS_AWS_METRICS_SIZE']
-    ENV['ABS_AWS_METRICS_SIZE']
+  def abs_initialize
+    @abs_base_url = ENV['ABS_BASE_URL'] ? ENV['ABS_BASE_URL'] : ABS_BASE_URL
+    @abs_aws_platform = ENV['ABS_AWS_PLATFORM'] ? ENV['ABS_AWS_PLATFORM'] : ABS_AWS_PLATFORM
+    @abs_aws_image_id = ENV['ABS_AWS_IMAGE_ID'] ? ENV['ABS_AWS_IMAGE_ID'] : ABS_AWS_IMAGE_ID
+    @abs_aws_size = ENV['ABS_AWS_SIZE'] ? ENV['ABS_AWS_SIZE'] : ABS_AWS_SIZE
+    @abs_aws_region = ENV['ABS_AWS_REGION'] ? ENV['ABS_AWS_REGION'] : ABS_AWS_REGION
+    @abs_aws_reap_time = ENV['ABS_AWS_REAP_TIME'] ? ENV['ABS_AWS_REAP_TIME'] : ABS_AWS_REAP_TIME
+    @abs_aws_mom_size = ENV['ABS_AWS_MOM_SIZE'] ? ENV['ABS_AWS_MOM_SIZE'] : ABS_AWS_MOM_SIZE
+    @abs_aws_metrics_size = ENV['ABS_AWS_METRICS_SIZE'] ? ENV['ABS_AWS_METRICS_SIZE'] : ABS_AWS_METRICS_SIZE
   end
 
   def abs_get_aws_tags(role)
@@ -69,12 +42,12 @@ module AbsHelper
      'pe_version': ENV['BEAKER_PE_VER']}
   end
 
-  def abs_get_awsdirect_request_body(role, size = abs_get_aws_size)
-    {'platform': abs_get_aws_platform,
-     'image_id': abs_get_aws_image_id,
+  def abs_get_awsdirect_request_body(role, size = @abs_aws_size)
+    {'platform': @abs_aws_platform,
+     'image_id': @abs_aws_image_id,
      'size': size,
-     'region': abs_get_aws_region,
-     'reap_time': abs_get_aws_reap_time,
+     'region': @abs_aws_region,
+     'reap_time': @abs_aws_reap_time,
      'tags': abs_get_aws_tags(role)}.to_json
   end
 
@@ -179,7 +152,7 @@ module AbsHelper
 
   def abs_get_a2a_hosts
     # TODO: A2A_HOSTS environment variable?
-    {'mom': abs_get_aws_mom_size, 'metrics': abs_get_aws_metrics_size}
+    {'mom': @abs_aws_mom_size, 'metrics': @abs_aws_metrics_size}
   end
 
   def abs_reformat_resource_host(response_body)
@@ -204,9 +177,9 @@ module AbsHelper
   end
 
   def abs_get_resource_hosts
-    # Allows us to switch between AWS and VMPooler by selecting different ABS os's
-    # centos-7-x86-64-west is an AWS image, centos-7-x86_64 is vmpooler
-    uri = URI("#{ABS_BASE_URL}/awsdirect")
+    abs_initialize
+
+    uri = URI("#{@abs_base_url}/awsdirect")
     responses = []
     abs_resource_hosts = nil
     invalid_response = false
@@ -261,7 +234,7 @@ module AbsHelper
   end
 
   def abs_return_resource_hosts
-    uri = URI("#{abs_get_base_url}/awsdirectreturn")
+    uri = URI("#{@abs_base_url}/awsdirectreturn")
     abs_resource_hosts = ENV['ABS_RESOURCE_HOSTS'].nil? ? abs_get_last_abs_resource_hosts : ENV['ABS_RESOURCE_HOSTS']
 
     puts "ABS hosts: #{abs_resource_hosts}"

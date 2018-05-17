@@ -34,12 +34,14 @@ module AbsHelper
     @abs_aws_reap_time = ENV['ABS_AWS_REAP_TIME'] ? ENV['ABS_AWS_REAP_TIME'] : ABS_AWS_REAP_TIME
     @abs_aws_mom_size = ENV['ABS_AWS_MOM_SIZE'] ? ENV['ABS_AWS_MOM_SIZE'] : ABS_AWS_MOM_SIZE
     @abs_aws_metrics_size = ENV['ABS_AWS_METRICS_SIZE'] ? ENV['ABS_AWS_METRICS_SIZE'] : ABS_AWS_METRICS_SIZE
+    @abs_beaker_pe_version = ENV['BEAKER_PE_VER'] ? ENV['BEAKER_PE_VER'] : nil
+
   end
 
   def abs_get_aws_tags(role)
     # TODO: handle more tags
     {'role': role,
-     'pe_version': ENV['BEAKER_PE_VER']}
+     'pe_version': @abs_beaker_pe_version}
   end
 
   def abs_get_awsdirect_request_body(role, size = @abs_aws_size)
@@ -63,12 +65,11 @@ module AbsHelper
     if File.exist?(fog_path)
       fog = YAML.load(File.read(fog_path))
       token = fog[:default][:abs_token]
+      if !token
+        puts "ABS token not found in .fog file at #{fog_path}"
+      end
     else
       puts ".fog file not found in home directory: #{fog_path}"
-    end
-
-    if !token
-      puts "ABS token not found in .fog file at #{fog_path}"
     end
     token
   end
@@ -161,7 +162,6 @@ module AbsHelper
     begin
       json = JSON.parse(response_body)
       hostname = json['hostname']
-      type = json['type']
 
       new_response_body = {
           'hostname': hostname,
@@ -174,6 +174,12 @@ module AbsHelper
     end
 
     reformatted_json
+  end
+
+  def abs_update_last_abs_resource_hosts(abs_resource_hosts)
+    open('last_abs_resource_hosts.log', 'w') { |f|
+      f.puts abs_resource_hosts
+    }
   end
 
   def abs_get_resource_hosts
@@ -196,10 +202,10 @@ module AbsHelper
         invalid_response = true
         puts "Unable to provision host for role: #{role}"
 
-        puts 'Returning any provisioned hosts'
+        # TODO: extract and test managing the responses
         if !responses.empty?
-          ENV['ABS_RESOURCE_HOSTS'] = responses.to_json
-          abs_return_resource_hosts
+          puts 'Returning any provisioned hosts'
+          abs_return_resource_hosts(responses.to_json)
         end
 
         # stop requesting hosts
@@ -220,10 +226,9 @@ module AbsHelper
       ENV['ABS_RESOURCE_HOSTS'] = abs_resource_hosts
       puts "ABS_RESOURCE_HOSTS=#{ENV['ABS_RESOURCE_HOSTS']}"
 
-      # TODO: extract
-      open('last_abs_resource_hosts.log', 'w') { |f|
-        f.puts abs_resource_hosts
-      }
+      # write to 'last_abs_resource_hosts.log' (used when returning hosts)
+      abs_update_last_abs_resource_hosts(abs_resource_hosts)
+
     end
     abs_resource_hosts
   end
@@ -233,12 +238,13 @@ module AbsHelper
     last_abs_resource_hosts
   end
 
-  def abs_return_resource_hosts
+  def abs_return_resource_hosts(abs_resource_hosts)
+    puts "ABS hosts specified for return: #{abs_resource_hosts}"
+
+    abs_initialize
     uri = URI("#{@abs_base_url}/awsdirectreturn")
-    abs_resource_hosts = ENV['ABS_RESOURCE_HOSTS'].nil? ? abs_get_last_abs_resource_hosts : ENV['ABS_RESOURCE_HOSTS']
 
-    puts "ABS hosts: #{abs_resource_hosts}"
-
+    # TODO: verify abs_resource_hosts format?
     if !abs_resource_hosts
       puts 'De-provisioning via return_abs_resource_hosts requires an array of hostnames to be specified via the ABS_RESOURCE_HOSTS environment variable or the last_abs_resource_hosts.log file'
     else

@@ -1,9 +1,6 @@
 require 'rototiller'
 require 'rspec/core/rake_task'
 require 'net/http'
-require 'timeout'
-require 'json'
-require 'yaml'
 
 require './setup/helpers/abs_helper'
 include AbsHelper

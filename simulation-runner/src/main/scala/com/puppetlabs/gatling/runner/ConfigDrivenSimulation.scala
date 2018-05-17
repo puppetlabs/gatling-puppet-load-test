@@ -109,6 +109,17 @@ class ConfigDrivenSimulation extends Simulation {
       .protocols(httpProtocol)
   })
 
-  setUp(scns)
 //  scns.foreach(setUp(_))
+    def getEnvVar(varName: String): String = {
+        sys.env.getOrElse(varName, {
+        throw new IllegalStateException("You must specify the environment variable '" + varName + "'!")
+     })
+    }
+
+    if (sys.env.get("SUCCESSFUL_REQUESTS") != None)
+        setUp(scns).assertions(
+            global.successfulRequests.percent.gte(getEnvVar("SUCCESSFUL_REQUESTS").toDouble), details("PerfTestLarge").responseTime.max.lte(getEnvVar("MAX_RESPONSE_TIME_AGENT").toInt), global.allRequests.count.is(getEnvVar("TOTAL_REQUEST_COUNT").toLong)
+        )
+    else
+        setUp(scns)
 }

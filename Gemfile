@@ -11,3 +11,6 @@ gem 'rspec', '~>3.0'
 if File.exists? "#{__FILE__}.local"
   eval(File.read("#{__FILE__}.local"), binding)
 end
+
+gem 'google-cloud', '~> 0.52.0'
+gem 'google-api-client', '~> 0.19.0'

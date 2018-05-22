@@ -77,6 +77,7 @@ describe AbsHelperClass do
 
   TEST_AWSDIRECTRETURN_REQUEST_BODY = {'hostname': TEST_HOSTNAME}.to_json
 
+  TEST_VALID_RESPONSE_BODY = 'OK'
   TEST_INVALID_RESPONSE_BODY = ''
   TEST_VALID_RESPONSE_CODE = '200'
   TEST_INVALID_RESPONSE_CODE = '777'
@@ -379,7 +380,7 @@ describe AbsHelperClass do
 
     context 'when a request is successfully prepared' do
 
-      it 'performs the request and returns the response' do
+      it 'performs the request, reports and returns the response' do
         expect(subject).to receive(:abs_get_request_post).and_return(test_http_request)
         allow(test_http_request).to receive(:body=)
 
@@ -390,7 +391,12 @@ describe AbsHelperClass do
         allow(test_net_http_instance).to receive(:read_timeout=)
         expect(test_net_http_instance).to receive(:request).with(test_http_request).and_return(test_http_response)
 
-        allow(test_http_response).to receive(:body)
+        expect(test_http_response).to receive(:code).and_return(TEST_VALID_RESPONSE_CODE)
+        expect(test_http_response).to receive(:body).and_return(TEST_VALID_RESPONSE_BODY)
+
+        allow(subject).to receive(:puts)
+        expect(subject).to receive(:puts).at_least(:once).with("response code: #{TEST_VALID_RESPONSE_CODE}")
+        expect(subject).to receive(:puts).at_least(:once).with("response body: #{TEST_VALID_RESPONSE_BODY}")
 
         expect(subject.abs_request_awsdirect(TEST_AWSDIRECT_URI, TEST_AWSDIRECT_REQUEST_BODY)).to eq(test_http_response)
 

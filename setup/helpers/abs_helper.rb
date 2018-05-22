@@ -35,13 +35,15 @@ module AbsHelper
     @abs_aws_mom_size = ENV['ABS_AWS_MOM_SIZE'] ? ENV['ABS_AWS_MOM_SIZE'] : ABS_AWS_MOM_SIZE
     @abs_aws_metrics_size = ENV['ABS_AWS_METRICS_SIZE'] ? ENV['ABS_AWS_METRICS_SIZE'] : ABS_AWS_METRICS_SIZE
     @abs_beaker_pe_version = ENV['BEAKER_PE_VER'] ? ENV['BEAKER_PE_VER'] : nil
-
   end
 
   def abs_get_aws_tags(role)
     # TODO: handle more tags
-    {'role': role,
-     'pe_version': @abs_beaker_pe_version}
+    tags = {'role': role}
+    if @abs_beaker_pe_version
+      tags.merge!('pe_version': @abs_beaker_pe_version)
+    end
+    tags
   end
 
   def abs_get_awsdirect_request_body(role, size = @abs_aws_size)
@@ -54,7 +56,7 @@ module AbsHelper
   end
 
   def abs_get_awsdirectreturn_request_body(hostname)
-    {"hostname": hostname}
+    {"hostname": hostname}.to_json
   end
 
   def abs_get_token_from_fog_file
@@ -82,63 +84,47 @@ module AbsHelper
     token
   end
 
-  # TODO: remove once we switch to awsdirect
-  def retry_abs_request(uri, body, timeout, time_increment, invalid_response_bodies = [], valid_response_codes = [202, 200])
-    req = Net::HTTP::Post.new(uri, {'Content-Type' => 'application/json', 'X-Auth-Token' => abs_get_token})
-    req.body = body
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-
-    puts "sending request body: #{body}"
-    puts "to uri: #{uri}"
-
-    res = nil
-    Timeout::timeout(timeout) do
-      while res.nil? || invalid_response_bodies.include?(res.body) || !valid_response_codes.include?(res.code)
-        begin
-          res = http.request(req)
-        rescue => ex
-          puts ex
-          puts ex.backtrace
-        end
-        if res.nil? || invalid_response_bodies.include?(res.body)
-          puts "#{Time.now} - Retrying ABS request..."
-          sleep(time_increment)
-        else
-          break
-        end
-      end
-    end
-    res
-  end
-
   def abs_get_request_post(uri)
-    Net::HTTP::Post.new(uri, {'Content-Type' => 'application/json', 'X-Auth-Token' => abs_get_token})
+    req = nil
+    abs_token = abs_get_token
+    if abs_token
+      req =  Net::HTTP::Post.new(uri, {'Content-Type' => 'application/json', 'X-Auth-Token' => abs_token})
+    else
+      puts 'Unable to prepare a valid ABS request without a valid token'
+    end
+    req
   end
 
+  # TODO: rename?
   def abs_request_awsdirect(uri, body)
+    res = nil
     req = abs_get_request_post(uri)
-    req.body = body
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    http.read_timeout = 120
 
-    puts 'sending request body:'
-    puts body
-    puts "to uri: #{uri}"
-    puts
+    if req
+      req.body = body
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.read_timeout = 120
 
-    res = http.request(req)
+      puts
+      puts 'sending request body:'
+      puts body
+      puts "to uri: #{uri}"
+      puts
 
-    puts "response: #{res.body}" unless res.nil?
+      res = http.request(req)
+      puts "response code: #{res.code}" unless res.nil?
+      puts "response body: #{res.body}" unless res.nil?
+      puts
+    else
+      puts 'Unable to complete the specified ABS request'
+    end
 
     res
   end
 
-  def abs_is_valid_response?(res)
+  def abs_is_valid_response?(res, valid_response_codes = ['200'], invalid_response_bodies = ['', nil])
     # TODO: other criteria?
-    invalid_response_bodies = ['', nil]
-    valid_response_codes = ['200']
     is_valid_response = false
 
     if res.nil? || !valid_response_codes.include?(res.code) || invalid_response_bodies.include?(res.body)
@@ -152,7 +138,7 @@ module AbsHelper
   end
 
   def abs_get_a2a_hosts
-    # TODO: A2A_HOSTS environment variable?
+    abs_initialize
     {'mom': @abs_aws_mom_size, 'metrics': @abs_aws_metrics_size}
   end
 
@@ -177,12 +163,15 @@ module AbsHelper
   end
 
   def abs_update_last_abs_resource_hosts(abs_resource_hosts)
-    open('last_abs_resource_hosts.log', 'w') { |f|
-      f.puts abs_resource_hosts
-    }
+    File.write('last_abs_resource_hosts.log', abs_resource_hosts)
   end
 
-  def abs_get_resource_hosts
+  # hosts will likely come from abs_get_a2a_hosts:
+  #  {'mom': @abs_aws_mom_size, 'metrics': @abs_aws_metrics_size}
+  #
+  # otherwise specify hosts in the following format
+  #  {'role1': 'size1', 'role2': 'size2', ... }
+  def abs_get_resource_hosts(hosts_to_request)
     abs_initialize
 
     uri = URI("#{@abs_base_url}/awsdirect")
@@ -190,10 +179,7 @@ module AbsHelper
     abs_resource_hosts = nil
     invalid_response = false
 
-    hosts = abs_get_a2a_hosts
-
-    hosts.each do |role, size|
-
+    hosts_to_request.each do |role, size|
       request_body = abs_get_awsdirect_request_body(role, size)
       response = abs_request_awsdirect(uri, request_body)
 
@@ -234,11 +220,28 @@ module AbsHelper
   end
 
   def abs_get_last_abs_resource_hosts
-    last_abs_resource_hosts = File.open("last_abs_resource_hosts.log").readlines[0]
+    file = 'last_abs_resource_hosts.log'
+    last_abs_resource_hosts = nil
+    expected = '[{"hostname":'
+
+    if File.exist?(file)
+      contents = File.read(file)
+      if contents.start_with?(expected)
+        last_abs_resource_hosts = contents
+      else
+        puts contents
+        puts "Invalid last ABS resource hosts file: #{file}"
+      end
+    else
+      puts "Last ABS resource hosts file not found: #{file}"
+    end
     last_abs_resource_hosts
   end
 
   def abs_return_resource_hosts(abs_resource_hosts)
+    abs_success_message = 'OK'
+    abs_error_message = 'Could not return specified host with error'
+    returned_hosts = nil
     puts "ABS hosts specified for return: #{abs_resource_hosts}"
 
     abs_initialize
@@ -248,16 +251,25 @@ module AbsHelper
     if !abs_resource_hosts
       puts 'De-provisioning via return_abs_resource_hosts requires an array of hostnames to be specified via the ABS_RESOURCE_HOSTS environment variable or the last_abs_resource_hosts.log file'
     else
+      # returned_hosts = []
       hosts = JSON.parse(abs_resource_hosts)
       hosts.each do |host|
         hostname = host['hostname']
 
         puts "Returning host: #{hostname}"
         body = abs_get_awsdirectreturn_request_body(hostname)
-        abs_request_awsdirect(uri, body)
+        res = abs_request_awsdirect(uri, body)
+
+        if abs_is_valid_response?(res)
+          puts "Successfully returned host: #{hostname}"
+          returned_hosts ? returned_hosts << host : returned_hosts = [host]
+        else
+          puts "Failed to return host: #{hostname}"
+        end
+
       end
     end
-    abs_resource_hosts
+    returned_hosts ? returned_hosts.to_json : returned_hosts
   end
 
 end

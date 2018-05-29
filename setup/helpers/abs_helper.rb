@@ -26,15 +26,22 @@ module AbsHelper
   ABS_AWS_REAP_TIME = '1200'
 
   def abs_initialize
-    @abs_base_url = ENV['ABS_BASE_URL'] ? ENV['ABS_BASE_URL'] : ABS_BASE_URL
-    @abs_aws_platform = ENV['ABS_AWS_PLATFORM'] ? ENV['ABS_AWS_PLATFORM'] : ABS_AWS_PLATFORM
-    @abs_aws_image_id = ENV['ABS_AWS_IMAGE_ID'] ? ENV['ABS_AWS_IMAGE_ID'] : ABS_AWS_IMAGE_ID
-    @abs_aws_size = ENV['ABS_AWS_SIZE'] ? ENV['ABS_AWS_SIZE'] : ABS_AWS_SIZE
-    @abs_aws_region = ENV['ABS_AWS_REGION'] ? ENV['ABS_AWS_REGION'] : ABS_AWS_REGION
-    @abs_aws_reap_time = ENV['ABS_AWS_REAP_TIME'] ? ENV['ABS_AWS_REAP_TIME'] : ABS_AWS_REAP_TIME
-    @abs_aws_mom_size = ENV['ABS_AWS_MOM_SIZE'] ? ENV['ABS_AWS_MOM_SIZE'] : ABS_AWS_MOM_SIZE
-    @abs_aws_metrics_size = ENV['ABS_AWS_METRICS_SIZE'] ? ENV['ABS_AWS_METRICS_SIZE'] : ABS_AWS_METRICS_SIZE
-    @abs_beaker_pe_version = ENV['BEAKER_PE_VER'] ? ENV['BEAKER_PE_VER'] : nil
+
+    # only proceed if the user has a token
+    user_has_token = false
+    if abs_get_token
+      user_has_token = true
+      @abs_base_url = ENV['ABS_BASE_URL'] ? ENV['ABS_BASE_URL'] : ABS_BASE_URL
+      @abs_aws_platform = ENV['ABS_AWS_PLATFORM'] ? ENV['ABS_AWS_PLATFORM'] : ABS_AWS_PLATFORM
+      @abs_aws_image_id = ENV['ABS_AWS_IMAGE_ID'] ? ENV['ABS_AWS_IMAGE_ID'] : ABS_AWS_IMAGE_ID
+      @abs_aws_size = ENV['ABS_AWS_SIZE'] ? ENV['ABS_AWS_SIZE'] : ABS_AWS_SIZE
+      @abs_aws_region = ENV['ABS_AWS_REGION'] ? ENV['ABS_AWS_REGION'] : ABS_AWS_REGION
+      @abs_aws_reap_time = ENV['ABS_AWS_REAP_TIME'] ? ENV['ABS_AWS_REAP_TIME'] : ABS_AWS_REAP_TIME
+      @abs_aws_mom_size = ENV['ABS_AWS_MOM_SIZE'] ? ENV['ABS_AWS_MOM_SIZE'] : ABS_AWS_MOM_SIZE
+      @abs_aws_metrics_size = ENV['ABS_AWS_METRICS_SIZE'] ? ENV['ABS_AWS_METRICS_SIZE'] : ABS_AWS_METRICS_SIZE
+      @abs_beaker_pe_version = ENV['BEAKER_PE_VER'] ? ENV['BEAKER_PE_VER'] : nil
+    end
+    user_has_token
   end
 
   def abs_get_aws_tags(role)
@@ -81,6 +88,7 @@ module AbsHelper
     if token.nil?
       puts 'An ABS token must be set in either the ABS_TOKEN environment variable or the abs_token parameter in the .fog file'
     end
+    ENV['ABS_TOKEN'] = token
     token
   end
 
@@ -146,8 +154,8 @@ module AbsHelper
     reformatted_json = nil
 
     begin
-      json = JSON.parse(response_body)
-      hostname = json['hostname']
+      host = JSON.parse(response_body)
+      hostname = host['hostname']
 
       new_response_body = {
           'hostname': hostname,
@@ -172,51 +180,84 @@ module AbsHelper
   # otherwise specify hosts in the following format
   #  {'role1': 'size1', 'role2': 'size2', ... }
   def abs_get_resource_hosts(hosts_to_request)
-    abs_initialize
-
-    uri = URI("#{@abs_base_url}/awsdirect")
     responses = []
     abs_resource_hosts = nil
     invalid_response = false
 
-    hosts_to_request.each do |role, size|
-      request_body = abs_get_awsdirect_request_body(role, size)
-      response = abs_request_awsdirect(uri, request_body)
+    # ensure the user has a token before proceeding
+    if abs_initialize
+      uri = URI("#{@abs_base_url}/awsdirect")
+      hosts_to_request.each do |role, size|
+        request_body = abs_get_awsdirect_request_body(role, size)
+        response = abs_request_awsdirect(uri, request_body)
 
-      # if any invalid responses are encountered stop and return any provisioned hosts
-      if !abs_is_valid_response?(response)
-        invalid_response = true
-        puts "Unable to provision host for role: #{role}"
+        # if any invalid responses are encountered stop and return any provisioned hosts
+        # TODO: extract managing the responses and test separately
+        if !abs_is_valid_response?(response)
+          invalid_response = true
+          puts "Unable to provision host for role: #{role}"
 
-        # TODO: extract and test managing the responses
-        if !responses.empty?
-          puts 'Returning any provisioned hosts'
-          abs_return_resource_hosts(responses.to_json)
+          if responses.empty?
+            puts 'No ABS hosts were provisioned'
+            puts ''
+          else
+            puts 'Returning any provisioned hosts'
+            abs_return_resource_hosts(responses.to_json)
+          end
+
+          # stop requesting hosts
+          break
+
+        else
+          # reformat to satisfy beaker
+          responses << JSON.parse(abs_reformat_resource_host(response.body))
         end
 
-        # stop requesting hosts
-        break
+      end
 
-      else
-        # reformat to satisfy beaker
-        responses << JSON.parse(abs_reformat_resource_host(response.body))
+      if !responses.empty? && !invalid_response
+        abs_resource_hosts = responses.to_json
+        ENV['ABS_RESOURCE_HOSTS'] = abs_resource_hosts
+        puts "ABS_RESOURCE_HOSTS=#{ENV['ABS_RESOURCE_HOSTS']}"
+
+        # write to 'last_abs_resource_hosts.log' (used when returning hosts)
+        abs_update_last_abs_resource_hosts(abs_resource_hosts)
+
+      end
+
+    else
+      puts 'Unable to proceed without a valid ABS token'
+      puts ''
+    end
+
+    abs_resource_hosts
+  end
+
+  def is_valid_abs_resource_hosts?(abs_resource_hosts)
+    is_valid = false
+
+    if abs_resource_hosts.nil?
+      puts 'A valid hosts array is required; nil was specified'
+      puts ''
+    else
+
+      begin
+        hosts = JSON.parse(abs_resource_hosts)
+        host = hosts[0]
+        hostname = host['hostname']
+        if !hostname.nil? && !hostname.empty?
+          is_valid = true
+        else
+          puts "The specified resource host array is not valid: #{abs_resource_hosts}"
+          puts ''
+        end
+      rescue
+        puts "JSON::ParserError encountered parsing the hosts array: #{abs_resource_hosts}"
       end
 
     end
 
-    if responses.empty?
-      puts 'No ABS hosts were provisioned'
-      puts ''
-    elsif !invalid_response
-      abs_resource_hosts = responses.to_json
-      ENV['ABS_RESOURCE_HOSTS'] = abs_resource_hosts
-      puts "ABS_RESOURCE_HOSTS=#{ENV['ABS_RESOURCE_HOSTS']}"
-
-      # write to 'last_abs_resource_hosts.log' (used when returning hosts)
-      abs_update_last_abs_resource_hosts(abs_resource_hosts)
-
-    end
-    abs_resource_hosts
+    is_valid
   end
 
   def abs_get_last_abs_resource_hosts
@@ -239,18 +280,24 @@ module AbsHelper
   end
 
   def abs_return_resource_hosts(abs_resource_hosts)
-    abs_success_message = 'OK'
-    abs_error_message = 'Could not return specified host with error'
     returned_hosts = nil
     puts "ABS hosts specified for return: #{abs_resource_hosts}"
 
-    abs_initialize
-    uri = URI("#{@abs_base_url}/awsdirectreturn")
-
-    # TODO: verify abs_resource_hosts format?
-    if !abs_resource_hosts
+    is_valid = is_valid_abs_resource_hosts?(abs_resource_hosts)
+    if !is_valid
       puts 'De-provisioning via return_abs_resource_hosts requires an array of hostnames to be specified via the ABS_RESOURCE_HOSTS environment variable or the last_abs_resource_hosts.log file'
-    else
+      puts ''
+    end
+
+    has_token = abs_initialize
+    if !has_token
+      puts 'Unable to proceed without a valid ABS token'
+      puts ''
+    end
+
+    if is_valid && has_token
+      uri = URI("#{@abs_base_url}/awsdirectreturn")
+
       # returned_hosts = []
       hosts = JSON.parse(abs_resource_hosts)
       hosts.each do |host|
@@ -268,8 +315,12 @@ module AbsHelper
         end
 
       end
+
     end
+
     returned_hosts ? returned_hosts.to_json : returned_hosts
+
   end
+
 
 end

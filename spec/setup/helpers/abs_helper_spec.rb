@@ -531,7 +531,7 @@ describe AbsHelperClass do
     context 'when an invalid response_body is provided' do
 
       it 'reports the error and returns nil' do
-        expect(subject).to receive(:puts).with('JSON::ParserError encountered')
+        expect(subject).to receive(:puts).with("JSON::ParserError encountered parsing the response body: #{TEST_INVALID_RESPONSE_BODY}")
         expect(subject.abs_reformat_resource_host(TEST_INVALID_RESPONSE_BODY)).to eq(nil)
       end
 

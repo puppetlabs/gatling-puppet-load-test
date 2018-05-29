@@ -156,7 +156,7 @@ module AbsHelper
 
       reformatted_json = new_response_body.to_json
     rescue
-      puts 'JSON::ParserError encountered'
+      puts "JSON::ParserError encountered parsing the response body: #{response_body}"
     end
 
     reformatted_json

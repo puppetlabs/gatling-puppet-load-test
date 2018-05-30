@@ -113,71 +113,90 @@ describe AbsHelperClass do
 
   describe '#abs_initialize' do
 
-    context 'when environment variables are specified' do
+    context 'when the user has a token' do
 
-      it 'sets the properties to the specified values' do
+      context 'when environment variables are specified' do
 
-        ENV['ABS_BASE_URL'] = TEST_ABS_BASE_URL
-        ENV['ABS_AWS_PLATFORM'] = TEST_ABS_AWS_PLATFORM
-        ENV['ABS_AWS_IMAGE_ID'] = TEST_ABS_AWS_IMAGE_ID
-        ENV['ABS_AWS_SIZE'] = TEST_ABS_AWS_SIZE
-        ENV['ABS_AWS_REGION'] = TEST_ABS_AWS_REGION
-        ENV['ABS_AWS_REAP_TIME'] = TEST_ABS_AWS_REAP_TIME
-        ENV['ABS_AWS_MOM_SIZE'] = TEST_ABS_AWS_MOM_SIZE
-        ENV['ABS_AWS_METRICS_SIZE'] = TEST_ABS_AWS_METRICS_SIZE
-        ENV['BEAKER_PE_VER'] = TEST_BEAKER_PE_VERSION
+        it 'sets the properties to the specified values and returns true' do
 
-        subject.abs_initialize
-        expect(subject.instance_variable_get(:@abs_base_url)). to eq(TEST_ABS_BASE_URL)
-        expect(subject.instance_variable_get(:@abs_aws_platform)). to eq(TEST_ABS_AWS_PLATFORM)
-        expect(subject.instance_variable_get(:@abs_aws_image_id)). to eq(TEST_ABS_AWS_IMAGE_ID)
-        expect(subject.instance_variable_get(:@abs_aws_size)). to eq(TEST_ABS_AWS_SIZE)
-        expect(subject.instance_variable_get(:@abs_aws_region)). to eq(TEST_ABS_AWS_REGION)
-        expect(subject.instance_variable_get(:@abs_aws_reap_time)). to eq(TEST_ABS_AWS_REAP_TIME)
-        expect(subject.instance_variable_get(:@abs_aws_mom_size)). to eq(TEST_ABS_AWS_MOM_SIZE)
-        expect(subject.instance_variable_get(:@abs_aws_metrics_size)). to eq(TEST_ABS_AWS_METRICS_SIZE)
-        expect(subject.instance_variable_get(:@abs_beaker_pe_version)). to eq(TEST_BEAKER_PE_VERSION)
+          ENV['ABS_TOKEN'] = TEST_ABS_TOKEN
+
+          ENV['ABS_BASE_URL'] = TEST_ABS_BASE_URL
+          ENV['ABS_AWS_PLATFORM'] = TEST_ABS_AWS_PLATFORM
+          ENV['ABS_AWS_IMAGE_ID'] = TEST_ABS_AWS_IMAGE_ID
+          ENV['ABS_AWS_SIZE'] = TEST_ABS_AWS_SIZE
+          ENV['ABS_AWS_REGION'] = TEST_ABS_AWS_REGION
+          ENV['ABS_AWS_REAP_TIME'] = TEST_ABS_AWS_REAP_TIME
+          ENV['ABS_AWS_MOM_SIZE'] = TEST_ABS_AWS_MOM_SIZE
+          ENV['ABS_AWS_METRICS_SIZE'] = TEST_ABS_AWS_METRICS_SIZE
+          ENV['BEAKER_PE_VER'] = TEST_BEAKER_PE_VERSION
+
+          expect(subject).to receive(:abs_get_token).and_return(TEST_ABS_TOKEN)
+          expect(subject.abs_initialize).to eq(true)
+
+          expect(subject.instance_variable_get(:@abs_base_url)). to eq(TEST_ABS_BASE_URL)
+          expect(subject.instance_variable_get(:@abs_aws_platform)). to eq(TEST_ABS_AWS_PLATFORM)
+          expect(subject.instance_variable_get(:@abs_aws_image_id)). to eq(TEST_ABS_AWS_IMAGE_ID)
+          expect(subject.instance_variable_get(:@abs_aws_size)). to eq(TEST_ABS_AWS_SIZE)
+          expect(subject.instance_variable_get(:@abs_aws_region)). to eq(TEST_ABS_AWS_REGION)
+          expect(subject.instance_variable_get(:@abs_aws_reap_time)). to eq(TEST_ABS_AWS_REAP_TIME)
+          expect(subject.instance_variable_get(:@abs_aws_mom_size)). to eq(TEST_ABS_AWS_MOM_SIZE)
+          expect(subject.instance_variable_get(:@abs_aws_metrics_size)). to eq(TEST_ABS_AWS_METRICS_SIZE)
+          expect(subject.instance_variable_get(:@abs_beaker_pe_version)). to eq(TEST_BEAKER_PE_VERSION)
+
+        end
+
+      end
+
+      context 'when environment variables are not specified' do
+
+        it 'sets the properties to the default values and returns true' do
+          pending 'resolve stubbed constant issue'
+
+          ENV['ABS_BASE_URL'] = nil
+          ENV['ABS_AWS_PLATFORM'] = nil
+          ENV['ABS_AWS_IMAGE_ID'] = nil
+          ENV['ABS_AWS_SIZE'] = nil
+          ENV['ABS_AWS_REGION'] = nil
+          ENV['ABS_AWS_REAP_TIME'] = nil
+          ENV['ABS_AWS_MOM_SIZE'] = nil
+          ENV['ABS_AWS_METRICS_SIZE'] = nil
+
+          stub_const('ABS_BASE_URL', TEST_ABS_BASE_URL)
+          stub_const('ABS_AWS_PLATFORM', TEST_ABS_AWS_PLATFORM)
+          stub_const('ABS_AWS_IMAGE_ID', TEST_ABS_AWS_IMAGE_ID)
+          stub_const('ABS_AWS_SIZE', TEST_ABS_AWS_SIZE)
+          stub_const('ABS_AWS_MOM_SIZE', TEST_ABS_AWS_MOM_SIZE)
+          stub_const('ABS_AWS_METRICS_SIZE', TEST_ABS_AWS_METRICS_SIZE)
+          stub_const('ABS_AWS_REGION', TEST_ABS_AWS_REGION)
+          stub_const('ABS_AWS_REAP_TIME', TEST_ABS_AWS_REAP_TIME)
+
+          # TODO: stubbed constants aren't used by the properties in the code under test
+          # subject.abs_initialize
+
+          expect(subject.instance_variable_get(:@abs_base_url)). to eq(TEST_ABS_BASE_URL)
+          expect(subject.instance_variable_get(:@abs_aws_platform)). to eq(TEST_ABS_AWS_PLATFORM)
+          expect(subject.instance_variable_get(:@abs_aws_image_id)). to eq(TEST_ABS_AWS_IMAGE_ID)
+          expect(subject.instance_variable_get(:@abs_aws_size)). to eq(TEST_ABS_AWS_SIZE)
+          expect(subject.instance_variable_get(:@abs_aws_region)). to eq(TEST_ABS_AWS_REGION)
+          expect(subject.instance_variable_get(:@abs_aws_reap_time)). to eq(TEST_ABS_AWS_REAP_TIME)
+          expect(subject.instance_variable_get(:@abs_aws_mom_size)). to eq(TEST_ABS_AWS_MOM_SIZE)
+          expect(subject.instance_variable_get(:@abs_aws_metrics_size)). to eq(TEST_ABS_AWS_METRICS_SIZE)
+
+          subject.abs_initialize
+        end
 
       end
 
     end
 
-    context 'when environment variables are not specified' do
+    context 'when the user does not have a token' do
 
-      it 'sets the properties to the default values' do
-        pending 'resolve stubbed constant issue'
+      it 'returns false' do
+        ENV['ABS_TOKEN'] = nil
 
-        ENV['ABS_BASE_URL'] = nil
-        ENV['ABS_AWS_PLATFORM'] = nil
-        ENV['ABS_AWS_IMAGE_ID'] = nil
-        ENV['ABS_AWS_SIZE'] = nil
-        ENV['ABS_AWS_REGION'] = nil
-        ENV['ABS_AWS_REAP_TIME'] = nil
-        ENV['ABS_AWS_MOM_SIZE'] = nil
-        ENV['ABS_AWS_METRICS_SIZE'] = nil
-
-        stub_const('ABS_BASE_URL', TEST_ABS_BASE_URL)
-        stub_const('ABS_AWS_PLATFORM', TEST_ABS_AWS_PLATFORM)
-        stub_const('ABS_AWS_IMAGE_ID', TEST_ABS_AWS_IMAGE_ID)
-        stub_const('ABS_AWS_SIZE', TEST_ABS_AWS_SIZE)
-        stub_const('ABS_AWS_MOM_SIZE', TEST_ABS_AWS_MOM_SIZE)
-        stub_const('ABS_AWS_METRICS_SIZE', TEST_ABS_AWS_METRICS_SIZE)
-        stub_const('ABS_AWS_REGION', TEST_ABS_AWS_REGION)
-        stub_const('ABS_AWS_REAP_TIME', TEST_ABS_AWS_REAP_TIME)
-
-        # TODO: stubbed constants aren't used by the properties in the code under test
-        # subject.abs_initialize
-
-        expect(subject.instance_variable_get(:@abs_base_url)). to eq(TEST_ABS_BASE_URL)
-        expect(subject.instance_variable_get(:@abs_aws_platform)). to eq(TEST_ABS_AWS_PLATFORM)
-        expect(subject.instance_variable_get(:@abs_aws_image_id)). to eq(TEST_ABS_AWS_IMAGE_ID)
-        expect(subject.instance_variable_get(:@abs_aws_size)). to eq(TEST_ABS_AWS_SIZE)
-        expect(subject.instance_variable_get(:@abs_aws_region)). to eq(TEST_ABS_AWS_REGION)
-        expect(subject.instance_variable_get(:@abs_aws_reap_time)). to eq(TEST_ABS_AWS_REAP_TIME)
-        expect(subject.instance_variable_get(:@abs_aws_mom_size)). to eq(TEST_ABS_AWS_MOM_SIZE)
-        expect(subject.instance_variable_get(:@abs_aws_metrics_size)). to eq(TEST_ABS_AWS_METRICS_SIZE)
-
-        subject.abs_initialize
+        expect(subject).to receive(:abs_get_token).and_return(false)
+        expect(subject.abs_initialize).to eq(false)
       end
 
     end
@@ -709,7 +728,6 @@ describe AbsHelperClass do
     end
 
   end
-
 
   describe '#abs_get_last_abs_resource_hosts' do
 

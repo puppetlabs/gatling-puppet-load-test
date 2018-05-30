@@ -5,10 +5,7 @@ require 'yaml'
 
 module AbsHelper
 
-  # TODO: replace when ready
-  #ABS_BASE_URL = 'https://cinext-abs.delivery.puppetlabs.net/api/v2'
-  ABS_BASE_URL = 'https://cinext-abs-test.delivery.puppetlabs.net/api/v2'
-
+  ABS_BASE_URL = 'https://cinext-abs.delivery.puppetlabs.net/api/v2'
   ABS_AWS_PLATFORM = 'el-7-x86_64'
   ABS_AWS_IMAGE_ID = 'ami-1b17242b'
   ABS_AWS_SIZE = 'c4.2xlarge'
@@ -21,9 +18,8 @@ module AbsHelper
   ABS_BEAKER_TYPE = 'centos-7-x86-64-west'
   ABS_BEAKER_ENGINE = 'aws'
 
-  # TODO: replace when ready
-  # ABS_AWS_REAP_TIME = '86400'
-  ABS_AWS_REAP_TIME = '1200'
+  # TODO: is this the value we want to use?
+  ABS_AWS_REAP_TIME = '86400'
 
   def abs_initialize
 

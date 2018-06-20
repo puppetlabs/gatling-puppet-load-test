@@ -18,11 +18,11 @@ test_name 'apples to apples'
   end
 
   step 'request count' do
-    assert(gatling_result.request_count == 70, "Total request count is: #{gatling_result.request_count}")
+    assert(gatling_result.request_count == 33600, "Total request count is: #{gatling_result.request_count}")
   end
 
-  step 'successful requests' do
-    assert(gatling_result.successful_requests == 100, "Total successful requests was: #{gatling_result.successful_requests}" )
+  step 'successful request percentage' do
+    assert(gatling_result.successful_requests == 100, "Total successful request percentage was: #{gatling_result.successful_requests}" )
   end
 
   step 'average memory' do

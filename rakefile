@@ -148,6 +148,8 @@ rototiller_task :performance_without_provision do |t|
   t.add_env({:name => 'SUT_ARCHIVE_FILES', :default => ''})
   t.add_env({:name => 'PACKAGE_BUILD_VERSION', :default => 'latest'}) if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
   t.add_env({:name => 'PUPPET_AGENT_VERSION', :default => 'latest'}) if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
+  t.add_env({:name => 'PUSH_TO_BIGQUERY', :default => 'false',
+    :message => 'True if you want to store a new set of results as a baseline value'})
 
   # env vars needed for Beaker
   @beaker_cmd = t.add_command do |command|

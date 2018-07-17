@@ -6,9 +6,9 @@ test_name 'apples to apples'
     perf_teardown
   end
 
-  # Execute 10 agent runs to warm up the JIT before starting our monitoring.
-  perf_setup('WarmUpJit.json','PerfTestLarge', '')
-  stop_monitoring(master, '/opt/puppetlabs')
+# Execute 60 agent runs to warm up the JIT before starting our monitoring.
+perf_setup('WarmUpJit.json','PerfTestLarge', '')
+stop_monitoring(master, '/opt/puppetlabs')
 
   gatlingassertions = "SUCCESSFUL_REQUESTS=100 " + "MAX_RESPONSE_TIME_AGENT=20000 "  + "TOTAL_REQUEST_COUNT=70 "
 

@@ -30,16 +30,16 @@ rototiller_task :performance_provision_with_abs do |t|
   t.add_env({:name => 'BEAKER_PE_VER', :message => 'The PE version to install on hosts, example: 2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'ABS_OS', :default => 'centos-7-x86-64-west', :message => 'The OS to provision with ABS: centos-7-x86-64-west (for AWS), or centos-7-x86_64 (for vmpooler)'})
 
-  abs_resource_hosts = abs_get_resource_hosts(abs_get_a2a_hosts)
+  abs_resource_hosts = get_abs_resource_hosts(get_a2a_hosts)
   raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
 end
 
 desc 'Task to de-provision systems that were provisioned with ABS - included in the performance task following the rules of BEAKER_PRESERVE_HOSTS env var.'
 rototiller_task :performance_deprovision_with_abs do
-  abs_resource_hosts = ENV['ABS_RESOURCE_HOSTS'].nil? ? abs_get_last_abs_resource_hosts : ENV['ABS_RESOURCE_HOSTS']
+  abs_resource_hosts = ENV['ABS_RESOURCE_HOSTS'].nil? ? get_last_abs_resource_hosts : ENV['ABS_RESOURCE_HOSTS']
   raise 'This task requires an array of hostnames to be specified via the ABS_RESOURCE_HOSTS environment variable or the last_abs_resource_hosts.log file' unless abs_resource_hosts
 
-  returned_hosts = abs_return_resource_hosts(abs_resource_hosts)
+  returned_hosts = return_abs_resource_hosts(abs_resource_hosts)
   raise 'Failed to de-provision ABS hosts' unless returned_hosts == abs_resource_hosts
 end
 

@@ -564,15 +564,21 @@ module AbsHelper
       begin
         # verify that Beaker will be able to start using the host
         ssh = Net::SSH.start(host, user, keys: key_file)
-        result = ssh.exec("rpm -q curl")
+        result = ssh.exec!("rpm -q curl")
         ssh.close
 
         if result
           puts result
+          raise "Error: root account is not yet configured" if result.to_s.include?("centos")
+
           break
+
+        else
+          raise "Unknown error"
         end
+
       rescue => err
-        puts "Attempted connection to #{host} failed with #{err}"
+        puts "Attempted connection to #{host} failed with '#{err}'"
         backoff_sleep(tries)
 
       end

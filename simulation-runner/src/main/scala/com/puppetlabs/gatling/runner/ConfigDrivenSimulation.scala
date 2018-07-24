@@ -116,9 +116,10 @@ class ConfigDrivenSimulation extends Simulation {
      })
     }
 
+// Temporarily change max response time assertion to percentile4 - 99th percentile
     if (sys.env.get("SUCCESSFUL_REQUESTS") != None)
         setUp(scns).assertions(
-            global.successfulRequests.percent.gte(getEnvVar("SUCCESSFUL_REQUESTS").toDouble), details("PerfTestLarge").responseTime.max.lte(getEnvVar("MAX_RESPONSE_TIME_AGENT").toInt), global.allRequests.count.is(getEnvVar("TOTAL_REQUEST_COUNT").toLong)
+            global.successfulRequests.percent.gte(getEnvVar("SUCCESSFUL_REQUESTS").toDouble), details("PerfTestLarge").responseTime.percentile4.lte(getEnvVar("MAX_RESPONSE_TIME_AGENT").toInt), global.allRequests.count.is(getEnvVar("TOTAL_REQUEST_COUNT").toLong)
         )
     else
         setUp(scns)

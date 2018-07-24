@@ -31,6 +31,24 @@ module PerfRunHelper
     end
   end
 
+  def assertion_exceptions
+    @assertion_exceptions ||= []
+  end
+
+  def assert_later(expression_result, message)
+    begin
+      assert(expression_result, message)
+    rescue Minitest::Assertion => ex
+      assertion_exceptions.push(ex)
+    end
+  end
+
+  def assert_all
+    assertion_exceptions.each { |ex|
+      logger.error("#{ex.message}\n#{ex.backtrace}")
+    }
+    flunk('One or more assertions failed') unless assertion_exceptions.size == 0
+  end
 
   private
 

@@ -550,6 +550,7 @@ module AbsHelper
   #
   def verify_abs_host(host)
     result = nil
+    success = false
     user = "root"
     key_file = "~/.ssh/abs-aws-ec2.rsa"
 
@@ -568,9 +569,9 @@ module AbsHelper
         ssh.close
 
         if result
-          puts result
+          puts "Result: #{result}"
           raise "Error: root account is not yet configured" if result.to_s.include?("centos")
-
+          success = true
           break
 
         else
@@ -585,8 +586,7 @@ module AbsHelper
 
     end
 
-    puts "Failed to verify host #{host}" unless result
-    success = result ? true : false
+    puts "Failed to verify host #{host}" unless success
     return success
   end
 

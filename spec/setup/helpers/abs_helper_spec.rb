@@ -829,6 +829,7 @@ describe AbsHelperClass do
     end
   end
 
+  # TODO: implement
   describe "#backoff_sleep" do
     context "when called with a positive number of tries" do
       it "sleeps for a multiple of the number of tries" do
@@ -843,6 +844,9 @@ describe AbsHelperClass do
     context "when the specified number of tries has not been exceeded" do
       context "when the result is successful" do
         it "breaks and returns true" do
+          stub_const("Net::SSH", test_ssh)
+          test_ssh_session = double
+          test_ssh_result = double
           tries = 1
           result_string = "Success"
 
@@ -850,16 +854,12 @@ describe AbsHelperClass do
           expect(subject).to receive(:puts).with("Verifying #{TEST_HOSTNAME}")
           expect(subject).to receive(:puts).with("Attempt #{tries} for #{TEST_HOSTNAME}")
 
-          stub_const("Net::SSH", test_ssh)
-          test_ssh_session = double
-          test_ssh_result = double
-
           expect(test_ssh).to receive(:start).and_return(test_ssh_session)
           expect(test_ssh_session).to receive(:exec!).and_return(test_ssh_result)
           expect(test_ssh_session).to receive(:close)
 
-          expect(subject).to receive(:puts).with(test_ssh_result)
-          expect(test_ssh_result).to receive(:to_s).and_return(result_string)
+          allow(test_ssh_result).to receive(:to_s).and_return(result_string)
+          expect(subject).to receive(:puts).with("Result: #{result_string}")
           expect(result_string).to receive(:include?).with("centos")
 
           expect(subject).not_to receive(:backoff_sleep)
@@ -874,6 +874,7 @@ describe AbsHelperClass do
           test_ssh_session = double
           test_ssh_result = double
           result_string = "Success"
+          message = "Attempted connection to #{TEST_HOSTNAME} failed with 'RuntimeError'"
 
           allow(subject).to receive(:puts)
           expect(subject).to receive(:puts).with("Verifying #{TEST_HOSTNAME}")
@@ -886,20 +887,23 @@ describe AbsHelperClass do
           expect(subject).to receive(:puts).with("Attempt 7 for #{TEST_HOSTNAME}")
           expect(subject).to receive(:puts).with("Attempt 8 for #{TEST_HOSTNAME}")
 
+          # failed attempts
           expect(test_ssh).to receive(:start)
-            .exactly(8).times.and_return(test_ssh_session)
-
-          expect(test_ssh_session).to receive(:exec!)
             .exactly(7).times.and_raise(RuntimeError)
 
-          expect(test_ssh_session).to receive(:exec!).and_return(test_ssh_result)
-          expect(test_ssh_session).to receive(:close).exactly(1).times
+          expect(subject).to receive(:puts).with(message).exactly(7).times
 
           expect(subject).to receive(:backoff_sleep).exactly(7).times
 
-          expect(subject).to receive(:puts).with(test_ssh_result)
-          expect(test_ssh_result).to receive(:to_s).and_return(result_string)
+          # success
+          expect(test_ssh).to receive(:start)
+            .exactly(1).times.and_return(test_ssh_session)
+          
+          expect(test_ssh_session).to receive(:exec!).and_return(test_ssh_result)
+          expect(test_ssh_session).to receive(:close).exactly(1).times
 
+          allow(test_ssh_result).to receive(:to_s).and_return(result_string)
+          expect(subject).to receive(:puts).with("Result: #{result_string}")
           expect(result_string).to receive(:include?).exactly(1).times.with("centos")
 
           expect(subject.verify_abs_host(TEST_HOSTNAME)).to eq(true)
@@ -910,9 +914,12 @@ describe AbsHelperClass do
         it "reports the failure and sleeps" do
           stub_const("Net::SSH", test_ssh)
           test_ssh_session = double
-          test_ssh_result = double
-          result_string1 = "Log in as centos"
+          test_ssh_result1 = double
+          test_ssh_result2 = double
+          result_string1 = "centos"
           result_string2 = "Success"
+          error = "Error: root account is not yet configured"
+          error_message = "Attempted connection to #{TEST_HOSTNAME} failed with '#{error}'"
 
           allow(subject).to receive(:puts)
           expect(subject).to receive(:puts).with("Verifying #{TEST_HOSTNAME}")
@@ -925,28 +932,33 @@ describe AbsHelperClass do
           expect(subject).to receive(:puts).with("Attempt 7 for #{TEST_HOSTNAME}")
           expect(subject).to receive(:puts).with("Attempt 8 for #{TEST_HOSTNAME}")
 
+          # failed attempts
+          expect(subject).to receive(:puts).with(error_message).exactly(7).times
+
           expect(test_ssh).to receive(:start)
             .exactly(8).times.and_return(test_ssh_session)
 
           expect(test_ssh_session).to receive(:exec!)
-            .exactly(8).and_return(test_ssh_result)
+            .exactly(7).and_return(test_ssh_result1)
 
           expect(test_ssh_session).to receive(:close).exactly(8).times
 
-          expect(subject).to receive(:backoff_sleep).exactly(7).times
+          expect(subject).to receive(:puts).with("Result: #{result_string1}")
+            .exactly(7).times
 
-          expect(subject).to receive(:puts).with(test_ssh_result)
-
-          expect(test_ssh_result).to receive(:to_s)
-            .exactly(7).times.and_return(result_string1)
-
-          expect(test_ssh_result).to receive(:to_s)
-            .exactly(1).times.and_return(result_string2)
+          allow(test_ssh_result1).to receive(:to_s).and_return(result_string1)
 
           expect(result_string1).to receive(:include?)
-            .exactly(7).times.with("centos").and_raise(RuntimeError)
+            .exactly(7).times.with("centos").and_raise(RuntimeError, error)
 
-          expect(result_string2).to receive(:include?).exactly(1).times.with("centos")
+          expect(subject).to receive(:backoff_sleep).exactly(7).times
+
+          # success
+          expect(test_ssh_session).to receive(:exec!).and_return(test_ssh_result2)
+          allow(test_ssh_result2).to receive(:to_s).and_return(result_string2)
+
+          expect(subject).to receive(:puts).with("Result: #{result_string2}")
+          expect(result_string2).to receive(:include?).with("centos")
 
           expect(subject.verify_abs_host(TEST_HOSTNAME)).to eq(true)
         end
@@ -955,8 +967,14 @@ describe AbsHelperClass do
 
     context "when the specified number of tries has been exceeded" do
       it "reports the failure and returns false" do
+        stub_const("Net::SSH", test_ssh)
+        test_ssh_session = double
+        error = "Error: root account is not yet configured"
+        error_message = "Attempted connection to #{TEST_HOSTNAME} failed with '#{error}'"
+
         allow(subject).to receive(:puts)
         expect(subject).to receive(:puts).with("Verifying #{TEST_HOSTNAME}")
+
         expect(subject).to receive(:puts).with("Attempt 1 for #{TEST_HOSTNAME}")
         expect(subject).to receive(:puts).with("Attempt 2 for #{TEST_HOSTNAME}")
         expect(subject).to receive(:puts).with("Attempt 3 for #{TEST_HOSTNAME}")
@@ -966,14 +984,13 @@ describe AbsHelperClass do
         expect(subject).to receive(:puts).with("Attempt 7 for #{TEST_HOSTNAME}")
         expect(subject).to receive(:puts).with("Attempt 8 for #{TEST_HOSTNAME}")
 
-        stub_const("Net::SSH", test_ssh)
-        test_ssh_session = double
-
         expect(test_ssh).to receive(:start)
           .exactly(8).times.and_return(test_ssh_session)
 
         expect(test_ssh_session).to receive(:exec!)
-          .exactly(8).times.and_raise(RuntimeError)
+          .exactly(8).times.and_raise(RuntimeError, error)
+
+        expect(subject).to receive(:puts).with(error_message).exactly(8).times
 
         expect(subject).to receive(:backoff_sleep).exactly(8).times
 

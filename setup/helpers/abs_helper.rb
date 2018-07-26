@@ -3,6 +3,9 @@ require "net/ssh"
 require "timeout"
 require "json"
 require "yaml"
+require "in_parallel"
+
+include InParallel
 
 # Provides functionality to provision and deprovision hosts via ABS
 module AbsHelper
@@ -42,7 +45,6 @@ module AbsHelper
     if get_abs_token
       user_has_token = true
 
-      # TODO: preface all ABS environment variables with ABS?
       @abs_base_url = ENV["ABS_BASE_URL"] ? ENV["ABS_BASE_URL"] : ABS_BASE_URL
       @aws_platform = ENV["ABS_AWS_PLATFORM"] ? ENV["ABS_AWS_PLATFORM"] : AWS_PLATFORM
       @aws_image_id = ENV["ABS_AWS_IMAGE_ID"] ? ENV["ABS_AWS_IMAGE_ID"] : AWS_IMAGE_ID
@@ -100,66 +102,49 @@ module AbsHelper
   # @return [JSON, nil] The hosts that were provisioned via ABS, otherwise nil
   #
   # @example
-  #   abs_get_resource_hosts = abs_get_resource_hosts(hosts_to_request)
+  #   abs_resource_hosts = abs_get_resource_hosts(hosts_to_request)
   #
   def get_abs_resource_hosts(hosts_to_request)
     hosts = []
     abs_resource_hosts = nil
-    invalid_response = false
+
+    # ensure the user has a token before proceeding
+    raise "Unable to proceed without a valid ABS token" unless abs_initialize
 
     puts
     puts "Attempting to provision ABS hosts: #{hosts_to_request}"
     puts
 
-    # ensure the user has a token before proceeding
-    if abs_initialize
-      uri = URI("#{@abs_base_url}/awsdirect")
+    begin
+
       hosts_to_request.each do |host_to_request|
-        puts "host_to_request: #{host_to_request}"
-
-        role = host_to_request[:role]
-        size = host_to_request[:size]
-        volume_size = host_to_request[:volume_size]
-
-        request_body = get_awsdirect_request_body(role, size, volume_size)
-        response = perform_awsdirect_request(uri, request_body)
-
-        # if any invalid responses are encountered stop and return any provisioned hosts
-        # TODO: extract managing the responses and test separately
-        if !valid_abs_response?(response)
-          invalid_response = true
-          puts "Unable to provision host for role: #{role}"
-          puts
-
-          if hosts.empty?
-            puts "No ABS hosts were provisioned"
-            puts
-          else
-            puts "Returning any provisioned hosts"
-            return_abs_resource_hosts(hosts.to_json)
-          end
-
-          # stop requesting hosts
-          break
-
-        else
-          # reformat to satisfy beaker
-          hosts << JSON.parse(reformat_abs_resource_host(response.body))
-        end
+        hosts << get_abs_resource_host(host_to_request)
       end
 
-      if !hosts.empty? && !invalid_response
-        abs_resource_hosts = hosts.to_json
-        ENV["ABS_RESOURCE_HOSTS"] = abs_resource_hosts
-        puts "ABS_RESOURCE_HOSTS=#{ENV['ABS_RESOURCE_HOSTS']}"
+    rescue => e
 
-        # write to "last_abs_resource_hosts.log" (used when returning hosts)
-        update_last_abs_resource_hosts(abs_resource_hosts)
-      end
-
-    else
-      puts "Unable to proceed without a valid ABS token"
+      puts "Error encountered: #{e.message}"
       puts
+
+      if hosts.empty?
+        puts "No ABS hosts were provisioned"
+        puts
+      else
+        puts "Returning any provisioned hosts"
+        return_abs_resource_hosts(hosts.to_json)
+      end
+
+      raise
+
+    end
+
+    if !hosts.empty?
+      abs_resource_hosts = hosts.to_json
+      ENV["ABS_RESOURCE_HOSTS"] = abs_resource_hosts
+      puts "ABS_RESOURCE_HOSTS=#{ENV['ABS_RESOURCE_HOSTS']}"
+
+      # write to "last_abs_resource_hosts.log" (used when returning hosts)
+      update_last_abs_resource_hosts(abs_resource_hosts)
     end
 
     # only return the hosts if they're successfully verified
@@ -169,13 +154,38 @@ module AbsHelper
     if verified_hosts
       puts
       puts "ABS hosts have been successfully provisioned"
-      puts "Pausing to ensure successful configuration"
-
-      # TODO: remove?
-      sleep 30
     end
 
     return verified_hosts
+
+  end
+
+  # Attempts to provision the specified host via ABS
+  #
+  # @author Bill Claytor
+  #
+  # @param [Hash] host_to_request The host to request via ABS
+  #
+  # @return [Hash, nil] The host provisioned via ABS, otherwise nil
+  #
+  # @example
+  #   abs_resource_host = abs_get_resource_host(host_to_request)
+  #
+  def get_abs_resource_host(host_to_request)
+    uri = URI("#{@abs_base_url}/awsdirect")
+    puts "Host_to_request: #{host_to_request}"
+
+    request_body = get_awsdirect_request_body(host_to_request)
+    response = perform_awsdirect_request(uri, request_body)
+
+    if !valid_abs_response?(response)
+      raise "Unable to provision host for role: #{host_to_request[:role]}"
+    else
+      host = parse_awsdirect_response_body(response.body)
+    end
+
+    return host
+
   end
 
   # Returns the specified ABS hosts via ABS
@@ -190,7 +200,7 @@ module AbsHelper
   #   returned_hosts = abs_return_resource_hosts(abs_resource_hosts)
   #
   def return_abs_resource_hosts(abs_resource_hosts)
-    returned_hosts = nil
+    returned_hosts = []
     puts "ABS hosts specified for return: #{abs_resource_hosts}"
 
     is_valid = valid_abs_resource_hosts?(abs_resource_hosts)
@@ -209,8 +219,6 @@ module AbsHelper
 
     if is_valid && has_token
       uri = URI("#{@abs_base_url}/awsdirectreturn")
-
-      # returned_hosts = []
       hosts = JSON.parse(abs_resource_hosts)
       hosts.each do |host|
         hostname = host["hostname"]
@@ -221,7 +229,7 @@ module AbsHelper
 
         if valid_abs_response?(res)
           puts "Successfully returned host: #{hostname}"
-          returned_hosts ? returned_hosts << host : returned_hosts = [host]
+          returned_hosts << host
         else
           puts "Failed to return host: #{hostname}"
         end
@@ -229,7 +237,7 @@ module AbsHelper
 
     end
 
-    returned_hosts ? returned_hosts.to_json : returned_hosts
+    returned_hosts.to_json
   end
 
   # Reads the ABS hosts from the last_abs_resource_hosts.log file
@@ -282,22 +290,27 @@ module AbsHelper
   #
   # @author Bill Claytor
   #
-  # @param [string] role The role for the host being requested
-  # @param [string] size The size for the host being requested
+  # @param [Hash] host_to_request The host being requested
   #
   # @return [JSON] The JSON request body for the host being requested
   #
   # @example
   #   req_body = abs_get_awsdirect_request_body("metrics", "c4.2xlarge", "80")
   #
-  def get_awsdirect_request_body(role, size = @aws_size, volume_size = @aws_volume_size)
-    { "platform": @aws_platform,
+  def get_awsdirect_request_body(host_to_request)
+    role = host_to_request[:role]
+    size = host_to_request[:size]
+    volume_size = host_to_request[:volume_size]
+
+    request_body = { "platform": @aws_platform,
       "image_id": @aws_image_id,
       "size": size,
       "region": @aws_region,
       "reap_time": @aws_reap_time,
       "tags": get_aws_tags(role),
       "volume_size": volume_size }.to_json
+
+    return request_body
   end
 
   # Creates the awsdirectreturn request body for the specified host
@@ -464,40 +477,30 @@ module AbsHelper
     is_valid_response
   end
 
-  # Creates a Beaker-formatted version of the response body
-  # for the provisioned host
+  # Parses the awsdirect response body
   #
-  # Beaker requires hosts to be specified in this format
+  # Note: Beaker requires hosts to be specified in this format
   #
   # @author Bill Claytor
   #
-  # @param [Hash] response_body The response body for the provisioned host
+  # @param [JSON] response_body The response body for the provisioned host
   #
-  # @return [Hash] The updated host
+  # @return [Hash] The ABS host
   #
   # @example
-  #   host = abs_reformat_resource_host(response_body)
+  #   host = parse_awsdirect_response_body(response_body)
   #
-  def reformat_abs_resource_host(response_body)
-    reformatted_json = nil
+  def parse_awsdirect_response_body(response_body)
+    host = JSON.parse(response_body)
+    hostname = host["hostname"]
 
-    begin
-      host = JSON.parse(response_body)
-      hostname = host["hostname"]
-
-      new_response_body = {
+    abs_resource_host = {
         'hostname': hostname,
         'type':     ABS_BEAKER_TYPE,
         'engine':   ABS_BEAKER_ENGINE
-      }
+    }
 
-      reformatted_json = new_response_body.to_json
-    rescue
-      # TODO: raise?
-      puts "JSON::ParserError encountered parsing response body: #{response_body}"
-    end
-
-    reformatted_json
+    return abs_resource_host
   end
 
   # Writes the current ABS resource hosts to the log file
@@ -608,7 +611,7 @@ module AbsHelper
       puts
       puts "Current host: #{host}"
 
-      success = verify_abs_host(host["hostname"])
+      success = verify_abs_host(host[:hostname])
       break unless success
     end
 

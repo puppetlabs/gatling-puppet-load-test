@@ -86,14 +86,17 @@ describe AbsHelperClass do
       'type': TEST_BEAKER_TYPE,
       'engine': TEST_ENGINE }.to_json.freeze
 
+  TEST_HOST =
+    { 'hostname': TEST_HOSTNAME,
+      'type': TEST_BEAKER_TYPE,
+      'engine': TEST_ENGINE }.freeze
+
   TEST_AWSDIRECTRETURN_REQUEST_BODY = { 'hostname': TEST_HOSTNAME }.to_json.freeze
 
   TEST_VALID_RESPONSE_BODY = "OK".freeze
   TEST_INVALID_RESPONSE_BODY = "".freeze
   TEST_VALID_RESPONSE_CODE = "200".freeze
   TEST_INVALID_RESPONSE_CODE = "777".freeze
-
-  TEST_HOST = JSON.parse(TEST_REFORMATTED_RESPONSE_BODY).freeze
 
   TEST_A2A_MOM =
     { 'role': "mom",
@@ -238,33 +241,18 @@ describe AbsHelperClass do
       context "when a valid response is returned" do
         it "sets the environment variable, logs the hosts, and returns the response(s)" do
           ENV["ABS_TOKEN"] = TEST_ABS_TOKEN
+
           expect(subject).to receive(:abs_initialize).and_return(true)
+          expect(subject).to receive(:puts)
+            .with("Attempting to provision ABS hosts: #{TEST_A2A_HOSTS}")
+
           allow(TEST_ABS_RESOURCE_HOSTS).to receive(:each)
 
-          expect(subject).to receive(:get_awsdirect_request_body)
-            .with(TEST_MOM_ROLE, TEST_MOM_SIZE, TEST_MOM_VOLUME_SIZE)
-            .and_return(TEST_AWSDIRECT_MOM_REQUEST_BODY)
+          expect(subject).to receive(:get_abs_resource_host)
+            .with(TEST_A2A_MOM).and_return(TEST_HOST)
 
-          expect(subject).to receive(:get_awsdirect_request_body)
-            .with(TEST_METRICS_ROLE, TEST_METRICS_SIZE, TEST_METRICS_VOLUME_SIZE)
-            .and_return(TEST_AWSDIRECT_METRICS_REQUEST_BODY)
-
-          expect(subject).to receive(:perform_awsdirect_request)
-            .with(TEST_AWSDIRECT_URI, TEST_AWSDIRECT_MOM_REQUEST_BODY)
-            .and_return(test_http_response)
-
-          expect(subject).to receive(:perform_awsdirect_request)
-            .with(TEST_AWSDIRECT_URI, TEST_AWSDIRECT_METRICS_REQUEST_BODY)
-            .and_return(test_http_response)
-
-          expect(subject).to receive(:valid_abs_response?).at_least(:once)
-            .with(test_http_response).and_return(true)
-
-          expect(test_http_response).to receive(:body)
-            .at_least(:once).and_return(TEST_AWSDIRECT_RESPONSE_BODY)
-
-          expect(subject).to receive(:reformat_abs_resource_host).at_least(:once)
-            .with(TEST_AWSDIRECT_RESPONSE_BODY).and_return(TEST_REFORMATTED_RESPONSE_BODY)
+          expect(subject).to receive(:get_abs_resource_host)
+            .with(TEST_A2A_METRICS).and_return(TEST_HOST)
 
           expect(subject).to receive(:update_last_abs_resource_hosts)
             .with(TEST_ABS_RESOURCE_HOSTS)
@@ -273,12 +261,9 @@ describe AbsHelperClass do
             .with(TEST_ABS_HOSTS).and_return(true)
 
           expect(subject).not_to receive(:puts).with(/Returning any provisioned hosts/)
-          expect(subject).not_to receive(:puts).with(/Unable to provision host for role/)
           expect(subject).not_to receive(:puts).with(/No ABS hosts were provisioned/)
 
           expect(subject).not_to receive(:return_abs_resource_hosts)
-
-          expect(subject).to receive(:sleep)
 
           expect(subject.get_abs_resource_hosts(TEST_A2A_HOSTS)).to eq(TEST_ABS_RESOURCE_HOSTS)
         end
@@ -286,79 +271,62 @@ describe AbsHelperClass do
 
       # TODO: verify error reporting or trust the tests for abs_is_valid_response?
       context "when an invalid response is returned" do
-        context "when this is the first request" do
+        context "when there have been no valid responses" do
           it "does not attempt to return hosts, reports the error and returns nil" do
-            # TODO: set up and verify this being the first request
             ENV["ABS_TOKEN"] = TEST_ABS_TOKEN
-            test_expected_result = nil
+            error_message = "Unable to provision host for role: #{TEST_A2A_MOM[:role]}"
 
-            expect(subject).to receive(:perform_awsdirect_request).and_return(test_http_response)
-            expect(subject).to receive(:valid_abs_response?).with(test_http_response)
-                                                            .and_return(false)
+            expect(subject).to receive(:abs_initialize).and_return(true)
+            expect(subject).to receive(:puts)
+              .with("Attempting to provision ABS hosts: #{TEST_A2A_HOSTS}")
 
-            allow(subject).to receive(:puts)
-            expect(subject).not_to receive(:puts).with(/Returning any provisioned hosts/)
+            allow(TEST_ABS_RESOURCE_HOSTS).to receive(:each)
+
+            expect(subject).to receive(:get_abs_resource_host)
+              .with(TEST_A2A_MOM).and_raise(RuntimeError, error_message)
+
+            expect(subject).to receive(:puts).with("No ABS hosts were provisioned")
+
+            expect(subject).not_to receive(:puts).with("Returning any provisioned hosts")
             expect(subject).not_to receive(:return_abs_resource_hosts)
 
             expect(subject).not_to receive(:update_last_abs_resource_hosts)
             expect(subject).not_to receive(:verify_abs_hosts)
 
-            expect(subject).to receive(:puts).with(/Unable to provision host for role/)
-            expect(subject).to receive(:puts).with(/No ABS hosts were provisioned/)
-
-            expect(subject.get_abs_resource_hosts(TEST_A2A_HOSTS)).to eq(test_expected_result)
+            expect { subject.get_abs_resource_hosts(TEST_A2A_HOSTS) }
+              .to raise_error(RuntimeError, error_message)
           end
         end
 
-        context "when there have been previous successful requests" do
+        context "when there have been valid responses" do
           it "attempts to return the previously provisioned hosts" do
             ENV["ABS_TOKEN"] = TEST_ABS_TOKEN
+            error_message = "Unable to provision host for role: #{TEST_A2A_METRICS[:role]}"
+
             expect(subject).to receive(:abs_initialize).and_return(true)
             allow(TEST_ABS_RESOURCE_HOSTS).to receive(:each)
 
+            allow(subject).to receive(:puts)
+            expect(subject).to receive(:puts)
+              .with("Attempting to provision ABS hosts: #{TEST_A2A_HOSTS}")
+
             # valid
-            expect(subject).to receive(:get_awsdirect_request_body)
-              .with(TEST_MOM_ROLE, TEST_MOM_SIZE, TEST_MOM_VOLUME_SIZE)
-              .and_return(TEST_AWSDIRECT_MOM_REQUEST_BODY)
-
-            expect(subject).to receive(:perform_awsdirect_request)
-              .with(TEST_AWSDIRECT_URI, TEST_AWSDIRECT_MOM_REQUEST_BODY)
-              .and_return(test_http_response)
-
-            expect(subject).to receive(:valid_abs_response?)
-              .with(test_http_response).and_return(true)
-
-            expect(test_http_response).to receive(:body).and_return(TEST_AWSDIRECT_RESPONSE_BODY)
-
-            expect(subject).to receive(:reformat_abs_resource_host)
-              .with(TEST_AWSDIRECT_RESPONSE_BODY)
-              .and_return(TEST_REFORMATTED_RESPONSE_BODY)
+            expect(subject).to receive(:get_abs_resource_host)
+              .with(TEST_A2A_MOM).and_return(TEST_HOST)
 
             # invalid
-            expect(subject).to receive(:get_awsdirect_request_body)
-              .with(TEST_METRICS_ROLE, TEST_METRICS_SIZE, TEST_METRICS_VOLUME_SIZE)
-              .and_return(TEST_AWSDIRECT_METRICS_REQUEST_BODY)
-
-            expect(subject).to receive(:perform_awsdirect_request)
-              .with(TEST_AWSDIRECT_URI, TEST_AWSDIRECT_METRICS_REQUEST_BODY)
-              .and_return(nil)
-
-            expect(subject).to receive(:valid_abs_response?).with(nil).and_return(false)
-
-            allow(subject).to receive(:puts)
-            expect(subject).to receive(:puts).with(/Returning any provisioned hosts/)
-            expect(subject).to receive(:puts).with(/Unable to provision host for role: metrics/)
-
-            expect(subject).not_to receive(:puts).with(/No ABS hosts were provisioned/)
-
-            expect(subject).not_to receive(:update_last_abs_resource_hosts)
-            expect(subject).not_to receive(:verify_abs_hosts)
+            expect(subject).to receive(:get_abs_resource_host)
+              .with(TEST_A2A_METRICS).and_raise(RuntimeError, error_message)
 
             expect(subject).to receive(:return_abs_resource_hosts)
               .with(TEST_ABS_RESOURCE_HOSTS_SINGLE)
               .and_return(TEST_ABS_RESOURCE_HOSTS_SINGLE)
 
-            expect(subject.get_abs_resource_hosts(TEST_A2A_HOSTS)).to eq(nil)
+            expect(subject).not_to receive(:update_last_abs_resource_hosts)
+            expect(subject).not_to receive(:verify_abs_hosts)
+
+            expect { subject.get_abs_resource_hosts(TEST_A2A_HOSTS) }
+              .to raise_error(RuntimeError, error_message)
           end
         end
       end
@@ -369,7 +337,8 @@ describe AbsHelperClass do
         ENV["ABS_TOKEN"] = "not_a_token"
         expect(subject).to receive(:abs_initialize).and_return(false)
 
-        expect(subject).to receive(:puts).with(/Unable to proceed without a valid ABS token/)
+        expect(subject).not_to receive(:puts)
+          .with("Attempting to provision ABS hosts: #{TEST_A2A_HOSTS}")
 
         expect(TEST_ABS_RESOURCE_HOSTS).not_to receive(:each)
         expect(subject).not_to receive(:get_awsdirect_request_body)
@@ -381,7 +350,52 @@ describe AbsHelperClass do
         expect(subject).not_to receive(:update_last_abs_resource_hosts)
         expect(subject).not_to receive(:verify_abs_hosts)
 
-        expect(subject.get_abs_resource_hosts(TEST_A2A_HOSTS)).to eq(nil)
+        expect { subject.get_abs_resource_hosts(TEST_A2A_HOSTS) }
+          .to raise_error(RuntimeError, /Unable to proceed without a valid ABS token/)
+      end
+    end
+  end
+
+  describe "#get_abs_resource_host" do
+    context "when the response is valid" do
+      it "parses the response and returns the host" do
+        expect(subject).to receive(:puts).with("Host_to_request: #{TEST_A2A_MOM}")
+
+        expect(subject).to receive(:get_awsdirect_request_body)
+          .with(TEST_A2A_MOM).and_return(TEST_AWSDIRECT_REQUEST_BODY)
+
+        expect(subject).to receive(:perform_awsdirect_request).and_return(test_http_response)
+
+        expect(subject).to receive(:valid_abs_response?)
+          .with(test_http_response).and_return(true)
+
+        expect(test_http_response).to receive(:body).and_return(TEST_AWSDIRECT_RESPONSE_BODY)
+        expect(subject).to receive(:parse_awsdirect_response_body)
+          .with(TEST_AWSDIRECT_RESPONSE_BODY).and_return(TEST_HOST)
+
+        expect(subject.get_abs_resource_host(TEST_A2A_MOM)).to eq(TEST_HOST)
+      end
+    end
+
+    context "when the response is not valid" do
+      it "does not parse the response and raises an error" do
+        error_message = "Unable to provision host for role: #{TEST_A2A_MOM[:role]}"
+
+        expect(subject).to receive(:puts).with("Host_to_request: #{TEST_A2A_MOM}")
+
+        expect(subject).to receive(:get_awsdirect_request_body)
+          .with(TEST_A2A_MOM).and_return(TEST_AWSDIRECT_REQUEST_BODY)
+
+        expect(subject).to receive(:perform_awsdirect_request).and_return(test_http_response)
+
+        expect(test_http_response).not_to receive(:body)
+        expect(subject).not_to receive(:parse_awsdirect_response_body)
+
+        expect(subject).to receive(:valid_abs_response?)
+          .with(test_http_response).and_return(false)
+
+        expect { subject.get_abs_resource_host(TEST_A2A_MOM) }
+          .to raise_error(RuntimeError, error_message)
       end
     end
   end
@@ -414,6 +428,8 @@ describe AbsHelperClass do
 
       context "when the responses are not valid" do
         it "submits requests to return the hosts, reports the errors, returns nil" do
+          returned_hosts = "[]"
+
           expect(subject).to receive(:abs_initialize).and_return(true)
           expect(subject).to receive(:valid_abs_resource_hosts?)
             .with(TEST_ABS_RESOURCE_HOSTS).and_return(true)
@@ -429,7 +445,7 @@ describe AbsHelperClass do
           allow(subject).to receive(:puts)
           expect(subject).to receive(:puts).with(/Failed to return host/)
 
-          expect(subject.return_abs_resource_hosts(TEST_ABS_RESOURCE_HOSTS)).to eq(nil)
+          expect(subject.return_abs_resource_hosts(TEST_ABS_RESOURCE_HOSTS)).to eq(returned_hosts)
         end
       end
 
@@ -443,6 +459,8 @@ describe AbsHelperClass do
     context "when an array of hosts is not specified" do
       # TODO: improve
       it "reports the error and returns nil" do
+        returned_hosts = "[]"
+
         expect(subject).to receive(:abs_initialize).and_return(true)
         expect(subject).to receive(:valid_abs_resource_hosts?).with(nil).and_return(false)
 
@@ -450,19 +468,21 @@ describe AbsHelperClass do
         expect(subject).to receive(:puts)
           .with(/De-provisioning via awsdirectreturn requires an array of hostnames/)
 
-        expect(subject.return_abs_resource_hosts(nil)).to eq(nil)
+        expect(subject.return_abs_resource_hosts(nil)).to eq(returned_hosts)
       end
     end
 
     context "when a valid token is not present" do
       it "does not make the request, reports the error and returns nil" do
+        returned_hosts = "[]"
+
         expect(subject).to receive(:abs_initialize).and_return(false)
         expect(subject).to receive(:valid_abs_resource_hosts?).and_return(true)
 
         allow(subject).to receive(:puts)
         expect(subject).to receive(:puts).with("Unable to proceed without a valid ABS token")
 
-        expect(subject.return_abs_resource_hosts(nil)).to eq(nil)
+        expect(subject.return_abs_resource_hosts(nil)).to eq(returned_hosts)
       end
     end
   end
@@ -553,30 +573,19 @@ describe AbsHelperClass do
       subject.instance_variable_set("@aws_reap_time", TEST_REAP_TIME)
     end
 
-    context "when a role is specified" do
-      it "uses the default size and returns the expected result" do
-        test_expected_request_body = TEST_AWSDIRECT_REQUEST_BODY
-        expect(subject.get_awsdirect_request_body(TEST_ROLE)).to eq(test_expected_request_body)
-      end
-    end
-
-    context "when a role, size, and volume_size are specified" do
-      it "uses the specified size and returns the expected result" do
-        test_role = "new-role"
-        test_size = "new-size"
-        test_volume_size = "new-volume-size"
-
+    context "when a host is specified" do
+      it "returns a request body for the specified host" do
         test_expected_request_body =
           { 'platform': TEST_PLATFORM,
             'image_id': TEST_IMAGE_ID,
-            'size': test_size,
+            'size': TEST_A2A_MOM[:size],
             'region': TEST_REGION,
             'reap_time': TEST_REAP_TIME,
             'tags':
-                { 'role': test_role, 'pe_version': TEST_BEAKER_PE_VERSION },
-            'volume_size': test_volume_size }.to_json
+                { 'role': TEST_A2A_MOM[:role], 'pe_version': TEST_BEAKER_PE_VERSION },
+            'volume_size': TEST_A2A_MOM[:volume_size] }.to_json
 
-        expect(subject.get_awsdirect_request_body(test_role, test_size, test_volume_size))
+        expect(subject.get_awsdirect_request_body(TEST_A2A_MOM))
           .to eq(test_expected_request_body)
       end
     end
@@ -802,20 +811,18 @@ describe AbsHelperClass do
     end
   end
 
-  describe "#reformat_abs_resource_host" do
+  describe "#parse_awsdirect_response_body" do
     context "when a valid response_body is provided" do
       it "returns the expected reformatted response" do
-        expect(subject.reformat_abs_resource_host(TEST_AWSDIRECT_RESPONSE_BODY))
-          .to eq(TEST_REFORMATTED_RESPONSE_BODY)
+        expect(subject.parse_awsdirect_response_body(TEST_AWSDIRECT_RESPONSE_BODY))
+          .to eq(TEST_HOST)
       end
     end
 
     context "when an invalid response_body is provided" do
       it "reports the error and returns nil" do
-        body = TEST_INVALID_RESPONSE_BODY
-        message = "JSON::ParserError encountered parsing response body: #{body}"
-        expect(subject).to receive(:puts).with(message)
-        expect(subject.reformat_abs_resource_host(body)).to eq(nil)
+        expect { subject.parse_awsdirect_response_body(TEST_INVALID_RESPONSE_BODY) }
+          .to raise_error(JSON::ParserError)
       end
     end
   end
@@ -898,7 +905,7 @@ describe AbsHelperClass do
           # success
           expect(test_ssh).to receive(:start)
             .exactly(1).times.and_return(test_ssh_session)
-          
+
           expect(test_ssh_session).to receive(:exec!).and_return(test_ssh_result)
           expect(test_ssh_session).to receive(:close).exactly(1).times
 
@@ -944,7 +951,7 @@ describe AbsHelperClass do
           expect(test_ssh_session).to receive(:close).exactly(8).times
 
           expect(subject).to receive(:puts).with("Result: #{result_string1}")
-            .exactly(7).times
+                                           .exactly(7).times
 
           allow(test_ssh_result1).to receive(:to_s).and_return(result_string1)
 
@@ -1006,10 +1013,10 @@ describe AbsHelperClass do
   describe "#verify_abs_hosts" do
     context "when no hosts fail verification" do
       it "checks all hosts and returns true" do
-        # TODO: test messages?
         allow(subject).to receive(:puts)
+        expect(subject).to receive(:puts).with("Verifying ABS hosts: #{TEST_ABS_HOSTS}")
+        expect(subject).to receive(:puts).with("Current host: #{TEST_HOST}")
 
-        # TODO: update to mom and metrics
         expect(subject).to receive(:verify_abs_host)
           .with(TEST_HOSTNAME).twice.and_return(true)
 
@@ -1020,9 +1027,11 @@ describe AbsHelperClass do
     context "when a host fails verification" do
       it "stops verifying hosts, reports the error, and returns false" do
         error = "Unable to verify the provisioned hosts"
-        allow(subject).to receive(:puts)
 
-        # TODO: update to mom and metrics
+        allow(subject).to receive(:puts)
+        expect(subject).to receive(:puts).with("Verifying ABS hosts: #{TEST_ABS_HOSTS}")
+        expect(subject).to receive(:puts).with("Current host: #{TEST_HOST}")
+
         expect(subject).to receive(:verify_abs_host)
           .with(TEST_HOSTNAME).once.and_return(false)
 

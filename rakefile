@@ -1,11 +1,8 @@
 require 'rototiller'
 require 'rspec/core/rake_task'
-require 'net/http'
-require 'timeout'
-require 'json'
-require 'yaml'
 
-BASE_ABS_URI = 'https://cinext-abs.delivery.puppetlabs.net/api/v2/'
+require './setup/helpers/abs_helper'
+include AbsHelper
 
 task :default => :performance
 
@@ -25,100 +22,28 @@ rototiller_task :performance do
           ENV['BEAKER_PRESERVE_HOSTS'] == 'onfail')
 end
 
-def get_abs_token_from_fog_file
-  home = ENV['HOME']
-  fog_path = "#{home}/.fog"
-  token = nil
-
-  if File.exist?(fog_path)
-    fog = YAML.load(File.read(fog_path))
-    token = fog[:default][:abs_token]
-  else
-    puts ".fog file not found in home directory: #{fog_path}"
-  end
-
-  if !token
-    puts "ABS token not found in .fog file at #{fog_path}"
-  end
-  token
-end
-
-def get_abs_token
-  ENV['ABS_TOKEN'] ? token = ENV['ABS_TOKEN'] : token = get_abs_token_from_fog_file
-  if !token
-    abort "An ABS token must be set in either the ABS_TOKEN environment variable or the abs_token parameter in the .fog file"
-  end
-  token
-end
-
-def retry_abs_request(uri, body, timeout, time_increment, invalid_response_bodies = [], valid_response_codes = [202, 200])
-  req = Net::HTTP::Post.new(uri, {'Content-Type' => 'application/json', 'X-Auth-Token' => get_abs_token})
-  req.body = body
-  http = Net::HTTP.new(uri.host, uri.port)
-  http.use_ssl = true
-
-  puts "sending request body: #{body}"
-  puts "to uri: #{uri}"
-
-  res = nil
-  Timeout::timeout(timeout) do
-    while res.nil? || invalid_response_bodies.include?(res.body) || !valid_response_codes.include?(res.code)
-      begin
-        res = http.request(req)
-      rescue => ex
-        puts ex
-        puts ex.backtrace
-      end
-      if res.nil? || invalid_response_bodies.include?(res.body)
-        puts "#{Time.now} - Retrying ABS request..."
-        sleep(time_increment)
-      else
-        break
-      end
-    end
-  end
-  res
-end
-
 desc 'Provision systems for the performance task with ABS - included in the performance task'
 rototiller_task :performance_provision_with_abs do |t|
   raise "The BEAKER_INSTALL_TYPE env var must be set to either 'pe' or 'foss' to continue" unless
       ENV['BEAKER_INSTALL_TYPE'] == 'pe' || ENV['BEAKER_INSTALL_TYPE'] == 'foss'
   t.add_env({:name => 'BEAKER_PE_DIR', :message => 'The PE download directory, example: http://enterprise.delivery.puppetlabs.net/archives/releases/2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'BEAKER_PE_VER', :message => 'The PE version to install on hosts, example: 2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
-
   t.add_env({:name => 'ABS_OS', :default => 'centos-7-x86-64-west', :message => 'The OS to provision with ABS: centos-7-x86-64-west (for AWS), or centos-7-x86_64 (for vmpooler)'})
-  # Creating a random job id, since this is required by ABS and needs to be unique. In CI, this task will not be executed.
-  ENV['ABS_JOB_ID'] = rand(100000..999999).to_s unless ENV['ABS_JOB_ID']
-  uri = URI("#{BASE_ABS_URI}request")
 
-  # Allows us to switch between AWS and VMPooler by selecting different ABS os's.
-  # centos-7-x86-64-west is an AWS image, centos-7-x86_64 is vmpooler
-  req_body = {'resources': {"#{ENV['ABS_OS']}": 2},'job': { 'id': "#{ENV['ABS_JOB_ID']}", 'tags': {'user': "#{ENV['USER']}"}}}.to_json
-
-  # Wait up to 20 minutes for a response from ABS with provisioned hosts
-  res = retry_abs_request(uri, req_body, 1200, 10, ['', nil])
-
-  ENV['ABS_RESOURCE_HOSTS'] = res.body
-  puts "ABS_RESOURCE_HOSTS=#{ENV['ABS_RESOURCE_HOSTS']}"
-  open('last_abs_resource_hosts.log', 'w') { |f|
-    f.puts res.body
-    f.puts ENV['ABS_JOB_ID']
-  }
+  abs_resource_hosts = get_abs_resource_hosts(get_a2a_hosts)
+  raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
 end
 
-desc 'Task to deprovision systems that were provisioned with ABS - included in the performance task following the rules of BEAKER_PRESERVE_HOSTS env var.'
+desc 'Task to de-provision systems that were provisioned with ABS - included in the performance task following the rules of BEAKER_PRESERVE_HOSTS env var.'
 rototiller_task :performance_deprovision_with_abs do
-  abs_resource_hosts = ENV['ABS_RESOURCE_HOSTS'].nil? ? File.open("last_abs_resource_hosts.log").readlines[0] : ENV['ABS_RESOURCE_HOSTS']
-  abs_job_id = ENV['ABS_JOB_ID'].nil? ? File.open("last_abs_resource_hosts.log").readlines[1] : ENV['ABS_JOB_ID']
-  raise 'performance_deprovision_with_abs task requires values for env variables: ABS_RESOURCE_HOSTS and ABS_JOB_ID' unless abs_resource_hosts && abs_job_id
-  uri = URI("#{BASE_ABS_URI}return")
-  req_body = {'job_id': abs_job_id, 'hosts': JSON.parse(abs_resource_hosts)}.to_json
+  abs_resource_hosts = ENV['ABS_RESOURCE_HOSTS'].nil? ? get_last_abs_resource_hosts : ENV['ABS_RESOURCE_HOSTS']
+  raise 'This task requires an array of hostnames to be specified via the ABS_RESOURCE_HOSTS environment variable or the last_abs_resource_hosts.log file' unless abs_resource_hosts
 
-  # Wait up to 30 seconds for a non error response from ABS when de-provisioning
-  retry_abs_request(uri, req_body, 30, 5)
+  returned_hosts = return_abs_resource_hosts(abs_resource_hosts)
+  raise 'Failed to de-provision ABS hosts' unless returned_hosts == abs_resource_hosts
 end
 
+desc 'Run Performance tests using previously provisioned hosts'
 rototiller_task :performance_against_already_provisioned do
   ENV['BEAKER_HOSTS'] ||= "log/latest/hosts_preserved.yml"
   ENV['ABS_RESOURCE_HOSTS'] = File.open("last_abs_resource_hosts.log").readlines[0] if File.exist? "last_abs_resource_hosts.log"

@@ -159,7 +159,7 @@ module PerfRunHelper
     def initialize(assertions, mean_response)
       @avg_response_time = mean_response
       @successful_requests = assertions.find {|result| result['target'] === 'percentage of successful requests' }.fetch('actual_value')[0].to_i
-      @max_response_time_agent = assertions.find {|result| result['target'] === 'max of response time' }.fetch('actual_value')[0].to_i
+      @max_response_time_agent = assertions.find {|result| result['target'] === '99th percentile of response time' }.fetch('actual_value')[0].to_i
       @request_count = assertions.find {|result| result['target'] === 'count of all requests' }.fetch('actual_value')[0].to_i
     end
   end

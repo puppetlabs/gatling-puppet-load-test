@@ -89,14 +89,18 @@ module PerfRunHelper
 
 
   def get_mean_response_time
-    dir = "#{@archive_root}/#{metric}/root/gatling-puppet-load-test/simulation-runner/results/#{@dir_name}"
-    json_from_file = File.read("#{dir}/js/global_stats.json")
+    dir = "#{@archive_root}/#{metric.hostname}/root/gatling-puppet-load-test/simulation-runner/results/#{@dir_name}"
+    file = "/js/global_stats.json"
+    logger.info("Getting mean response time from #{dir}#{file}")
+    raise System.StandardError 'The file does not exist' unless File.exist?("#{dir}#{file}")
+    json_from_file = File.read("#{dir}#{file}")
+    logger.info("global_stats.json: #{json_from_file}")
     json = JSON.parse(json_from_file)
     json.fetch('meanResponseTime').fetch('total')
   end
 
   def mean_response_time
-    @mean_response_time || get_mean_response_time
+    @mean_response_time ||= get_mean_response_time
   end
 
   def gatling_assertions
@@ -155,7 +159,7 @@ module PerfRunHelper
     def initialize(assertions, mean_response)
       @avg_response_time = mean_response
       @successful_requests = assertions.find {|result| result['target'] === 'percentage of successful requests' }.fetch('actual_value')[0].to_i
-      @max_response_time_agent = assertions.find {|result| result['target'] === 'max of response time' }.fetch('actual_value')[0].to_i
+      @max_response_time_agent = assertions.find {|result| result['target'] === '99th percentile of response time' }.fetch('actual_value')[0].to_i
       @request_count = assertions.find {|result| result['target'] === 'count of all requests' }.fetch('actual_value')[0].to_i
     end
   end
@@ -177,7 +181,7 @@ module PerfRunHelper
                "avg_cpu" => @perf_result[0].avg_cpu,
                "avg_mem" => @perf_result[0].avg_mem,
                "avg_dsk_write" => @perf_result[0].avg_disk_write,
-               "avg_response_time" => get_mean_response_time
+               "avg_response_time" => mean_response_time
            }]
 
     result = atop_table.insert row

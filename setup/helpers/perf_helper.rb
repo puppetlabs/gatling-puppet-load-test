@@ -559,10 +559,15 @@ authorization: {
       on metric, 'rpm -ivh http://dl.bintray.com/sbt/rpm/sbt-0.13.7.rpm'
     end
     step 'install rvm, bundler' do
-      on metric, 'gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3'
+      begin
+        on metric, 'gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3'
+      rescue
+        # Execute alternative gpg command
+        on metric, 'command curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -'
+      end
+
       on metric, 'curl -sSL https://get.rvm.io | bash -s stable'
-      # Work around install issue in Centos7: https://github.com/rvm/rvm/issues/4234
-      on metric, 'rvm install 2.2.5 --disable-binary'
+      on metric, 'rvm install 2.4.2'
       on metric, 'gem install bundler'
     end
     step 'create key for metrics to talk to primary master' do

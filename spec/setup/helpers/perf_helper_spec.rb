@@ -23,7 +23,7 @@ class PerfHelperClass
 end
 
 describe PerfHelperClass do
-  let!(:hosts) {[{'platform' => Beaker::Platform.new('centos-6.5-x86_64')}]}
+  let!(:hosts) {[Beaker::Host.create('master', {'platform' => Beaker::Platform.new('centos-6.5-x86_64'), 'role' => 'master'}, {:logger => @logger})]}
   let(:test_beaker_log) { Class.new }
   let(:test_net_http) { Class.new }
   let(:test_http_response) { Class.new }
@@ -86,11 +86,41 @@ describe PerfHelperClass do
 
       expect(subject).to receive(:on).with(masters[0], "chmod 600 /root/.ssh/id_rsa /root/.ssh/config" )
       expect(subject).to receive(:install_package).with(masters[0], 'git')
+
       subject.setup_r10k
 
     end
 
   end
+
+  context 'puppet_module_dependencies' do
+    let!(:masters) {hosts}
+    let!(:master) {hosts[0]}
+
+    it 'supports older puppet version dependencies' do
+      allow(subject).to receive(:master).and_return(master)
+
+      result = Beaker::Result.new(master, 'puppet --version')
+      result.stdout = '5.9.0'
+      expect(subject).to receive(:on).with(master, 'puppet --version').and_return(result)
+      expect(subject).to receive(:on).with(master, "sed -i '/puppetlabs\\/.*_core/d' /etc/puppetlabs/code-staging/environments/production/Puppetfile")
+      expect(subject).to receive(:on).with(master, "rm -rf /etc/puppetlabs/code-staging/environments/production/modules/*_core")
+
+      subject.puppet_module_dependencies
+    end
+
+    it 'supports older puppet version dependencies' do
+      allow(subject).to receive(:master).and_return(master)
+
+      result = Beaker::Result.new(master, 'puppet --version')
+      result.stdout = '6.1.0'
+      expect(subject).to receive(:on).with(master, 'puppet --version').and_return(result)
+
+      subject.puppet_module_dependencies
+    end
+    
+  end
+
 
   # TODO: refactor to remove duplication
   describe '#perf_install_pe' do

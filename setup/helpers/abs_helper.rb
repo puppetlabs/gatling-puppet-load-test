@@ -1,5 +1,6 @@
 require "net/http"
 require "net/ssh"
+require "net/ssh/errors"
 require "timeout"
 require "json"
 require "yaml"
@@ -581,6 +582,8 @@ module AbsHelper
           raise "Unknown error"
         end
 
+      rescue Net::SSH::HostKeyMismatch => err
+        err.remember_host!
       rescue => err
         puts "Attempted connection to #{host} failed with '#{err}'"
         backoff_sleep(tries)

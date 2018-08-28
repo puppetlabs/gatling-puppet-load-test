@@ -8,6 +8,10 @@ module PerfHelper
   BASE_URL = 'http://builds.puppetlabs.lan'
   R10K_DIR = '/opt/puppetlabs/scratch/perf_testing/r10k'
   R10K_CONFIG_PATH = "#{R10K_DIR}/r10k.yaml"
+  TEST_FILES_URL = "http://int-resources.ops.puppetlabs.net/QE%20Shared%20Resources/gatling_test_keys".freeze
+  TEST_SSH_FILES = ["id_rsa", "id_rsa.pub", "config", "known_hosts"].freeze
+  TEMP_SSH_DIR = "tmp/ssh".freeze
+  ROOT_SSH_DIR = "/root/.ssh".freeze
 
   def set_etc_hosts
     puppet_ip = any_hosts_as?(:loadbalancer) ? loadbalancer.ip : master.ip
@@ -54,47 +58,19 @@ module PerfHelper
     masters = select_hosts({:roles => ['master', 'compile_master']})
 
     step 'place private key on each master' do
-      #public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYh3jLwtuf1Ef/w/FZWqpsl4QS7RA4mkmeyIrbH8LQpAVAWBdLmU+x7vC0W1K47RgNjIVAGmiPwGY1MGc2ZakoFJWVLelq4ew8GiUODYOn7PAW531j6BmNNEJvWsNgfDw6EOj2r0VqOr+k3mttAG7NI1MfLlstIPJk/Ua13gPkKjUqK1GvZnf7lHXFqOMH31fZ1FPMUTqoLo5okMJ/l9axgBL08ibPdPoeJPa0xy2VHFdX9Ud9UnFblbIi6nlCngpfKJKeyiDURt6vUuFmEwrhumyWY75xRaXrif59FyXXtOBBPq8WAqTBkVjMUEyiWt/+j7nnbgwLsKGFcLPKhG/J deploykey@puppet-scale-control"
-      private_key = <<-PRIVATE_KEY
------BEGIN RSA PRIVATE KEY-----
-MIIEpAIBAAKCAQEAmId4y8Lbn9RH/8PxWVqqbJeEEu0QOJpJnsiK2x/C0KQFQFgX
-S5lPse7wtFtSuO0YDYyFQBpoj8BmNTBnNmWpKBSVlS3pauHsPBolDg2Dp+zwFud9
-Y+gZjTRCb1rDYHw8OhDo9q9Fajq/pN5rbQBuzSNTHy5bLSDyZP1Gtd4D5Co1KitR
-r2Z3+5R1xajjB99X2dRTzFE6qC6OaJDCf5fWsYAS9PImz3T6HiT2tMctlRxXV/VH
-fVJxW5WyIup5Qp4KXyiSnsog1Eber1LhZhMK4bpslmO+cUWl64n+fRcl17TgQT6v
-FgKkwZFYzFBMolrf/o+5524MC7ChhXCzyoRvyQIDAQABAoIBAAakb6g/9hyBvBjx
-SYNgpWdROdkxJbGxVl9p0FI2kd9QJUJmE62hIY1YIHdaOsH+4TtF0U+3VrJb6JeM
-YhJGXxV1wAXdF/sll4oOgWqZQBCCCvqUXiuJogM6MWJ0C2oaPu0wa1TC0T0NDed6
-ICeBC1I3pZkIBcRzWNr5BKlK39SByNOMPoBLVBlf4oNUKSYWTJRwYajLae6z7czs
-64Tj2G0llsgeDFkqyXmbbditJpktZPSY4bo5tmoxPGMsFfZMjpqPmCo+d++NLktJ
-ZOISWsan8unhJQdGbnRlMB6JauXs1LWjYVIBuh6TtwbVqf9WpqVA+dL0mUVcPdxA
-4SemxOECgYEAyqvS/DOLjrw9X0ajR3oHd1/GBPnnVbvetPbmGaVKkeUmqugWJ/R3
-FQHUR1TiEq+ycxEp35Xmu9JNgSU5lpdl3FppTlA99pOiV6AcrCXRZf1Y7jiFyn/x
-c6Q9MX13VanA+Qtbs5VTwXXuIFWl0EUVdi8SRfKJO2aFnRk5ZJxkVaUCgYEAwKoF
-oJpeMdccnUtLh55luGerz1gl1mGmdAIEUYDW7YWqUjCqFM/yWx5jCFihLbQUfJXs
-YsgTkU54k593BIpX2iPD3bS/RvRMdRPnb/Y70822NTAdjrmVs17VRqeU66+ua2Je
-gE/LCrxQX+G0Ryw8zb5NRx0Kd9jg0RIXm+okAFUCgYEAr7rGiSlEc7HiYQ9Fmj9D
-5AzmDQCGxn7Mfwqpv0jj3JbdrUjplSFSc6OPZX5DO8KeL0mNjjFSzD5wN2+IfHuv
-tZ2rO102LOwb0nChC98Krq06g+v8jfXb7NJWwOeyJlO3X/mqPI9Y/SD9JYo96NVN
-45iy9nVy6k9dwTbS3dsA4IUCgYAk2B7tYLgExgN13TFbhSIkysajh1LtFY2Uf9I9
-l+sCT16MCzxrcH0DieMcdH6WU+rbDHzBQ0virOQILyW+m4pDcDWDz44Izq1UcnL/
-CVLVpXBj6Yitg7YqMEePFHs5O0aayJwT466Lpgmk3G/ycHZMTklPATHAS5xqvw/+
-xB8QZQKBgQCfx99/nY0DDRcKkz4ftKEQC7wCligcMeYvPvsyfEs/Sm4dmWXXwUmM
-rvUWLYk1rsTvRhcCl2X9mV7kQhV5jy+rhI/0Xlt9q7YD+/eoE0+xrxsFdvClBfr/
-B5mRrDUW3rwnPdxJ3eONw5l4AistswtRPc45jHSbEfRXJQZIlIxB6A==
------END RSA PRIVATE KEY-----
-      PRIVATE_KEY
-
-      ssh_config = <<SSH_CONFIG
-Host *
-  StrictHostKeyChecking no
-  UserKnownHostsFile /dev/null
-SSH_CONFIG
+      # Creates known_hosts file with GitHub host key to prevent
+      # "Host key verification failed" errors during clones
+      FileUtils::mkdir_p TEMP_SSH_DIR unless File.directory?(TEMP_SSH_DIR)
 
       masters.each do |node|
-        create_remote_file(node, "/root/.ssh/id_rsa", private_key)
-        create_remote_file(node, "/root/.ssh/config", ssh_config)
-        on node, "chmod 600 /root/.ssh/id_rsa /root/.ssh/config"
+
+        TEST_SSH_FILES.each do |file|
+          download_file("#{TEST_FILES_URL}/#{file}", "#{TEMP_SSH_DIR}/#{file}")
+          scp_to(node, "#{TEMP_SSH_DIR}/#{file}", "#{ROOT_SSH_DIR}/#{file}")
+        end
+
+        on node, "chmod 600 #{ROOT_SSH_DIR}/id_rsa #{ROOT_SSH_DIR}/config"
+
       end
     end
 
@@ -104,6 +80,14 @@ SSH_CONFIG
         install_package node, 'git'
       end
     end
+  end
+
+  def download_file(url, destination)
+    raise "Specified URL does not exist: #{url}" unless link_exists?(url)
+    puts "Downloading #{url} to #{destination}"
+    download = open(url)
+    IO.copy_stream(download, destination)
+    raise "Download was not successful" unless File.exists?(destination)
   end
 
   def perf_install_pe
@@ -309,35 +293,10 @@ EOS
   end
 
   def r10k_deploy
-    ########################
     bin = ENV['PUPPET_BIN_DIR']
     r10k_version = ENV['PUPPET_R10K_VERSION']
 
-    step "Install git" do
-      on(master, puppet_resource("package git ensure=installed"))
-    end
-
-    step "Set up SSH key for github access" do
-      if !master.file_exist?("/root/.ssh/id_rsa")
-        result = curl_on master, "-o /root/.ssh/id_rsa 'http://int-resources.ops.puppetlabs.net/QE%20Shared%20Resources/gatling_test_keys/id_rsa'"
-        assert_equal 0, result.exit_code
-
-        on(master, "chmod 600 /root/.ssh/id_rsa")
-
-        result = curl_on master, "-o /root/.ssh/id_rsa.pub 'http://int-resources.ops.puppetlabs.net/QE%20Shared%20Resources/gatling_test_keys/id_rsa.pub'"
-        assert_equal 0, result.exit_code
-      end
-    end
-
-    step "add github to known hosts" do
-      # Create known_hosts file with GitHub host key to prevent
-      # "Host key verification failed" errors during clones
-      create_remote_file(master, "/root/.ssh/known_hosts", <<-EOS)
-  github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==
-      EOS
-    end
-
-    step "install and configure r10k" do
+    step "Install and configure r10k" do
       r10k_config = get_r10k_config_from_env()
       if r10k_config
         install_r10k(master, bin, r10k_version)

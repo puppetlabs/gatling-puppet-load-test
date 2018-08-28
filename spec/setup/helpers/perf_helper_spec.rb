@@ -78,15 +78,82 @@ describe PerfHelperClass do
 
     it 'adds the private key, configures ssh, and installs git on each master' do
 
+      ssh_files = PerfHelper::TEST_SSH_FILES
+      files_url = PerfHelper::TEST_FILES_URL
+      temp_ssh_dir = PerfHelper::TEMP_SSH_DIR
+      root_ssh_dir = PerfHelper::ROOT_SSH_DIR
+
       allow(subject).to receive(:masters).and_return(masters)
       expect(subject).to receive(:select_hosts).with({:roles => ['master', 'compile_master']}).and_return(masters)
 
-      expect(subject).to receive(:create_remote_file).with(masters[0], "/root/.ssh/id_rsa", /PRIVATE/ )
-      expect(subject).to receive(:create_remote_file).with(masters[0], "/root/.ssh/config", /StrictHostKeyChecking/ )
+      expect(File).to receive(:directory?).with(temp_ssh_dir).and_return(false)
+      expect(FileUtils).to receive(:mkdir_p).with(temp_ssh_dir)
 
-      expect(subject).to receive(:on).with(masters[0], "chmod 600 /root/.ssh/id_rsa /root/.ssh/config" )
+      ssh_files.each do |file|
+        expect(subject).to receive(:download_file)
+          .with("#{files_url}/#{file}", "#{temp_ssh_dir}/#{file}")
+
+        expect(subject).to receive(:scp_to)
+          .with(masters[0], "#{temp_ssh_dir}/#{file}", "#{root_ssh_dir}/#{file}")
+      end
+
+      expect(subject).to receive(:on)
+        .with(masters[0], "chmod 600 #{root_ssh_dir}/id_rsa #{root_ssh_dir}/config" )
+
       expect(subject).to receive(:install_package).with(masters[0], 'git')
       subject.setup_r10k
+
+    end
+
+  end
+
+  describe '#download_file' do
+    url = 'http://test.com/file'
+    destination = '/tmp/file'
+
+    context 'when the specified URL exists' do
+      let(:test_download) { Class.new }
+
+      context 'when the download is successful' do
+        it 'reports the download and raises no errors' do
+          expect(subject).to receive(:link_exists?).with(url).and_return(true)
+          expect(subject).to receive(:puts).with("Downloading #{url} to #{destination}")
+          expect(subject).to receive(:open).with(url).and_return(test_download)
+          expect(IO).to receive(:copy_stream).with(test_download, destination)
+          expect(File).to receive(:exists?).with(destination).and_return(true)
+
+          subject.download_file(url, destination)
+        end
+      end
+
+      context 'when the download is not successful' do
+        it 'reports the download and raises an error' do
+          expect(subject).to receive(:link_exists?).with(url).and_return(true)
+          expect(subject).to receive(:puts).with("Downloading #{url} to #{destination}")
+          expect(subject).to receive(:open).with(url).and_return(test_download)
+          expect(IO).to receive(:copy_stream).with(test_download, destination)
+          expect(File).to receive(:exists?).with(destination).and_return(false)
+
+          expect{ subject.download_file(url, destination) }
+            .to raise_error(RuntimeError, 'Download was not successful')
+        end
+      end
+
+    end
+
+    context 'when the specified URL does not exist' do
+      context 'when the download is successful' do
+        it 'raises an errors' do
+          expect(subject).to receive(:link_exists?).with(url).and_return(false)
+          expect(subject).not_to receive(:puts).with("Downloading #{url} to #{destination}")
+          expect(subject).not_to receive(:open).with(url)
+          expect(IO).not_to receive(:copy_stream)
+          expect(File).not_to receive(:exists?).with(destination)
+
+          expect{ subject.download_file(url, destination) }
+              .to raise_error(RuntimeError, "Specified URL does not exist: #{url}")
+        end
+      end
 
     end
 

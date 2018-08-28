@@ -1,4 +1,5 @@
 require "./setup/helpers/abs_helper"
+require "net/ssh/errors"
 
 class AbsHelperClass
   include AbsHelper
@@ -847,11 +848,13 @@ describe AbsHelperClass do
 
   describe "#verify_abs_host" do
     let(:test_ssh) { Class.new }
+    host_key_mismatch_exception_class = Net::SSH::HostKeyMismatch
 
     context "when the specified number of tries has not been exceeded" do
       context "when the result is successful" do
         it "breaks and returns true" do
           stub_const("Net::SSH", test_ssh)
+          test_ssh.const_set :HostKeyMismatch, host_key_mismatch_exception_class
           test_ssh_session = double
           test_ssh_result = double
           tries = 1
@@ -878,6 +881,7 @@ describe AbsHelperClass do
       context "when the result is an error" do
         it "reports the failure and sleeps" do
           stub_const("Net::SSH", test_ssh)
+          test_ssh.const_set :HostKeyMismatch, host_key_mismatch_exception_class
           test_ssh_session = double
           test_ssh_result = double
           result_string = "Success"
@@ -917,9 +921,40 @@ describe AbsHelperClass do
         end
       end
 
+      context "when a host triggers a Net::SSH::HostKeyMismatch exception" do
+        it "adds the host to known hosts and retries immediately" do
+          stub_const("Net::SSH", test_ssh)
+          test_ssh.const_set :HostKeyMismatch, host_key_mismatch_exception_class
+          host_key_mismatch_exception = host_key_mismatch_exception_class.new
+          test_ssh_session = double
+          test_ssh_result = double
+          result_string = "Success"
+
+          allow(subject).to receive(:puts)
+          expect(subject).to receive(:puts).with("Verifying #{TEST_HOSTNAME}")
+          expect(subject).to receive(:puts).with("Attempt 1 for #{TEST_HOSTNAME}")
+
+          expect(test_ssh).to receive(:start).and_raise(host_key_mismatch_exception)
+          expect(host_key_mismatch_exception).to receive(:remember_host!).and_return(nil)
+          expect(subject).to receive(:puts).with("Attempt 2 for #{TEST_HOSTNAME}")
+          expect(test_ssh).to receive(:start).and_return(test_ssh_session)
+          expect(test_ssh_session).to receive(:exec!).and_return(test_ssh_result)
+          expect(test_ssh_session).to receive(:close)
+
+          allow(test_ssh_result).to receive(:to_s).and_return(result_string)
+          expect(subject).to receive(:puts).with("Result: #{result_string}")
+          expect(result_string).to receive(:include?).with("centos")
+
+          expect(subject).not_to receive(:backoff_sleep)
+
+          expect(subject.verify_abs_host(TEST_HOSTNAME)).to eq(true)
+        end
+      end
+
       context "when the result is not successful" do
         it "reports the failure and sleeps" do
           stub_const("Net::SSH", test_ssh)
+          test_ssh.const_set :HostKeyMismatch, host_key_mismatch_exception_class
           test_ssh_session = double
           test_ssh_result1 = double
           test_ssh_result2 = double
@@ -975,6 +1010,7 @@ describe AbsHelperClass do
     context "when the specified number of tries has been exceeded" do
       it "reports the failure and returns false" do
         stub_const("Net::SSH", test_ssh)
+        test_ssh.const_set :HostKeyMismatch, host_key_mismatch_exception_class
         test_ssh_session = double
         error = "Error: root account is not yet configured"
         error_message = "Attempted connection to #{TEST_HOSTNAME} failed with '#{error}'"

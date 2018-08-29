@@ -361,6 +361,19 @@ EOS
       end
     end
 
+    puppet_module_dependencies
+  end
+
+  def puppet_module_dependencies
+    # Hacky, but new versions of puppet require different stuff in Puppetfile,
+    # for older versions, remove those lines.
+    step "Use external puppet modules for puppet >= 6.0" do
+      puppet_version = on(master, 'puppet --version').stdout
+      if master.version_is_less(puppet_version, "6.0")
+        on master, "sed -i '/puppetlabs\\/.*_core/d' /etc/puppetlabs/code-staging/environments/production/Puppetfile"
+        on master, "rm -rf /etc/puppetlabs/code-staging/environments/production/modules/*_core"
+      end
+    end
   end
 
   def enable_file_sync

@@ -1,0 +1,12 @@
+{
+    "run_description": "'role::by_size::medium' role from perf control repo, 500 agents, 2 iterations",
+    "nodes": [
+        {
+            "node_config": "OpsWorks.json",
+            "num_instances": 500,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 2,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}

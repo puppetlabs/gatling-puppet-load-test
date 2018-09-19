@@ -15,11 +15,52 @@ rototiller_task :performance do
   Rake::Task["performance_provision_with_abs"].execute unless ENV['ABS_RESOURCE_HOSTS'] ||
       (ENV['BEAKER_HOSTS'] &&
           ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/pe-perf-test.cfg' &&
-          ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/foss-perf-test.cfg')
+          ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/foss-perf-test.cfg' &&
+          ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/opsworks-perf-test.cfg')
   Rake::Task["performance_without_provision"].execute
   Rake::Task["performance_deprovision_with_abs"].execute unless ENV['BEAKER_PRESERVE_HOSTS'] == 'always' ||
       ((@beaker_cmd.nil? || @beaker_cmd.result.exit_code != 0)&&
           ENV['BEAKER_PRESERVE_HOSTS'] == 'onfail')
+end
+
+desc 'Provision systems using ABS (or use already set ABS_RESOURCE_HOSTS) and then execute beaker performance setup ' +
+    'and tests for opsworks'
+rototiller_task :opsworks_performance do
+  # If BEAKER_TESTS is not set at all, default it to tests/OpsWorks.rb
+  ENV["BEAKER_TESTS"] = "tests/OpsWorks.rb" if ENV["BEAKER_TESTS"].nil?
+
+  # If the test is anything other than OpsWorks.rb OR empty string so it can be executed later then raise
+  raise "The test must be Opsworks.rb, or '' if you plan to execute tests later" unless
+    ["", "tests/OpsWorks.rb"].include? ENV["BEAKER_TESTS"]
+  configure_opsworks
+  Rake::Task["performance"].execute
+end
+
+def configure_opsworks
+  ENV['BEAKER_HOSTS'] = 'config/beaker_hosts/opsworks-perf-test.cfg'
+  # sizes can be any of the 3 below, specifying nothing defaults to c4.2xlarge so that is ok too
+  opsworks_instance_sizes = ["m5.large", "c4.xlarge", "c4.2xlarge", ""]
+  if ["c4.2xlarge", ""].include? ENV['ABS_AWS_MOM_SIZE']
+    opsworks_size = "Large"
+  elsif "c4.xlarge" == ENV['ABS_AWS_MOM_SIZE']
+    opsworks_size = "Med"
+  elsif "m5.large" == ENV['ABS_AWS_MOM_SIZE']
+    opsworks_size = "Small"
+  else
+    raise "Env var ABS_AWS_MOM_SIZE must be one of #{opsworks_instance_sizes.to_s}"
+  end
+
+  scale_classes = ["role::by_size::small", "role::by_size::medium", "role::by_size::large", ""]
+  if ["role::by_size::large", ""].include? ENV["PUPPET_SCALE_CLASS"]
+    catalog_size = "Large"
+  elsif "role::by_size::medium" == ENV["PUPPET_SCALE_CLASS"]
+    catalog_size = "Med"
+  elsif "role::by_size::small" == ENV["PUPPET_SCALE_CLASS"]
+    catalog_size = "Small"
+  else
+    raise "Env var PUPPET_SCALE_CLASS must be one of #{scale_classes.to_s}"
+  end
+  ENV["OPSWORKS_SCENARIO"] = "OpsWorks#{opsworks_size}Catalog#{catalog_size}.json"
 end
 
 desc 'Provision systems for the performance task with ABS - included in the performance task'
@@ -55,6 +96,8 @@ desc 'Execute beaker performance setup and tests against existing hosts specifie
 rototiller_task :performance_without_provision do |t|
   t.add_env({:name => 'ABS_RESOURCE_HOSTS', :message => 'The string returned from the ABS service describing your hosts'}) if ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/pe-perf-test.cfg' ||
       ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/foss-perf-test.cfg'
+  t.add_env({:name => 'ABS_AWS_METRICS_SIZE', :default => 'c4.2xlarge', :message => 'The AWS instance size for the Metrics host'})
+  t.add_env({:name => 'ABS_AWS_MOM_SIZE', :default => 'c4.2xlarge', :message => 'The AWS instance size for the MOM host'})
   t.add_env({:name => 'ENVIRONMENT_TYPE', :message => 'Either gatling or clamps', :default => 'gatling'})
   t.add_env({:name => 'PUPPET_GATLING_R10K_CONTROL_REPO', :default => 'git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git'})
   if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
@@ -76,6 +119,7 @@ rototiller_task :performance_without_provision do |t|
   t.add_env({:name => 'PUSH_TO_BIGQUERY', :default => 'false',
     :message => 'True if you want to store a new set of results as a baseline value'})
 
+  configure_opsworks if ENV["BEAKER_TESTS"] == 'tests/OpsWorks.rb'
   # env vars needed for Beaker
   @beaker_cmd = t.add_command do |command|
     command.name = "bundle exec beaker"

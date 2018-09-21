@@ -1,0 +1,4 @@
+{
+  "simulation_class": "com.puppetlabs.gatling.node_simulations.OpsWorks",
+  "certname_prefix": "perf-agent"
+}

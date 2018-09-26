@@ -5,7 +5,7 @@ test_name 'opsworks' do
     perf_teardown
   end
 
-  gatlingassertions = "SUCCESSFUL_REQUESTS=100 "
+  gatlingassertions = "SUCCESSFUL_REQUESTS=100 " + "MAX_RESPONSE_TIME_AGENT=20000 "  + "TOTAL_REQUEST_COUNT=70 "
 
   # pass in gatling scenario file name and simulation id
   perf_setup(ENV['OPSWORKS_SCENARIO'],'OpsWorks', gatlingassertions)

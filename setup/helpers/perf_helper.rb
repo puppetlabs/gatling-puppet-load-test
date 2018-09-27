@@ -3,6 +3,7 @@ require 'tmpdir'
 require 'yaml'
 require 'beaker'
 require 'net/http'
+require 'beaker-pe' #PE-25240 will make this not needed
 
 module PerfHelper
   BASE_URL = 'http://builds.puppetlabs.lan'
@@ -530,18 +531,6 @@ authorization: {
     end
     step 'install scala build tool (sbt)' do
       on metric, 'rpm -ivh http://dl.bintray.com/sbt/rpm/sbt-0.13.7.rpm'
-    end
-    step 'install rvm, bundler' do
-      begin
-        on metric, 'gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3'
-      rescue
-        # Execute alternative gpg command
-        on metric, 'command curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -'
-      end
-
-      on metric, 'curl -sSL https://get.rvm.io | bash -s stable'
-      on metric, 'rvm install 2.4.2'
-      on metric, 'gem install bundler'
     end
     step 'create key for metrics to talk to primary master' do
       on metric, 'yes | ssh-keygen -q -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" -C "gatling"'

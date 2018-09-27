@@ -70,6 +70,8 @@ rototiller_task :performance_provision_with_abs do |t|
   t.add_env({:name => 'BEAKER_PE_DIR', :message => 'The PE download directory, example: http://enterprise.delivery.puppetlabs.net/archives/releases/2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'BEAKER_PE_VER', :message => 'The PE version to install on hosts, example: 2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'ABS_OS', :default => 'centos-7-x86-64-west', :message => 'The OS to provision with ABS: centos-7-x86-64-west (for AWS), or centos-7-x86_64 (for vmpooler)'})
+  t.add_env({:name => 'ABS_AWS_METRICS_SIZE', :default => 'c4.2xlarge', :message => 'The AWS instance size for the Metrics host'})
+  t.add_env({:name => 'ABS_AWS_MOM_SIZE', :default => 'c4.2xlarge', :message => 'The AWS instance size for the MOM host'})
 
   abs_resource_hosts = get_abs_resource_hosts(get_a2a_hosts)
   raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
@@ -96,8 +98,6 @@ desc 'Execute beaker performance setup and tests against existing hosts specifie
 rototiller_task :performance_without_provision do |t|
   t.add_env({:name => 'ABS_RESOURCE_HOSTS', :message => 'The string returned from the ABS service describing your hosts'}) if ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/pe-perf-test.cfg' ||
       ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/foss-perf-test.cfg'
-  t.add_env({:name => 'ABS_AWS_METRICS_SIZE', :default => 'c4.2xlarge', :message => 'The AWS instance size for the Metrics host'})
-  t.add_env({:name => 'ABS_AWS_MOM_SIZE', :default => 'c4.2xlarge', :message => 'The AWS instance size for the MOM host'})
   t.add_env({:name => 'ENVIRONMENT_TYPE', :message => 'Either gatling or clamps', :default => 'gatling'})
   t.add_env({:name => 'PUPPET_GATLING_R10K_CONTROL_REPO', :default => 'git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git'})
   if ENV['BEAKER_INSTALL_TYPE'] == 'foss'

@@ -1,10 +1,12 @@
 source ENV['GEM_SOURCE'] || 'https://artifactory.delivery.puppetlabs.net/artifactory/api/gems/rubygems/'
 
-gem 'beaker', :git => 'https://github.com/puppetlabs/beaker.git', :branch => 'fix/master/BKR-487_preserved_hosts_yml_fix'
+gem 'beaker', '~>4.0'
 gem 'beaker-benchmark', '~>0.0'
-gem 'beaker-pe', '~>1.4'
-gem 'beaker-pe-large-environments', '~>0.2'
-gem 'scooter', '~>4.0'
+gem 'beaker-pe', '~>2.0'
+gem 'beaker-aws'
+gem 'beaker-abs', '~>0.1'
+gem 'beaker-pe-large-environments', '~>0.3'
+gem 'scooter', '~>4.3'
 gem 'rototiller', '~>1.0'
 gem 'rspec', '~>3.0'
 

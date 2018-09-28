@@ -62,13 +62,16 @@ to the version of PE you want to compare against.
 
 Things to note:
 
-* If any of the test specific assertions fail, the baseline comparison assertions will not be executed.
 * If BASELINE_PE_VER has not been set than the baseline comparison assertions in the last test step will not be run (test step will be skipped).
 * Whatever string you pass to the job to indicate the BEAKER_PE_VER needs to be used consistently. For example, if you set the version in the format `2018.1.1-rc0-11-g8fbde83` you need to use this again as the BASELINE_PE_VER or the test will error/not return expected results.
 * If BASELINE_PE_VER is not found in BigQuery then the last step will error.
 * Results are not overwritten, we get the latest result that matches BASELINE_PE_VER and the current test name.
 * We currently only push up the data we need in order to perform the assertions.
 
+To directly query bigquery:
+* Navigate to https://console.cloud.google.com/bigquery?project=perf-metrics
+* Execute 'SELECT pe_build_number FROM \`perf-metrics.perf_metrics.atop_metrics\`
+GROUP BY pe_build_number'
 ### Set up Puppet Enterprise and Gatling but do not execute a gatling scenario
 Another use for the performance task would be to record and playback a new scenario either for one-off testing,
 or for a new scenario that will be checked in and used.  Additionally, you may just want to execute the setup standalone and then execute the tests later.

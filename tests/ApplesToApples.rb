@@ -10,7 +10,7 @@ end
 perf_setup('WarmUpJit.json','PerfTestLarge', '')
 stop_monitoring(master, '/opt/puppetlabs')
 
-gatlingassertions = "SUCCESSFUL_REQUESTS=100 " + "MAX_RESPONSE_TIME_AGENT=20000 "
+gatlingassertions = "SUCCESSFUL_REQUESTS=100 " + "MAX_RESPONSE_TIME_AGENT=20000 "  + "TOTAL_REQUEST_COUNT=28800 "
 
 # pass in gatling scenario file name and simulation id
 perf_setup('ApplesToApples.json','PerfTestLarge', gatlingassertions)

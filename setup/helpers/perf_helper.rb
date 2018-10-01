@@ -557,4 +557,56 @@ authorization: {
     end if metric['template'] == 'amazon-6-x86_64'
   end
 
+  def setup_metrics_as_agent
+    step 'setup proxy-recorder dir' do
+      # Make room for local copies
+      ssldir = 'proxy-recorder/target/tmp/ssl'
+      FileUtils.rm_rf(ssldir)
+      FileUtils.mkdir_p(ssldir)
+
+      master_cert_name = on(master, puppet('config print certname')).stdout.chomp
+      master_host_cert = on(master, puppet('config print hostcert')).stdout.chomp
+      master_host_priv_key = on(master, puppet('config print hostprivkey')).stdout.chomp
+
+      scp_from(master, master_host_cert, ssldir)
+      FileUtils.mv(File.join(ssldir, File.basename(master_host_cert)),
+                   File.join(ssldir, 'hostcert.pem'))
+      scp_from(master, master_host_priv_key, ssldir)
+      FileUtils.mv(File.join(ssldir, File.basename(master_host_priv_key)),
+                   File.join(ssldir, 'hostkey.pem'))
+
+      %x{cat #{ssldir}/hostcert.pem #{ssldir}/hostkey.pem > #{ssldir}/keystore.pem}
+      %x{echo "puppet" | openssl pkcs12 -export -in #{ssldir}/keystore.pem -out #{ssldir}/keystore.p12 -name #{master_cert_name} -passout fd:0}
+      %x{keytool -importkeystore -destkeystore #{ssldir}/gatling-proxy-keystore.jks -srckeystore #{ssldir}/keystore.p12 -srcstoretype PKCS12 -alias #{master_cert_name} -deststorepass "puppet" -srcstorepass "puppet"}
+
+      metric.mkdir_p "gatling-puppet-load-test/proxy-recorder"
+      scp_to(metric, "proxy-recorder", "gatling-puppet-load-test")
+
+      classify_metrics_node_via_nc
+    end
+  end
+
+  def classify_metrics_node_via_nc
+    # Classify any agent with the word 'agent' in it's hostname and the metrics node
+    def classify_nodes(classifier)
+      metrics_cert_name = on(metric, puppet('config print certname')).stdout.chomp
+      classifier.find_or_create_node_group_model(
+          'parent' => '00000000-0000-4000-8000-000000000000',
+          'name' => 'perf-agent-group',
+          'rule' => [ 'or',
+                      ['~', ['fact', 'clientcert'], metrics_cert_name],
+                      ['~', ['fact', 'clientcert'], '.*agent.*'] ] )
+    end
+
+    classifier = Scooter::HttpDispatchers::ConsoleDispatcher.new(dashboard, {:login => 'admin', :password => 'puppetlabs', :resolve_dns => true})
+
+    # Updating classes can take a VERY long time, like the OPS deployment
+    # which has ~80 environments each with hundreds of classes.
+    # Set the connection timeout to 60 minutes to accomodate this.
+    classifier.connection.options.timeout = 3600
+    classifier.update_classes
+
+    classify_nodes(classifier)
+  end
+
 end

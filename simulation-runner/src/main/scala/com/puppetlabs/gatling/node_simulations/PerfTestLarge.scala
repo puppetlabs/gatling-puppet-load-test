@@ -26,14 +26,13 @@ class PerfTestLarge extends SimulationWithScenario {
 
 	val baseHeaders = Map("Accept" -> "application/json, text/pson",
 		"Accept-Encoding" -> "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
-		"User-Agent" -> "Puppet/5.3.3 Ruby/2.4.2-p198 (x86_64-linux)")
+		"User-Agent" -> "Puppet/6.0.0 Ruby/2.5.1-p57 (x86_64-linux)")
 
-	val headers_0 = baseHeaders ++ Map("X-Puppet-Version" -> "5.3.3")
+	val headers_0 = baseHeaders ++ Map("X-Puppet-Version" -> "6.0.0")
 
 	val headers_6 = baseHeaders ++ Map(
-		"Connection" -> "close",
 		"Content-Type" -> "application/json",
-		"X-Puppet-Version" -> "5.3.3")
+		"X-Puppet-Version" -> "6.0.0")
 
 	val scn = scenario("perf_test_large")
 	    .feed(reportFeeder)
@@ -63,13 +62,9 @@ class PerfTestLarge extends SimulationWithScenario {
 			.formParam("facts", "%7B%22name%22%3A%22${node}%22%2C%22values%22%3A%7B" + "${Fact}" + "${HostFact}" + staticFacts)
 			.formParam("transaction_uuid", "feaf75a3-c82c-4e06-9d02-5387f14034a0")
 			.formParam("static_catalog", "true")
-			.formParam("checksum_type", "md5.sha256")
+			.formParam("checksum_type", "md5.sha256.sha384.sha512.sha224")
 			.formParam("fail_on_404", "true"))
 		.pause(2)
-		.exec(http("filemeta mco plugins")
-			.get("/puppet/v3/file_metadatas/modules/puppet_enterprise/mcollective/plugins?environment=production&links=manage&recurse=true&source_permissions=ignore&checksum_type=md5")
-			.headers(headers_0))
-		.pause(4)
 		.exec((session:Session) => {
 			session.set("reportTimestamp",
 				LocalDateTime.now.toString(ISODateTimeFormat.dateTime()))

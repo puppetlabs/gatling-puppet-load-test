@@ -3,6 +3,7 @@ require 'tmpdir'
 require 'yaml'
 require 'beaker'
 require 'net/http'
+require 'beaker-pe' #PE-25240 will make this not needed
 
 module PerfHelper
   BASE_URL = 'http://builds.puppetlabs.lan'
@@ -37,7 +38,8 @@ module PerfHelper
       # disable selinux immediately, but not persistent after a reboot
       on agents, 'setenforce 0 || true'
       # required to disable selinux between reboots
-      on agents, "sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/sysconfig/selinux && cat /etc/sysconfig/selinux"
+      on agents, "sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/sysconfig/selinux && cat /etc/sysconfig/selinux" unless
+          agents[0]['template'] == 'amazon-6-x86_64'
     end
 
     step 'install nc for agents to report run times to graphite' do
@@ -550,6 +552,9 @@ authorization: {
       metric.mkdir_p '/usr/share/sbt/conf/'
       on metric, "echo '-mem 3072' >> /usr/share/sbt/conf/sbtopts"
     end
+    step 'Change default java version on amazon-6 OS for opsworks' do
+      on metric, "/usr/sbin/alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java"
+    end if metric['template'] == 'amazon-6-x86_64'
   end
 
   def setup_metrics_as_agent

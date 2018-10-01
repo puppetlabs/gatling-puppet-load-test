@@ -80,7 +80,7 @@ describe AbsHelperClass do
   TEST_AWSDIRECT_RESPONSE_BODY =
     { 'hostname': TEST_HOSTNAME,
       'instance_id': "i-0721e8f28c67a0axx",
-      'type': TEST_ABS_TYPE }.to_json.freeze
+      'type': TEST_BEAKER_TYPE }.to_json.freeze
 
   TEST_REFORMATTED_RESPONSE_BODY =
     { 'hostname': TEST_HOSTNAME,
@@ -142,7 +142,6 @@ describe AbsHelperClass do
           ENV["ABS_BASE_URL"] = TEST_ABS_BASE_URL
           ENV["ABS_AWS_PLATFORM"] = TEST_PLATFORM
           ENV["ABS_AWS_IMAGE_ID"] = TEST_IMAGE_ID
-          ENV["ABS_AWS_SIZE"] = TEST_SIZE
           ENV["ABS_AWS_VOLUME_SIZE"] = TEST_VOLUME_SIZE
           ENV["ABS_AWS_REGION"] = TEST_REGION
           ENV["ABS_AWS_REAP_TIME"] = TEST_REAP_TIME
@@ -156,8 +155,6 @@ describe AbsHelperClass do
           expect(subject.instance_variable_get(:@abs_base_url)).to eq(TEST_ABS_BASE_URL)
           expect(subject.instance_variable_get(:@aws_platform)).to eq(TEST_PLATFORM)
           expect(subject.instance_variable_get(:@aws_image_id)).to eq(TEST_IMAGE_ID)
-          expect(subject.instance_variable_get(:@aws_size)).to eq(TEST_SIZE)
-          expect(subject.instance_variable_get(:@aws_volume_size)).to eq(TEST_VOLUME_SIZE)
           expect(subject.instance_variable_get(:@aws_region)).to eq(TEST_REGION)
           expect(subject.instance_variable_get(:@aws_reap_time)).to eq(TEST_REAP_TIME)
           expect(subject.instance_variable_get(:@mom_size)).to eq(TEST_MOM_SIZE)
@@ -175,8 +172,6 @@ describe AbsHelperClass do
           ENV["ABS_BASE_URL"] = nil
           ENV["ABS_AWS_PLATFORM"] = nil
           ENV["ABS_AWS_IMAGE_ID"] = nil
-          ENV["ABS_AWS_SIZE"] = nil
-          ENV["ABS_AWS_VOLUME_SIZE"] = nil
           ENV["ABS_AWS_REGION"] = nil
           ENV["ABS_AWS_REAP_TIME"] = nil
           ENV["ABS_AWS_MOM_SIZE"] = nil
@@ -185,8 +180,6 @@ describe AbsHelperClass do
           stub_const("ABS_BASE_URL", TEST_ABS_BASE_URL)
           stub_const("ABS_AWS_PLATFORM", TEST_PLATFORM)
           stub_const("ABS_AWS_IMAGE_ID", TEST_IMAGE_ID)
-          stub_const("ABS_AWS_SIZE", TEST_SIZE)
-          stub_const("ABS_AWS_VOLUME_SIZE", TEST_VOLUME_SIZE)
           stub_const("ABS_AWS_MOM_SIZE", TEST_MOM_SIZE)
           stub_const("ABS_AWS_METRICS_SIZE", TEST_METRICS_SIZE)
           stub_const("ABS_AWS_REGION", TEST_REGION)
@@ -198,8 +191,6 @@ describe AbsHelperClass do
           expect(subject.instance_variable_get(:@abs_base_url)).to eq(TEST_ABS_BASE_URL)
           expect(subject.instance_variable_get(:@aws_platform)).to eq(TEST_PLATFORM)
           expect(subject.instance_variable_get(:@aws_image_id)).to eq(TEST_IMAGE_ID)
-          expect(subject.instance_variable_get(:@aws_size)).to eq(TEST_SIZE)
-          expect(subject.instance_variable_get(:@aws_volume_size)).to eq(TEST_VOLUME_SIZE)
           expect(subject.instance_variable_get(:@aws_region)).to eq(TEST_REGION)
           expect(subject.instance_variable_get(:@aws_reap_time)).to eq(TEST_REAP_TIME)
           expect(subject.instance_variable_get(:@mom_size)).to eq(TEST_MOM_SIZE)

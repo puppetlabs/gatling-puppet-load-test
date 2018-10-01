@@ -25,6 +25,16 @@ Once generated, either set the ABS_TOKEN environment variable with your token or
     * bundle install
     * bundle exec rake performance_gatling (takes about 4 hours)
 
+### Kick off Opsworks performance tests
+In order to execute the tests successfully with the opsworks_performance rake task, you must set the following environment variables:
+* BEAKER_TESTS to 'tests/OpsWorks.rb'
+* ABS_AWS_MOM_SIZE to one of: "m5.large", "c4.xlarge", "c4.2xlarge", ""
+* PUPPET_SCALE_CLASS to one of: "role::by_size::small", "role::by_size::medium", "role::by_size::large", ""
+
+Execute:
+* bundle install
+* bundle exec rake opsworks_performance (takes about 1.5 hours)
+
 ### Acceptance tests
 You can execute the 'acceptance' rake task which will run everything in VMPooler rather than AWS and do a much shorter gatling run. This is useful for quickly testing changes to the performance test setup. If you need to execute acceptance tests in the AWS environment, you can set the following env vars:
 

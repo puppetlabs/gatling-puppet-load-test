@@ -13,22 +13,18 @@ module AbsHelper
   ABS_BASE_URL = "https://cinext-abs.delivery.puppetlabs.net/api/v2".freeze
   AWS_PLATFORM = "centos-7-x86_64".freeze
   AWS_IMAGE_ID = "ami-a042f4d8".freeze
-  AWS_SIZE = "c4.2xlarge".freeze
   AWS_VOLUME_SIZE = "80".freeze
   AWS_REGION = "us-west-2".freeze
 
   # Allows us to switch between AWS and VMPooler by selecting a different ABS OS
   # centos-7-x86-64-west is an AWS image, centos-7-x86_64 is vmpooler
-  ABS_BEAKER_TYPE = "centos-7-x86-64-west".freeze
   ABS_BEAKER_ENGINE = "aws".freeze
 
   # TODO: is this the value we want to use?
   AWS_REAP_TIME = "86400".freeze
 
   # TODO: update mom and metrics config
-  MOM_SIZE = AWS_SIZE.freeze
   MOM_VOLUME_SIZE = AWS_VOLUME_SIZE.freeze
-  METRICS_SIZE = AWS_SIZE.freeze
   METRICS_VOLUME_SIZE = AWS_VOLUME_SIZE.freeze
 
   # Checks whether the user has a valid token and if so initializes the instance variables
@@ -49,13 +45,11 @@ module AbsHelper
       @abs_base_url = ENV["ABS_BASE_URL"] ? ENV["ABS_BASE_URL"] : ABS_BASE_URL
       @aws_platform = ENV["ABS_AWS_PLATFORM"] ? ENV["ABS_AWS_PLATFORM"] : AWS_PLATFORM
       @aws_image_id = ENV["ABS_AWS_IMAGE_ID"] ? ENV["ABS_AWS_IMAGE_ID"] : AWS_IMAGE_ID
-      @aws_size = ENV["ABS_AWS_SIZE"] ? ENV["ABS_AWS_SIZE"] : AWS_SIZE
-      @aws_volume_size = ENV["ABS_AWS_VOLUME_SIZE"] ? ENV["ABS_AWS_VOLUME_SIZE"] : AWS_VOLUME_SIZE
       @aws_region = ENV["ABS_AWS_REGION"] ? ENV["ABS_AWS_REGION"] : AWS_REGION
       @aws_reap_time = ENV["ABS_AWS_REAP_TIME"] ? ENV["ABS_AWS_REAP_TIME"] : AWS_REAP_TIME
-      @mom_size = ENV["ABS_AWS_MOM_SIZE"] ? ENV["ABS_AWS_MOM_SIZE"] : MOM_SIZE
+      @mom_size = ENV["ABS_AWS_MOM_SIZE"]
       @mom_volume_size = ENV["ABS_AWS_MOM_VOLUME_SIZE"] ? ENV["ABS_AWS_MOM_VOLUME_SIZE"] : MOM_VOLUME_SIZE
-      @metrics_size = ENV["ABS_AWS_METRICS_SIZE"] ? ENV["ABS_AWS_METRICS_SIZE"] : METRICS_SIZE
+      @metrics_size = ENV["ABS_AWS_METRICS_SIZE"]
       @metrics_volume_size = ENV["ABS_METRICS_VOLUME_SIZE"] ? ENV["ABS_METRICS_VOLUME_SIZE"] : METRICS_VOLUME_SIZE
       @abs_beaker_pe_version = ENV["BEAKER_PE_VER"] ? ENV["BEAKER_PE_VER"] : nil
     end
@@ -494,10 +488,11 @@ module AbsHelper
   def parse_awsdirect_response_body(response_body)
     host = JSON.parse(response_body)
     hostname = host["hostname"]
+    type = host["type"]
 
     abs_resource_host = {
         'hostname': hostname,
-        'type':     ABS_BEAKER_TYPE,
+        'type':     type,
         'engine':   ABS_BEAKER_ENGINE
     }
 
@@ -556,7 +551,7 @@ module AbsHelper
     result = nil
     success = false
     user = "root"
-    key_file = "~/.ssh/abs-aws-ec2.rsa"
+    key_file = ENV['BEAKER_KEYFILE'] ? ENV['BEAKER_KEYFILE'] : "#{ENV['HOME']}/.ssh/id_rsa-acceptance"
 
     puts "Verifying #{host}"
     puts

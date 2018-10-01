@@ -10,7 +10,7 @@ end
 perf_setup('WarmUpJit.json','PerfTestLarge', '')
 stop_monitoring(master, '/opt/puppetlabs')
 
-gatlingassertions = "SUCCESSFUL_REQUESTS=100 " + "MAX_RESPONSE_TIME_AGENT=20000 "  + "TOTAL_REQUEST_COUNT=70 "
+gatlingassertions = "SUCCESSFUL_REQUESTS=100 " + "MAX_RESPONSE_TIME_AGENT=20000 "
 
 # pass in gatling scenario file name and simulation id
 perf_setup('ApplesToApples.json','PerfTestLarge', gatlingassertions)
@@ -20,10 +20,6 @@ atop_result, gatling_result = perf_result
 step 'max response' do
   # Temporarily disabling this step until SLV-208 is complete
   # assert_later(gatling_result.max_response_time_agent <= 20000, "Max response time per agent run was: #{gatling_result.max_response_time_agent}, expected <= 20000")
-end
-
-step 'request count' do
-  assert_later(gatling_result.request_count == 33600, "Total request count is: #{gatling_result.request_count}, expected 33600")
 end
 
 step 'successful request percentage' do

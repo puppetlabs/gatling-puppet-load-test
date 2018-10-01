@@ -43,6 +43,15 @@ rototiller_task :performance_deprovision_with_abs do
   raise 'Failed to de-provision ABS hosts' unless returned_hosts == abs_resource_hosts
 end
 
+desc 'Setup Agent for recordings'
+rototiller_task :setup_recording_agent do
+  ENV['BEAKER_HOSTS'] ||= "log/latest/hosts_preserved.yml"
+  ENV['ABS_RESOURCE_HOSTS'] = File.open("last_abs_resource_hosts.log").readlines[0] if File.exist? "last_abs_resource_hosts.log"
+  ENV['BEAKER_PRE_SUITE'] = "setup/install_gatling/00_pre_install/05_initialize_helpers.rb,setup/install_gatling/setup_metrics_as_agent.rb"
+  ENV['BEAKER_TESTS'] = ""
+  Rake::Task["performance_without_provision"].execute
+end
+
 desc 'Run Performance tests using previously provisioned hosts'
 rototiller_task :performance_against_already_provisioned do
   ENV['BEAKER_HOSTS'] ||= "log/latest/hosts_preserved.yml"

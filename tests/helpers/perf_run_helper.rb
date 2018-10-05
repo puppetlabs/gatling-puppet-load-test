@@ -180,7 +180,7 @@ module PerfRunHelper
                "time_stamp" => Time.now,
                "avg_cpu" => @perf_result[0].avg_cpu,
                "avg_mem" => @perf_result[0].avg_mem,
-               "avg_dsk_write" => @perf_result[0].avg_disk_write,
+               "avg_disk_write" => @perf_result[0].avg_disk_write,
                "avg_response_time" => mean_response_time
            }]
 
@@ -195,7 +195,7 @@ module PerfRunHelper
   def get_baseline_result
     if BASELINE_PE_VER != nil
       #compare results created in this run with latest baseline run
-      sql = 'SELECT avg_cpu, avg_mem, avg_dsk_write, avg_response_time ' \
+      sql = 'SELECT avg_cpu, avg_mem, avg_disk_write, avg_response_time ' \
             'FROM `perf-metrics.perf_metrics.atop_metrics` ' \
             'WHERE time_stamp = (' \
           'SELECT MAX(time_stamp) ' \
@@ -217,11 +217,11 @@ module PerfRunHelper
   end
 
   class BaselineResult
-    attr_accessor :baseline_cpu, :baseline_memory, :baseline_dsk_write, :baseline_avg_resp_time
+    attr_accessor :baseline_cpu, :baseline_memory, :baseline_disk_write, :baseline_avg_resp_time
     def initialize(data)
       @baseline_cpu = data[0].fetch(:avg_cpu)
       @baseline_memory = data[0].fetch(:avg_mem)
-      @baseline_dsk_write = data[0].fetch(:avg_dsk_write)
+      @baseline_disk_write = data[0].fetch(:avg_disk_write)
       @baseline_avg_resp_time = data[0].fetch(:avg_response_time)
     end
   end

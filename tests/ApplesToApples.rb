@@ -35,14 +35,14 @@ step 'baseline assertions' do
 
   baseline_cpu = baseline_result.baseline_cpu.to_f
   baseline_memory = baseline_result.baseline_memory.to_f
-  baseline_dsk_write = baseline_result.baseline_memory.to_f
+  baseline_disk_write = baseline_result.baseline_disk_write.to_f
   baseline_avg_resp_time = baseline_result.baseline_avg_resp_time.to_f
 
   assert_later((atop_result.avg_cpu.to_f - baseline_cpu) / baseline_cpu * 100 <= 10, "avg_cpu: #{atop_result.avg_cpu} was not within 10% of baseline: #{baseline_cpu}.")
 
   assert_later((atop_result.avg_mem.to_f - baseline_memory) / baseline_memory * 100 <= 10, "avg_mem: #{atop_result.avg_mem} was not within 10% of baseline: #{baseline_memory}.")
 
-  assert_later((atop_result.avg_disk_write.to_f - baseline_dsk_write) / baseline_dsk_write * 100 <= 10, "avg_dsk_write: #{atop_result.avg_disk_write} was not within 10% of baseline: #{baseline_dsk_write}.")
+  assert_later((atop_result.avg_disk_write.to_f - baseline_disk_write) / baseline_disk_write * 100 <= 10, "avg_disk_write: #{atop_result.avg_disk_write} was not within 10% of baseline: #{baseline_disk_write}.")
 
   assert_later(((gatling_result.avg_response_time.to_f - baseline_avg_resp_time) / baseline_avg_resp_time * 100 <= 10), "avg_resp_time: #{gatling_result.avg_response_time} was not within 10% of baseline: #{baseline_avg_resp_time}.")
 

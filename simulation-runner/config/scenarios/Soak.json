@@ -1,0 +1,12 @@
+{
+    "run_description": "'role::by_size_large' role from perf control repo, 600 agents, 480 iterations. ~10 days",
+    "nodes": [
+        {
+            "node_config": "PerfTestLarge.json",
+            "num_instances": 600,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 480,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}

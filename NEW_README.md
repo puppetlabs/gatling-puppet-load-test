@@ -35,6 +35,20 @@ Execute:
 * bundle install
 * bundle exec rake opsworks_performance (takes about 1.5 hours)
 
+### Kick off Soak performance tests
+In order to execute a Soak performance run:
+* Follow the instructions from "Set up Puppet Enterprise and Gatling but do not execute a gatling scenario".  
+* Then manually tune the master by running `puppet infrastrcture tune` on the master.  
+* You will have to edit '/etc/puppetlabs/puppet/hiera.yaml' to add 'nodes/%{fqdn}' to the top of the hiera hierarchy.
+* Then create '/etc/puppetlabs/code/environments/production/hieradata/nodes/<master fqdn>.yaml' where master fqdn is the result of `facter networking.fqdn` (run on master), and put the output of the tune command in it.
+* Verify that worked by running `puppet lookup puppet_enterprise::master::puppetserver::jruby_max_active_instances --explain` and checking that it got the key from your new file
+
+Then set the following environment variables (with other variables still set from first step above):
+*  BEAKER_TESTS to 'tests/Soak.rb'
+
+Execute:
+* bundle exec rake performance_against_already_provisioned (takes about 10 days)
+
 ### Acceptance tests
 You can execute the 'acceptance' rake task which will run everything in VMPooler rather than AWS and do a much shorter gatling run. This is useful for quickly testing changes to the performance test setup. If you need to execute acceptance tests in the AWS environment, you can set the following env vars:
 

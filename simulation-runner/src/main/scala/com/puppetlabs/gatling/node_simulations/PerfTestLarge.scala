@@ -21,7 +21,7 @@ class PerfTestLarge extends SimulationWithScenario {
                        ).circular
 
 	val staticFacts  = scala.io.Source.fromFile("user-files/facts/IrvingFactsChange_facts_raw.txt").mkString
-	val factFeeder  = csv("user-files/facts/IrvingFactsChange_custom_facts.csv")
+	val factFeeder  = csv("user-files/facts/IrvingFactsChange_custom_facts.csv").circular
 	val hostFeeder  = csv("user-files/facts/IrvingFactsChange_custom_hostf.csv").circular
 
 	val baseHeaders = Map("Accept" -> "application/json, text/pson",

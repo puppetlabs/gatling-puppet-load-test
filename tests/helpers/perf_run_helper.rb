@@ -17,10 +17,6 @@ module PerfRunHelper
     @perf_result ||= get_perf_result
   end
 
-  def baseline_result
-    @baseline_result ||= get_baseline_result
-  end
-
   def perf_teardown
     perf_result
     if push_to_bigquery?
@@ -184,6 +180,11 @@ module PerfRunHelper
                "avg_response_time" => mean_response_time
            }]
 
+    process_hash = get_process_hash @perf_result[0].processes
+    row[0].merge! process_hash
+
+    logger.info "row is: #{row.to_s}"
+
     result = atop_table.insert row
     if result.success?
       logger.info("inserted row successfully into BigQuery: #{row}")
@@ -192,10 +193,28 @@ module PerfRunHelper
     end
   end
 
+  def get_process_hash perf_result_processes
+    process_hash = {}
+    perf_result_processes.keys.each do |key|
+      # All of the puppet processes we care about are jars
+      process_match = perf_result_processes[key][:cmd].match(/.*\/([a-z,\-]*)\.jar/)
+      unless process_match.nil?
+        process_name = process_match[1]
+        process_hash["process_#{process_name.gsub('-', '_')}_avg_cpu"] = perf_result_processes[key][:avg_cpu]
+        process_hash["process_#{process_name.gsub('-', '_')}_avg_mem"] = perf_result_processes[key][:avg_mem]
+      end
+    end
+    process_hash
+  end
+
   def get_baseline_result
-    if BASELINE_PE_VER != nil
+    unless BASELINE_PE_VER.nil?
       #compare results created in this run with latest baseline run
-      sql = 'SELECT avg_cpu, avg_mem, avg_disk_write, avg_response_time ' \
+      sql = 'SELECT avg_cpu, avg_mem, avg_disk_write, avg_response_time, ' \
+            'process_puppetdb_avg_cpu, process_puppetdb_avg_mem, ' \
+            'process_console_services_release_avg_cpu, process_console_services_release_avg_mem, ' \
+            'process_orchestration_services_release_avg_cpu, process_orchestration_services_release_avg_mem, ' \
+            'process_puppet_server_release_avg_cpu, process_puppet_server_release_avg_mem ' \
             'FROM `perf-metrics.perf_metrics.atop_metrics` ' \
             'WHERE time_stamp = (' \
           'SELECT MAX(time_stamp) ' \
@@ -210,19 +229,40 @@ module PerfRunHelper
       else
         logger.error("Cannot find result that matches query: #{sql}")
       end
-      BaselineResult.new(data)
+      data[0]
     else
-      skip_test('Not comparing results with baseline as BASELINE_PE_VER was not set.')
+      logger.warn('Not comparing results with baseline as BASELINE_PE_VER was not set.')
     end
   end
 
-  class BaselineResult
-    attr_accessor :baseline_cpu, :baseline_memory, :baseline_disk_write, :baseline_avg_resp_time
-    def initialize(data)
-      @baseline_cpu = data[0].fetch(:avg_cpu)
-      @baseline_memory = data[0].fetch(:avg_mem)
-      @baseline_disk_write = data[0].fetch(:avg_disk_write)
-      @baseline_avg_resp_time = data[0].fetch(:avg_response_time)
+  def baseline_assert atop_result, gatling_result
+    process_results = get_process_hash(atop_result.processes)
+
+    # Handle 3 different things: avg_response_time which comes from gatling result,
+    # global atop results and per process atop results
+    baseline = get_baseline_result
+    unless baseline.nil?
+      baseline.each do |key, value|
+        if key.to_s == "avg_response_time"
+          assert_value = gatling_result.avg_response_time.to_f
+        elsif key.to_s.start_with? "process"
+          assert_value = process_results[key].to_f
+        else
+          assert_value = atop_result.send(key).to_f
+        end
+
+        if value.is_a? Integer
+          # If the baseline value is 10 or lower (usually CPU) then we need to allow more than 10% variance
+          # since it is only whole numbers. If it is 10 or less, we should allow for +1 or -1
+          if value <= 10
+            assert_later(assert_value.between?(value -1, value + 1), "The value of #{key} '#{assert_value}' " +
+                "was not within 10% of the baseline '#{value}'")
+          else
+            assert_later((assert_value - value) / value * 100 <= 10, "The value of #{key} '#{assert_value}' " +
+                "was not within 10% of the baseline '#{value}'")
+          end
+        end
+      end
     end
   end
 

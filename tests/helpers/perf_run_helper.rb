@@ -232,6 +232,7 @@ module PerfRunHelper
       data[0]
     else
       logger.warn('Not comparing results with baseline as BASELINE_PE_VER was not set.')
+      return nil
     end
   end
 
@@ -246,7 +247,7 @@ module PerfRunHelper
         if key.to_s == "avg_response_time"
           assert_value = gatling_result.avg_response_time.to_f
         elsif key.to_s.start_with? "process"
-          assert_value = process_results[key].to_f
+          assert_value = process_results[key.to_s].to_f
         else
           assert_value = atop_result.send(key).to_f
         end

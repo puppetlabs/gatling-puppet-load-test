@@ -139,7 +139,10 @@ describe PerfRunHelperClass do
         baseline_result.keys.each {|key|
           allow(atop_result).to receive(key.to_sym).and_return(baseline_result[key])
         }
-        expect(subject).to receive(:assert).with(any_args).exactly(12).times.and_return(nil)
+        #TODO change back when per process cpu asserts are turned back on
+        # changed to 8 while per process cpu asserts are disabled.
+        # expect(subject).to receive(:assert).with(any_args).exactly(12).times.and_return(nil)
+        expect(subject).to receive(:assert).with(any_args).exactly(8).times.and_return(nil)
         subject.send(:baseline_assert, atop_result, gatling_result)
       end
     end
@@ -153,9 +156,14 @@ describe PerfRunHelperClass do
         baseline_result.keys.each {|key|
           allow(atop_result).to receive(key.to_sym).and_return(baseline_result[key])
         }
-        expect(subject).to receive(:assert).with(any_args).exactly(12).times.and_raise(Minitest::Assertion)
+        #TODO change back when per process cpu asserts are turned back on
+        # changed to 8 while per process cpu asserts are disabled.
+        # expect(subject).to receive(:assert).with(any_args).exactly(12).times.and_raise(Minitest::Assertion)
+        # subject.send(:baseline_assert, atop_result, gatling_result)
+        # expect(subject.assertion_exceptions.count()).to eql(12)
+        expect(subject).to receive(:assert).with(any_args).exactly(8).times.and_raise(Minitest::Assertion)
         subject.send(:baseline_assert, atop_result, gatling_result)
-        expect(subject.assertion_exceptions.count()).to eql(12)
+        expect(subject.assertion_exceptions.count()).to eql(8)
       end
     end
   end

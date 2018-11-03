@@ -252,6 +252,8 @@ module PerfRunHelper
           assert_value = atop_result.send(key).to_f
         end
 
+        puts "Value for #{key} is baseline: #{value} Actual: #{assert_value}"
+        next if key.to_s.start_with?("process") && key.to_s.end_with?("cpu")
         if value.is_a? Integer
           # If the baseline value is 10 or lower (usually CPU) then we need to allow more than 10% variance
           # since it is only whole numbers. If it is 10 or less, we should allow for +1 or -1

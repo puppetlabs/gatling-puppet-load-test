@@ -27,7 +27,8 @@ module PerfHelper
     step 'add epel' do
       # Graphite / grafana needs a newer version of python which is only found in the epel repo
       # Also needed for newer version of atop
-      hosts.each do |host|
+      masters = select_hosts({:roles => ['master', 'compile_master']})
+      masters.each do |host|
         platform_ver = host['platform'].version
         epel_url = "https://dl.fedoraproject.org/pub/epel/epel-release-latest-#{platform_ver}.noarch.rpm"
         host.install_package(epel_url, '', nil, :acceptable_exit_codes => [0,1])
@@ -53,6 +54,12 @@ module PerfHelper
         end
       }
     end
+  end
+
+  def install_docker
+    # put docker on the metrics box so it can run the gatling container
+    on metric, 'yum install -y docker || true'
+    on metric, 'systemctl start docker'
   end
 
   def setup_r10k
@@ -526,12 +533,13 @@ authorization: {
   end
 
   def setup_gatling_proxy
-    step 'install java, xauth' do
-      on metric, 'yum -y install java-1.8.0-openjdk java-1.8.0-openjdk-devel xauth'
-    end
-    step 'install scala build tool (sbt)' do
-      on metric, 'rpm -ivh http://dl.bintray.com/sbt/rpm/sbt-0.13.7.rpm'
-    end
+    #the below moved to the dockerfile so it is already in the container
+    # step 'install java, xauth' do
+    #   on metric, 'yum -y install java-1.8.0-openjdk java-1.8.0-openjdk-devel xauth'
+    # end
+    # step 'install scala build tool (sbt)' do
+    #   on metric, 'rpm -ivh http://dl.bintray.com/sbt/rpm/sbt-0.13.7.rpm'
+    # end
     step 'create key for metrics to talk to primary master' do
       on metric, 'yes | ssh-keygen -q -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" -C "gatling"'
     end
@@ -548,13 +556,14 @@ authorization: {
     step 'copy ssl certs to metrics box' do
       scp_to(metric, 'simulation-runner/target/ssl', 'gatling-puppet-load-test/simulation-runner/target')
     end
-    step 'adjust scala build tool mem' do
-      metric.mkdir_p '/usr/share/sbt/conf/'
-      on metric, "echo '-mem 3072' >> /usr/share/sbt/conf/sbtopts"
-    end
-    step 'Change default java version on amazon-6 OS for opsworks' do
-      on metric, "/usr/sbin/alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java"
-    end if metric['template'] == 'amazon-6-x86_64'
+    #the below moved to the dockerfile so it is already in the container
+    # step 'adjust scala build tool mem' do
+    #   metric.mkdir_p '/usr/share/sbt/conf/'
+    #   on metric, "echo '-mem 3072' >> /usr/share/sbt/conf/sbtopts"
+    # end
+    # step 'Change default java version on amazon-6 OS for opsworks' do
+    #   on metric, "/usr/sbin/alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java"
+    # end if metric['template'] == 'amazon-6-x86_64'
   end
 
   def setup_metrics_as_agent

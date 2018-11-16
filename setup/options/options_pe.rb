@@ -3,6 +3,7 @@
   :pre_suite                   => [
     'setup/install_gatling/00_pre_install/05_initialize_helpers.rb',
     'setup/install_gatling/00_pre_install/20_rpm_setup.rb',
+    'setup/install_gatling/00_pre_install/25_docker_setup.rb',
     'setup/install_gatling/00_pre_install/30_r10k_git_setup.rb',
     'setup/install_gatling/10_pe_install/10_install_pe.rb',
     'setup/install_gatling/30_classification/10_r10k_deploy.rb',

@@ -61,12 +61,16 @@ module PerfRunHelper
       end
 
       on(metric, "cd /root/gatling-puppet-load-test/simulation-runner/ && " +
+          "docker run -v ~/.ssh:/root/.ssh " +
+          "-v `pwd`:/root/gatling-puppet-load-test/simulation-runner " +
+          "pcr-internal.puppet.net/pe-and-platform/gplt " +
+          "bash -c \' cd simulation-runner; " +
           "PUPPET_GATLING_MASTER_BASE_URL=https://#{master.hostname}:8140 " +
           "PUPPET_GATLING_SIMULATION_CONFIG=config/scenarios/#{gatling_scenario} " +
           gatlingassertions +
           "PUPPET_GATLING_REPORTS_ONLY=#{reports_only} " +
           "PUPPET_GATLING_REPORTS_TARGET=/root/gatling-puppet-load-test/simulation-runner/results/#{reports_target} " +
-          "PUPPET_GATLING_SIMULATION_ID=#{simulation_id} sbt run",
+          "PUPPET_GATLING_SIMULATION_ID=#{simulation_id} sbt run \'",
          {:accept_all_exit_codes => true}) do |result|
         if result.exit_code != 0 then
           fail_test "Gatling execution failed with: #{result.formatted_output(20)}"

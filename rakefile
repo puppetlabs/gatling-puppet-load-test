@@ -286,7 +286,6 @@ rototiller_task :autoscale_provisioned do |t|
   ENV['ENVIRONMENT_TYPE'] = 'gatling'
   ENV['BEAKER_TESTS'] = ENV['BEAKER_TESTS'] || 'tests/Scale.rb'
   ENV['BEAKER_PRESERVE_HOSTS'] = 'always'
-  ENV['PUPPET_SCALE_CLASS'] = 'role::by_size::small'
   Rake::Task["performance_against_already_provisioned"].execute
 end
 
@@ -295,7 +294,6 @@ rototiller_task :autoscale_provisioned_sm do |t|
   ENV['PUPPET_GATLING_SCALE_ITERATIONS'] = '10'
   ENV['PUPPET_GATLING_SCALE_INCREMENT'] = '10'
   ENV['PUPPET_GATLING_SCALE_SCENARIO'] = 'Scale_sm.json'
-  ENV['PUPPET_SCALE_CLASS'] = 'role::by_size::small'
   Rake::Task["autoscale_provisioned"].execute
 end
 
@@ -304,7 +302,6 @@ rototiller_task :autoscale_provisioned_med do |t|
   ENV['PUPPET_GATLING_SCALE_ITERATIONS'] = '10'
   ENV['PUPPET_GATLING_SCALE_INCREMENT'] = '100'
   ENV['PUPPET_GATLING_SCALE_SCENARIO'] = 'Scale_med.json'
-  ENV['PUPPET_SCALE_CLASS'] = 'role::by_size::small'
   Rake::Task["autoscale_provisioned"].execute
 end
 

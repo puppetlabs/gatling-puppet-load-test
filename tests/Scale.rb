@@ -2,21 +2,14 @@ require_relative 'helpers/perf_run_helper'
 
 test_name 'Scale'
 
-teardown do
-  # TODO: remove?
-  # perf_teardown
-end
-
-# TODO: remove?
-# Execute 60 agent runs to warm up the JIT before starting our monitoring.
-# perf_setup('WarmUpJit.json','PerfTestLarge', '')
-# stop_monitoring(master, '/opt/puppetlabs')
-
+# The assertions that will be specifed for each iteration of the scenario
 assertions = "SUCCESSFUL_REQUESTS=100 " + "MAX_RESPONSE_TIME_AGENT=20000 "  + "TOTAL_REQUEST_COUNT=28800 "
+
+# The scenario file that will be used as a base to build the auto-scaled scenarios
 scenario = ENV["PUPPET_GATLING_SCALE_SCENARIO"] || "Scale.json"
-simulation = ENV["PUPPET_GATLING_SCALE_SIMULATION"] || "PerfTestSmall"
 
-# pass in gatling scenario file name and simulation id
-scale_setup(scenario, simulation, assertions)
+# The scenario id / name that will appear in the results
+simulation_id = ENV["PUPPET_GATLING_SCALE_SIMULATION_ID"] || "PerfAutoScale"
 
-
+# Execute the auto-scaled scenario
+scale_setup(scenario, simulation_id, assertions)

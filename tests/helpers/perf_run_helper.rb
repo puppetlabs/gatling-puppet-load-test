@@ -187,26 +187,11 @@ module PerfRunHelper
     scale_assertions(atop_result, gatling_result)
   end
 
+  # TODO: remove atop_result if it isn't being used?
   def scale_assertions(atop_result, gatling_result)
-    step 'max response' do
-      # TODO: enable?
-      # Temporarily disabling this step until SLV-208 is complete
-      # assert_later(gatling_result.max_response_time_agent <= 20000, "Max response time per agent run was: #{gatling_result.max_response_time_agent}, expected <= 20000")
-    end
 
     step 'successful request percentage' do
       assert_later(gatling_result.successful_requests == 100, "Total successful request percentage was: #{gatling_result.successful_requests}%, expected 100%" )
-    end
-
-    step 'average memory' do
-      # TODO: enable?
-      # assert_later(atop_result.avg_mem < 3000000, "Average memory was: #{atop_result.avg_mem}, expected < 3000000")
-    end
-
-    #This step will only be run if BASELINE_PE_VER has been set.
-    step 'baseline assertions' do
-      # TODO: enable?
-      # baseline_assert(atop_result, gatling_result)
     end
 
     assert_all

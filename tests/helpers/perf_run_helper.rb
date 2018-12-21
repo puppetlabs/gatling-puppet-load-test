@@ -6,7 +6,8 @@ module PerfRunHelper
 
   BEAKER_PE_VER = ENV['BEAKER_PE_VER']
   BASELINE_PE_VER = ENV['BASELINE_PE_VER']
-
+  SCALE_ITERATIONS = 10
+  SCALE_INCREMENT = 100
 
   def perf_setup(gatling_scenario, simulation_id, gatlingassertions)
     @atop_session_timestamp = start_monitoring(master, gatling_scenario, true, 30)
@@ -25,6 +26,190 @@ module PerfRunHelper
     else
       logger.info("Not pushing perf metrics to BigQuery as PUSH_TO_BIGQUERY is false.")
     end
+  end
+
+  def scale_setup(gatling_scenario, simulation_id, gatlingassertions)
+    @scale_timestamp = Time.now.getutc.to_i
+    @scale_scenarios = []
+
+    env_iterations = ENV['PUPPET_GATLING_SCALE_ITERATIONS']
+    env_increment = ENV['PUPPET_GATLING_SCALE_INCREMENT']
+    @scale_iterations = env_iterations ? Integer(env_iterations) : SCALE_ITERATIONS
+    @scale_increment = env_increment ? Integer(env_increment) : SCALE_INCREMENT
+
+        # generate scenario files and copy to metrics
+    generate_scale_scenarios(gatling_scenario)
+
+    puts "Executing scale tests:"
+    puts "base number of agents = #{@scale_base_instances}"
+    puts "number of iterations = #{@scale_iterations}"
+    puts "number to increment = #{@scale_increment}"
+    puts
+
+    # execute each scenario
+    ct = 0
+    @scale_scenarios.each do |scenario|
+
+      ct = ct + 1
+
+      # run the scenario
+      puts "Iteration #{ct} of #{@scale_scenarios.length}"
+      puts
+
+      # restart the service
+      restart_puppetserver
+
+      # run the scenario
+      puts "Running scenario #{ct} of #{@scale_scenarios.length} : #{scenario}"
+      puts
+
+      perf_setup(scenario, simulation_id, gatlingassertions)
+
+      # copy the results, check for KOs, fail if ko != 0
+      check_scale_results(scenario)
+    end
+
+  end
+
+  def restart_puppetserver
+    puts "Restarting pe-puppetserver service..."
+    puts
+
+    on master, "service pe-puppetserver restart"
+
+    puts "Sleeping..."
+    puts
+
+    sleep 60
+  end
+
+  def generate_scale_scenario_name(scale_filename, iteration)
+    # format the scenario number so they appear listed in order
+    scenario_num_len = @scale_iterations.to_s.length
+
+    # format the scenario number so they appear listed in order
+    iteration_num_len = iteration.to_s.length
+    prefix_len = scenario_num_len - iteration_num_len
+
+    prefix = ""
+    (1..prefix_len).each do
+      prefix = prefix + "0"
+    end
+
+    scenario_name = "#{scale_filename}_#{prefix}#{iteration}_#{@scale_instances}.json"
+    return scenario_name
+  end
+
+  def generate_scale_scenarios(gatling_scenario)
+
+    scenarios_dir = "simulation-runner/config/scenarios"
+
+    # generate auto-scaled scenario files
+    filename = File.basename("#{scenarios_dir}/#{gatling_scenario}", ".json")
+    scale_filename = "#{filename}_#{@scale_timestamp}"
+    file = File.read("#{scenarios_dir}/#{gatling_scenario}")
+    json = JSON.parse(file)
+
+    @scale_base_instances = json["nodes"][0]["num_instances"]
+    @scale_instances = @scale_base_instances
+
+    for iteration in 1..@scale_iterations do
+
+      # create scenario with the current data (scenario 1 is the original)
+      scenario = generate_scale_scenario_name(scale_filename, iteration)
+      #scenario = "#{scale_filename}_#{iteration}_#{@scale_instances}.json"
+
+      @scale_scenarios << scenario
+      File.write("#{scenarios_dir}/#{scenario}", json.to_json)
+
+      # update the data for the next iteration
+      @scale_instances = @scale_instances + @scale_increment
+      desc = "'role::by_size_small' role from perf control repo, #{@scale_instances} agents, 1 iteration"
+      json["run_description"] = desc
+      json["nodes"][0]["num_instances"] = @scale_instances
+    end
+
+    # upload scenarios to metrics
+    scp_to(metric, "#{scenarios_dir}", "gatling-puppet-load-test/simulation-runner/config")
+  end
+
+  def check_scale_results(scenario)
+    result_dir = "root/gatling-puppet-load-test/simulation-runner/results"
+    global_stats = "js/global_stats.json"
+
+    # stop monitoring and get results
+    puts "Generating results for scenario: #{scenario}"
+    puts
+
+    atop_result, gatling_result = get_perf_result
+
+    # create scale result folders
+    scale_result_dir = "PERF_SCALE_#{@scale_timestamp}/#{scenario.gsub(".json", "")}"
+    FileUtils.mkdir_p scale_result_dir
+
+    # copy entire results to scale results dir (TODO: remove this?)
+    FileUtils.copy_entry @archive_root, "#{scale_result_dir}/#{@archive_root}"
+
+    # copy metric
+    metric_results = "#{@archive_root}/#{metric.hostname}/#{result_dir}/#{@dir_name}"
+    FileUtils.copy_entry metric_results, "#{scale_result_dir}/metric"
+
+    # copy master
+    master_results = "#{@archive_root}/#{master.hostname}"
+    FileUtils.copy_entry master_results, "#{scale_result_dir}/master"
+
+    # copy stats
+    stats_path = "#{scale_result_dir}/metric/#{global_stats}"
+    json_dir = "PERF_SCALE_#{@scale_timestamp}/json"
+    FileUtils.mkdir_p json_dir
+    FileUtils.copy_file(stats_path, "#{json_dir}/#{scenario}")
+
+    # check the results for KOs (TODO: needed or just use assertion?)
+    puts "Checking results: #{stats_path}"
+    puts
+
+    stats_file = File.read(stats_path)
+    stats_json = JSON.parse(stats_file)
+
+    num_total = stats_json["numberOfRequests"]["total"]
+    num_ok = stats_json["numberOfRequests"]["ok"]
+    num_ko = stats_json["numberOfRequests"]["ko"]
+    puts "Number of requests:"
+    puts "total: #{num_total}"
+    puts "ok: #{num_ok}"
+    puts "ko: #{num_ko}"
+    puts
+
+    if num_ko != 0
+      fail_test "ERROR: KO encountered in scenario: #{scenario}"
+    end
+
+    scale_assertions(atop_result, gatling_result)
+  end
+
+  def scale_assertions(atop_result, gatling_result)
+    step 'max response' do
+      # TODO: enable?
+      # Temporarily disabling this step until SLV-208 is complete
+      # assert_later(gatling_result.max_response_time_agent <= 20000, "Max response time per agent run was: #{gatling_result.max_response_time_agent}, expected <= 20000")
+    end
+
+    step 'successful request percentage' do
+      assert_later(gatling_result.successful_requests == 100, "Total successful request percentage was: #{gatling_result.successful_requests}%, expected 100%" )
+    end
+
+    step 'average memory' do
+      # TODO: enable?
+      # assert_later(atop_result.avg_mem < 3000000, "Average memory was: #{atop_result.avg_mem}, expected < 3000000")
+    end
+
+    #This step will only be run if BASELINE_PE_VER has been set.
+    step 'baseline assertions' do
+      # TODO: enable?
+      # baseline_assert(atop_result, gatling_result)
+    end
+
+    assert_all
   end
 
   def assertion_exceptions

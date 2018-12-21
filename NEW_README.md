@@ -38,7 +38,7 @@ Execute:
 ### Kick off Soak performance tests
 In order to execute a Soak performance run:
 * Follow the instructions from "Set up Puppet Enterprise and Gatling but do not execute a gatling scenario".  
-* Then manually tune the master by running `puppet infrastrcture tune` on the master.  
+* Then manually tune the master by running `puppet infrastructure tune` on the master.  
 * You will have to edit '/etc/puppetlabs/puppet/hiera.yaml' to add 'nodes/%{fqdn}' to the top of the hiera hierarchy.
 * Then create '/etc/puppetlabs/code/environments/production/hieradata/nodes/\<master fqdn>.yaml' where master fqdn is the result of `facter networking.fqdn` (run on master), and put the output of the tune command in it.
 * Verify that worked by running `puppet lookup puppet_enterprise::master::puppetserver::jruby_max_active_instances --explain` and checking that it got the key from your new file
@@ -50,13 +50,43 @@ Then set the following environment variables (with other variables still set fro
 Execute:
 * bundle exec rake performance_against_already_provisioned (takes about 10 days)
 
+### Kick off Scale performance tests
+The scale performance test runs a single repetition of the scenario, increasing the agent count over multiple iterations.
+The default Scale scenario starts with 3000 agents and a 30 minute ramp up (corresponding to the default puppet agent check-in interval).
+The scenario to run can be specified via the 'PUPPET_GATLING_SCALE_SCENARIO' environment variable.
+
+By default the scenario is run for 10 iterations, increasing the agent count by 100 for each iteration.
+These values can be specified via the 'PUPPET_GATLING_SCALE_ITERATIONS' and 'PUPPET_GATLING_SCALE_INCREMENT' environment variables.
+
+After each iteration completes the results are checked and if a KO is found the test is failed.
+
+The results for each iteration are copied to a folder named 'PERF_SCALE{$SCALE_TIMESTAMP}'. 
+The sub-directory for each iteration is named based on the scenario, iteration, and number of agents.
+
+In order to execute a Scale performance run:
+* See the instructions in the "Kick off Soak performance tests" section above to set up the testing environment and tune the master
+* Run the 'autoscale_provisioned' rake task
+```
+bundle exec rake autoscale_provisioned
+```
+
+There are additional rake tasks for small and medium autoscale runs to allow testing of the environment and autoscale functionality without waiting for a full run:
+* autoscale_provisioned_sm
+- 10 agents
+- 10 iterations
+- increment by 10
+
+* autoscale_provisioned_med
+- 500 agents
+- 10 iterations
+- increment by 100
+
 ### Acceptance tests
 You can execute the 'acceptance' rake task which will run everything in VMPooler rather than AWS and do a much shorter gatling run. This is useful for quickly testing changes to the performance test setup. If you need to execute acceptance tests in the AWS environment, you can set the following env vars:
 
 `ABS_OS=centos-7-x86-64-west BEAKER_HOSTS=config/beaker_hosts/pe-perf-test.cfg`
 
 ### Assertions and Baseline Comparisons
-
 In order to use the BigQuery integration, you will need to perform the following steps:
 
 * Choose to create a new key for the perf-metrics service account - https://console.developers.google.com/iam-admin/serviceaccounts/project?project=perf-metrics&organizationId=635869474587
@@ -87,6 +117,7 @@ To directly query bigquery:
 * Navigate to https://console.cloud.google.com/bigquery?project=perf-metrics
 * Execute 'SELECT pe_build_number FROM \`perf-metrics.perf_metrics.atop_metrics\`
 GROUP BY pe_build_number'
+
 ### Set up Puppet Enterprise and Gatling but do not execute a gatling scenario
 Another use for the performance task would be to record and playback a new scenario either for one-off testing,
 or for a new scenario that will be checked in and used.  Additionally, you may just want to execute the setup standalone and then execute the tests later.

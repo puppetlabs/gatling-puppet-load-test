@@ -8,6 +8,7 @@ module PerfRunHelper
   BASELINE_PE_VER = ENV['BASELINE_PE_VER']
   SCALE_ITERATIONS = 10
   SCALE_INCREMENT = 100
+  PUPPET_METRICS_COLLECTOR_SERVICES = %w[orchestrator puppetdb puppetserver]
 
   def perf_setup(gatling_scenario, simulation_id, gatlingassertions)
     @atop_session_timestamp = start_monitoring(master, gatling_scenario, true, 30)
@@ -37,8 +38,11 @@ module PerfRunHelper
     @scale_iterations = env_iterations ? Integer(env_iterations) : SCALE_ITERATIONS
     @scale_increment = env_increment ? Integer(env_increment) : SCALE_INCREMENT
 
-        # generate scenario files and copy to metrics
+    # generate scenario files and copy to metrics
     generate_scale_scenarios(gatling_scenario)
+
+    # create scale results folder
+    create_scale_result_folder
 
     puts "Executing scale tests:"
     puts "base number of agents = #{@scale_base_instances}"
@@ -56,7 +60,8 @@ module PerfRunHelper
       puts "Iteration #{ct} of #{@scale_scenarios.length}"
       puts
 
-      # restart the service
+      # purge the metrics collector output and restart the service
+      purge_puppet_metrics_collector
       restart_puppetserver
 
       # run the scenario
@@ -65,10 +70,24 @@ module PerfRunHelper
 
       perf_setup(scenario, simulation_id, gatlingassertions)
 
-      # copy the results, check for KOs, fail if ko != 0
-      check_scale_results(scenario)
+      # get results, copy from metrics, check for KOs, fail if ko != 0, assertions
+      handle_scale_results(scenario)
     end
 
+  end
+
+  def create_scale_result_folder
+    perf_scale_dir = "results/scale/PERF_SCALE_#{@scale_timestamp}"
+    FileUtils.mkdir_p perf_scale_dir
+
+    # link current result to latest
+    s = File.expand_path(perf_scale_dir)
+    d = File.expand_path("results/scale/latest")
+    puts "Linking s:#{s} to d:#{d}"
+
+    # TODO: removal and force options seemed necessary to avoid sub-dir link
+    FileUtils.rm "results/scale/latest", :force => true
+    FileUtils.ln_s s, d, :force => true
   end
 
   def restart_puppetserver
@@ -81,6 +100,31 @@ module PerfRunHelper
     puts
 
     sleep 60
+  end
+
+  def purge_puppet_metrics_collector
+    puts "Purging puppet_metrics_collector..."
+    puts
+
+    PUPPET_METRICS_COLLECTOR_SERVICES.each do |service|
+      dir = "/opt/puppetlabs/puppet-metrics-collector/#{service}"
+      command = "find #{dir} -type f -delete"
+      on master, command
+    end
+
+  end
+
+  def copy_puppet_metrics_collector(perf_scale_dir)
+    puts "Copying puppet_metrics_collector..."
+    puts
+
+    PUPPET_METRICS_COLLECTOR_SERVICES.each do |service|
+      source_dir = "/opt/puppetlabs/puppet-metrics-collector/#{service}"
+      dest_parent = "#{perf_scale_dir}/puppet-metrics-collector"
+
+      FileUtils.mkdir_p dest_parent
+      scp_from(master, "#{source_dir}", "#{dest_parent}")
+    end
   end
 
   def generate_scale_scenario_name(scale_filename, iteration)
@@ -133,25 +177,39 @@ module PerfRunHelper
     scp_to(metric, "#{scenarios_dir}", "gatling-puppet-load-test/simulation-runner/config")
   end
 
-  def check_scale_results(scenario)
-    result_dir = "root/gatling-puppet-load-test/simulation-runner/results"
-    global_stats = "js/global_stats.json"
-
-    # stop monitoring and get results
-    puts "Generating results for scenario: #{scenario}"
+  def handle_scale_results(scenario)
+    puts "Getting results for scenario: #{scenario}"
     puts
 
+    # stop monitoring and get results
     atop_result, gatling_result = get_perf_result
 
-    # create scale result folders
-    scale_result_dir = "PERF_SCALE_#{@scale_timestamp}/#{scenario.gsub(".json", "")}"
+    # copy results from metrics node
+    copy_scale_results(scenario)
+
+    # check results for KOs
+    check_scale_results(scenario)
+
+    # perform assertions
+    scale_assertions(atop_result, gatling_result)
+  end
+
+  def copy_scale_results(scenario)
+    puts "Getting results for scenario: #{scenario}"
+    puts
+
+    # create scale scenario result folder
+    perf_scale_dir = "results/scale/PERF_SCALE_#{@scale_timestamp}"
+    scale_result_dir = "#{perf_scale_dir}/#{scenario.gsub(".json", "")}"
     FileUtils.mkdir_p scale_result_dir
 
     # copy entire results to scale results dir (TODO: remove this?)
-    FileUtils.copy_entry @archive_root, "#{scale_result_dir}/#{@archive_root}"
+    perf_result_dir = File.basename(@archive_root)
+    FileUtils.copy_entry @archive_root, "#{scale_result_dir}/#{perf_result_dir}"
 
     # copy metric
-    metric_results = "#{@archive_root}/#{metric.hostname}/#{result_dir}/#{@dir_name}"
+    remote_result_dir = "root/gatling-puppet-load-test/simulation-runner/results"
+    metric_results = "#{@archive_root}/#{metric.hostname}/#{remote_result_dir}/#{@dir_name}"
     FileUtils.copy_entry metric_results, "#{scale_result_dir}/metric"
 
     # copy master
@@ -159,12 +217,32 @@ module PerfRunHelper
     FileUtils.copy_entry master_results, "#{scale_result_dir}/master"
 
     # copy stats
-    stats_path = "#{scale_result_dir}/metric/#{global_stats}"
-    json_dir = "PERF_SCALE_#{@scale_timestamp}/json"
+    stats_path = "#{scale_result_dir}/metric/js/global_stats.json"
+    json_dir = "#{perf_scale_dir}/json"
     FileUtils.mkdir_p json_dir
-    FileUtils.copy_file(stats_path, "#{json_dir}/#{scenario}")
+    FileUtils.copy_file stats_path, "#{json_dir}/#{scenario}"
+
+    # copy log
+    # TODO: use the actual name or "log"
+    log_path = File.realpath("log/latest")
+    FileUtils.copy_entry log_path, "#{perf_scale_dir}/log"
+
+    # preserve timestamp (see above)
+    log_timestamp = File.basename(log_path)
+    FileUtils.touch("#{perf_scale_dir}/#{log_timestamp}")
+
+    # copy puppet-metrics-collector
+    copy_puppet_metrics_collector(perf_scale_dir)
+
+  end
+
+  def check_scale_results(scenario)
+    puts "Checking results for scenario: #{scenario}"
+    puts
 
     # check the results for KOs (TODO: needed or just use assertion?)
+    stats_path = "results/scale/latest/#{scenario.gsub(".json", "")}/metric/js/global_stats.json"
+
     puts "Checking results: #{stats_path}"
     puts
 
@@ -183,8 +261,6 @@ module PerfRunHelper
     if num_ko != 0
       fail_test "ERROR: KO encountered in scenario: #{scenario}"
     end
-
-    scale_assertions(atop_result, gatling_result)
   end
 
   # TODO: remove atop_result if it isn't being used?
@@ -253,7 +329,6 @@ module PerfRunHelper
     end
   end
 
-
   def get_mean_response_time
     dir = "#{@archive_root}/#{metric.hostname}/root/gatling-puppet-load-test/simulation-runner/results/#{@dir_name}"
     file = "/js/global_stats.json"
@@ -297,7 +372,14 @@ module PerfRunHelper
     end
 
     archive_name = "#{job_name}__#{ENV['BUILD_ID']}__#{now}__perf-files.tgz"
-    @archive_root = "PERF_#{now}"
+
+
+
+    # @archive_root = "PERF_#{now}"
+
+
+    @archive_root = "results/perf/PERF_#{now}"
+
 
     # Archive the gatling result htmls from the metrics box and the atop results from the master (which are already copied locally)
     if (Dir.exist?("tmp/atop/#{@atop_session_timestamp}/#{master.hostname}"))
@@ -440,7 +522,5 @@ module PerfRunHelper
   end
 
 end
-
-
 
 Beaker::TestCase.send(:include, PerfRunHelper)

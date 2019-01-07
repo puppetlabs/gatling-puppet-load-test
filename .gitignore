@@ -1,7 +1,6 @@
 .idea
 .idea_modules
 target
-results
 simulation-runner/cache
 simulation-runner/config/gatling.conf
 simulation-runner/config/tmp

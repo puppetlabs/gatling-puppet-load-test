@@ -323,12 +323,6 @@ task :autoscale_copy_log do
   FileUtils.copy_entry source, dest
 end
 
-desc 'testing'
-task :autoscale_test do
-  timestamp = Time.now.strftime("%Y.%m.%d_%H.%M.%S")
-  puts "timestamp: #{timestamp}"
-end
-
 desc "Run spec tests"
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = ['--color']

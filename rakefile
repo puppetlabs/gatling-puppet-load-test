@@ -273,7 +273,7 @@ rototiller_task :autoscale do
   ENV['BEAKER_PRESERVE_HOSTS'] = 'always'
   ENV['PUPPET_SCALE_CLASS'] = 'role::by_size::small'
   Rake::Task["performance"].execute
-  Rake::Task["autoscale_copy_log"].execute
+  Rake::Task["autoscale_copy_log"].execute unless ENV['BEAKER_TESTS'] == ''
 end
 
 desc 'Run Scale setup for gatling'

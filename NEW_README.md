@@ -60,17 +60,53 @@ These values can be specified via the 'PUPPET_GATLING_SCALE_ITERATIONS' and 'PUP
 
 After each iteration completes the results are checked and if a KO is found the test is failed.
 
-The results for each iteration are copied to a folder named 'PERF_SCALE{$SCALE_TIMESTAMP}'. 
+The results for each iteration are copied to a folder named 'PERF_SCALE{$SCALE_TIMESTAMP}' in `results/scale`. 
 The sub-directory for each iteration is named based on the scenario, iteration, and number of agents.
 
 In order to execute a Scale performance run:
-* See the instructions in the "Kick off Soak performance tests" section above to set up the testing environment and tune the master
-* Run the 'autoscale_provisioned' rake task
+#### Pre-requisites
+See the 'Kick off Apples to Apples performance tests' above regarding pre-requisites, environment variables, etc...
+It can be helpful to use an env file to manage these environment variables. The file `config/env/env_setup_2019.0.1` is provided as an example.
+Apply this configuration with the following command:
+```
+source config/env/env_setup_2019.0.1
+```
+
+#### Provision, tune, run
+A set of 'autoscale' rake tasks are provided to handle setup and scale test execution.
+The pre-suite has been updated to include tuning of the master via 'puppet infrastructure tune' for scale tests so this is no longer a manual step.
+As with the other configurations test nodes can be provisioned as part of the run or as a separate step.
+
+Note that when using the autoscale rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete. 
+
+* To provision nodes as part of the run:
+```
+bundle exec rake autoscale
+```
+
+* To provision nodes separately:
+
+run the `autoscale_setup` rake task to provision the nodes:
+```
+bundle exec rake autoscale_setup
+```
+
+then run the 'autoscale_provisioned' rake task to run the scale test:
 ```
 bundle exec rake autoscale_provisioned
 ```
 
+* De-provision the nodes when testing is complete:
+```
+bundle exec rake performance_deprovision_with_abs
+```
+
 There are additional rake tasks for small and medium autoscale runs to allow testing of the environment and autoscale functionality without waiting for a full run:
+* autoscale_provisioned_tiny
+- 1 agents
+- 3 iterations
+- increment by 1
+
 * autoscale_provisioned_sm
 - 10 agents
 - 10 iterations

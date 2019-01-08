@@ -296,7 +296,7 @@ desc 'Run Scale test for gatling on previously provisioned hosts'
 rototiller_task :autoscale_provisioned do
   ENV['ENVIRONMENT_TYPE'] = 'gatling'
   ENV['BEAKER_TESTS'] = ENV['BEAKER_TESTS'] || 'tests/Scale.rb'
-  ENV['BEAKER_PRESERVE_HOSTS'] = 'always'
+  ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
   Rake::Task["performance_against_already_provisioned"].execute
   Rake::Task["autoscale_copy_log"].execute
 end

@@ -1,5 +1,5 @@
 # Performance and Scale Results
-gatling-puppet-load-test results are now copied to this directory rather than the parent directory.
+gatling-puppet-load-test results are now copied to the `results/perf` and `results/scale` directories rather than the parent directory.
 
 # Perf Results
 Perf test results will be copied to the `results/perf` directory.

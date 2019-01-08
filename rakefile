@@ -272,6 +272,7 @@ rototiller_task :autoscale do
   ENV['BEAKER_TESTS'] = ENV['BEAKER_TESTS'] || 'tests/Scale.rb'
   ENV['BEAKER_PRESERVE_HOSTS'] = 'always'
   ENV['PUPPET_SCALE_CLASS'] = 'role::by_size::small'
+  ENV['SCALE_TUNE'] = ENV['SCALE_TUNE'] || 'true'
   Rake::Task["performance"].execute
   Rake::Task["autoscale_copy_log"].execute unless ENV['BEAKER_TESTS'] == ''
 end
@@ -280,6 +281,15 @@ desc 'Run Scale setup for gatling'
 rototiller_task :autoscale_setup do
   ENV['BEAKER_TESTS'] = ''
   Rake::Task["autoscale"].execute
+end
+
+desc 'Run puppet infrastructure tune setup for gatling'
+rototiller_task :autoscale_tune do
+  ENV['ENVIRONMENT_TYPE'] = 'gatling'
+  ENV['BEAKER_TESTS'] = 'setup/install_gatling/50_tune/10_puppet_infrastructure_tune.rb'
+  ENV['BEAKER_PRESERVE_HOSTS'] = 'always'
+  ENV['SCALE_TUNE'] = 'true'
+  Rake::Task["performance_against_already_provisioned"].execute
 end
 
 desc 'Run Scale test for gatling on previously provisioned hosts'

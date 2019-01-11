@@ -186,13 +186,16 @@ module PerfRunHelper
       scenario_name = generate_scale_scenario_name(scale_basename, iteration, instances)
       File.write("#{scenarios_dir}/#{scenario_name}", json.to_json)
 
+      # add scenario hash to the array
+      @scale_scenarios << {:name => scenario_name, :instances => instances}
+
       # update the data for the next iteration
       instances = instances + @scale_increment
       desc = "'role::by_size_small' role from perf control repo, #{instances} agents, 1 iteration"
       json["run_description"] = desc
       json["nodes"][0]["num_instances"] = instances
 
-      @scale_scenarios << {:name => scenario_name, :instances => instances}
+
 
     end
 

@@ -319,7 +319,7 @@ module PerfRunHelper
 
     # get atop results
     # get_scale_atop_results
-    atop_csv_path = "#{perf_scale_iteration_dir}/master/atop_log_#{scenario.gsub(".json", "_json")}.csv"
+    atop_csv_path = "#{perf_scale_iteration_dir}/master/atop_log_#{scenario.downcase.gsub(".json", "_json")}.csv"
     atop_csv_data = CSV.read(atop_csv_path)
 
     # results for csv

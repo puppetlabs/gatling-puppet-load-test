@@ -99,6 +99,8 @@ module PerfRunHelper
   def create_scale_results_csv(perf_scale_dir)
     CSV.open("#{perf_scale_dir}/PERF_SCALE_#{@scale_timestamp}.csv", "wb") do |csv|
       headings = ["agents",
+                  "ok",
+                  "ko",
                   "combined mean",
                   "catalog mean",
                   "filemeta plugins mean",
@@ -262,7 +264,10 @@ module PerfRunHelper
     log_timestamp = File.basename(log_path)
     FileUtils.touch("#{perf_scale_dir}/log/#{log_timestamp}.txt")
 
-    # copy puppet-metrics-collector
+    # copy puppet-metrics-collector to iteration result dir
+    copy_puppet_metrics_collector(scale_result_dir)
+
+    # copy puppet-metrics-collector to parent results dir
     copy_puppet_metrics_collector(perf_scale_dir)
 
   end
@@ -328,6 +333,8 @@ module PerfRunHelper
     # results for csv
     results = []
     results << scale_scenario_instances
+    results << totals["numberOfRequests"]["ok"]
+    results << totals["numberOfRequests"]["ko"]
     results << totals["meanResponseTime"]["total"]
     results << catalog["meanResponseTime"]["total"]
     results << filemeta_plugins["meanResponseTime"]["total"]

@@ -202,7 +202,7 @@ describe PerfHelperClass do
       test_pe_ver = '2017.3'
       let!(:master) { {'pe_ver' => test_pe_ver} }
 
-      test_updated_options = {:answers=>{"puppet_enterprise::profile::master::r10k_remote"=>"/opt/puppetlabs/server/data/puppetserver/r10k/control-repo", "puppet_enterprise::profile::master::r10k_private_key"=>"/root/.ssh/id_rsa"}}
+      test_updated_options = {:answers=>{"puppet_enterprise::profile::master::r10k_remote"=>"/opt/puppetlabs/server/data/puppetserver/r10k/control-repo"}}
 
       it 'includes the dashboard and installs pe' do
 

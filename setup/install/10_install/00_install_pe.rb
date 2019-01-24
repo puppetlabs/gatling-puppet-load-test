@@ -4,17 +4,14 @@ test_name 'install PE for a scale environment' do
   if !is_pre_aio_version?
     # Must include the dashboard so that split installs add these answers to classification
     r10k_remote = '/opt/puppetlabs/server/data/puppetserver/r10k/control-repo'
-    r10k_private_key = '/root/.ssh/id_rsa'
 
     if use_meep?(master['pe_ver'] || options['pe_ver'])
       @options[:answers] ||= {}
       @options[:answers]['puppet_enterprise::profile::master::r10k_remote'] = r10k_remote
-      @options[:answers]['puppet_enterprise::profile::master::r10k_private_key'] = r10k_private_key
     else
       [master, compile_masters, dashboard].flatten.uniq.each do |host|
         host[:custom_answers] = {
           :q_puppetmaster_r10k_remote      => r10k_remote,
-          :q_puppetmaster_r10k_private_key => r10k_private_key
         }
       end
 

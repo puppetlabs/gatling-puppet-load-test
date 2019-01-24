@@ -2,7 +2,7 @@ require_relative 'helpers/perf_run_helper'
 
 test_name 'Scale'
 
-# The assertions that will be specifed for each iteration of the scenario
+# The assertions that will be specified for each iteration of the scenario
 assertions = "SUCCESSFUL_REQUESTS=100 " + "MAX_RESPONSE_TIME_AGENT=20000 "  + "TOTAL_REQUEST_COUNT=28800 "
 
 # The scenario file that will be used as a base to build the auto-scaled scenarios

@@ -76,29 +76,10 @@ describe PerfHelperClass do
 
     let!(:masters) {[{'platform' => Beaker::Platform.new('centos-6.5-x86_64')}]}
 
-    it 'adds the private key, configures ssh, and installs git on each master' do
-
-      ssh_files = PerfHelper::TEST_SSH_FILES
-      files_url = PerfHelper::TEST_FILES_URL
-      temp_ssh_dir = PerfHelper::TEMP_SSH_DIR
-      root_ssh_dir = PerfHelper::ROOT_SSH_DIR
+    it 'installs git on each master' do
 
       allow(subject).to receive(:masters).and_return(masters)
       expect(subject).to receive(:select_hosts).with({:roles => ['master', 'compile_master']}).and_return(masters)
-
-      expect(File).to receive(:directory?).with(temp_ssh_dir).and_return(false)
-      expect(FileUtils).to receive(:mkdir_p).with(temp_ssh_dir)
-
-      ssh_files.each do |file|
-        expect(subject).to receive(:download_file)
-          .with("#{files_url}/#{file}", "#{temp_ssh_dir}/#{file}")
-
-        expect(subject).to receive(:scp_to)
-          .with(masters[0], "#{temp_ssh_dir}/#{file}", "#{root_ssh_dir}/#{file}")
-      end
-
-      expect(subject).to receive(:on)
-          .with(masters[0], "chmod 600 #{root_ssh_dir}/id_rsa #{root_ssh_dir}/config" )
 
       expect(subject).to receive(:install_package).with(masters[0], 'git')
       subject.setup_r10k

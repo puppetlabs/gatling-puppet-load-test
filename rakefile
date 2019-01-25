@@ -108,7 +108,7 @@ rototiller_task :performance_without_provision do |t|
   t.add_env({:name => 'ABS_RESOURCE_HOSTS', :message => 'The string returned from the ABS service describing your hosts'}) if ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/pe-perf-test.cfg' ||
       ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/foss-perf-test.cfg'
   t.add_env({:name => 'ENVIRONMENT_TYPE', :message => 'Either gatling or clamps', :default => 'gatling'})
-  t.add_env({:name => 'PUPPET_GATLING_R10K_CONTROL_REPO', :default => 'git@github.com:puppetlabs/puppetlabs-puppetserver_perf_control.git'})
+  t.add_env({:name => 'PUPPET_GATLING_R10K_CONTROL_REPO', :default => 'https://github.com/puppetlabs/puppetlabs-puppetserver_perf_control.git'})
   if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
     t.add_env({:name => 'PUPPET_GATLING_R10K_BASEDIR', :default => '/etc/puppetlabs/code/environments'})
   else

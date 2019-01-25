@@ -9,10 +9,6 @@ module PerfHelper
   BASE_URL = 'http://builds.puppetlabs.lan'
   R10K_DIR = '/opt/puppetlabs/scratch/perf_testing/r10k'
   R10K_CONFIG_PATH = "#{R10K_DIR}/r10k.yaml"
-  TEST_FILES_URL = "http://int-resources.ops.puppetlabs.net/QE%20Shared%20Resources/gatling_test_keys".freeze
-  TEST_SSH_FILES = ["id_rsa", "config", "known_hosts"].freeze
-  TEMP_SSH_DIR = "tmp/ssh".freeze
-  ROOT_SSH_DIR = "/root/.ssh".freeze
 
   def set_etc_hosts
     puppet_ip = any_hosts_as?(:loadbalancer) ? loadbalancer.ip : master.ip
@@ -59,23 +55,6 @@ module PerfHelper
     # Get all hosts with role master or compile_master
     masters = select_hosts({:roles => ['master', 'compile_master']})
 
-    step 'place private key on each master' do
-      # Creates known_hosts file with GitHub host key to prevent
-      # "Host key verification failed" errors during clones
-      FileUtils::mkdir_p TEMP_SSH_DIR unless File.directory?(TEMP_SSH_DIR)
-
-      masters.each do |node|
-
-        TEST_SSH_FILES.each do |file|
-          download_file("#{TEST_FILES_URL}/#{file}", "#{TEMP_SSH_DIR}/#{file}")
-          scp_to(node, "#{TEMP_SSH_DIR}/#{file}", "#{ROOT_SSH_DIR}/#{file}")
-        end
-
-        on node, "chmod 600 #{ROOT_SSH_DIR}/id_rsa #{ROOT_SSH_DIR}/config"
-
-      end
-    end
-
     step 'install git on masters for file syncing' do
       # vcloud VM's do not have git installed
       masters.each do |node|
@@ -96,10 +75,8 @@ module PerfHelper
     if !is_pre_aio_version?
       # Must include the dashboard so that split installs add these answers to classification
       r10k_remote = '/opt/puppetlabs/server/data/puppetserver/r10k/control-repo'
-      r10k_private_key = '/root/.ssh/id_rsa'
       @options[:answers] ||= {}
       @options[:answers]['puppet_enterprise::profile::master::r10k_remote'] = r10k_remote
-      @options[:answers]['puppet_enterprise::profile::master::r10k_private_key'] = r10k_private_key
     end
 
     step 'install PE' do

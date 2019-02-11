@@ -122,6 +122,9 @@ module PerfRunHelper
 
     # create scale results env file
     create_scale_results_env_file(perf_scale_dir)
+
+    # create current pe tune file
+    create_pe_tune_file(perf_scale_dir)
   end
 
   # Create the CSV file for the scale run and add the headings row
@@ -178,6 +181,43 @@ module PerfRunHelper
       f << "ABS_AWS_MOM_SIZE: #{ENV["ABS_AWS_MOM_SIZE"]}\n"
       f << "AWS_VOLUME_SIZE: #{ENV["AWS_VOLUME_SIZE"]}\n"
     }
+  end
+
+  # Create the pe_tune_current file for the scale run
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] perf_scale_dir The results directory for the scale run
+  #
+  # @return [void]
+  #
+  # @example
+  #   create_pe_tune_file(perf_scale_dir)
+  #
+  def create_pe_tune_file(perf_scale_dir)
+    output = puppet_infrastructure_tune_current
+    File.write("#{perf_scale_dir}/pe_tune_current.txt", output)
+  end
+
+  # Get the current pe tune
+  #
+  # @author Bill Claytor
+  #
+  # @return [void]
+  #
+  # @example
+  #   output = puppet_infrastructure_tune_current
+  #
+  def puppet_infrastructure_tune_current
+    puts "Checking current PE tune..."
+    puts
+
+    output = on(master, "puppet infrastructure tune --current").output
+
+    puts output
+    puts
+
+    return output
   end
 
   # Restart the pe-puppetserver service

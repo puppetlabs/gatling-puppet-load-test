@@ -338,8 +338,23 @@ module PerfRunHelper
     file = File.read("#{scenarios_dir}/#{gatling_scenario}")
     json = JSON.parse(file)
 
-    @scale_base_instances = json["nodes"][0]["num_instances"]
-    instances = @scale_base_instances
+    # allow the base instances to be set via environment variable
+    env_base_instances = ENV['PUPPET_GATLING_SCALE_BASE_INSTANCES']
+    json_base_instances = json["nodes"][0]["num_instances"]
+
+    # TODO: refactor
+    if Integer(env_base_instances)
+      puts "Using environment specified base instances: #{env_base_instances}"
+      @scale_base_instances = Integer(env_base_instances)
+
+      # update json
+      desc = "'role::by_size_small' role from perf control repo, #{@scale_base_instances} agents, 1 iteration"
+      json["run_description"] = desc
+      json["nodes"][0]["num_instances"] = @scale_base_instances
+    else
+      puts "Using JSON specified base instances: #{json_base_instances}"
+      @scale_base_instances = json_base_instances
+    end
 
     for iteration in 1..@scale_iterations do
 

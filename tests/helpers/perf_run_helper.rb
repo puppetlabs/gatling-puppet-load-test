@@ -356,6 +356,8 @@ module PerfRunHelper
       @scale_base_instances = json_base_instances
     end
 
+    instances = @scale_base_instances
+
     for iteration in 1..@scale_iterations do
 
       # create scenario with the current data (first scenario is the original)

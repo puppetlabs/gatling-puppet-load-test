@@ -1,25 +1,27 @@
 test_name 'Run puppet infrastructure tune' do
 
-  def run_puppet_infrastructure_tune
-    common_yaml = "/etc/puppetlabs/code-staging/environments/production/hieradata/common.yaml"
+  def puppet_infrastructure_tune
+
+    common_yaml_path = "/etc/puppetlabs/code-staging/environments/production/hieradata/common.yaml"
+    tune_output_path = "tune/nodes/#{master.hostname}.yaml"
+
+    # create tune dir for output
+    on master, "mkdir -p tune"
 
     puts "Running 'puppet infrastructure tune' on master..."
     puts
 
-    output = on(master, "puppet infrastructure tune").output
+    # tune with hiera output
+    on master, "puppet infrastructure tune --force --hiera tune"
+    tune_output = on(master, "cat #{tune_output_path}").output.gsub("---", "") + "\n"
 
-    # get data between '---' and the first empty line
-    data = output.match(/## Specify(.*)## CPU/m)[1].gsub("---", "").strip
-
-    # remove control codes
-    data = data.match(/0;32m(.*)\n.*\[/m)[1].strip + "\n"
-
-    puts "Extracted the following data:"
-    puts data
+    puts "Extracted the following output:"
+    puts tune_output
+    puts
 
     puts "Appending to common.yml"
     puts
-    on master, "echo \"#{data}\" >> #{common_yaml}"
+    on master, "echo \"#{tune_output}\" >> #{common_yaml_path}"
 
     puts "Committing..."
     puts
@@ -32,11 +34,22 @@ test_name 'Run puppet infrastructure tune' do
       puts "Expected non-zero exit code, running again..."
       on master, "puppet agent -t"
     end
+
+    # output current tune
+    puts "Checking current tune:"
+    puts
+    output = on(master, "puppet infrastructure tune --current").output
+
+    puts "Tune output:"
+    puts output
+
+    on master, "echo \"#{output}\" >> tune/current_tune.txt"
+
   end
 
   step 'run puppet infrastructure tune' do
     if ENV['SCALE_TUNE'] == 'true'
-      run_puppet_infrastructure_tune
+      puppet_infrastructure_tune
     else
       puts "SCALE_TUNE is not set to 'true'; skipping puppet infrastructure tune..."
     end

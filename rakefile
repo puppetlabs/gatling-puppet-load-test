@@ -4,6 +4,9 @@ require 'rspec/core/rake_task'
 require './setup/helpers/abs_helper'
 include AbsHelper
 
+require './tests/helpers/perf_results_helper'
+include PerfResultsHelper
+
 task :default => :performance
 
 desc 'Provision systems using ABS (or use already set ABS_RESOURCE_HOSTS) and then execute beaker performance setup and tests'
@@ -272,9 +275,9 @@ rototiller_task :autoscale do
   ENV['BEAKER_TESTS'] = ENV['BEAKER_TESTS'] || 'tests/Scale.rb'
   ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
   ENV['PUPPET_SCALE_CLASS'] = 'role::by_size::small'
-  ENV['SCALE_TUNE'] = ENV['SCALE_TUNE'] || 'true'
+  ENV['PUPPET_GATLING_SCALE_TUNE'] = ENV['PUPPET_GATLING_SCALE_TUNE'] || 'true'
   Rake::Task["performance"].execute
-  Rake::Task["autoscale_copy_log"].execute unless ENV['BEAKER_TESTS'] == ''
+  Rake::Task["autoscale_handle_latest_results"].execute unless ENV['BEAKER_TESTS'] == ''
 end
 
 desc 'Run Scale setup for gatling'
@@ -288,7 +291,7 @@ rototiller_task :autoscale_tune do
   ENV['ENVIRONMENT_TYPE'] = 'gatling'
   ENV['BEAKER_TESTS'] = 'setup/install_gatling/50_tune/10_puppet_infrastructure_tune.rb'
   ENV['BEAKER_PRESERVE_HOSTS'] = 'always'
-  ENV['SCALE_TUNE'] = 'true'
+  ENV['PUPPET_GATLING_SCALE_TUNE'] = 'true'
   Rake::Task["performance_against_already_provisioned"].execute
 end
 
@@ -298,7 +301,7 @@ rototiller_task :autoscale_provisioned do
   ENV['BEAKER_TESTS'] = ENV['BEAKER_TESTS'] || 'tests/Scale.rb'
   ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
   Rake::Task["performance_against_already_provisioned"].execute
-  Rake::Task["autoscale_copy_log"].execute
+  Rake::Task["autoscale_handle_latest_results"].execute
 end
 
 desc 'Run tiny Scale test for gatling on previously provisioned hosts'
@@ -325,12 +328,27 @@ rototiller_task :autoscale_provisioned_med do |t|
   Rake::Task["autoscale_provisioned"].execute
 end
 
+desc 'Handle the latest scale results once the run has completed'
+task :autoscale_handle_latest_results do
+  Rake::Task["autoscale_copy_log"].execute
+  Rake::Task["autoscale_csv2html"].execute
+end
+
 desc 'Copy latest log to latest scale results'
 task :autoscale_copy_log do
   source = File.realpath("log/latest")
   dest = File.realpath("results/scale/latest/log")
   puts "Copying from #{source} to #{dest}..."
   FileUtils.copy_entry source, dest
+end
+
+desc 'Generate HTML table from results CSV files'
+task :autoscale_csv2html do
+  results_dir = File.realpath("results/scale/latest")
+  files = Dir.glob("#{results_dir}/**/*.csv")
+  files.each do |file|
+    csv2html(file)
+  end
 end
 
 desc "Run spec tests"

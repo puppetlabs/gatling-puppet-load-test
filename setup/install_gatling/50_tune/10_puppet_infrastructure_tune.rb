@@ -1,18 +1,23 @@
 test_name 'Run puppet infrastructure tune' do
 
   def puppet_infrastructure_tune
-
+    base_tune_command = "puppet infrastructure tune"
     common_yaml_path = "/etc/puppetlabs/code-staging/environments/production/hieradata/common.yaml"
-    tune_output_path = "tune/nodes/#{master.hostname}.yaml"
+    tune_output_dir = "tune_output"
+    tune_output_path = "#{tune_output_dir}/nodes/#{master.hostname}.yaml"
 
-    # create tune dir for output
-    on master, "mkdir -p tune"
-
-    puts "Running 'puppet infrastructure tune' on master..."
+    # create tune_output dir
+    puts "Creating '#{tune_output_dir}' dir on master..."
     puts
+    on master, "mkdir -p #{tune_output_dir}"
 
-    # tune with hiera output
-    on master, "puppet infrastructure tune --force --hiera tune"
+    # tune with hiera output and (and --force if specified)
+    hiera_option = " --hiera #{tune_output_dir}"
+    force_option = ENV["PUPPET_GATLING_SCALE_TUNE_FORCE"].eql?("true") ? " --force" : ""
+    tune_command = base_tune_command + hiera_option + force_option
+    puts "Running '#{tune_command}' on master..."
+    puts
+    on master, tune_command
     tune_output = on(master, "cat #{tune_output_path}").output.gsub("---", "") + "\n"
 
     puts "Extracted the following output:"
@@ -38,22 +43,20 @@ test_name 'Run puppet infrastructure tune' do
     # output current tune
     puts "Checking current tune:"
     puts
-    output = on(master, "puppet infrastructure tune --current").output
+    output = on(master, "#{base_tune_command} --current").output
 
     puts "Tune output:"
     puts output
 
     on master, "echo \"#{output}\" >> tune/current_tune.txt"
-
   end
 
   step 'run puppet infrastructure tune' do
-    if ENV['SCALE_TUNE'] == 'true'
+    if ENV['PUPPET_GATLING_SCALE_TUNE'] == 'true'
       puppet_infrastructure_tune
     else
-      puts "SCALE_TUNE is not set to 'true'; skipping puppet infrastructure tune..."
+      puts "PUPPET_GATLING_SCALE_TUNE is not set to 'true'; skipping puppet infrastructure tune..."
     end
-
   end
 
 end

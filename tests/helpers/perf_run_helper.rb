@@ -174,9 +174,13 @@ module PerfRunHelper
       f << "BEAKER_PE_DIR: #{ENV["BEAKER_PE_DIR"]}\n"
       f << "BEAKER_PE_VER: #{ENV["BEAKER_PE_VER"]}\n"
       f << "BEAKER_TESTS: #{ENV["BEAKER_TESTS"]}\n"
+      f << "PUPPET_SCALE_CLASS: #{ENV["PUPPET_SCALE_CLASS"]}\n"
       f << "PUPPET_GATLING_SCALE_SCENARIO: #{ENV["PUPPET_GATLING_SCALE_SCENARIO"]}\n"
+      f << "PUPPET_GATLING_SCALE_BASE_INSTANCES: #{ENV["PUPPET_GATLING_SCALE_BASE_INSTANCES"]}\n"
       f << "PUPPET_GATLING_SCALE_ITERATIONS: #{ENV["PUPPET_GATLING_SCALE_ITERATIONS"]}\n"
       f << "PUPPET_GATLING_SCALE_INCREMENT: #{ENV["PUPPET_GATLING_SCALE_INCREMENT"]}\n"
+      f << "PUPPET_GATLING_SCALE_TUNE: #{ENV["PUPPET_GATLING_SCALE_TUNE"]}\n"
+      f << "PUPPET_GATLING_SCALE_TUNE_FORCE: #{ENV["PUPPET_GATLING_SCALE_TUNE_FORCE"]}\n"
       f << "ABS_AWS_METRICS_SIZE: #{ENV["ABS_AWS_METRICS_SIZE"]}\n"
       f << "ABS_AWS_MOM_SIZE: #{ENV["ABS_AWS_MOM_SIZE"]}\n"
       f << "AWS_VOLUME_SIZE: #{ENV["AWS_VOLUME_SIZE"]}\n"
@@ -441,15 +445,21 @@ module PerfRunHelper
 
     # copy master
     master_results = "#{@archive_root}/#{master.hostname}"
-    FileUtils.copy_entry master_results, "#{scale_result_dir}/master"
+    log_filename = "atop_log_#{scenario.downcase.gsub(".json", "_json")}"
+
+    # copy only the logs for this iteration (the dir contains logs from all previous iterations)
+    # FileUtils.copy_entry master_results, "#{scale_result_dir}/master"
+    FileUtils.mkdir_p "#{scale_result_dir}/master"
+    FileUtils.copy_file "#{master_results}/#{log_filename}.log", "#{scale_result_dir}/master/#{log_filename}.log"
+    FileUtils.copy_file "#{master_results}/#{log_filename}.csv", "#{scale_result_dir}/master/#{log_filename}.csv"
 
     # copy stats
     global_stats_path = "#{scale_result_dir}/metric/js/global_stats.json"
     stats_path = "#{scale_result_dir}/metric/js/stats.json"
     json_dir = "#{perf_scale_dir}/json"
     FileUtils.mkdir_p json_dir
-    FileUtils.copy_file global_stats_path, "#{json_dir}/#{scenario}"
-    FileUtils.copy_file stats_path, "#{json_dir}/#{scenario}"
+    FileUtils.copy_file global_stats_path, "#{json_dir}/#{scenario.gsub(".json", "global_stats.json")}"
+    FileUtils.copy_file stats_path, "#{json_dir}/#{scenario.gsub(".json", "stats.json")}"
 
     # copy log
     # TODO: use the actual name or "log"

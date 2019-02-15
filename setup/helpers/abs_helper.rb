@@ -56,6 +56,49 @@ module AbsHelper
     user_has_token
   end
 
+  # Gets the list of hosts to provision based on ENV['BEAKER_HOSTS']
+  #
+  # @author Bill Claytor
+  #
+  # @return [Hash] The hosts to provision
+  #
+  # @example
+  #   hosts_to_provision = get_hosts_to_provision
+  #
+  def get_hosts_to_provision
+    # TODO: update to get hosts from cfg
+    if ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/pe-perf-test-cd4pe.cfg'
+      hosts_to_provision = get_cd4pe_hosts
+    else
+      hosts_to_provision = get_a2a_hosts
+    end
+
+    return hosts_to_provision
+  end
+
+  # Initializes AbsHelper and returns the specified host
+  #
+  # @author Bill Claytor
+  #
+  # @return [Hash] The ABS hosts
+  #
+  # @example
+  #   host = get_host_to_provision(role, size, volume_size)
+  #
+  # TODO: spec test
+  #
+  def get_host_to_provision(role, size, volume_size)
+    abs_initialize
+    host =
+        { 'role': role,
+          'size': size,
+          'volume_size': volume_size }
+
+    host_array = [host]
+
+    return host_array
+  end
+
   # Initializes AbsHelper and returns the hosts for an ApplesToApples run
   #
   # @author Bill Claytor
@@ -82,6 +125,54 @@ module AbsHelper
     return hosts
   end
 
+  # Initializes AbsHelper and returns the hosts for a cd4pe run
+  #
+  # @author Bill Claytor
+  #
+  # @return [Hash] The hosts
+  #
+  # @example
+  #   hosts = get_cd4pe_hosts
+  #
+  # TODO: update to define host params in abs_initialize
+  #
+  def get_cd4pe_hosts
+    abs_initialize
+    mom =
+        { 'role': "mom",
+          'size': @mom_size,
+          'volume_size': @mom_volume_size }
+
+    metrics =
+        { 'role': "metrics",
+          'size': @metrics_size,
+          'volume_size': @metrics_volume_size }
+
+    cdpe =
+        { 'role': "cd4pe",
+          'size': @metrics_size,
+          'volume_size': @metrics_volume_size }
+
+    testing =
+        { 'role': "testing",
+          'size': "c4.xlarge",
+          'volume_size': "40" }
+
+    worker =
+        { 'role': "worker",
+          'size': "c4.xlarge",
+          'volume_size': "40" }
+
+    gitlab =
+        { 'role': "gitlab",
+          'size': "c4.xlarge",
+          'volume_size': "40" }
+
+    hosts = [mom, metrics, cdpe, testing, worker, gitlab]
+
+    return hosts
+  end
+
   # Attempts to provision the specified hosts via ABS
   #
   # hosts will likely come from abs_get_a2a_hosts:
@@ -99,7 +190,7 @@ module AbsHelper
   # @example
   #   abs_resource_hosts = abs_get_resource_hosts(hosts_to_request)
   #
-  def get_abs_resource_hosts(hosts_to_request)
+  def get_abs_resource_hosts(hosts_to_request=get_hosts_to_provision)
     hosts = []
     abs_resource_hosts = nil
 

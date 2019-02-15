@@ -328,27 +328,25 @@ rototiller_task :autoscale_provisioned_med do |t|
   Rake::Task["autoscale_provisioned"].execute
 end
 
-desc 'Handle the latest scale results once the run has completed'
+desc 'Handle the latest scale results after the run has completed'
 task :autoscale_handle_latest_results do
   Rake::Task["autoscale_copy_log"].execute
   Rake::Task["autoscale_csv2html"].execute
 end
 
-desc 'Copy latest log to latest scale results'
+desc 'Copy latest log to latest scale results after the run has completed'
 task :autoscale_copy_log do
   source = File.realpath("log/latest")
   dest = File.realpath("results/scale/latest/log")
   puts "Copying from #{source} to #{dest}..."
+  puts
   FileUtils.copy_entry source, dest
 end
 
 desc 'Generate HTML table from results CSV files'
 task :autoscale_csv2html do
-  results_dir = File.realpath("results/scale/latest")
-  files = Dir.glob("#{results_dir}/**/*.csv")
-  files.each do |file|
-    csv2html(file)
-  end
+  scale_results_dir = File.realpath("results/scale/latest")
+  scale_results_csv2html(scale_results_dir)
 end
 
 desc "Run spec tests"

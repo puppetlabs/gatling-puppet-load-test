@@ -16,6 +16,7 @@ rototiller_task :performance do
       (ENV['BEAKER_HOSTS'] &&
           ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/pe-perf-test.cfg' &&
           ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/foss-perf-test.cfg' &&
+          ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/pe-perf-test-cd4pe.cfg' &&
           ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/opsworks-perf-test.cfg')
   Rake::Task["performance_without_provision"].execute
   Rake::Task["performance_deprovision_with_abs"].execute unless ENV['BEAKER_PRESERVE_HOSTS'] == 'always' ||
@@ -24,14 +25,14 @@ rototiller_task :performance do
 end
 
 desc 'Provision systems using ABS (or use already set ABS_RESOURCE_HOSTS) and then execute beaker performance setup ' +
-    'and tests for opsworks'
+         'and tests for opsworks'
 rototiller_task :opsworks_performance do
   # If BEAKER_TESTS is not set at all, default it to tests/OpsWorks.rb
   ENV["BEAKER_TESTS"] = "tests/OpsWorks.rb" if ENV["BEAKER_TESTS"].nil?
 
   # If the test is anything other than OpsWorks.rb OR empty string so it can be executed later then raise
   raise "The test must be Opsworks.rb, or '' if you plan to execute tests later" unless
-    ["", "tests/OpsWorks.rb"].include? ENV["BEAKER_TESTS"]
+      ["", "tests/OpsWorks.rb"].include? ENV["BEAKER_TESTS"]
   configure_opsworks
   Rake::Task["performance"].execute
 end
@@ -73,7 +74,8 @@ rototiller_task :performance_provision_with_abs do |t|
   t.add_env({:name => 'ABS_AWS_METRICS_SIZE', :default => 'c4.2xlarge', :message => 'The AWS instance size for the Metrics host'})
   t.add_env({:name => 'ABS_AWS_MOM_SIZE', :default => 'c4.2xlarge', :message => 'The AWS instance size for the MOM host'})
 
-  abs_resource_hosts = get_abs_resource_hosts(get_a2a_hosts)
+  # get_abs_resource_hosts will determine the hosts to provision based on ENV['BEAKER_HOSTS']
+  abs_resource_hosts = get_abs_resource_hosts
   raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
 end
 
@@ -99,7 +101,10 @@ desc 'Run Performance tests using previously provisioned hosts'
 rototiller_task :performance_against_already_provisioned do
   ENV['BEAKER_HOSTS'] ||= "log/latest/hosts_preserved.yml"
   ENV['ABS_RESOURCE_HOSTS'] = File.open("last_abs_resource_hosts.log").readlines[0] if File.exist? "last_abs_resource_hosts.log"
-  ENV['BEAKER_PRE_SUITE'] = ""
+
+  # TODO: seems necessary when using an alternate host config?
+  ENV['BEAKER_PRE_SUITE'] = ENV['BEAKER_PRE_SUITE'] || ""
+
   Rake::Task["performance_without_provision"].execute
 end
 
@@ -127,7 +132,7 @@ rototiller_task :performance_without_provision do |t|
   t.add_env({:name => 'PACKAGE_BUILD_VERSION', :default => 'latest'}) if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
   t.add_env({:name => 'PUPPET_AGENT_VERSION', :default => 'latest'}) if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
   t.add_env({:name => 'PUSH_TO_BIGQUERY', :default => 'false',
-    :message => 'True if you want to store a new set of results as a baseline value'})
+             :message => 'True if you want to store a new set of results as a baseline value'})
 
   configure_opsworks if ENV["BEAKER_TESTS"] == 'tests/OpsWorks.rb'
   # env vars needed for Beaker
@@ -332,6 +337,111 @@ task :autoscale_copy_log do
   puts "Copying from #{source} to #{dest}..."
   FileUtils.copy_entry source, dest
 end
+
+
+########################################################
+# TODO: remove after testing
+desc 'autoscale_provisioned_post_install'
+rototiller_task :autoscale_provisioned_post_install do
+  ENV['ENVIRONMENT_TYPE'] = 'gatling'
+  ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
+
+  # TODO: seems necessary when using an alternate host config?!?
+  ENV['BEAKER_PRE_SUITE'] = 'setup/install_gatling/00_nothing.rb'
+
+  # ENV["BEAKER_TESTS"] = "setup/install_gatling/00_pre_install/05_initialize_helpers.rb,"\
+  #                       "setup/install_gatling/40_post_install/10_install_hiera_config.rb,"\
+  #                       "setup/install_gatling/40_post_install/30_final_puppet_run.rb"\
+  #                       "setup/install_gatling/40_post_install/40_configure_gatling_auth.rb,"\
+  #                       "setup/install_gatling/40_post_install/50_configure_permissive_server_auth.rb,"\
+  #                       "setup/install_gatling/40_post_install/60_restart_server.rb,"\
+  #                       "setup/install_gatling/40_post_install/70_disable_firewall.rb,"\
+  #                       "setup/install_gatling/40_post_install/80_install_deps.rb,"\
+  #                       "setup/install_gatling/40_post_install/99_setup_gatling_proxy.rb"
+
+
+
+  # ENV["BEAKER_TESTS"] = "setup/install_gatling/00_pre_install/05_initialize_helpers.rb,"\
+  #                       "setup/install_gatling/40_post_install/30_final_puppet_run.rb"
+
+  #
+  # ENV["BEAKER_TESTS"] = "setup/install_gatling/00_pre_install/05_initialize_helpers.rb,"\
+  #                       "setup/install_gatling/01_puppet_run.rb"
+
+  ENV["BEAKER_TESTS"] = "setup/install_gatling/00_pre_install/05_initialize_helpers.rb,"\
+                        "setup/install_gatling/30_classification/20_enable_file_sync.rb"
+
+  Rake::Task["performance_against_already_provisioned"].execute
+end
+
+########################################################
+# TODO: Do we need these separate cd4pe tasks / beaker config?
+# - see the 'abs_provision_cd4pe' task example for ad-hoc provisioning
+########################################################
+
+desc 'Run cd4pe provision for gatling'
+rototiller_task :cd4pe_provision do
+  ENV['BEAKER_HOSTS'] = 'config/beaker_hosts/pe-perf-test-cd4pe.cfg'
+  Rake::Task["performance_provision_with_abs"].execute
+end
+
+desc 'Run cd4pe setup for gatling'
+rototiller_task :cd4pe_provision_and_presuite do
+  ENV['ENVIRONMENT_TYPE'] = 'gatling'
+  ENV['BEAKER_HOSTS'] = 'config/beaker_hosts/pe-perf-test-cd4pe.cfg'
+  ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
+  ENV['BEAKER_TESTS'] = ''
+
+  # TODO: remove when the 'classifier::allow-config-data' issue has been resolved
+  # only run the pre-suite through the PE installation
+  #
+  ENV["BEAKER_PRE_SUITE"] = "setup/install_gatling/00_pre_install/05_initialize_helpers.rb,"\
+                            "setup/install_gatling/00_pre_install/20_rpm_setup.rb,"\
+                            "setup/install_gatling/00_pre_install/30_r10k_git_setup.rb,"\
+                            "setup/install_gatling/10_pe_install/10_install_pe.rb"
+
+  Rake::Task["performance"].execute
+end
+
+desc 'Install docker and run gitlab container'
+rototiller_task :cd4pe_setup_gitlab do
+  ENV['ENVIRONMENT_TYPE'] = 'gatling'
+  ENV['BEAKER_HOSTS'] = 'config/beaker_hosts/pe-perf-test-cd4pe.cfg'
+  ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
+
+  # TODO: seems necessary when using an alternate host config?!?
+  ENV['BEAKER_PRE_SUITE'] = 'setup/install_gatling/60_cd4pe/00_nothing.rb'
+
+  # TODO: the full install + setup requires a manual step
+  ENV["BEAKER_TESTS"] = "setup/install_gatling/60_cd4pe/10_setup_gitlab.rb"
+
+  Rake::Task["performance_against_already_provisioned"].execute
+end
+
+desc 'Import control repo on gitlab container'
+rototiller_task :cd4pe_setup_gitlab_control_repo do
+  ENV['ENVIRONMENT_TYPE'] = 'gatling'
+  ENV['BEAKER_HOSTS'] = 'config/beaker_hosts/pe-perf-test-cd4pe.cfg'
+  ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
+
+  # TODO: seems necessary when using an alternate host config?!?
+  ENV['BEAKER_PRE_SUITE'] = 'setup/install_gatling/60_cd4pe/00_nothing.rb'
+
+  # TODO: the full install + setup requires a manual step
+  ENV["BEAKER_TESTS"] = "setup/install_gatling/60_cd4pe/20_setup_gitlab_control_repo.rb"
+
+  Rake::Task["performance_against_already_provisioned"].execute
+end
+
+########################################################
+
+desc 'Provision a cd4pe host via ABS'
+rototiller_task :abs_provision_cd4pe do
+  host_to_provision = get_host_to_provision("cd4pe", "c4.2xlarge", "80")
+  abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
+  raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
+end
+
 
 desc "Run spec tests"
 RSpec::Core::RakeTask.new(:spec) do |t|

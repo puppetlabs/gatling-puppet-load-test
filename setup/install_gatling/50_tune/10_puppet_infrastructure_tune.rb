@@ -48,7 +48,7 @@ test_name 'Run puppet infrastructure tune' do
     puts "Tune output:"
     puts output
 
-    on master, "echo \"#{output}\" >> tune/current_tune.txt"
+    on master, "echo \"#{output}\" >> #{tune_output_dir}/current_tune.txt"
   end
 
   step 'run puppet infrastructure tune' do

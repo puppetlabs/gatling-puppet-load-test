@@ -37,6 +37,15 @@ Run the `cd4pe_setup_gitlab_control_repo` rake task to import the control repo.
 You should now see the control repo in Gitlab.
 * Disable the 'auto-dev-ops' pipeline
 
+### Update the control repo for CD4PE
+CD4PE is designed to use the master branch as the default with additional branches per environment.
+
+* Create a 'master' branch from the 'production' branch.
+* Set the 'master' branch as the default.
+* Create additional branches per environment.
+* Remove extraneous branches.
+* Ensure all branches are unprotected.
+
 # Set up PE
 ## Enable Code Manager
 We'll be using code manager to deploy the cd4pe module, so we'll set it up before proceeding based on [the docs](https://puppet.com/docs/pe/2019.0/code_mgr_config.html#enable-code-manager-after-installation)
@@ -86,8 +95,6 @@ cat id-control_repo.rsa.pub
 ```
 
 * Copy the key and add it to Gitlab
-
-## Update the control repo for CD4PE
 
 ### Enable Code Manager
 https://puppet.com/docs/pe/2019.0/code_mgr_config.html#enable-code-manager-after-installation
@@ -146,6 +153,10 @@ Configure CD4PE using the task-based instructions above.
 
 ## Integrate CD4PE with Gitlab
 https://puppet.com/docs/continuous-delivery/2.x/integrations.html#task-7720
+
+Configure the Gitlab integration based on the instructions above.
+
+
 
 ---
 

@@ -28,9 +28,16 @@ module PerfResultsHelper
 
   HEREDOC
 
-  def csv2html(csv_path)
+  def scale_results_csv2html(scale_results_dir)
+    puts "Converting CSV files to HTML in: #{scale_results_dir}"
+    files = Dir.glob("#{scale_results_dir}/**/*.csv")
+    files.each do |file|
+      csv2html(file)
+    end
+  end
 
-    puts "CSV2HTML: #{csv_path}"
+  def csv2html(csv_path)
+    puts "  Converting: #{csv_path}"
     csv_data = CSV.read(csv_path)
 
     table_start = '  <table class="table table-bordered">'
@@ -90,11 +97,7 @@ module PerfResultsHelper
     # create HTML doc
     heading = "  <h2>#{File.basename(csv_path)}</h2>" + nl
     html = HTML_START + heading + table + HTML_END
-
-    html_path = "#{csv_path}.html"
-    puts "Writing HTML to #{html_path}"
-    File.write(html_path, html)
-
+    File.write("#{csv_path}.html", html)
   end
 
 end

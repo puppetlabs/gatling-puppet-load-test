@@ -2,7 +2,7 @@ CD4PE Test Environment
 =========================
 
 # Background
-This approach to setting up a cd4pe test environment uses the alternate config `pe-perf-test-cd4pe-agent.cfg`.
+This approach to setting up a cd4pe test environment uses the alternate config `pe-perf-test-cd4pe.cfg`.
 This configuration builds upon the existing `pe-perf-test.cfg` file and adds the following nodes:
 * perf-test-cdpe: the node where cd4pe will be installed
 * perf-test-agent-testing: an agent node for use in the testing environment
@@ -41,7 +41,7 @@ You should now see the control repo in Gitlab.
 ## Enable Code Manager
 We'll be using code manager to deploy the cd4pe module, so we'll set it up before proceeding based on [the docs](https://puppet.com/docs/pe/2019.0/code_mgr_config.html#enable-code-manager-after-installation)
 
-### Prepare master
+### Prepare the master
 @TODO: automate
 * SSH to the master
 * Add a entry for the Gitlab host to `/etc/hosts`:
@@ -60,13 +60,12 @@ Host gplt-gitlab
   PreferredAuthentications publickey
   UserKnownHostsFile=/dev/null
   Port 8022
+  
 ```
 
 * Prepare directory for control repo key
 ```
-mkdir /etc/puppetlabs/puppetserver/ssh
-cd /etc/puppetlabs/puppetserver
-chown pe-puppet:pe-puppet ssh
+cd /etc/puppetlabs/puppetserver && mkdir ssh && chown pe-puppet:pe-puppet ssh
 ```
 
 * Generate the key
@@ -77,8 +76,7 @@ ssh-keygen -t rsa -b 2048 -C "gplt@puppet.com" -f /etc/puppetlabs/puppetserver/s
 
 * Set file permissions
 ```
-cd ssh
-chown pe-puppet:pe-puppet id-control_repo.rsa id-control_repo.rsa.pub
+cd ssh && chown pe-puppet:pe-puppet id-control_repo.rsa id-control_repo.rsa.pub
 
 ```
 
@@ -89,13 +87,20 @@ cat id-control_repo.rsa.pub
 
 * Copy the key and add it to Gitlab
 
+## Update the control repo for CD4PE
+
 ### Enable Code Manager
 https://puppet.com/docs/pe/2019.0/code_mgr_config.html#enable-code-manager-after-installation
 
 In the console, set the following parameters in the puppet_enterprise::profile::master class in the PE Master node group:
 * code_manager_auto_configure - true
-* r10k_remote - 'ssh://git@gplt-gitlab:8022/root/control-repo.git'
-* r10k_private_key - '/etc/puppetlabs/puppetserver/ssh/id-control_repo.rsa'
+* r10k_remote - "ssh://git@gplt-gitlab:8022/root/control-repo.git"
+* r10k_private_key - "/etc/puppetlabs/puppetserver/ssh/id-control_repo.rsa"
+
+Run puppet on the master via the console or with the command:
+```
+puppet agent -t
+```
 
 ### Set up authentication for Code Manager
 https://puppet.com/docs/pe/2019.0/code_mgr_config.html#set-up-authentication-for-code-manager
@@ -148,6 +153,6 @@ https://puppet.com/docs/continuous-delivery/2.x/integrations.html#task-7720
 https://puppet.com/docs/continuous-delivery/2.x/integrate_with_puppet_enterprise.html
 
 
-## Update the control repo for CD4PE
+
 
 

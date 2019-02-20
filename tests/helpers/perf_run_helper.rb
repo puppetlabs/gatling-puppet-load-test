@@ -57,8 +57,9 @@ module PerfRunHelper
     # generate scenario files and copy to metrics
     generate_scale_scenarios(gatling_scenario)
 
-    # create scale results folder
-    create_parent_scale_results_folder
+    # create scale results dir
+    scale_results_parent_dir = "results/scale/PERF_SCALE_#{@scale_timestamp}"
+    create_parent_scale_results_folder(scale_results_parent_dir)
 
     puts "Executing scale tests:"
     puts "base number of agents = #{@scale_base_instances}"
@@ -90,7 +91,8 @@ module PerfRunHelper
       perf_setup(scenario, simulation_id, gatlingassertions)
 
       # get results, copy from metrics, check for KOs, fail if ko != 0, assertions
-      handle_scale_results(scenario_hash)
+      success = handle_scale_results(scenario_hash)
+      break unless success
     end
 
   end
@@ -104,12 +106,11 @@ module PerfRunHelper
   # @example
   #   create_parent_scale_results_folder
   #
-  def create_parent_scale_results_folder
-    perf_scale_dir = "results/scale/PERF_SCALE_#{@scale_timestamp}"
-    FileUtils.mkdir_p perf_scale_dir
+  def create_parent_scale_results_folder(scale_results_parent_dir)
+    FileUtils.mkdir_p scale_results_parent_dir
 
     # link current result to latest
-    s = File.expand_path(perf_scale_dir)
+    s = File.expand_path(scale_results_parent_dir)
     d = File.expand_path("results/scale/latest")
     puts "Linking s:#{s} to d:#{d}"
 
@@ -117,11 +118,17 @@ module PerfRunHelper
     FileUtils.rm "results/scale/latest", :force => true
     FileUtils.ln_s s, d, :force => true
 
+    # create log dir
+    FileUtils.mkdir_p "#{scale_results_parent_dir}/log"
+
     # create results csv
-    create_scale_results_csv_file(perf_scale_dir)
+    create_scale_results_csv_file(scale_results_parent_dir)
 
     # create scale results env file
-    create_scale_results_env_file(perf_scale_dir)
+    create_scale_results_env_file(scale_results_parent_dir)
+
+    # create current pe tune file
+    create_pe_tune_file(scale_results_parent_dir)
   end
 
   # Create the CSV file for the scale run and add the headings row
@@ -135,8 +142,8 @@ module PerfRunHelper
   # @example
   #   create_scale_results_csv_file(perf_scale_dir)
   #
-  def create_scale_results_csv_file(perf_scale_dir)
-    CSV.open("#{perf_scale_dir}/PERF_SCALE_#{@scale_timestamp}.csv", "wb") do |csv|
+  def create_scale_results_csv_file(scale_results_parent_dir)
+    CSV.open("#{scale_results_parent_dir}/PERF_SCALE_#{@scale_timestamp}.csv", "wb") do |csv|
       headings = ["agents",
                   "ok",
                   "ko",
@@ -165,16 +172,60 @@ module PerfRunHelper
   # @example
   #   create_scale_results_env_file(perf_scale_dir)
   #
-  def create_scale_results_env_file(perf_scale_dir)
-    open("#{perf_scale_dir}/beaker_environment.txt", 'w') { |f|
+  def create_scale_results_env_file(scale_results_parent_dir)
+    open("#{scale_results_parent_dir}/beaker_environment.txt", 'w') { |f|
       f << "BEAKER_INSTALL_TYPE: #{ENV["BEAKER_INSTALL_TYPE"]}\n"
       f << "BEAKER_PE_DIR: #{ENV["BEAKER_PE_DIR"]}\n"
       f << "BEAKER_PE_VER: #{ENV["BEAKER_PE_VER"]}\n"
       f << "BEAKER_TESTS: #{ENV["BEAKER_TESTS"]}\n"
+      f << "PUPPET_SCALE_CLASS: #{ENV["PUPPET_SCALE_CLASS"]}\n"
       f << "PUPPET_GATLING_SCALE_SCENARIO: #{ENV["PUPPET_GATLING_SCALE_SCENARIO"]}\n"
+      f << "PUPPET_GATLING_SCALE_BASE_INSTANCES: #{ENV["PUPPET_GATLING_SCALE_BASE_INSTANCES"]}\n"
       f << "PUPPET_GATLING_SCALE_ITERATIONS: #{ENV["PUPPET_GATLING_SCALE_ITERATIONS"]}\n"
       f << "PUPPET_GATLING_SCALE_INCREMENT: #{ENV["PUPPET_GATLING_SCALE_INCREMENT"]}\n"
+      f << "PUPPET_GATLING_SCALE_TUNE: #{ENV["PUPPET_GATLING_SCALE_TUNE"]}\n"
+      f << "PUPPET_GATLING_SCALE_TUNE_FORCE: #{ENV["PUPPET_GATLING_SCALE_TUNE_FORCE"]}\n"
+      f << "ABS_AWS_METRICS_SIZE: #{ENV["ABS_AWS_METRICS_SIZE"]}\n"
+      f << "ABS_AWS_MOM_SIZE: #{ENV["ABS_AWS_MOM_SIZE"]}\n"
+      f << "AWS_VOLUME_SIZE: #{ENV["AWS_VOLUME_SIZE"]}\n"
     }
+  end
+
+  # Create the pe_tune_current file for the scale run
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] perf_scale_dir The results directory for the scale run
+  #
+  # @return [void]
+  #
+  # @example
+  #   create_pe_tune_file(perf_scale_dir)
+  #
+  def create_pe_tune_file(scale_results_parent_dir)
+    output = puppet_infrastructure_tune_current
+    File.write("#{scale_results_parent_dir}/pe_tune_current.txt", output)
+  end
+
+  # Get the current pe tune
+  #
+  # @author Bill Claytor
+  #
+  # @return [void]
+  #
+  # @example
+  #   output = puppet_infrastructure_tune_current
+  #
+  def puppet_infrastructure_tune_current
+    puts "Checking current PE tune..."
+    puts
+
+    output = on(master, "puppet infrastructure tune --current").output
+
+    puts output
+    puts
+
+    return output
   end
 
   # Restart the pe-puppetserver service
@@ -230,13 +281,13 @@ module PerfRunHelper
   # @example
   #   copy_puppet_metrics_collector(perf_scale_dir)
   #
-  def copy_puppet_metrics_collector(perf_scale_dir)
+  def copy_puppet_metrics_collector(scale_results_parent_dir)
     puts "Copying puppet_metrics_collector..."
     puts
 
     PUPPET_METRICS_COLLECTOR_SERVICES.each do |service|
       source_dir = "/opt/puppetlabs/puppet-metrics-collector/#{service}"
-      dest_parent = "#{perf_scale_dir}/puppet-metrics-collector"
+      dest_parent = "#{scale_results_parent_dir}/puppet-metrics-collector"
 
       FileUtils.mkdir_p dest_parent
       scp_from(master, "#{source_dir}", "#{dest_parent}")
@@ -295,7 +346,24 @@ module PerfRunHelper
     file = File.read("#{scenarios_dir}/#{gatling_scenario}")
     json = JSON.parse(file)
 
-    @scale_base_instances = json["nodes"][0]["num_instances"]
+    # allow the base instances to be set via environment variable
+    env_base_instances = ENV['PUPPET_GATLING_SCALE_BASE_INSTANCES']
+    json_base_instances = json["nodes"][0]["num_instances"]
+
+    # TODO: refactor
+    if Integer(env_base_instances)
+      puts "Using environment specified base instances: #{env_base_instances}"
+      @scale_base_instances = Integer(env_base_instances)
+
+      # update json
+      desc = "'role::by_size_small' role from perf control repo, #{@scale_base_instances} agents, 1 iteration"
+      json["run_description"] = desc
+      json["nodes"][0]["num_instances"] = @scale_base_instances
+    else
+      puts "Using JSON specified base instances: #{json_base_instances}"
+      @scale_base_instances = json_base_instances
+    end
+
     instances = @scale_base_instances
 
     for iteration in 1..@scale_iterations do
@@ -325,14 +393,13 @@ module PerfRunHelper
   #
   # @param [Hash] scenario_hash The scenario hash for the current iteration
   #
-  # @return [void]
+  # @return [true,false] Based on the success of the scale iteration
   #
   # @example
   #   handle_scale_results(scenario_hash)
   #
   def handle_scale_results(scenario_hash)
     scenario = scenario_hash[:name]
-    # scale_scenario_instances = scenario_hash[:instances]
 
     puts "Getting results for scenario: #{scenario}"
     puts
@@ -344,10 +411,12 @@ module PerfRunHelper
     copy_scale_results(scenario)
 
     # check results for KOs
-    check_scale_results(scenario_hash)
+    success = check_scale_results(scenario_hash)
 
     # perform assertions
-    scale_assertions(atop_result, gatling_result)
+    scale_assertions(atop_result, gatling_result) unless !success
+
+    return success
   end
 
   # Copy the perf results and log files (including puppet-metrics-collector) to the scale results folder
@@ -366,8 +435,8 @@ module PerfRunHelper
     puts
 
     # create scale scenario result folder
-    perf_scale_dir = "results/scale/PERF_SCALE_#{@scale_timestamp}"
-    scale_result_dir = "#{perf_scale_dir}/#{scenario.gsub(".json", "")}"
+    scale_results_parent_dir = "results/scale/PERF_SCALE_#{@scale_timestamp}"
+    scale_result_dir = "#{scale_results_parent_dir}/#{scenario.gsub(".json", "")}"
     FileUtils.mkdir_p scale_result_dir
 
     # copy entire results to scale results dir (TODO: remove this?)
@@ -381,31 +450,27 @@ module PerfRunHelper
 
     # copy master
     master_results = "#{@archive_root}/#{master.hostname}"
-    FileUtils.copy_entry master_results, "#{scale_result_dir}/master"
+    log_filename = "atop_log_#{scenario.downcase.gsub(".json", "_json")}"
+
+    # copy only the logs for this iteration (the dir contains logs from all previous iterations)
+    # FileUtils.copy_entry master_results, "#{scale_result_dir}/master"
+    FileUtils.mkdir_p "#{scale_result_dir}/master"
+    FileUtils.copy_file "#{master_results}/#{log_filename}.log", "#{scale_result_dir}/master/#{log_filename}.log"
+    FileUtils.copy_file "#{master_results}/#{log_filename}.csv", "#{scale_result_dir}/master/#{log_filename}.csv"
 
     # copy stats
     global_stats_path = "#{scale_result_dir}/metric/js/global_stats.json"
     stats_path = "#{scale_result_dir}/metric/js/stats.json"
-    json_dir = "#{perf_scale_dir}/json"
+    json_dir = "#{scale_results_parent_dir}/json"
     FileUtils.mkdir_p json_dir
-    FileUtils.copy_file global_stats_path, "#{json_dir}/#{scenario}"
-    FileUtils.copy_file stats_path, "#{json_dir}/#{scenario}"
-
-    # copy log
-    # TODO: use the actual name or "log"
-    log_path = File.realpath("log/latest")
-    FileUtils.copy_entry log_path, "#{perf_scale_dir}/log"
-
-    # preserve timestamp (see above)
-    log_timestamp = File.basename(log_path)
-    log_timestamp_file = "#{perf_scale_dir}/log/#{log_timestamp}.txt"
-    FileUtils.touch(log_timestamp_file)
+    FileUtils.copy_file global_stats_path, "#{json_dir}/#{scenario.gsub(".json", "global_stats.json")}"
+    FileUtils.copy_file stats_path, "#{json_dir}/#{scenario.gsub(".json", "stats.json")}"
 
     # copy puppet-metrics-collector to iteration result dir
     copy_puppet_metrics_collector(scale_result_dir)
 
     # copy puppet-metrics-collector to parent results dir
-    copy_puppet_metrics_collector(perf_scale_dir)
+    copy_puppet_metrics_collector(scale_results_parent_dir)
 
   end
 
@@ -420,16 +485,19 @@ module PerfRunHelper
   # @example
   #   check_scale_results(scenario_hash)
   #
+  # TODO: refactor
+  #
   def check_scale_results(scenario_hash)
     scenario = scenario_hash[:name]
     scale_scenario_instances = scenario_hash[:instances]
+    success = true
 
     puts "Checking results for scenario: #{scenario}"
     puts
 
     # stats dir
-    perf_scale_dir = "results/scale/latest"
-    perf_scale_iteration_dir = "#{perf_scale_dir}/#{scenario.gsub(".json", "")}"
+    scale_results_parent_dir = "results/scale/latest"
+    perf_scale_iteration_dir = "#{scale_results_parent_dir}/#{scenario.gsub(".json", "")}"
     js_dir = "#{perf_scale_iteration_dir}/metric/js"
 
     puts "Checking stats in: #{js_dir}"
@@ -494,29 +562,33 @@ module PerfRunHelper
     results << atop_csv_data[1][3] # average memory TODO: verify from atop
 
     # add this row to the csv
-    update_scale_results_csv(perf_scale_dir, results)
+    update_scale_results_csv(scale_results_parent_dir, results)
 
     # this needs to be last
     if num_ko != 0
-      fail_test "ERROR: KO encountered in scenario: #{scenario}"
+      puts "ERROR - KO encountered in scenario: #{scenario}"
+      puts "Exiting scale run..."
+      puts
+      success = false
     end
 
+    return success
   end
 
   # Add the results for the current scale iteration to the CSV file
   #
   # @author Bill Claytor
   #
-  # @param [String] perf_scale_dir The results directory for the scale run
+  # @param [String] scale_results_parent_dir The results directory for the scale run
   # @param [Array] results The results array to add to the CSV
   #
   # @return [void]
   #
   # @example
-  #   update_scale_results_csv(perf_scale_dir, results)
+  #   update_scale_results_csv(scale_results_parent_dir, results)
   #
-  def update_scale_results_csv(perf_scale_dir, results)
-    CSV.open("#{perf_scale_dir}/PERF_SCALE_#{@scale_timestamp}.csv", "a+") do |csv|
+  def update_scale_results_csv(scale_results_parent_dir, results)
+    CSV.open("#{scale_results_parent_dir}/PERF_SCALE_#{@scale_timestamp}.csv", "a+") do |csv|
       csv << results
     end
   end

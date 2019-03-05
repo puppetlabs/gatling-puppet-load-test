@@ -351,7 +351,7 @@ module PerfRunHelper
     json_base_instances = json["nodes"][0]["num_instances"]
 
     # TODO: refactor
-    if Integer(env_base_instances)
+    if !env_base_instances.nil?
       puts "Using environment specified base instances: #{env_base_instances}"
       @scale_base_instances = Integer(env_base_instances)
 

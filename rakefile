@@ -269,6 +269,13 @@ rototiller_task :acceptance do |t|
   Rake::Task["performance"].execute
 end
 
+desc 'Run Performance setup for gatling'
+rototiller_task :performance_setup do
+  ENV['ENVIRONMENT_TYPE'] = 'gatling'
+  ENV['BEAKER_TESTS'] = ''
+  Rake::Task["performance"].execute
+end
+
 desc 'Run Scale setup and test for gatling'
 rototiller_task :autoscale do
   ENV['ENVIRONMENT_TYPE'] = 'gatling'
@@ -347,6 +354,43 @@ desc 'Generate HTML table from results CSV files'
 task :autoscale_csv2html do
   scale_results_dir = File.realpath("results/scale/latest")
   scale_results_csv2html(scale_results_dir)
+end
+
+# TODO: determine optimal instance types and volume sizes
+desc 'Provision the hosts for a cd4pe test environment via ABS'
+task :abs_provision_environment_cd4pe do
+  Rake::Task["abs_provision_host_cd4pe"].execute
+  Rake::Task["abs_provision_host_gitlab"].execute
+  Rake::Task["abs_provision_host_agent"].execute
+  Rake::Task["abs_provision_host_worker"].execute
+end
+
+desc 'Provision a cd4pe host via ABS'
+rototiller_task :abs_provision_host_cd4pe do
+  host_to_provision = get_host_to_provision("cd4pe", "c4.2xlarge", "80")
+  abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
+  raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
+end
+
+desc 'Provision a gitlab host via ABS'
+rototiller_task :abs_provision_host_gitlab do
+  host_to_provision = get_host_to_provision("gitlab", "c4.xlarge", "80")
+  abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
+  raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
+end
+
+desc 'Provision an agent host via ABS'
+rototiller_task :abs_provision_host_agent do
+  host_to_provision = get_host_to_provision("agent", "c4.large", "40")
+  abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
+  raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
+end
+
+desc 'Provision a worker host via ABS'
+rototiller_task :abs_provision_host_worker do
+  host_to_provision = get_host_to_provision("worker", "c4.xlarge", "80")
+  abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
+  raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
 end
 
 desc "Run spec tests"

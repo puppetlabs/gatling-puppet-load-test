@@ -82,6 +82,29 @@ module AbsHelper
     return hosts
   end
 
+  # Initializes AbsHelper and returns the specified host
+  #
+  # @author Bill Claytor
+  #
+  # @return [Hash] The ABS hosts
+  #
+  # @example
+  #   host = get_host_to_provision(role, size, volume_size)
+  #
+  # TODO: spec test
+  #
+  def get_host_to_provision(role, size, volume_size)
+    abs_initialize
+    host =
+        { 'role': role,
+          'size': size,
+          'volume_size': volume_size }
+
+    host_array = [host]
+
+    return host_array
+  end
+
   # Attempts to provision the specified hosts via ABS
   #
   # hosts will likely come from abs_get_a2a_hosts:

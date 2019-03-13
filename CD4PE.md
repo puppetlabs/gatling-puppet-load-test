@@ -8,6 +8,7 @@ The cd4pe installation uses the [module-based installation instructions](https:/
 
 # Set up the test environment
 ## Configure the environment and provision the hosts
+
 ### Set the required environment variables
 The following environment variables must be set:
 * BEAKER_INSTALL_TYPE
@@ -47,11 +48,14 @@ For a full CD4PE environment run the `abs_provision_environment_cd4pe` task.
 For a custom environment, run the individual tasks to provision the desired hosts.
 
 ## Set up Gitlab
-The test environment uses a standard installation of Gitlab.
+The test environment uses a standard installation of Gitlab on Centos 7:
+https://about.gitlab.com/install/#centos-7
+
+The pre-requisites specified in the instructions are already in place; only the steps listed below are required:
 
 ### Install the Gitlab package
 * SSH to the Gitlab host as the root user.
-* Add the GitLab package repository.
+* Add the GitLab package repository:
 
 ```
 curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
@@ -59,7 +63,7 @@ curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rp
 
 ```
 
-* Install the Gitlab package (replace 'ip-x-x-x-x.amz-dev.puppet.net' with the value for your Gitlab host)
+* Install the Gitlab package (replace 'ip-x-x-x-x.amz-dev.puppet.net' with the value for your Gitlab host):
 ```
 EXTERNAL_URL="http://ip-x-x-x-x.amz-dev.puppet.net" yum install -y gitlab-ee
 ```
@@ -77,7 +81,17 @@ In the Gitlab UI:
 * Click the 'Create project' button
 
 You should now see the control repo in Gitlab.
-* Disable the 'auto-dev-ops' pipeline
+
+### Disable the Auto DevOps pipeline
+After importing the control repo you should see an alert banner with the following text:
+```
+The Auto DevOps pipeline has been enabled and will be used if no alternative CI configuration file is found.
+```
+
+* Click the 'Settings' link.
+* Click the 'Expand' button for the 'Auto DevOps' panel.
+* Uncheck the 'Default to Auto DevOps pipeline' option.
+* Click the 'Save changes' button.
 
 ### Update the control repo for CD4PE
 CD4PE is designed to use the master branch as the default with additional branches per environment.
@@ -89,8 +103,12 @@ CD4PE is designed to use the master branch as the default with additional branch
 * Ensure all branches are unprotected.
 
 # Set up PE
-## Enable Code Manager
-We'll be using code manager to deploy the cd4pe module, so we'll set it up before proceeding based on [the docs](https://puppet.com/docs/pe/2019.0/code_mgr_config.html#enable-code-manager-after-installation)
+## Code Manager
+We'll be using code manager to deploy the cd4pe module, so we'll set it up next. 
+The following steps are based on the documentation found here:
+https://puppet.com/docs/pe/2019.0/code_mgr_config.html#enable-code-manager-after-installation
+
+Please refer to the documentation for additional details.
 
 ### Prepare the master
 @TODO: automate
@@ -112,29 +130,35 @@ Host gplt-gitlab
   UserKnownHostsFile=/dev/null  
 ```
 
-* Prepare directory for control repo key
+* Create the 'ssh' directory and assign ownership to 'pe-puppet':
 ```
 cd /etc/puppetlabs/puppetserver && mkdir ssh && chown pe-puppet:pe-puppet ssh
 ```
 
-* Generate the key
+* Generate the 'id-control_repo' key:
 ```
 ssh-keygen -t rsa -b 2048 -C "gplt@puppet.com" -f /etc/puppetlabs/puppetserver/ssh/id-control_repo.rsa -q -N "" 
 
 ```
 
-* Set file permissions
+* Set the file permissions:
 ```
 cd ssh && chown pe-puppet:pe-puppet id-control_repo.rsa id-control_repo.rsa.pub
 
 ```
 
-* Get the public key
+* Get the public key:
 ```
 cat id-control_repo.rsa.pub
 ```
 
-* Copy the key and add it to Gitlab
+### Add the key to Gitlab
+* Click the user icon in the far right of the Gitlab toolbar.
+* Click the 'Settings' link in the dropdown panel.
+* Click the 'SSH keys' link in the left nav panel.
+* Paste the SSH key created in the previous section into the 'Key' text area.
+* Add a name for the key to the 'Title' field.
+* Click the 'Add key' button.
 
 ### Enable Code Manager
 https://puppet.com/docs/pe/2019.0/code_mgr_config.html#enable-code-manager-after-installation
@@ -150,7 +174,10 @@ puppet agent -t
 ```
 
 ### Set up authentication for Code Manager
+Next we will need to set up authentication for Code Manager based on the instructions found here:
 https://puppet.com/docs/pe/2019.0/code_mgr_config.html#set-up-authentication-for-code-manager
+
+Please refer to the documentation for additional details.
 
 #### Create the Code Manager user
 * Create the Code Manager user: 'Code Manager User' / 'code_manager_user'

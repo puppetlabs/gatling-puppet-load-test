@@ -29,7 +29,7 @@ source config/env/env_setup_2019.0.1
 ```
 
 ### Provision GPLT hosts and run the pre-suite
-Perform a 'performance' run to provision the 'mom' and 'metrics' hosts via ABS and run the Beaker pre-suite.
+Execute a 'performance' run to provision the 'mom' and 'metrics' hosts via ABS and run the Beaker pre-suite.
 For a standard performance test environment run the `performance_setup` rake task.
 For a scale test environment run the `autoscale_setup` rake task.
 
@@ -104,7 +104,7 @@ CD4PE is designed to use the master branch as the default with additional branch
 
 # Set up PE
 ## Code Manager
-We'll be using code manager to deploy the cd4pe module, so we'll set it up next. 
+We'll be using [Code Manager](https://puppet.com/docs/pe/2019.0/code_mgr.html) to deploy the [cd4pe module](https://forge.puppet.com/puppetlabs/cd4pe), so we'll set it up next. 
 The following steps are based on the documentation found here:
 https://puppet.com/docs/pe/2019.0/code_mgr_config.html#enable-code-manager-after-installation
 
@@ -163,9 +163,9 @@ cat id-control_repo.rsa.pub
 ### Enable Code Manager
 https://puppet.com/docs/pe/2019.0/code_mgr_config.html#enable-code-manager-after-installation
 
-In the console, set the following parameters in the puppet_enterprise::profile::master class in the PE Master node group:
+In the console, set the following parameters in the 'puppet_enterprise::profile::master' class in the 'PE Master' node group:
 * code_manager_auto_configure - true
-* r10k_remote - "ssh://git@gplt-gitlab/root/control-repo.git"
+* r10k_remote - "ssh://git@gplt-gitlab/root/puppetlabs-puppetserver_perf_control.git"
 * r10k_private_key - "/etc/puppetlabs/puppetserver/ssh/id-control_repo.rsa"
 
 Run puppet on the master via the console or with the command:

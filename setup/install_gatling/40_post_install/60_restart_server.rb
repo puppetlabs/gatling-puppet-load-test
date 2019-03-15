@@ -1,6 +1,10 @@
 test_name 'Restart puppet master to pick up configuration changes'
 
-service_name = get_puppet_server_service_name_from_env()
+if %w(foss aio).include?(ENV['BEAKER_INSTALL_TYPE'])
+  service_name = 'puppetserver'
+elsif ENV['BEAKER_INSTALL_TYPE'] == 'pe'
+  service_name = 'pe-puppetserver'
+end
 
 on(master, "service #{service_name} reload")
 

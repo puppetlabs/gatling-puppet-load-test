@@ -224,7 +224,7 @@ module PerfHelper
     step "Install Puppet Agent." do
       install_package agent, 'puppet-agent'
       on(agent, "puppet agent -t --server #{master}")
-      on(master, "puppet config remove --section master autosign")
+      on(master, "puppet config delete --section master autosign")
     end
 
   end
@@ -273,7 +273,7 @@ EOS
 
   def r10k_deploy
     bin = ENV['PUPPET_BIN_DIR']
-    r10k_version = ENV['PUPPET_R10K_VERSION']
+    r10k_version = ENV['PUPPET_R10K_VERSION'] || '3.0.0'
 
     step "Install and configure r10k" do
       r10k_config = get_r10k_config_from_env()
@@ -414,6 +414,7 @@ node 'default' {}
 
   def update_hiera_datadir_in_local_config
     config = YAML.load_file(@local_hiera_config_path)
+    config[:yaml] ||= {}
     config[:yaml][:datadir] = '/etc/puppetlabs/code/environments/production/hieradata/'
     File.open(@local_hiera_config_path, 'w') { |f| f.write(config.to_yaml) }
   end

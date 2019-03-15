@@ -208,6 +208,14 @@ Found 1 environments.
 puppet-code deploy production --wait
 ```
 
+### Update the environment timeout
+Code Manager sets the `environment_timeout` value in `/etc/puppetlabs/puppet/puppet.conf` to `unlimited` which means that Puppet Server will hold the results of parsing puppet manifests in memory and re-use them until the next deploy instead of re-reading and re-parsing the files for each catalog request.   
+* Edit `/etc/puppetlabs/puppet/puppet.conf` to specify `environment_timeout = 0`
+* Restart pe-puppetserver
+```
+service pe-puppetserver restart
+```
+
 The master is now ready to install CD4PE using the module-based approach.
 
 # Install CD4PE
@@ -347,8 +355,5 @@ https://puppet.com/docs/continuous-delivery/2.x/configure_impact_analysis.html#c
 https://puppet.com/docs/continuous-delivery/2.x/configure_job_hardware.html#concept-7483
 
 ---
-
-Note: We are currently investigating an issue with the classification of the perf agents. 
-Although the agents appear to be classified correctly the agent runs do not appear to have the expected performance impact.
 
 TODO: Include additional information on test scenario configuration.

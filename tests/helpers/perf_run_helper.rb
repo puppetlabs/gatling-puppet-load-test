@@ -8,7 +8,7 @@ module PerfRunHelper
   BASELINE_PE_VER = ENV['BASELINE_PE_VER']
   SCALE_ITERATIONS = 10
   SCALE_INCREMENT = 100
-  PUPPET_METRICS_COLLECTOR_SERVICES = %w[orchestrator puppetdb puppetserver]
+  PUPPET_METRICS_COLLECTOR_SERVICES = ENV['BEAKER_INSTALL_TYPE'] == 'pe' ? %w[orchestrator puppetdb puppetserver] : ['puppetserver']
 
   def perf_setup(gatling_scenario, simulation_id, gatlingassertions)
     @atop_session_timestamp = start_monitoring(master, gatling_scenario, true, 30)
@@ -127,8 +127,10 @@ module PerfRunHelper
     # create scale results env file
     create_scale_results_env_file(scale_results_parent_dir)
 
-    # create current pe tune file
-    create_pe_tune_file(scale_results_parent_dir)
+    unless %w(foss aio).include?(ENV['BEAKER_INSTALL_TYPE'])
+      # create current pe tune file
+      create_pe_tune_file(scale_results_parent_dir)
+    end
   end
 
   # Create the CSV file for the scale run and add the headings row
@@ -238,10 +240,16 @@ module PerfRunHelper
   #   restart_puppetserver
   #
   def restart_puppetserver
-    puts "Restarting pe-puppetserver service..."
+    if %w(foss aio).include?(ENV['BEAKER_INSTALL_TYPE'])
+      service = 'puppetserver'
+    else
+      service = 'pe-puppetserver'
+    end
+
+    puts "Restarting #{service} service..."
     puts
 
-    on master, "service pe-puppetserver restart"
+    on master, "service #{service} restart"
 
     puts "Sleeping..."
     puts

@@ -257,7 +257,7 @@ module PerfHelper
     step "Install Puppet Agent." do
       install_package agent, "puppet-agent"
       on(agent, "puppet agent -t --server #{master}")
-      on(master, "puppet config remove --section master autosign")
+      on(master, "puppet config delete --section master autosign")
     end
   end
 
@@ -301,8 +301,8 @@ module PerfHelper
   end
 
   def r10k_deploy
-    bin = ENV["PUPPET_BIN_DIR"]
-    r10k_version = ENV["PUPPET_R10K_VERSION"]
+    bin = ENV['PUPPET_BIN_DIR']
+    r10k_version = ENV['PUPPET_R10K_VERSION'] || '3.0.0'
 
     step "Install and configure r10k" do
       r10k_config = get_r10k_config_from_env

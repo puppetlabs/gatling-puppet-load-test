@@ -413,9 +413,10 @@ node 'default' {}
   end
 
   def update_hiera_datadir_in_local_config
-    config = YAML.load_file(@local_hiera_config_path)
-    config[:yaml][:datadir] = '/etc/puppetlabs/code/environments/production/hieradata/'
-    File.open(@local_hiera_config_path, 'w') { |f| f.write(config.to_yaml) }
+    # TODO: REMOVE
+    # config = YAML.load_file(@local_hiera_config_path)
+    # config[:yaml][:datadir] = '/etc/puppetlabs/code/environments/production/hieradata/'
+    # File.open(@local_hiera_config_path, 'w') { |f| f.write(config.to_yaml) }
   end
 
   def install_hiera_config(host)

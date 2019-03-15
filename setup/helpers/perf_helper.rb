@@ -414,8 +414,7 @@ node 'default' {}
 
   def update_hiera_datadir_in_local_config
     config = YAML.load_file(@local_hiera_config_path)
-    config[:yaml] ||= {}
-    config[:yaml][:datadir] = '/etc/puppetlabs/code/environments/production/hieradata/'
+    config['hierarchy'].reject! {|backend| backend['name'] =~ /Classifier/i }
     File.open(@local_hiera_config_path, 'w') { |f| f.write(config.to_yaml) }
   end
 

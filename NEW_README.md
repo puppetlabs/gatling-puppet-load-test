@@ -6,9 +6,9 @@ At the end of the run, the gatling results and atop results will be copied back 
 
 * Clone the gatling-puppet-load-test repo locally: https://github.com/puppetlabs/gatling-puppet-load-test
 * cd into the gatling-puppet-load-test root directory
-* For apples to apples runs, you can use the checked-in hosts files: [pe-perf-test.cfg](config/pe-perf-test.cfg) or [foss-perf-test.cfg](/config/foss-perf-test.cfg). These are the defaults for the performance rake task based on the specified BEAKER_INSTALL_TYPE (pe or foss).
+* For apples to apples runs, you can use the checked-in hosts files: [pe-perf-test.cfg](config/beaker_hosts/pe-perf-test.cfg) or [foss-perf-test.cfg](config/beaker_hosts/foss-perf-test.cfg). These are the defaults for the performance rake task based on the specified BEAKER_INSTALL_TYPE (pe or foss).
 * In order for us to take advantage of the new AWS account with access to internal network resources, you need to use [ABS](https://github.com/puppetlabs/always-be-scheduling). The 'performance' task will automatically use ABS to provision 2 AWS instances and then execute tests against those instances.
-* ABS requires a token when making requests. See the [Token operations](https://github.com/puppetlabs/always-be-scheduling#token-operations) section of the ABS README file for instructions to generate a token. 
+* ABS requires a token when making requests. See the [Token operations](https://github.com/puppetlabs/always-be-scheduling#token-operations) section of the ABS README file for instructions to generate a token.
 Once generated, either set the ABS_TOKEN environment variable with your token or add it to the .fog file in your home directory using the abs_token parameter. For example:
 ```
 :default:
@@ -19,7 +19,7 @@ Once generated, either set the ABS_TOKEN environment variable with your token or
 * If the hosts are preserved via Beaker's 'preserve_hosts' setting, then you will need to manually execute the 'performance_deprovision_with_abs' rake task when you are done with the hosts.
 * For a run against a PE build set BEAKER_INSTALL_TYPE=pe and provide values for BEAKER_PE_VER and BEAKER_PE_DIR environment variables
 * For a run against a FOSS build set BEAKER_INSTALL_TYPE=foss and provide values for PACKAGE_BUILD_VERSION and PUPPET_AGENT_VERSION environment variables
-* If you want to do something custom (which should not normally be necessary): create a beaker config file using one of the configs in this directory as a template: https://github.com/puppetlabs/gatling-puppet-load-test/blob/master/config/beaker_hosts/
+* If you want to do something custom (which should not normally be necessary): create a beaker config file using one of the configs in [config/beaker_hosts](config/beaker_hosts) as a template.
     *  export BEAKER_HOSTS=\<your hosts file>
 * Execute:
     * bundle install
@@ -37,8 +37,8 @@ Execute:
 
 ### Kick off Soak performance tests
 In order to execute a Soak performance run:
-* Follow the instructions from "Set up Puppet Enterprise and Gatling but do not execute a gatling scenario".  
-* Then manually tune the master by running `puppet infrastructure tune` on the master.  
+* Follow the instructions from "Set up Puppet Enterprise and Gatling but do not execute a gatling scenario".
+* Then manually tune the master by running `puppet infrastructure tune` on the master.
 * You will have to edit '/etc/puppetlabs/puppet/hiera.yaml' to add 'nodes/%{fqdn}' to the top of the hiera hierarchy.
 * Then create '/etc/puppetlabs/code/environments/production/hieradata/nodes/\<master fqdn>.yaml' where master fqdn is the result of `facter networking.fqdn` (run on master), and put the output of the tune command in it.
 * Verify that worked by running `puppet lookup puppet_enterprise::master::puppetserver::jruby_max_active_instances --explain` and checking that it got the key from your new file
@@ -60,7 +60,7 @@ These values can be specified via the 'PUPPET_GATLING_SCALE_ITERATIONS' and 'PUP
 
 After each iteration completes the results are checked and if a KO is found the test is failed.
 
-The results for each iteration are copied to a folder named 'PERF_SCALE{$SCALE_TIMESTAMP}' in `results/scale`. 
+The results for each iteration are copied to a folder named 'PERF_SCALE{$SCALE_TIMESTAMP}' in `results/scale`.
 The sub-directory for each iteration is named based on the scenario, iteration, and number of agents.
 
 In order to execute a Scale performance run:
@@ -77,7 +77,7 @@ A set of 'autoscale' rake tasks are provided to handle setup and scale test exec
 The pre-suite has been updated to include tuning of the master via 'puppet infrastructure tune' for scale tests so this is no longer a manual step.
 As with the other configurations test nodes can be provisioned as part of the run or as a separate step.
 
-Note that when using the autoscale rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete. 
+Note that when using the autoscale rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete.
 
 * To provision nodes as part of the run:
 ```
@@ -205,15 +205,15 @@ From root of the gatling-puppet-load-test source dir on the Gatling driver (metr
 ### Analyzing results
 * Gatling results, including HTML visualizations show up in the directory: gatling-puppet-load-test/simulation-runner/results/\<GatlingClassName>-\<epoch_time>/
     * scp them locally and you can view them in your browser.
-* atop files containing cpu, mem, disk and network usage overall and broken down per process are available to view on the mom: atop -r /var/log/atop/atop_\<date>
+* atop files containing cpu, mem, disk and network usage overall and broken down per process are available to view on the mom: atop -r /var/log/atop/atop\_\<date>
     * See the atop man file for interactive commands
-    
+
 ### Aborting a test run
 The easiest way to immediately kill a test run is to kill the corresponding Java process on the metrics node. Find the process id with top and then use `kill <PID>`.
 
 ### Generating reports for aborted runs
-If a Gatling scenario is aborted the reports may not be generated. In this case you can run Gatling in reports-only mode to generate the reports for a previous run (assuming that the hosts have been preserved). 
-You'll need to specify the name of the folder on the metrics node containing the simulation.log file for the run. 
+If a Gatling scenario is aborted the reports may not be generated. In this case you can run Gatling in reports-only mode to generate the reports for a previous run (assuming that the hosts have been preserved).
+You'll need to specify the name of the folder on the metrics node containing the simulation.log file for the run.
 Look in `~/gatling-puppet-load-test/simulation-runner/results` for a folder that starts with 'PerfTestLarge-' followed by the run id and verify that the folder contains a valid (non-empty) simulation.log file.
 
 If you find that the simulation.log file is not being populated during your run you may need to reduce the log buffer size from the 8kb default.

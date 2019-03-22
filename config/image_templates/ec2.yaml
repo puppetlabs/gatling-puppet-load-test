@@ -49,16 +49,6 @@ AMI:
       :pe: ami-92f366a2
     :region: us-west-2
 
-  ubuntu-1004-amd64-west:
-    :image: 
-      :pe: ami-e2c154d2
-    :region: us-west-2
-
-  ubuntu-1004-i386-west:
-    :image: 
-      :pe: ami-e6c154d6
-    :region: us-west-2
-
   ubuntu-1204-amd64-west:
     :image: 
       :pe: ami-d6e860e6
@@ -122,12 +112,6 @@ AMI:
       :foss: ami-4a6df87a
     :region: us-west-2
 
-  ubuntu-10.04-amd64-west:
-    :image:
-      :pe: ami-52ea6262
-      :foss: ami-52ea6262
-    :region: us-west-2
-
   ubuntu-12.04-amd64-west:
     :image:
       :pe: ami-d6e860e6
@@ -150,12 +134,6 @@ AMI:
     :image:
       :pe: ami-0bd16d62
       :foss: ami-0bd16d62
-    :region: us-east-1
-
-  ubuntu-10.04-i386:
-    :image:
-      :pe: ami-f5d76b9c
-      :foss: ami-f5d76b9c
     :region: us-east-1
 
   debian-7-amd64-west:

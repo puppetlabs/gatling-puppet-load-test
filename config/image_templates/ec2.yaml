@@ -59,21 +59,6 @@ AMI:
       :pe: ami-9a77fdaa
     :region: us-west-2
 
-  debian-6-amd64-west:
-    :image: 
-      :pe: ami-4eea627e
-    :region: us-west-2
-
-  debian-6-amd64-west-2:
-    :image:
-      :pe: ami-fd4401cd
-    :region: us-west-2
-
-  debian-6-i386-west:
-    :image: 
-      :pe: ami-fcf27fcc
-    :region: us-west-2
-
   sles-11-x86-64-west:
     :image: 
       :pe: ami-3ef2670e
@@ -116,12 +101,6 @@ AMI:
     :image:
       :pe: ami-d6e860e6
       :foss: ami-d6e860e6
-    :region: us-west-2
-
-  debian6-amd64-west:
-    :image:
-      :pe: ami-4eea627e
-      :foss: ami-4eea627e
     :region: us-west-2
 
   el-6-i386:

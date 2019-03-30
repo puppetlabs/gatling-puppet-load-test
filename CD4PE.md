@@ -94,6 +94,9 @@ The Auto DevOps pipeline has been enabled and will be used if no alternative CI 
 * Click the 'Save changes' button.
 
 ### Update the control repo for CD4PE
+Retune because tuning will get lost when the control repo is deployed
+* add in the pe_tune changes to the common.yaml on the production branch
+
 CD4PE is designed to use the master branch as the default with additional branches per environment.
 
 * Create a 'master' branch from the 'production' branch.
@@ -208,6 +211,11 @@ Found 1 environments.
 puppet-code deploy production --wait
 ```
 
+* Run the agent on the master to pick up the changes
+```
+puppet agent -t
+```
+
 ### Update the environment timeout
 Code Manager sets the `environment_timeout` value in `/etc/puppetlabs/puppet/puppet.conf` to `unlimited` which means that Puppet Server will hold the results of parsing puppet manifests in memory and re-use them until the next deploy instead of re-reading and re-parsing the files for each catalog request.   
 * Edit `/etc/puppetlabs/puppet/puppet.conf` to specify `environment_timeout = 0`
@@ -219,9 +227,9 @@ service pe-puppetserver restart
 The master is now ready to install CD4PE using the module-based approach.
 
 # Install CD4PE
-https://puppet.com/docs/continuous-delivery/2.x/install_module.html
+The puppetfile below can be used with the instructions at the following link to install cd4pe. 
 
-Install CD4PE using the instructions above. 
+https://puppet.com/docs/continuous-delivery/2.x/install_module.html
 
 Note: some of the CD4PE dependencies are already included in the puppetlabs-puppetserver_perf_control repo's Puppetfile.
 This will be addressed in a future update; in the meantime the following example can be used (duplicates are commented out):
@@ -342,6 +350,8 @@ The remaining steps are covered in the official documentation:
 ## Configure CD4PE using a task
 https://puppet.com/docs/continuous-delivery/2.x/install_module.html#task-8759
 
+Note: Create a user account when you first log into cd4pe
+
 ## Integrate CD4PE with Gitlab
 https://puppet.com/docs/continuous-delivery/2.x/integrations.html#task-7720
 
@@ -353,6 +363,9 @@ https://puppet.com/docs/continuous-delivery/2.x/configure_impact_analysis.html#c
 
 # Configure Job Hardware
 https://puppet.com/docs/continuous-delivery/2.x/configure_job_hardware.html#concept-7483
+
+# Configure Node Groups
+https://puppet.com/docs/continuous-delivery/2.x/start_deploying.html#concept-4575
 
 ---
 

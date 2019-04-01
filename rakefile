@@ -41,11 +41,11 @@ end
 
 def configure_opsworks
   ENV['BEAKER_HOSTS'] = 'config/beaker_hosts/opsworks-perf-test.cfg'
-  # sizes can be any of the 3 below, specifying nothing defaults to c4.2xlarge so that is ok too
-  opsworks_instance_sizes = ["m5.large", "c4.xlarge", "c4.2xlarge", ""]
-  if ["c4.2xlarge", ""].include? ENV['ABS_AWS_MOM_SIZE']
+  # sizes can be any of the 3 below, specifying nothing defaults to c5.2xlarge so that is ok too
+  opsworks_instance_sizes = ["m5.large", "c5.xlarge", "c5.2xlarge", ""]
+  if ["c5.2xlarge", ""].include? ENV['ABS_AWS_MOM_SIZE']
     opsworks_size = "Large"
-  elsif "c4.xlarge" == ENV['ABS_AWS_MOM_SIZE']
+  elsif "c5.xlarge" == ENV['ABS_AWS_MOM_SIZE']
     opsworks_size = "Med"
   elsif "m5.large" == ENV['ABS_AWS_MOM_SIZE']
     opsworks_size = "Small"
@@ -73,8 +73,8 @@ rototiller_task :performance_provision_with_abs do |t|
   t.add_env({:name => 'BEAKER_PE_DIR', :message => 'The PE download directory, example: http://enterprise.delivery.puppetlabs.net/archives/releases/2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'BEAKER_PE_VER', :message => 'The PE version to install on hosts, example: 2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'ABS_OS', :default => 'centos-7-x86-64-west', :message => 'The OS to provision with ABS: centos-7-x86-64-west (for AWS), or centos-7-x86_64 (for vmpooler)'})
-  t.add_env({:name => 'ABS_AWS_METRICS_SIZE', :default => 'c4.2xlarge', :message => 'The AWS instance size for the Metrics host'})
-  t.add_env({:name => 'ABS_AWS_MOM_SIZE', :default => 'c4.2xlarge', :message => 'The AWS instance size for the MOM host'})
+  t.add_env({:name => 'ABS_AWS_METRICS_SIZE', :default => 'c5.2xlarge', :message => 'The AWS instance size for the Metrics host'})
+  t.add_env({:name => 'ABS_AWS_MOM_SIZE', :default => 'c5.2xlarge', :message => 'The AWS instance size for the MOM host'})
 
   abs_resource_hosts = get_abs_resource_hosts(get_a2a_hosts)
   raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
@@ -367,28 +367,28 @@ end
 
 desc 'Provision a cd4pe host via ABS'
 rototiller_task :abs_provision_host_cd4pe do
-  host_to_provision = get_host_to_provision("cd4pe", "c4.2xlarge", "80")
+  host_to_provision = get_host_to_provision("cd4pe", "c5.2xlarge", "80")
   abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
   raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
 end
 
 desc 'Provision a gitlab host via ABS'
 rototiller_task :abs_provision_host_gitlab do
-  host_to_provision = get_host_to_provision("gitlab", "c4.xlarge", "80")
+  host_to_provision = get_host_to_provision("gitlab", "c5.xlarge", "80")
   abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
   raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
 end
 
 desc 'Provision an agent host via ABS'
 rototiller_task :abs_provision_host_agent do
-  host_to_provision = get_host_to_provision("agent", "c4.large", "40")
+  host_to_provision = get_host_to_provision("agent", "c5.large", "40")
   abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
   raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
 end
 
 desc 'Provision a worker host via ABS'
 rototiller_task :abs_provision_host_worker do
-  host_to_provision = get_host_to_provision("worker", "c4.xlarge", "80")
+  host_to_provision = get_host_to_provision("worker", "c5.xlarge", "80")
   abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
   raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
 end

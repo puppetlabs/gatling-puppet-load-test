@@ -1,15 +1,39 @@
 CD4PE Test Environment
 =========================
 
+#### Table of Contents
+
+- [Background](#background)
+- [Test environment](#test-environment)
+  * [Set environment variables](#set-environment-variables)
+  * [Provision GPLT hosts](#provision-gplt-hosts)
+  * [Provision CD4PE hosts](#provision-cd4pe-hosts)
+- [Gitlab](#gitlab)
+  * [Install the Gitlab package](#install-the-gitlab-package)
+  * [Set the root password](#set-the-root-password)
+  * [Disable the Auto DevOps pipeline](#disable-the-auto-devops-pipeline)
+  * [Apply tuning](#apply-tuning)
+  * [Update branches for CD4PE](#update-branches-for-cd4pe)
+- [PE](#pe)
+  * [Code Manager](#code-manager)
+- [CD4PE](#cd4pe)
+  * [Install the CD4PE module](#install-the-cd4pe-module)
+  * [Configure CD4PE using a task](#configure-cd4pe-using-a-task)
+  * [Integrate CD4PE with Gitlab](#integrate-cd4pe-with-gitlab)
+  * [Integrate CD4PE with PE](#integrate-cd4pe-with-pe)
+  * [Configure Impact Analysis](#configure-impact-analysis)
+  * [Configure Job Hardware](#configure-job-hardware)
+  * [Configure Node Groups](#configure-node-groups)
+
+
 # Background
 This document provides instructions for setting up a CD4PE test environment using the performance pre-suite and supplementary rake tasks.
 
-The cd4pe installation uses the [module-based installation instructions](https://puppet.com/docs/continuous-delivery/2.x/install_module.html#task-8759).
+The CD4PE installation uses the [module-based installation instructions](https://puppet.com/docs/continuous-delivery/2.x/install_module.html#task-8759).
 
-# Set up the test environment
-## Configure the environment and provision the hosts
+# Test environment
 
-### Set the required environment variables
+## Set environment variables
 The following environment variables must be set:
 * BEAKER_INSTALL_TYPE
 * BEAKER_PE_DIR
@@ -28,12 +52,12 @@ or use the provided environment setup file:
 source config/env/env_setup_2019.0.1
 ```
 
-### Provision GPLT hosts and run the pre-suite
+## Provision GPLT hosts
 Execute a 'performance' run to provision the 'mom' and 'metrics' hosts via ABS and run the Beaker pre-suite.
 For a standard performance test environment run the `performance_setup` rake task.
 For a scale test environment run the `autoscale_setup` rake task.
 
-### Provision the CD4PE hosts
+## Provision CD4PE hosts
 The following rake tasks are provided to create the CD4PE test environment hosts via ABS:
 ```
 rake abs_provision_environment_cd4pe          # Provision the hosts for a cd4pe test environment via ABS
@@ -41,19 +65,18 @@ rake abs_provision_host_agent                 # Provision an agent host via ABS
 rake abs_provision_host_cd4pe                 # Provision a cd4pe host via ABS
 rake abs_provision_host_gitlab                # Provision a gitlab host via ABS
 rake abs_provision_host_worker                # Provision a worker host via ABS
-
 ```
 
 For a full CD4PE environment run the `abs_provision_environment_cd4pe` task.
 For a custom environment, run the individual tasks to provision the desired hosts.
 
-## Set up Gitlab
+# Gitlab
 The test environment uses a standard installation of Gitlab on Centos 7:
 https://about.gitlab.com/install/#centos-7
 
 The pre-requisites specified in the instructions are already in place; only the steps listed below are required:
 
-### Install the Gitlab package
+## Install the Gitlab package
 * SSH to the Gitlab host as the root user.
 * Add the GitLab package repository:
 
@@ -68,12 +91,12 @@ curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rp
 EXTERNAL_URL="http://ip-x-x-x-x.amz-dev.puppet.net" yum install -y gitlab-ee
 ```
 
-### Set the root password
+## Set the root password
 Once Gitlab is installed and running, navigate to the host in a browser.
 * Set the password for the 'root' account to 'puppetlabs'.
 * Navigate to `admin/application_settings/network` and enable the 'Allow requests to the local network from hooks and services' setting.
 
-### Import the control repo
+## Import the control repo
 In the Gitlab UI:
 * Navigate to New Project → Import Project → Repo by URL
 * Provide a project name and description
@@ -82,7 +105,7 @@ In the Gitlab UI:
 
 You should now see the control repo in Gitlab.
 
-### Disable the Auto DevOps pipeline
+## Disable the Auto DevOps pipeline
 After importing the control repo you should see an alert banner with the following text:
 ```
 The Auto DevOps pipeline has been enabled and will be used if no alternative CI configuration file is found.
@@ -93,10 +116,56 @@ The Auto DevOps pipeline has been enabled and will be used if no alternative CI 
 * Uncheck the 'Default to Auto DevOps pipeline' option.
 * Click the 'Save changes' button.
 
-### Update the control repo for CD4PE
-Retune because tuning will get lost when the control repo is deployed
-* add in the pe_tune changes to the common.yaml on the production branch
+## Apply tuning
+If the master was previously tuned the configuration will be lost when the imported control repo is deployed. 
+It must be added to the control repo to be applied upon deployment.
+* SSH to the 'master' node
+* Run the following command:
+```
+puppet infrastructure tune --current
+```
 
+If a custom tune was previously applied it will be shown in the output. For example:
+```
+[root@ip-10-227-0-128 ~]# puppet infrastructure tune --current
+### Puppet Infrastructure Summary: Found a Monolithic Infrastructure
+
+Warning: /etc/puppetlabs/puppet/hiera.yaml: Use of 'hiera.yaml' version 3 is deprecated. It should be converted to version 5
+   (file: /etc/puppetlabs/puppet/hiera.yaml)
+Warning: Undefined variable 'is_vagrant'; 
+   (file & line not available)
+Warning: Undefined variable 'lsbdistcodename'; 
+   (file & line not available)
+## Found custom settings for Primary Master ip-10-227-0-128.amz-dev.puppet.net
+
+{
+  "puppet_enterprise::master::puppetserver::jruby_max_active_instances": 5,
+  "puppet_enterprise::master::puppetserver::reserved_code_cache": "1024m",
+  "puppet_enterprise::profile::console::java_args": {
+    "Xms": "768m",
+    "Xmx": "768m"
+  },
+  "puppet_enterprise::profile::database::shared_buffers": "3719MB",
+  "puppet_enterprise::profile::master::java_args": {
+    "Xms": "3840m",
+    "Xmx": "3840m"
+  },
+  "puppet_enterprise::profile::orchestrator::java_args": {
+    "Xms": "1024m",
+    "Xmx": "1024m"
+  },
+  "puppet_enterprise::profile::puppetdb::java_args": {
+    "Xms": "1487m",
+    "Xmx": "1487m"
+  },
+  "puppet_enterprise::puppetdb::command_processing_threads": 2
+}
+```
+
+* Copy just the tune configuration which follows any warnings and/or messages.
+* Add the tune configuration to the `hieradata\common.yaml` file on the production branch.
+
+## Update branches for CD4PE
 CD4PE is designed to use the master branch as the default with additional branches per environment.
 
 * Create a 'master' branch from the 'production' branch.
@@ -105,7 +174,8 @@ CD4PE is designed to use the master branch as the default with additional branch
 * Remove extraneous branches.
 * Ensure all branches are unprotected.
 
-# Set up PE
+# PE
+
 ## Code Manager
 We'll be using [Code Manager](https://puppet.com/docs/pe/2019.0/code_mgr.html) to deploy the [cd4pe module](https://forge.puppet.com/puppetlabs/cd4pe), so we'll set it up next. 
 The following steps are based on the documentation found here:
@@ -226,9 +296,10 @@ service pe-puppetserver restart
 
 The master is now ready to install CD4PE using the module-based approach.
 
-# Install CD4PE
-The puppetfile below can be used with the instructions at the following link to install cd4pe. 
-
+# CD4PE
+ 
+## Install the CD4PE module
+The Puppetfile below can be used with the instructions at the following link to install CD4PE:
 https://puppet.com/docs/continuous-delivery/2.x/install_module.html
 
 Note: some of the CD4PE dependencies are already included in the puppetlabs-puppetserver_perf_control repo's Puppetfile.
@@ -247,7 +318,6 @@ mod 'puppetlabs-stdlib', '4.25.1'
 mod 'puppetlabs-docker', '3.2.0'
 mod 'puppetlabs-apt', '6.2.1'
 mod 'puppetlabs-translate', '1.1.0'
-
 
 mod 'stahnma/epel', '1.2.2'
 
@@ -350,21 +420,21 @@ The remaining steps are covered in the official documentation:
 ## Configure CD4PE using a task
 https://puppet.com/docs/continuous-delivery/2.x/install_module.html#task-8759
 
-Note: Create a user account when you first log into cd4pe
+Note: Create a user account when you first log into CD4PE.
 
 ## Integrate CD4PE with Gitlab
 https://puppet.com/docs/continuous-delivery/2.x/integrations.html#task-7720
 
-# Integrate CD4PE with PE
+## Integrate CD4PE with PE
 https://puppet.com/docs/continuous-delivery/2.x/integrate_with_puppet_enterprise.html
 
-# Configure Impact Analysis
+## Configure Impact Analysis
 https://puppet.com/docs/continuous-delivery/2.x/configure_impact_analysis.html#concept-4400
 
-# Configure Job Hardware
+## Configure Job Hardware
 https://puppet.com/docs/continuous-delivery/2.x/configure_job_hardware.html#concept-7483
 
-# Configure Node Groups
+## Configure Node Groups
 https://puppet.com/docs/continuous-delivery/2.x/start_deploying.html#concept-4575
 
 ---

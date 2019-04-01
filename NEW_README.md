@@ -8,10 +8,9 @@
 1. [Soak performance tests](#soak-performance-tests)
 1. [Scale performance tests](#scale-performance-tests)
 1. [Acceptance tests](#acceptance-tests)
-1. [Assertions and Baseline Comparisons](#assertions-and-baseline-comparisons)
 1. [Other Topics](#other-topics)
     * [BigQuery Data Comparisons](#bigquery-data-comparisons)
-    * [Just Setup PE and Gatling](#set-up-puppet-enterprise-and-gatling-but-do-not-execute-a-gatling-scenario)
+    * [Just set up PE and Gatling](#set-up-puppet-enterprise-and-gatling-but-do-not-execute-a-gatling-scenario)
     * [Record a Gatling run](#record-a-gatling-run)
     * [Start a pre-recorded run](#start-a-pre-recorded-run)
     * [Analyze results](#analyze-results)
@@ -30,7 +29,7 @@
 
 ### Requirements
 
-In order to run the the software in this repo, you need the following
+In order to run the software in this repo, you need the following
 requirements installed.
 
 * [Ruby](https://www.ruby-lang.org/en/)
@@ -41,6 +40,8 @@ requirements installed.
 
 * Clone the gatling-puppet-load-test repo locally: https://github.com/puppetlabs/gatling-puppet-load-test
 * cd into the gatling-puppet-load-test root directory
+* Gather the necessary ruby packages by running `bundle install`.
+
 
 Several infrastructure variants are currently supported by the rake tasks in
 this repo.  The specific environment setup steps for each environment are
@@ -48,8 +49,8 @@ outlined below.
 
 #### Environment variables
 
-The following environment variables are largly common to the rake tasks shown
-below.  They are ase follows.
+The following environment variables are largely common to the rake tasks shown
+below.  They are as follows.
 
 `BEAKER_INSTALL_TYPE`
 _(git, foss, pe)_ : Determines the underlying path structure of the
@@ -74,7 +75,7 @@ Apply this configuration with the following command:
 source config/env/env_setup_2019.0.1
 ```
 
-For more information, see the beaker documentation on
+For more information, see the Beaker documentation on
 [beaker environment variables](https://github.com/puppetlabs/beaker/blob/master/docs/concepts/argument_processing_and_precedence.md#environment-variables)
 
 
@@ -88,15 +89,23 @@ your `$HOME/.fog` file.  Here is an example: _FIXME: Reference fog website._
   :aws_access_key_id: <access key here>
   :aws_secret_access_key: <secret key here>
 ```
+
+
 ##### ABS (Always Be Scheduling)
+
 **NOTE: This facility is not publically available and can only be used by
 personnel employed by Puppet the company.**
 
-* In order for to take advantage of the an AWS account with access to
+**NOTE:** AWS instances provided by ABS are automatically destroyed after
+24 hours.  The lifetime of these instances  can be set to an alternative value
+by setting the with `ABS_AWS_REAP_TIME` environment variable in seconds.
+
+* In order to use an AWS account with access to
 puppetlabs network resources, you need to use
 [ABS](https://github.com/puppetlabs/always-be-scheduling).
-The 'performance' task will automatically use ABS to provision 2 AWS
-instances and then execute tests against those instances.
+The `performance` task will automatically use ABS to provision two AWS
+instances ('master' and 'metrics') and then execute tests against those
+instances.
 
 * ABS requires a token when making requests. See the
 [Token operations](https://github.com/puppetlabs/always-be-scheduling#token-operations)
@@ -123,9 +132,9 @@ For more detailed information, please refer to the
 
 ## Apples to Apples performance tests
 
-By default, the performance rake task will set up a puppet master and a Gatling driver/metrics node.
-It will then kick off a gatling scenario defined for apples to apples performance tests.
-At the end of the run, the gatling results and atop results will be copied back to the test runner.
+By default, the `performance` rake task will set up a puppet master and a Gatling driver/metrics node.
+It will then kick off a Gatling scenario defined for apples to apples performance tests.
+At the end of the run, the Gatling results and atop results will be copied back to the test runner.
 
 * For apples to apples runs, you can use the checked-in hosts files: [pe-perf-test.cfg](config/beaker_hosts/pe-perf-test.cfg) or [foss-perf-test.cfg](config/beaker_hosts/foss-perf-test.cfg). These are the defaults for the performance rake task based on the specified `BEAKER_INSTALL_TYPE` (pe or foss).
 
@@ -143,7 +152,6 @@ At the end of the run, the gatling results and atop results will be copied back 
 
 * Execute
 ```
-    bundle install
     bundle exec rake performance_gatling    # (takes about 4 hours)
 ```
 
@@ -168,7 +176,6 @@ In order to execute the tests successfully with the `opsworks_performance` rake 
 
 Execute:
 ```
-bundle install
 bundle exec rake opsworks_performance    # (takes about 1.5 hours)
 ```
 
@@ -178,7 +185,7 @@ bundle exec rake opsworks_performance    # (takes about 1.5 hours)
 In order to execute a Soak performance run:
 
 * Follow the instructions from
-[Just Setup PE and Gatling](#set-up-puppet-enterprise-and-gatling-but-do-not-execute-a-gatling-scenario).
+[Just set up PE and Gatling](#set-up-puppet-enterprise-and-gatling-but-do-not-execute-a-gatling-scenario).
 
 * Then manually tune the master by running `puppet infrastructure tune` on the master.
 
@@ -269,15 +276,16 @@ There are additional rake tasks for small and medium autoscale runs to allow tes
 
 ## Acceptance tests
 
-You can execute the `acceptance` rake task resulting in a much shorter gatling
+You can execute the `acceptance` rake task resulting in a much shorter Gatling
 run.  This task runs VMPooler by default.  This is useful for quickly testing
 changes to the performance test setup.
 
 The [expected environment variables](#environment-variables) must be set prior
-to executing this task.  You must also set an an environment variable for
-`BEAKER_OPTIONS_FILE` prior to executing this task.  This repo includes
-[options files](setup/options), but if you have specific needs you must craft
-an options file that meets your needs.  Here is an example.
+to executing this task.  Additional environment variables can be set
+individually or stored in a file and referenced by setting the
+`BEAKER_OPTIONS_FILE` environment variable prior to executing this task.  This
+repo includes [options files](setup/options), but if you have specific needs
+you must craft an options file that meets your needs.  Here is an example.
 
 ```
 export BEAKER_OPTIONS_FILE='setup/options/options_pe.rb'
@@ -321,7 +329,11 @@ Things to note:
 
 * If `BASELINE_PE_VER` has not been set than the baseline comparison assertions in the last test step will not be run (test step will be skipped).
 
-* Whatever string you pass to the job to indicate the `BEAKER_PE_VER` needs to be used consistently. For example, if you set the version in the format `2018.1.1-rc0-11-g8fbde83` you need to use this again as the `BASELINE_PE_VER` or the test will error/not return expected results.
+* The string specified for the `BASELINE_PE_VER` must exactly match the string
+  specified as the `BEAKER_PE_VER` when that test run was executed. For
+  example, if `BEAKER_PE_VER=2018.1.1-rc0-11-g8fbde83` was specified for a
+  test run, `BASELINE_PE_VER=2018.1.1-rc0-11-g8fbde83` must be specified in
+  the future to use that specific test run as the baseline.
 
 * If `BASELINE_PE_VER` is not found in BigQuery then the last step will error.
 
@@ -337,7 +349,7 @@ To directly query bigquery:
 GROUP BY pe_build_number'
 
 
-### Set up Puppet Enterprise and Gatling but do not execute a gatling scenario
+### Set up Puppet Enterprise and Gatling but do not execute a Gatling scenario
 
 Another use for the performance task would be to record and playback a new scenario either for one-off testing,
 or for a new scenario that will be checked in and used.  Additionally, you may just want to execute the setup standalone and then execute the tests later.
@@ -386,7 +398,7 @@ Assuming that you ran the performance task with no tests, you can follow the dir
 * Continue to follow the script.
     * When asked for the certname prefix enter any value containing the string 'agent'. For example perf-agent-0
     * When asked for Puppet classes, enter the configuration which defaults to: role::by_size::large
-        * You can use a different puppet class by specifying it as the `PUPPET_SCALE_CLASS` environment variable for the performance_gatling rake task.
+        * You can use a different puppet class by specifying it as the `PUPPET_SCALE_CLASS` environment variable for the `performance_gatling` rake task.
 
 
 ### Start a pre-recorded run

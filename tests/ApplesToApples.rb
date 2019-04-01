@@ -6,7 +6,7 @@ teardown do
   perf_teardown
 end
 
-# Execute 60 agent runs to warm up the JIT before starting our monitoring.
+# Execute agent runs to warm up the JIT before starting our monitoring.
 perf_setup('WarmUpJit.json','PerfTestLarge', '')
 stop_monitoring(master, '/opt/puppetlabs')
 

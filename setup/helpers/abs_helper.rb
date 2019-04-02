@@ -12,7 +12,7 @@ include InParallel
 module AbsHelper
   ABS_BASE_URL = "https://cinext-abs.delivery.puppetlabs.net/api/v2".freeze
   AWS_PLATFORM = "centos-7-x86_64".freeze
-  AWS_IMAGE_ID = "ami-a042f4d8".freeze
+  AWS_IMAGE_ID = "ami-01ed306a12b7d1c96".freeze
   AWS_VOLUME_SIZE = "80".freeze
   AWS_REGION = "us-west-2".freeze
 

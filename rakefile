@@ -398,3 +398,20 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = ['--color']
   t.pattern = 'spec/'
 end
+
+desc 'Clean up artifacts created by performance runs'
+task :clean do
+  rm_rf "simulation-runner/cache"
+  rm_rf "simulation-runner/config/tmp"
+  rm_rf "gatling-recorder.log"
+  rm_rf "cache"
+  rm_rf "log"
+  rm_rf "junit"
+  rm_rf "last_abs_resource_hosts.log"
+  rm_rf "log"
+  rm_rf Dir.glob('results/perf/PERF_*').grep(/PERF_[0-9]+.*$/)
+  rm_rf Dir.glob('results/scale/PERF_SCALE_*')
+  rm_rf "simulation-runner/target"
+  rm_rf "tmp"
+  rm_rf Dir.glob('*.tgz')
+end

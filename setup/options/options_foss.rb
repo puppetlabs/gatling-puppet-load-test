@@ -7,7 +7,6 @@
     'setup/install_gatling/20_foss_install/10_install_dev_repos.rb',
     'setup/install_gatling/30_classification/10_r10k_deploy.rb',
     'setup/install_gatling/30_classification/50_classify_nodes_via_site_pp.rb',
-    'setup/install_gatling/40_post_install/10_install_hiera_config.rb',
     'setup/install_gatling/40_post_install/30_final_puppet_run.rb',
     'setup/install_gatling/40_post_install/40_configure_gatling_auth.rb',
     'setup/install_gatling/40_post_install/50_configure_permissive_server_auth.rb',

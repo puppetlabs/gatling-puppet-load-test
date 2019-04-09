@@ -148,6 +148,8 @@ At the end of the run, the Gatling results and atop results will be copied back 
 
     *  export `BEAKER_HOSTS=\<your beaker_hosts file>`
 
+* In order to have a baseline comparison performed at the end of the test run, set: `export BASELINE_PE_VER=`
+
 * Execute
 ```
     bundle exec rake performance_gatling    # (takes about 4 hours)
@@ -225,11 +227,12 @@ In order to execute a Scale performance run:
 
 A set of 'autoscale' rake tasks are provided to handle setup and scale test execution.
 The pre-suite has been updated to include tuning of the master via 'puppet infrastructure tune' for scale tests so this is no longer a manual step.
-As with the other configurations tests,  nodes can be provisioned as part of the run or as a separate step.
+As with the other test types, nodes can be provisioned as part of the run or as a separate step.
 
 Note that when using the autoscale rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete.
 
-To provision nodes as part of the run:
+#### To provision nodes as part of the run:
+
 ```
 bundle exec rake autoscale
 ```
@@ -257,7 +260,7 @@ bundle exec rake performance_deprovision_with_abs
 There are additional rake tasks for small and medium autoscale runs to allow testing of the environment and autoscale functionality without waiting for a full run:
 
 `autoscale_provisioned_tiny`
-- 1 agents
+- 1 agent
 - 3 iterations
 - increment by 1
 
@@ -317,15 +320,12 @@ If you want to push the metrics to BigQuery at the end of the test run set:
 
 By default this will be set to `false` when running locally and `true` when jobs run in CI.
 
-In order to have a baseline comparison performed at the end of the test run, set:
-
-`export BASELINE_PE_VER=`
-
 to the version of PE you want to compare against.
 
 Things to note:
 
-* If `BASELINE_PE_VER` has not been set than the baseline comparison assertions in the last test step will not be run (test step will be skipped).
+* If `BASELINE_PE_VER` has not been set then the baseline comparison
+  assertions in the last test step will not be run (test step will be skipped).
 
 * The string specified for the `BASELINE_PE_VER` must exactly match the string
   specified as the `BEAKER_PE_VER` when that test run was executed. For
@@ -352,7 +352,7 @@ GROUP BY pe_build_number'
 Another use for the performance task would be to record and playback a new scenario either for one-off testing,
 or for a new scenario that will be checked in and used.  Additionally, you may just want to execute the setup standalone and then execute the tests later.
 
-* Follow the above instructions, but also `export BEAKER_TESTS=` and `BEAKER_PRESERVE_HOSTS=always` prior to executing the rake task to tell beaker not to execute any tests and preserve the machines.
+* Follow the _Apples to Apples_ instructions, but also `export BEAKER_TESTS=` and `BEAKER_PRESERVE_HOSTS=always` prior to executing the rake task to tell beaker not to execute any tests and preserve the machines.
 
 * Depending on your use case, you can also choose to execute the 'acceptance' task which will run in vmpooler rather than AWS. This is useful when testing/debugging but not for actual performance measurement.
 
@@ -447,9 +447,7 @@ For example:
 ```
 bundle exec rake performance_against_already_provisioned \
     BEAKER_INSTALL_TYPE=pe \
-    BEAKER_PRE_SUITE=  #FIXME: value missing \
     BEAKER_PRESERVE_HOSTS=always \
-    BEAKER_HOSTS=log/hosts_preserved.yml \
     PUPPET_GATLING_REPORTS_ONLY=true \
     PUPPET_GATLING_REPORTS_TARGET=PerfTestLarge-1524773045554
 ```

@@ -57,9 +57,6 @@ below.  They are as follows.
 _(git, foss, pe)_ : Determines the underlying path structure of the
 puppet install.
 
-`BEAKER_OPTIONS_FILE`
-: Path to file containing additionally defined beaker options.
-
 `BEAKER_PE_VER`
 : The desired PE version to be installed. Must be available within
 the `BEAKER_PE_DIR`.

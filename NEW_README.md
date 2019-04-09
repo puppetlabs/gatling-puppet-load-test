@@ -36,6 +36,9 @@ requirements installed.
 * [Bundler](https://bundler.io/)
 * [OpenJDK](https://openjdk.java.net/)
 
+**NOTE:** These tasks run for several hours. It is not recommended to run them
+directly from a workstation. You should use a dedicated VM instance to control
+these tasks.
 
 ### Environment setup
 
@@ -148,7 +151,10 @@ At the end of the run, the Gatling results and atop results will be copied back 
 
     *  export `BEAKER_HOSTS=\<your beaker_hosts file>`
 
-* In order to have a baseline comparison performed at the end of the test run, set: `export BASELINE_PE_VER=`
+* In order to have a baseline comparison performed at the end of the test run
+  set `BASELINE_PE_VER` and `GOOGLE_APPLICATION_CREDENTIALS` in order to
+  gather the baseline data.  See
+  [BigQuery Data Comparisons](#bigquery-data-comparisons) for details.
 
 * Execute
 ```

@@ -351,7 +351,7 @@ EOS
   end
 
   def get_classifier
-    classifier = Scooter::HttpDispatchers::ConsoleDispatcher.new(dashboard, {:login => 'admin', :password => 'puppetlabs', :resolve_dns => true})
+    classifier = Scooter::HttpDispatchers::ConsoleDispatcher.new(dashboard)
     # Updating classes can take a VERY long time, like the OPS deployment
     # which has ~80 environments each with hundreds of classes.
     # Set the connection timeout to 60 minutes to accomodate this.

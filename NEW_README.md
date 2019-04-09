@@ -34,6 +34,7 @@ requirements installed.
 
 * [Ruby](https://www.ruby-lang.org/en/)
 * [Bundler](https://bundler.io/)
+* [OpenJDK](https://openjdk.java.net/)
 
 
 ### Environment setup

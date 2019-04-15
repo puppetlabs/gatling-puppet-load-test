@@ -821,6 +821,7 @@ module PerfRunHelper
     baseline = get_baseline_result
     unless baseline.nil?
       baseline.each do |key, value|
+
         if key.to_s == "avg_response_time"
           assert_value = gatling_result.avg_response_time.to_f
         elsif key.to_s.start_with? "process"
@@ -831,15 +832,22 @@ module PerfRunHelper
 
         puts "Value for #{key} is baseline: #{value} Actual: #{assert_value}"
         next if key.to_s.start_with?("process") && key.to_s.end_with?("cpu")
+        allowed_baseline_variance = if key.to_s == 'process_orchestration_services_release_avg_mem'
+                                      15
+                                    else
+                                      10
+                                    end
         if value.is_a? Integer
-          # If the baseline value is 10 or lower (usually CPU) then we need to allow more than 10% variance
-          # since it is only whole numbers. If it is 10 or less, we should allow for +1 or -1
-          if value <= 10
+          # If the baseline value is `allowed_baseline_variance` or lower
+          # (usually CPU) then we need to allow more than 10% variance
+          # since it is only whole numbers. If it is
+          # `allowed_baseline_variance` or less, we should allow for +1 or -1
+          if value <= allowed_baseline_variance
             assert_later(assert_value.between?(value -1, value + 1), "The value of #{key} '#{assert_value}' " +
-                "was not within 10% of the baseline '#{value}'")
+                "was not within #{allowed_baseline_variance}% of the baseline '#{value}'")
           else
             assert_later((assert_value - value) / value * 100 <= 10, "The value of #{key} '#{assert_value}' " +
-                "was not within 10% of the baseline '#{value}'")
+                "was not within #{allowed_baseline_variance}% of the baseline '#{value}'")
           end
         end
       end

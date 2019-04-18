@@ -238,15 +238,22 @@ module PerfRunHelper
   #   restart_puppetserver
   #
   def restart_puppetserver
-    puts "Restarting pe-puppetserver service..."
-    puts
+    if ENV["PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER"].eql?("false")
+      puts "PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER is set to false..."
+      puts "Skipping pe-puppetserver service restart..."
+      puts
+    else
+      puts "Restarting pe-puppetserver service..."
+      puts
 
-    on master, "service pe-puppetserver restart"
+      on master, "service pe-puppetserver restart"
 
-    puts "Sleeping..."
-    puts
+      puts "Sleeping..."
+      puts
 
-    sleep 60
+      sleep 60
+    end
+
   end
 
   # Purge the puppet-metrics-collector log files for each service
@@ -405,16 +412,13 @@ module PerfRunHelper
     puts
 
     # stop monitoring and get results
-    atop_result, gatling_result = get_perf_result
+    get_perf_result
 
     # copy results from metrics node
     copy_scale_results(scenario)
 
     # check results for KOs
     success = check_scale_results(scenario_hash)
-
-    # perform assertions
-    scale_assertions(atop_result, gatling_result) unless !success
 
     return success
   end
@@ -564,9 +568,9 @@ module PerfRunHelper
     # add this row to the csv
     update_scale_results_csv(scale_results_parent_dir, results)
 
-    # this needs to be last
-    if num_ko != 0
-      puts "ERROR - KO encountered in scenario: #{scenario}"
+    # allow no more than 10 KOs per iteration; this needs to be last
+    if num_ko > 10
+      puts "ERROR - more than 10 KOs encountered in scenario: #{scenario}"
       puts "Exiting scale run..."
       puts
       success = false
@@ -591,16 +595,6 @@ module PerfRunHelper
     CSV.open("#{scale_results_parent_dir}/PERF_SCALE_#{@scale_timestamp}.csv", "a+") do |csv|
       csv << results
     end
-  end
-
-  # TODO: remove atop_result if it isn't being used?
-  def scale_assertions(atop_result, gatling_result)
-
-    step 'successful request percentage' do
-      assert_later(gatling_result.successful_requests == 100, "Total successful request percentage was: #{gatling_result.successful_requests}%, expected 100%" )
-    end
-
-    assert_all
   end
 
   def assertion_exceptions

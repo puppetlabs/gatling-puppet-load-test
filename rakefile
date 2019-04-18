@@ -287,6 +287,18 @@ rototiller_task :autoscale do
   Rake::Task["autoscale_handle_latest_results"].execute unless ENV['BEAKER_TESTS'] == ''
 end
 
+desc 'Run Scale setup and test for gatling restarting pe-puppetserver with each iteration'
+rototiller_task :autoscale_cold do
+  ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'true'
+  Rake::Task["autoscale"].execute
+end
+
+desc 'Run Scale setup for gatling without restarting pe-puppetserver'
+rototiller_task :autoscale_warm do
+  ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'false'
+  Rake::Task["autoscale"].execute
+end
+
 desc 'Run Scale setup for gatling'
 rototiller_task :autoscale_setup do
   ENV['BEAKER_TESTS'] = ''
@@ -309,6 +321,26 @@ rototiller_task :autoscale_provisioned do
   ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
   Rake::Task["performance_against_already_provisioned"].execute
   Rake::Task["autoscale_handle_latest_results"].execute
+end
+
+desc 'Run Scale setup for gatling'
+rototiller_task :autoscale_provisioned_cold do
+  ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'true'
+  Rake::Task["autoscale_provisioned"].execute
+end
+
+desc 'Run Scale setup for gatling'
+rototiller_task :autoscale_provisioned_warm do
+  ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'false'
+  Rake::Task["autoscale_provisioned"].execute
+end
+
+desc 'Run perf simulation for CD4PE testing on previously provisioned hosts'
+rototiller_task :autoscale_provisioned_cd4pe do
+  ENV['PUPPET_GATLING_SCALE_ITERATIONS'] = '1'
+  ENV['PUPPET_GATLING_SCALE_INCREMENT'] = '0'
+  ENV['PUPPET_GATLING_SCALE_SCENARIO'] = 'cd4pe.json'
+  Rake::Task["autoscale_provisioned_warm"].execute
 end
 
 desc 'Run tiny Scale test for gatling on previously provisioned hosts'

@@ -1,0 +1,16 @@
+#! /bin/sh
+
+timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
+
+echo "backing up gatling-puppet-load-test"
+tar czf ./gplt.${timestamp}.tar.gz ./gatling-puppet-load-test
+
+echo "removing gatling-puppet-load-test"
+rm -rf ./gatling-puppet-load-test
+
+echo "cloning gatling-puppet-load-test"
+git clone https://github.com/puppetlabs/gatling-puppet-load-test.git
+
+echo "refresh complete; adding timestamp to gatling-puppet-load-test"
+touch ./gatling-puppet-load-test/${timestamp}.txt
+

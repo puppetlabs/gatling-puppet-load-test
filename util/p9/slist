@@ -1,0 +1,3 @@
+#! /bin/sh
+ls -all gatling-puppet-load-test/results/scale
+

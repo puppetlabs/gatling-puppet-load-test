@@ -1,0 +1,5 @@
+#! /bin/sh
+
+echo "cloning gatling-puppet-load-test"
+git clone https://github.com/puppetlabs/gatling-puppet-load-test.git
+

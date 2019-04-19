@@ -82,7 +82,17 @@ module PerfRunHelper
 
       # purge the metrics collector output and restart the service
       purge_puppet_metrics_collector
-      restart_puppetserver
+
+      # don't restart puppetserver for warm-start scenarios
+      if ENV["PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER"].eql?("false")
+        puts "PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER is set to false..."
+        puts "Skipping puppet server restart..."
+        puts
+      else
+        puts "Restarting puppet server..."
+        puts
+        restart_puppet_server(master)
+      end
 
       # run the scenario
       puts "Running scenario #{ct} of #{@scale_scenarios.length} : #{scenario}"
@@ -238,22 +248,14 @@ module PerfRunHelper
   #   restart_puppetserver
   #
   def restart_puppetserver
-    if ENV["PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER"].eql?("false")
-      puts "PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER is set to false..."
-      puts "Skipping pe-puppetserver service restart..."
-      puts
-    else
-      puts "Restarting pe-puppetserver service..."
-      puts
+    puts "Restarting pe-puppetserver service..."
+    puts
+    on master, "service pe-puppetserver restart"
 
-      on master, "service pe-puppetserver restart"
+    puts "Sleeping..."
+    puts
 
-      puts "Sleeping..."
-      puts
-
-      sleep 60
-    end
-
+    sleep 60
   end
 
   # Purge the puppet-metrics-collector log files for each service

@@ -1,6 +1,7 @@
 require 'beaker'
 require 'beaker-benchmark'
 require "google/cloud/bigquery"
+require "master_manipulator"
 
 module PerfRunHelper
 

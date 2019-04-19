@@ -238,26 +238,6 @@ module PerfRunHelper
     return output
   end
 
-  # Restart the pe-puppetserver service
-  #
-  # @author Bill Claytor
-  #
-  # @return [void]
-  #
-  # @example
-  #   restart_puppetserver
-  #
-  def restart_puppetserver
-    puts "Restarting pe-puppetserver service..."
-    puts
-    on master, "service pe-puppetserver restart"
-
-    puts "Sleeping..."
-    puts
-
-    sleep 60
-  end
-
   # Purge the puppet-metrics-collector log files for each service
   #
   # @author Bill Claytor

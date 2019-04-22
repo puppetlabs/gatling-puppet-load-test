@@ -13,6 +13,7 @@ def add_clamps_groups
     'parent'  => pe_infra_uuid,
     'classes' => {
       'clamps::agent' => {
+        'amqpass'               => '',
         'master'                => any_hosts_as?(:loadbalancer) ? 'puppet' : master.node_name,
         'nonroot_users'         => (options[:scale] && options[:scale][:num_nonroot_users])       || 2,
         'daemonize'             => (options[:scale] && options[:scale][:daemonize])               || false,

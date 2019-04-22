@@ -1,5 +1,3 @@
-require 'classification_helper'
-
 # Clamps is a module based stress testing tool. It will generate a number of
 # users on a system to simulate agents. It will then randomize their puppet
 # agent -t times to simulate a large number of agents.
@@ -49,29 +47,25 @@ def add_clamps_groups
     },
   }
 
-  dispatcher.find_or_create_node_group_model(clamps_agents_group)
-  dispatcher.find_or_create_node_group_model(clamps_users_group)
-  dispatcher.find_or_create_node_group_model(clamps_ca_group)
+  classifier = get_classifier
+  classifier.find_or_create_node_group_model(clamps_agents_group)
+  classifier.find_or_create_node_group_model(clamps_users_group)
+  classifier.find_or_create_node_group_model(clamps_ca_group)
 end
 
 def add_root_only_rule
-  # Modifies the PE Node Groups "PE Agent" and "PE MCollective" so
+  classifier = get_classifier
+  # Modifies the PE Node Groups "PE Agent" so
   # they do not get applied to non-root agents
-  pe_mcoll = dispatcher.get_node_group_by_name('PE MCollective')
-  pe_agent = dispatcher.get_node_group_by_name('PE Agent')
-
-  pe_mcollective_group = {
-    'name' => "PE MCollective",
-    'rule' => pe_mcoll["rule"] << ["=", [ "fact", "id" ], "root"],
-  }
+  pe_agent = classifier.get_node_group_by_name('PE Agent')
 
   pe_agent_group = {
     'name' => "PE Agent",
     'rule' => pe_agent["rule"] << ["=", [ "fact", "id" ], "root"],
   }
 
-  dispatcher.update_node_group(pe_mcoll['id'], pe_mcollective_group)
-  dispatcher.update_node_group(pe_agent['id'], pe_agent_group)
+  classifier = get_classifier
+  classifier.update_node_group(pe_agent['id'], pe_agent_group)
 end
 
 def clamps_enabled?

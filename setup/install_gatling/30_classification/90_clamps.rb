@@ -2,6 +2,9 @@
 # users on a system to simulate agents. It will then randomize their puppet
 # agent -t times to simulate a large number of agents.
 def add_clamps_groups
+  classifier = get_classifier
+  pe_infra_group = classifier.get_node_group_by_name('PE Infrastructure')
+  pe_infra_uuid = pe_infra_group['id']
   # Creates a node group for creating the fake agents. This node group should match all users that are
   # running as root.
   clamps_agents_group = {
@@ -47,7 +50,6 @@ def add_clamps_groups
     },
   }
 
-  classifier = get_classifier
   classifier.find_or_create_node_group_model(clamps_agents_group)
   classifier.find_or_create_node_group_model(clamps_users_group)
   classifier.find_or_create_node_group_model(clamps_ca_group)

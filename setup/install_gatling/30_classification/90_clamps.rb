@@ -9,7 +9,7 @@ def add_clamps_groups
   # running as root.
   clamps_agents_group = {
     'name'    => "Clamps - Agent Nodes",
-    "rule"    =>  [ "and", [ "=", [ "fact", "id" ], "root" ], [ "~", [ "fact", "fqdn" ], "agent" ] ],
+    "rule"    =>  [ "and", [ "=", [ "fact", "id" ], "root" ], ["=", "name", metric.node_name] ],
     'parent'  => pe_infra_uuid,
     'classes' => {
       'clamps::agent' => {

@@ -4,7 +4,8 @@
     'setup/install_gatling/00_pre_install/05_initialize_helpers.rb',
     'setup/install_gatling/00_pre_install/20_rpm_setup.rb',
     'setup/install_gatling/00_pre_install/30_r10k_git_setup.rb',
-    'setup/install_gatling/20_foss_install/10_install_dev_repos.rb',
+    # unique to foss
+      'setup/install_gatling/20_foss_install/10_install_dev_repos.rb',
     'setup/install_gatling/30_classification/10_r10k_deploy.rb',
     'setup/install_gatling/30_classification/50_classify_nodes_via_site_pp.rb',
     'setup/install_gatling/40_post_install/30_final_puppet_run.rb',

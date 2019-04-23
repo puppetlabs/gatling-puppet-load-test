@@ -17,12 +17,12 @@ def add_clamps_groups
         'master'                => any_hosts_as?(:loadbalancer) ? 'puppet' : master.node_name,
         'nonroot_users'         => (options[:scale] && options[:scale][:num_nonroot_users])       || 2,
         'daemonize'             => (options[:scale] && options[:scale][:daemonize])               || false,
-        'mco_daemon'            => (options[:scale] && options[:scale][:mco_daemon])              || 'stopped',
+        'mco_daemon'            => (options[:scale] && options[:scale][:mco_daemon]),
         'num_facts_per_agent'   => (options[:scale] && options[:scale][:facts_per_agent])         || 500,
         'percent_changed_facts' => (options[:scale] && options[:scale][:percent_facts_to_change]) || 15,
         'splay'                 => (options[:scale] && options[:scale][:splay])                   || false,
         'splaylimit'            => (options[:scale] && options[:scale][:splaylimit])              || false,
-      },
+      }.reject{ |k,v| v.nil? },
     }
   }
 

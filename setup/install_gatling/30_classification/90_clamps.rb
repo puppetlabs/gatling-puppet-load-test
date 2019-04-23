@@ -56,19 +56,15 @@ def add_clamps_groups
   classifier.find_or_create_node_group_model(clamps_ca_group)
 end
 
-def add_root_only_rule
+def update_pe_agent_rule_clamps
   classifier = get_classifier
-  # Modifies the PE Node Groups "PE Agent" so
-  # they do not get applied to non-root agents
   pe_agent = classifier.get_node_group_by_name('PE Agent')
 
-  pe_agent_group = {
-    'name' => "PE Agent",
-    'rule' => pe_agent["rule"] << ["=", [ "fact", "id" ], "root"],
-  }
-
-  classifier = get_classifier
-  classifier.update_node_group(pe_agent['id'], pe_agent_group)
+  rules = pe_agent['rule']
+  rules << ['not', ['~', %w[fact clientcert], ".*#{metric.node_name}"]]
+  rules << ['=', %w[fact id], 'root']
+  rules[0] = 'or'
+  classifier.update_node_group(pe_agent['id'], 'rule' => rules)
 end
 
 def clamps_enabled?
@@ -88,7 +84,7 @@ test_name 'Clamps classification' do
   end
 
   step 'remove non-root agents from classification' do
-    add_root_only_rule
+    update_pe_agent_rule_clamps
   end
 
 end

@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-# Clamps is a module based stress testing tool. It will generate a number of
-# users on a system to simulate agents. It will then randomize their puppet
-# agent -t times to simulate a large number of agents.
+# Create the Clamps - CA node group
+#
+# @param [Scooter::HttpDispatchers::Classifier] classifier
+# @param [Hash] pe_infra PE Infrastructure node group hash
 def add_clamps_group_ca(classifier, pe_infra)
   # The Clamps::master class manages auth.conf for the agents - by setting it
   # to allow all.  This is insecure and worth looking at overriding at some
@@ -19,8 +20,10 @@ def add_clamps_group_ca(classifier, pe_infra)
   classifier.find_or_create_node_group_model(clamps_ca_group)
 end
 
-# Creates a node group for creating the fake agents. This node group should
-# match all users that are running as root.
+# Create the Clamps - Agent Nodes node group
+#
+# @param [Scooter::HttpDispatchers::Classifier] classifier
+# @param [Hash] pe_infra PE Infrastructure node group hash
 def add_clamps_group_agent(classifier, pe_infra)
   clamps_agents_group = {
     'name'    => 'Clamps - Agent Nodes',
@@ -43,6 +46,10 @@ def add_clamps_group_agent(classifier, pe_infra)
   classifier.find_or_create_node_group_model(clamps_agents_group)
 end
 
+# Create the Clamps - Agent Users (non root) node group
+#
+# @param [Scooter::HttpDispatchers::Classifier] classifier
+# @param [Hash] pe_infra PE Infrastructure node group hash
 def add_clamps_group_users(classifier, pe_infra)
   clamps_users_group = {
     'name'    => 'Clamps - Agent Users (non root)',
@@ -58,6 +65,11 @@ def add_clamps_group_users(classifier, pe_infra)
   classifier.find_or_create_node_group_model(clamps_users_group)
 end
 
+# Update the PE Agent node group
+# to not include clamps agent node
+#
+# @param [Scooter::HttpDispatchers::Classifier] classifier
+# @param [Hash] pe_agent PE Agent node group hash
 def update_pe_agent_rule_clamps(classifier, pe_agent)
   rules = pe_agent['rule']
   rules << ['not', ['~', %w[fact clientcert], ".*#{metric.node_name}"]]
@@ -66,6 +78,9 @@ def update_pe_agent_rule_clamps(classifier, pe_agent)
   classifier.update_node_group(pe_agent['id'], 'rule' => rules)
 end
 
+# Returns whether clamps can be enabled or not.
+#
+# @return [Bool]
 def clamps_enabled?
   return false unless options[:scale]
 

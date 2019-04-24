@@ -77,6 +77,7 @@ module PerfHelper
       r10k_remote = '/opt/puppetlabs/server/data/puppetserver/r10k/control-repo'
       @options[:answers] ||= {}
       @options[:answers]['puppet_enterprise::profile::master::r10k_remote'] = r10k_remote
+      @options[:answers]['puppet_enterprise::profile::puppetdb::node_ttl'] = '0s'
     end
 
     step 'install PE' do

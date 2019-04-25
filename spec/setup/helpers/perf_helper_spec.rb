@@ -165,51 +165,49 @@ describe PerfHelperClass do
 
       subject.puppet_module_dependencies
     end
-    
+
   end
 
   # TODO: refactor to remove duplication
   describe '#perf_install_pe' do
-
     context 'when pe is not a pre-aio version' do
-
       test_is_pre_aio_version = false
 
-      before {
-        test_options = { :answers => {} }
+      before do
+        test_options = { answers: {} }
         subject.instance_variable_set(:@options, test_options)
-      }
+      end
 
       test_pe_ver = '2017.3'
-      let!(:master) { {'pe_ver' => test_pe_ver} }
-
-      test_updated_options = {:answers=>{"puppet_enterprise::profile::master::r10k_remote"=>"/opt/puppetlabs/server/data/puppetserver/r10k/control-repo"}}
+      let!(:master) { { 'pe_ver' => test_pe_ver } }
 
       it 'includes the dashboard and installs pe' do
-
-        expect(subject).to receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
+        expect(subject).to \
+          receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
 
         expect(subject).to receive(:install_lei).once
         subject.perf_install_pe
 
-        expect(subject.instance_variable_get(:@options)). to eq(test_updated_options)
-
+        options = subject.instance_variable_get(:@options)
+        expect(options.keys). to include :answers
+        expect(options[:answers]). to include \
+          'puppet_enterprise::profile::master::r10k_remote' =>
+            '/opt/puppetlabs/server/data/puppetserver/r10k/control-repo'
+        expect(options[:answers]). to include \
+          'puppet_enterprise::profile::puppetdb::node_ttl' => '0s'
       end
-
     end
 
     context 'when pe is a pre-aio version' do
-
       test_is_pre_aio_version = true
 
       it 'installs pe without including the dashboard' do
-        expect(subject).to receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
+        expect(subject).to \
+          receive(:is_pre_aio_version?).and_return(test_is_pre_aio_version)
         expect(subject).to receive(:install_lei)
         subject.perf_install_pe
       end
-
     end
-
   end
 
   describe '#has_cent7_repo?' do

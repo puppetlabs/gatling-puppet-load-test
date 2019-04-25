@@ -14,6 +14,8 @@
       'setup/install_gatling/30_classification/30_sync_codedir.rb',
       'setup/install_gatling/30_classification/40_classify_nodes_via_nc.rb',
       'setup/install_gatling/30_classification/45_classify_master_via_nc.rb',
+    # unique to clamps
+      'setup/install_gatling/30_classification/90_clamps.rb',
     # common between foss, pe
       'setup/install_gatling/40_post_install/30_final_puppet_run.rb',
       'setup/install_gatling/40_post_install/40_configure_gatling_auth.rb',

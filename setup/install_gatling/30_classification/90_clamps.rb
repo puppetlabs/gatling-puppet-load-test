@@ -103,6 +103,9 @@ test_name 'Clamps classification' do
   end
 
   step 'remove non-root agents from classification' do
+    # If the fabricated non-root agents are classified as
+    # PE Agents they will not be properly managed by CLAMPS.
+    # Therefore, they must be removed from the PE Agent group.
     pe_agent = classifier.get_node_group_by_name('PE Agent')
     update_pe_agent_rule_clamps(classifier, pe_agent)
   end

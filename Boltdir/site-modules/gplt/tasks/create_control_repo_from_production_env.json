@@ -1,0 +1,10 @@
+{
+  "description": "Creates a git repo from puppet production environment directory",
+  "input_method": "environment",
+  "parameters": {
+    "ctrl_repo_path": {
+      "description": "The fully qualified path where the control repo will be created",
+      "type": "Optional[String[1]]"
+    }
+  }
+}

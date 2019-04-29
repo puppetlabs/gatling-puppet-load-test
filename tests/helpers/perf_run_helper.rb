@@ -10,6 +10,7 @@ module PerfRunHelper
   BASELINE_PE_VER = ENV['BASELINE_PE_VER']
   SCALE_ITERATIONS = 10
   SCALE_INCREMENT = 100
+  SCALE_MAX_ALLOWED_KO = 10
   PUPPET_METRICS_COLLECTOR_SERVICES = %w[orchestrator puppetdb puppetserver]
 
   def perf_setup(gatling_scenario, simulation_id, gatlingassertions)
@@ -567,8 +568,8 @@ module PerfRunHelper
     update_scale_results_csv(scale_results_parent_dir, results)
 
     # allow no more than 10 KOs per iteration; this needs to be last
-    if num_ko > 10
-      puts "ERROR - more than 10 KOs encountered in scenario: #{scenario}"
+    if num_ko > SCALE_MAX_ALLOWED_KO
+      puts "ERROR - more than #{SCALE_MAX_ALLOWED_KO} KOs encountered in scenario: #{scenario}"
       puts "Exiting scale run..."
       puts
       success = false

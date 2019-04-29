@@ -1,0 +1,5 @@
+#! /bin/sh
+
+# view the tests-run.log file for the specified scale run
+
+less gatling-puppet-load-test/results/scale/"$@"/log/tests-run.log

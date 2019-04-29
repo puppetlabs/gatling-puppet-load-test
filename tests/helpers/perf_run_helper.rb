@@ -1,7 +1,8 @@
 require 'beaker'
 require 'beaker-benchmark'
-require "google/cloud/bigquery"
-require "master_manipulator"
+require 'google/cloud/bigquery'
+require 'master_manipulator'
+require 'beaker-puppet'
 
 module PerfRunHelper
 
@@ -92,7 +93,10 @@ module PerfRunHelper
       else
         puts "Restarting puppet server..."
         puts
+
+        # restart using master_manipulator
         restart_puppet_server(master)
+
       end
 
       # run the scenario
@@ -101,7 +105,7 @@ module PerfRunHelper
 
       perf_setup(scenario, simulation_id, gatlingassertions)
 
-      # get results, copy from metrics, check for KOs, fail if ko != 0, assertions
+      # get results, copy from metrics, check for KOs, fail if ko > 10
       success = handle_scale_results(scenario_hash)
       break unless success
     end
@@ -185,19 +189,30 @@ module PerfRunHelper
   #
   def create_scale_results_env_file(scale_results_parent_dir)
     open("#{scale_results_parent_dir}/beaker_environment.txt", 'w') { |f|
+
+      # beaker
       f << "BEAKER_INSTALL_TYPE: #{ENV["BEAKER_INSTALL_TYPE"]}\n"
       f << "BEAKER_PE_DIR: #{ENV["BEAKER_PE_DIR"]}\n"
       f << "BEAKER_PE_VER: #{ENV["BEAKER_PE_VER"]}\n"
       f << "BEAKER_TESTS: #{ENV["BEAKER_TESTS"]}\n"
+
+      # TODO: rename PUPPET_SCALE_CLASS for consistency?
       f << "PUPPET_SCALE_CLASS: #{ENV["PUPPET_SCALE_CLASS"]}\n"
+
+      # scale
       f << "PUPPET_GATLING_SCALE_SCENARIO: #{ENV["PUPPET_GATLING_SCALE_SCENARIO"]}\n"
       f << "PUPPET_GATLING_SCALE_BASE_INSTANCES: #{ENV["PUPPET_GATLING_SCALE_BASE_INSTANCES"]}\n"
       f << "PUPPET_GATLING_SCALE_ITERATIONS: #{ENV["PUPPET_GATLING_SCALE_ITERATIONS"]}\n"
       f << "PUPPET_GATLING_SCALE_INCREMENT: #{ENV["PUPPET_GATLING_SCALE_INCREMENT"]}\n"
       f << "PUPPET_GATLING_SCALE_TUNE: #{ENV["PUPPET_GATLING_SCALE_TUNE"]}\n"
       f << "PUPPET_GATLING_SCALE_TUNE_FORCE: #{ENV["PUPPET_GATLING_SCALE_TUNE_FORCE"]}\n"
+      f << "PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER: #{ENV["PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER"]}\n"
+
+      # abs
       f << "ABS_AWS_METRICS_SIZE: #{ENV["ABS_AWS_METRICS_SIZE"]}\n"
       f << "ABS_AWS_MOM_SIZE: #{ENV["ABS_AWS_MOM_SIZE"]}\n"
+
+      # TODO: rename AWS_VOLUME_SIZE for consistency?
       f << "AWS_VOLUME_SIZE: #{ENV["AWS_VOLUME_SIZE"]}\n"
     }
   end

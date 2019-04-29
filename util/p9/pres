@@ -21,4 +21,3 @@ sudo cp -r -L ${results} ${dest}
 
 cd ${source} && tar czf "$@".tar.gz "$@"
 sudo cp ${results}.tar.gz ${dest}
-

@@ -1,4 +1,5 @@
 #! /bin/sh
 
-ls -all gatling-puppet-load-test/results/perf/"$@"
+# list the contents of the results directory for the specified perf run
 
+ls -all gatling-puppet-load-test/results/perf/"$@"

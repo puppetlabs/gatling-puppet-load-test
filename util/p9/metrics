@@ -1,5 +1,7 @@
 #! /bin/sh
 
+# add the puppet-metrics-collector data for the specified scale results to the puppet-metrics-viewer
+
 id=slv
 type=scale
 tag=${id}-"$@"

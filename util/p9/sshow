@@ -1,4 +1,5 @@
 #! /bin/sh
 
-ls -all gatling-puppet-load-test/results/scale/"$@"
+# list the contents of the results directory for the specified scale run
 
+ls -all gatling-puppet-load-test/results/scale/"$@"

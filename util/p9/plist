@@ -1,3 +1,5 @@
 #! /bin/sh
-ls -all gatling-puppet-load-test/results/perf
 
+# list the perf runs for the gatling-puppet-load-test instance in the current directory
+
+ls -all gatling-puppet-load-test/results/perf

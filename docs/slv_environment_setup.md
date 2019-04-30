@@ -4,13 +4,20 @@
 
 - [Background](#background)
 - [Environment setup](#environment-setup)
-  * [Set environment variables](#set-environment-variables)
- 
-* Environment setup
-* Test runner specifications
-* Test execution
-* Test results
-* Troubleshooting
+  * [Ruby version](#ruby-version)
+  * [Gem management](#gem-management)
+- [Test runner](#test-runner)
+  * [Specifications](#specifications)
+  * [p9_instance_setup](#p9_instance_setup)
+- [## Test setup and execution](#test-setup-and-execution)
+  * [GPLT instances](#gplt-instances)
+  * [Utility scripts](#utility-scripts)
+  * [Setting up a new instance](#setting-up-a-new-instance)
+- [Test results](#test-results)
+  * [Gatling results](#gatling-results)
+  * [Puppet Metrics Collector / Viewer](#puppet-metrics-collector-/-viewer)
+- [Troubleshooting](#troubleshooting)
+  * [Log files](#log-files)
 
 ## Background
 This document originated as an overview of the SLV team workflow for setting up a gatling-puppet-load-test test environment, executing the various test types, reviewing the test results, and troubleshooting issues.
@@ -179,6 +186,7 @@ The `metrics` script in the template folder makes this process easier:
 ### Log files
 Log files for the latest run can be found via the log/latest link which points to the most recently created log directory in log/pe-perf-test.cfg. 
 The log directories are named with a timestamp (e.g. 2019-04-16_12_01_30)
+
 #### hosts_preserved.yml
 If host preservation is specified via the `BEAKER_PRESERVE_HOSTS` environment variable this file will contain the preserved hosts. Subsequent runs can be performed using these hosts (while they exist) with the following rake tasks:
 * Performance: 
@@ -190,8 +198,6 @@ be rake performance_against_already_provisioned
 ```
 be rake autoscale_provisioned
 ```
-
-
 
 #### pre_suite-run.log
 If the run included a pre-suite the run log is captured here; this can contain useful information about how the environment was set up.

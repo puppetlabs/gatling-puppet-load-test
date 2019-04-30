@@ -413,6 +413,15 @@ node 'default' {}
     on(host, "cat #{manifestfile}")
   end
 
+  # Get the `puppet config print` value
+  #
+  # @param [Beaker::Host] host
+  # @param [String] config
+  # @returns [String]
+  def get_puppet_config(host, config)
+    on(host, puppet("config print #{config}")).stdout.chomp
+  end
+
   def configure_gatling_auth
     # Make room for local copies
     ssldir = 'simulation-runner/target/ssl'
@@ -420,19 +429,19 @@ node 'default' {}
     FileUtils.mkdir_p(ssldir)
 
     # Copy over master's cert
-    mastercert = on(master, puppet('config print hostcert')).stdout.chomp
+    mastercert = get_puppet_config(master, 'hostcert')
     scp_from(master, mastercert, ssldir)
     FileUtils.mv(File.join(ssldir, File.basename(mastercert)),
                  File.join(ssldir, 'mastercert.pem'))
 
     # Copy over master's private key
-    masterkey = on(master, puppet('config print hostprivkey')).stdout.chomp
+    masterkey = get_puppet_config(master, 'hostprivkey')
     scp_from(master, masterkey, ssldir)
     FileUtils.mv(File.join(ssldir, File.basename(masterkey)),
                  File.join(ssldir, 'masterkey.pem'))
 
     # Copy over CA's cert
-    cacert = on(master, puppet('config print localcacert')).stdout.chomp
+    cacert = get_puppet_config(master, 'localcacert')
     scp_from(master, cacert, ssldir)
     FileUtils.mv(File.join(ssldir, File.basename(cacert)),
                  File.join(ssldir, 'cacert.pem'))
@@ -442,7 +451,7 @@ node 'default' {}
     # executables be available:
     #   openssl
     #   keytool
-    master_certname = on(master, puppet('config print certname')).stdout.chomp
+    master_certname = get_puppet_config(master, 'certname')
     %x{cat #{ssldir}/mastercert.pem #{ssldir}/masterkey.pem > #{ssldir}/keystore.pem}
     fail_test('Failed to create keystore.pem') unless $?.success?
     %x{echo "puppet" | openssl pkcs12 -export -in #{ssldir}/keystore.pem -out #{ssldir}/keystore.p12 -name #{master_certname} -passout fd:0}
@@ -531,9 +540,9 @@ authorization: {
       FileUtils.rm_rf(ssldir)
       FileUtils.mkdir_p(ssldir)
 
-      master_cert_name = on(master, puppet('config print certname')).stdout.chomp
-      master_host_cert = on(master, puppet('config print hostcert')).stdout.chomp
-      master_host_priv_key = on(master, puppet('config print hostprivkey')).stdout.chomp
+      master_cert_name = get_puppet_config(master, 'certname')
+      master_host_cert = get_puppet_config(master, 'hostcert')
+      master_host_priv_key = get_puppet_config(master, 'hostprivkey')
 
       scp_from(master, master_host_cert, ssldir)
       FileUtils.mv(File.join(ssldir, File.basename(master_host_cert)),

@@ -438,13 +438,21 @@ node 'default' {}
                  File.join(ssldir, 'cacert.pem'))
 
     # Generate keystore
+    # Keystore is created on the test runner and requires that the following
+    # executables be available:
+    #   openssl
+    #   keytool
     master_certname = on(master, puppet('config print certname')).stdout.chomp
     %x{cat #{ssldir}/mastercert.pem #{ssldir}/masterkey.pem > #{ssldir}/keystore.pem}
+    fail_test('Failed to create keystore.pem') unless $?.success?
     %x{echo "puppet" | openssl pkcs12 -export -in #{ssldir}/keystore.pem -out #{ssldir}/keystore.p12 -name #{master_certname} -passout fd:0}
+    fail_test('Failed to create keystore.p12') unless $?.success?
     %x{keytool -importkeystore -destkeystore #{ssldir}/gatling-keystore.jks -srckeystore #{ssldir}/keystore.p12 -srcstoretype PKCS12 -alias #{master_certname} -deststorepass "puppet" -srcstorepass "puppet"}
+    fail_test('Failed to create jks keystore') unless $?.success?
 
     # Generate truststore
     %x{keytool -import -alias "CA" -keystore #{ssldir}/gatling-truststore.jks -storepass "puppet" -trustcacerts -file #{ssldir}/cacert.pem -noprompt}
+    fail_test('Failed to create jks truststore') unless $?.success?
   end
 
   def configure_permissive_server_auth
@@ -534,9 +542,16 @@ authorization: {
       FileUtils.mv(File.join(ssldir, File.basename(master_host_priv_key)),
                    File.join(ssldir, 'hostkey.pem'))
 
+      # Keystore is created on the test runner and requires that the following
+      # executables be available:
+      #   openssl
+      #   keytool
       %x{cat #{ssldir}/hostcert.pem #{ssldir}/hostkey.pem > #{ssldir}/keystore.pem}
+      fail_test('Failed to create keystore.pem') unless $?.success?
       %x{echo "puppet" | openssl pkcs12 -export -in #{ssldir}/keystore.pem -out #{ssldir}/keystore.p12 -name #{master_cert_name} -passout fd:0}
+      fail_test('Failed to create keystore.p12') unless $?.success?
       %x{keytool -importkeystore -destkeystore #{ssldir}/gatling-proxy-keystore.jks -srckeystore #{ssldir}/keystore.p12 -srcstoretype PKCS12 -alias #{master_cert_name} -deststorepass "puppet" -srcstorepass "puppet"}
+      fail_test('Failed to create jks keystore') unless $?.success?
 
       metric.mkdir_p "gatling-puppet-load-test/proxy-recorder"
       scp_to(metric, "proxy-recorder", "gatling-puppet-load-test")

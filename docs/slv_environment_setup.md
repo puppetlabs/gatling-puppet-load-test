@@ -74,6 +74,47 @@ The easiest way to get started with the scripts is to copy the 'p9' directory to
 These scripts are a work-in-progress and will eventually be converted into Bolt tasks with more extensive documentation.
 Using the scripts is not required but hopefully you find that they support the common workflows and reduce the manual effort of test execution and reporting.
 
+TODO: examples
+
+#### General
+##### clone
+Clone the gatling-puppet-load-test repo into the current directory.
+
+##### backup
+Create a timestamped backup of the gatling-puppet-load-test directory
+
+##### bkreplace
+Create a timestamped backup of the gatling-puppet-load-test directory
+Then remove the gatling-puppet-load-test directory and re-clone the repo
+
+##### replace
+Remove the gatling-puppet-load-test directory in the current directory
+Then clone the gatling-puppet-load-test repo into the current directory
+
+#### Performance
+##### plist
+List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory
+
+##### pshow
+List the contents of the specified result folder
+
+##### pres
+Copy the specified result folder to the specified nginx directory (default is ‘slv’)
+
+#### Scale
+##### slist
+List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory
+
+##### slog
+View the tests-run.log file for the specified scale run
+
+##### sshow
+List the contents of the specified result folder
+
+##### sres
+Copy the specified result folder to the specified nginx directory (default is ‘slv’)
+
+
 ### Setting up a new instance
 These instructions assume that you're using the utility scripts described above and naming the instance 'slv-demo':
 * Create a new parent directory on your test runner named 'slv-demo' as a copy of the 'p9' directory:
@@ -144,32 +185,7 @@ In order to navigate the directory structure, add the autolist option to the top
 
 It is often useful to copy the desired result folders to the nginx directory rather than serving the files from the gplt directory or linking to them in place. 
 This way you can remove the working instance directory when you’re done testing and preserve the results. 
-Several of the utility scripts described above help make this easier:
-
-TODO: examples
-
-##### Performance
-###### plist
-List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory
-
-###### pshow
-List the contents of the specified result folder
-
-###### pres
-Copy the specified result folder to the specified nginx directory (default is ‘slv’)
-
-##### Scale
-###### slist
-List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory
-
-###### slog
-View the tests-run.log file for the specified scale run
-
-###### sshow
-List the contents of the specified result folder
-
-###### sres
-Copy the specified result folder to the specified nginx directory (default is ‘slv’)
+Several of the utility scripts described above help make this easier.
 
 It can be helpful to make a copy of the `sres` or `pres` script with a destination that matches the name of the parent directory. 
 This makes it easy to navigate the directory structure and find the desired results.

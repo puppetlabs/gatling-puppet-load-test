@@ -149,15 +149,27 @@ Several of the utility scripts described above help make this easier:
 TODO: examples
 
 ##### Performance
-* plist: List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory
-* pshow: List the contents of the specified result folder
-* pres: Copy the specified result folder to the specified nginx directory (default is ‘slv’)
+###### plist
+List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory
+
+###### pshow
+List the contents of the specified result folder
+
+###### pres
+Copy the specified result folder to the specified nginx directory (default is ‘slv’)
 
 ##### Scale
-* slist: List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory
-* slog: View the tests-run.log file for the specified scale run
-* sshow: List the contents of the specified result folder
-* sres: Copy the specified result folder to the specified nginx directory (default is ‘slv’)
+###### slist
+List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory
+
+###### slog
+View the tests-run.log file for the specified scale run
+
+###### sshow
+List the contents of the specified result folder
+
+###### sres
+Copy the specified result folder to the specified nginx directory (default is ‘slv’)
 
 It can be helpful to make a copy of the `sres` or `pres` script with a destination that matches the name of the parent directory. 
 This makes it easy to navigate the directory structure and find the desired results.

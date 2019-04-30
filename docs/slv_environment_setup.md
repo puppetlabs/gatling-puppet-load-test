@@ -189,12 +189,13 @@ The log directories are named with a timestamp (e.g. 2019-04-16_12_01_30)
 
 #### hosts_preserved.yml
 If host preservation is specified via the `BEAKER_PRESERVE_HOSTS` environment variable this file will contain the preserved hosts. Subsequent runs can be performed using these hosts (while they exist) with the following rake tasks:
-* Performance: 
+
+##### Performance
 ```
 be rake performance_against_already_provisioned
 ```
 
-* Scale
+##### Scale
 ```
 be rake autoscale_provisioned
 ```

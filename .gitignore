@@ -27,3 +27,6 @@ jenkins-integration/dev/target_machine_local.yml
 # Artifacts created by run
 tmp
 results
+
+# Bolt
+.rerun.json

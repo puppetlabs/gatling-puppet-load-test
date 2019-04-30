@@ -1,2 +1,18 @@
 Layout/AlignHash:
   EnforcedHashRocketStyle: table
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+Metrics/MethodLength:
+  Max: 99
+Metrics/BlockLength:
+  Max: 50
+Metrics/ModuleLength:
+  Max: 999
+Metrics/AbcSize:
+  Max: 59
+Metrics/CyclomaticComplexity:
+  Max: 15
+Metrics/PerceivedComplexity:
+  Max: 15
+Style/MultilineIfModifier:
+  Enabled: false

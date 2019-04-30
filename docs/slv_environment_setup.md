@@ -9,7 +9,7 @@
 - [Test runner](#test-runner)
   * [Specifications](#specifications)
   * [p9_instance_setup](#p9_instance_setup)
-- [## Test setup and execution](#test-setup-and-execution)
+- [Test setup and execution](#test-setup-and-execution)
   * [GPLT instances](#gplt-instances)
   * [Utility scripts](#utility-scripts)
   * [Setting up a new instance](#setting-up-a-new-instance)

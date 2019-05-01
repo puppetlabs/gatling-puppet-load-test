@@ -1,8 +1,12 @@
 #! /bin/sh
 
-######################################################################################
-# call this script with the name of the result directory you want to copy (i.e. `./res PERF_1555458238`)
-######################################################################################
+USAGE='call this script with the name of the scale result directory you want to copy (i.e. `./sres PERF_SCALE_1556635175`)'
+EXPECTED_ARGS=1
+if [ $# -ne $EXPECTED_ARGS ]
+then
+    echo $USAGE
+    exit 1
+fi
 
 # set this to 'perf', 'scale', 'soak', etc...
 type=scale

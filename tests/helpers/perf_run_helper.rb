@@ -106,7 +106,7 @@ module PerfRunHelper
 
       perf_setup(scenario, simulation_id, gatlingassertions)
 
-      # get results, copy from metrics, check for KOs, fail if ko > 10
+      # get results, copy from metrics, check for KOs, fail if ko > SCALE_MAX_ALLOWED_KO
       success = handle_scale_results(scenario_hash)
       break unless success
     end
@@ -567,7 +567,7 @@ module PerfRunHelper
     # add this row to the csv
     update_scale_results_csv(scale_results_parent_dir, results)
 
-    # allow no more than 10 KOs per iteration; this needs to be last
+    # allow no more than SCALE_MAX_ALLOWED_KO KOs per iteration; this needs to be last
     if num_ko > SCALE_MAX_ALLOWED_KO
       puts "ERROR - more than #{SCALE_MAX_ALLOWED_KO} KOs encountered in scenario: #{scenario}"
       puts "Exiting scale run..."

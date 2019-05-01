@@ -1,0 +1,6 @@
+#! /bin/sh
+
+# clone the gatling-puppet-load-test repo into the current directory
+
+echo "cloning gatling-puppet-load-test"
+git clone https://github.com/puppetlabs/gatling-puppet-load-test.git

@@ -9,6 +9,8 @@ gem 'beaker-pe-large-environments', '~>0.3'
 gem 'scooter', '~>4.3'
 gem 'rototiller', '~>1.0'
 gem 'rspec', '~>3.0'
+gem 'master_manipulator', '~>2.1'
+gem 'beaker-puppet', '~>1.0'
 
 if File.exists? "#{__FILE__}.local"
   eval(File.read("#{__FILE__}.local"), binding)

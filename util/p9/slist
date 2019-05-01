@@ -1,0 +1,5 @@
+#! /bin/sh
+
+# list the scale runs for the gatling-puppet-load-test instance in the current directory
+
+ls -all gatling-puppet-load-test/results/scale

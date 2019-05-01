@@ -288,10 +288,22 @@ rototiller_task :autoscale do
   ENV['ENVIRONMENT_TYPE'] = 'gatling'
   ENV['BEAKER_TESTS'] = ENV['BEAKER_TESTS'] || 'tests/Scale.rb'
   ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
-  ENV['PUPPET_SCALE_CLASS'] = 'role::by_size::small'
+  ENV['PUPPET_SCALE_CLASS'] = ENV['PUPPET_SCALE_CLASS'] || 'role::by_size::small'
   ENV['PUPPET_GATLING_SCALE_TUNE'] = ENV['PUPPET_GATLING_SCALE_TUNE'] || 'true'
   Rake::Task["performance"].execute
   Rake::Task["autoscale_handle_latest_results"].execute unless ENV['BEAKER_TESTS'] == ''
+end
+
+desc 'Run Scale setup and test for gatling restarting pe-puppetserver with each iteration'
+rototiller_task :autoscale_cold do
+  ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'true'
+  Rake::Task["autoscale"].execute
+end
+
+desc 'Run Scale setup for gatling without restarting pe-puppetserver'
+rototiller_task :autoscale_warm do
+  ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'false'
+  Rake::Task["autoscale"].execute
 end
 
 desc 'Run Scale setup for gatling'
@@ -314,8 +326,42 @@ rototiller_task :autoscale_provisioned do
   ENV['ENVIRONMENT_TYPE'] = 'gatling'
   ENV['BEAKER_TESTS'] = ENV['BEAKER_TESTS'] || 'tests/Scale.rb'
   ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
+  ENV['PUPPET_SCALE_CLASS'] = ENV['PUPPET_SCALE_CLASS'] || 'role::by_size::small'
   Rake::Task["performance_against_already_provisioned"].execute
   Rake::Task["autoscale_handle_latest_results"].execute
+end
+
+desc 'Run Scale setup for gatling'
+rototiller_task :autoscale_provisioned_cold do
+  ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'true'
+  Rake::Task["autoscale_provisioned"].execute
+end
+
+desc 'Run Scale setup for gatling'
+rototiller_task :autoscale_provisioned_warm do
+  ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'false'
+  Rake::Task["autoscale_provisioned"].execute
+end
+
+desc 'Run perf simulation for CD4PE testing on previously provisioned hosts'
+rototiller_task :autoscale_provisioned_cd4pe do
+
+  # the cd4pe test uses the autoscale test type which provides additional reporting functionality
+  # however, it doesn't actually scale the scenario
+  # setting the following variables will disable the scaling functionality
+  # TODO: update to use a standard perf run when the reporting has been updated
+
+  # just run one iteration of the scenario
+  ENV['PUPPET_GATLING_SCALE_ITERATIONS'] = '1'
+
+  # don't scale the scenario
+  ENV['PUPPET_GATLING_SCALE_INCREMENT'] = '0'
+
+  # this scenario performs two repetitions
+  ENV['PUPPET_GATLING_SCALE_SCENARIO'] = 'cd4pe.json'
+
+  # use the autoscale test type using previously provisioned hosts with no restart
+  Rake::Task["autoscale_provisioned_warm"].execute
 end
 
 desc 'Run tiny Scale test for gatling on previously provisioned hosts'

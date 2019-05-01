@@ -1,0 +1,27 @@
+#! /bin/sh
+
+USAGE='call this script with the name of the scale result directory you want to copy (i.e. `./sres PERF_SCALE_1556635175`)'
+EXPECTED_ARGS=1
+if [ $# -ne $EXPECTED_ARGS ]
+then
+    echo $USAGE
+    exit 1
+fi
+
+# set this to 'perf', 'scale', 'soak', etc...
+type=scale
+
+# set this with a name that corresponds to this instance (i.e. 'slv-321a')
+id=slv
+
+# this section uses the parameters specified above and should not require updates per instance
+date=$(date +"%Y-%m-%d")
+source=${PWD}/gatling-puppet-load-test/results/${type}
+results=${source}/"$@"
+dest=/usr/share/nginx/html/gplt/${type}/${id}/${BEAKER_PE_VER}/${ABS_AWS_MOM_SIZE}
+
+sudo mkdir -p ${dest}
+sudo cp -r -L ${results} ${dest}
+
+cd ${source} && tar czf "$@".tar.gz "$@"
+sudo cp ${results}.tar.gz ${dest}

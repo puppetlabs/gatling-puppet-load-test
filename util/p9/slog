@@ -1,0 +1,13 @@
+#! /bin/sh
+
+# view the tests-run.log file for the specified scale run
+
+USAGE='call this script with the name of the scale result directory that contains the tests-run.log file you want to view (i.e. `./slog PERF_SCALE_1556635175`)'
+EXPECTED_ARGS=1
+if [ $# -ne $EXPECTED_ARGS ]
+then
+    echo $USAGE
+    exit 1
+fi
+
+less gatling-puppet-load-test/results/scale/"$@"/log/tests-run.log

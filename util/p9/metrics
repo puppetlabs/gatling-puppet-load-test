@@ -1,0 +1,13 @@
+#! /bin/sh
+
+# add the puppet-metrics-collector data for the specified scale results to the puppet-metrics-viewer
+
+id=slv
+type=scale
+tag=${id}-"$@"
+
+source=${PWD}/gatling-puppet-load-test/results/${type}
+results=${source}/"$@"
+
+ruby /home/centos/puppet-metrics-viewer/json2graphite.rb --pattern ${results}/puppet-metrics-collector/**/*.json --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag ${tag}
+

@@ -1,13 +1,16 @@
 require 'beaker'
 require 'beaker-benchmark'
-require "google/cloud/bigquery"
+require 'google/cloud/bigquery'
+require 'master_manipulator'
+require 'beaker-puppet'
 
 module PerfRunHelper
 
   BEAKER_PE_VER = ENV['BEAKER_PE_VER']
   BASELINE_PE_VER = ENV['BASELINE_PE_VER']
-  SCALE_ITERATIONS = 10
+  SCALE_ITERATIONS = 15
   SCALE_INCREMENT = 100
+  SCALE_MAX_ALLOWED_KO = 10
   PUPPET_METRICS_COLLECTOR_SERVICES = %w[orchestrator puppetdb puppetserver]
 
   def perf_setup(gatling_scenario, simulation_id, gatlingassertions)
@@ -82,7 +85,20 @@ module PerfRunHelper
 
       # purge the metrics collector output and restart the service
       purge_puppet_metrics_collector
-      restart_puppetserver
+
+      # don't restart puppetserver for warm-start scenarios
+      if ENV["PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER"].eql?("false")
+        puts "PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER is set to false..."
+        puts "Skipping puppet server restart..."
+        puts
+      else
+        puts "Restarting puppet server..."
+        puts
+
+        # restart using master_manipulator
+        restart_puppet_server(master)
+
+      end
 
       # run the scenario
       puts "Running scenario #{ct} of #{@scale_scenarios.length} : #{scenario}"
@@ -90,7 +106,7 @@ module PerfRunHelper
 
       perf_setup(scenario, simulation_id, gatlingassertions)
 
-      # get results, copy from metrics, check for KOs, fail if ko != 0, assertions
+      # get results, copy from metrics, check for KOs, fail if ko > SCALE_MAX_ALLOWED_KO
       success = handle_scale_results(scenario_hash)
       break unless success
     end
@@ -174,19 +190,30 @@ module PerfRunHelper
   #
   def create_scale_results_env_file(scale_results_parent_dir)
     open("#{scale_results_parent_dir}/beaker_environment.txt", 'w') { |f|
+
+      # beaker
       f << "BEAKER_INSTALL_TYPE: #{ENV["BEAKER_INSTALL_TYPE"]}\n"
       f << "BEAKER_PE_DIR: #{ENV["BEAKER_PE_DIR"]}\n"
       f << "BEAKER_PE_VER: #{ENV["BEAKER_PE_VER"]}\n"
       f << "BEAKER_TESTS: #{ENV["BEAKER_TESTS"]}\n"
+
+      # TODO: rename PUPPET_SCALE_CLASS for consistency?
       f << "PUPPET_SCALE_CLASS: #{ENV["PUPPET_SCALE_CLASS"]}\n"
+
+      # scale
       f << "PUPPET_GATLING_SCALE_SCENARIO: #{ENV["PUPPET_GATLING_SCALE_SCENARIO"]}\n"
       f << "PUPPET_GATLING_SCALE_BASE_INSTANCES: #{ENV["PUPPET_GATLING_SCALE_BASE_INSTANCES"]}\n"
       f << "PUPPET_GATLING_SCALE_ITERATIONS: #{ENV["PUPPET_GATLING_SCALE_ITERATIONS"]}\n"
       f << "PUPPET_GATLING_SCALE_INCREMENT: #{ENV["PUPPET_GATLING_SCALE_INCREMENT"]}\n"
       f << "PUPPET_GATLING_SCALE_TUNE: #{ENV["PUPPET_GATLING_SCALE_TUNE"]}\n"
       f << "PUPPET_GATLING_SCALE_TUNE_FORCE: #{ENV["PUPPET_GATLING_SCALE_TUNE_FORCE"]}\n"
+      f << "PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER: #{ENV["PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER"]}\n"
+
+      # abs
       f << "ABS_AWS_METRICS_SIZE: #{ENV["ABS_AWS_METRICS_SIZE"]}\n"
       f << "ABS_AWS_MOM_SIZE: #{ENV["ABS_AWS_MOM_SIZE"]}\n"
+
+      # TODO: rename AWS_VOLUME_SIZE for consistency?
       f << "AWS_VOLUME_SIZE: #{ENV["AWS_VOLUME_SIZE"]}\n"
     }
   end
@@ -226,27 +253,6 @@ module PerfRunHelper
     puts
 
     return output
-  end
-
-  # Restart the pe-puppetserver service
-  #
-  # @author Bill Claytor
-  #
-  # @return [void]
-  #
-  # @example
-  #   restart_puppetserver
-  #
-  def restart_puppetserver
-    puts "Restarting pe-puppetserver service..."
-    puts
-
-    on master, "service pe-puppetserver restart"
-
-    puts "Sleeping..."
-    puts
-
-    sleep 60
   end
 
   # Purge the puppet-metrics-collector log files for each service
@@ -405,16 +411,13 @@ module PerfRunHelper
     puts
 
     # stop monitoring and get results
-    atop_result, gatling_result = get_perf_result
+    get_perf_result
 
     # copy results from metrics node
     copy_scale_results(scenario)
 
     # check results for KOs
     success = check_scale_results(scenario_hash)
-
-    # perform assertions
-    scale_assertions(atop_result, gatling_result) unless !success
 
     return success
   end
@@ -564,9 +567,9 @@ module PerfRunHelper
     # add this row to the csv
     update_scale_results_csv(scale_results_parent_dir, results)
 
-    # this needs to be last
-    if num_ko != 0
-      puts "ERROR - KO encountered in scenario: #{scenario}"
+    # allow no more than SCALE_MAX_ALLOWED_KO KOs per iteration; this needs to be last
+    if num_ko > SCALE_MAX_ALLOWED_KO
+      puts "ERROR - more than #{SCALE_MAX_ALLOWED_KO} KOs encountered in scenario: #{scenario}"
       puts "Exiting scale run..."
       puts
       success = false
@@ -591,16 +594,6 @@ module PerfRunHelper
     CSV.open("#{scale_results_parent_dir}/PERF_SCALE_#{@scale_timestamp}.csv", "a+") do |csv|
       csv << results
     end
-  end
-
-  # TODO: remove atop_result if it isn't being used?
-  def scale_assertions(atop_result, gatling_result)
-
-    step 'successful request percentage' do
-      assert_later(gatling_result.successful_requests == 100, "Total successful request percentage was: #{gatling_result.successful_requests}%, expected 100%" )
-    end
-
-    assert_all
   end
 
   def assertion_exceptions

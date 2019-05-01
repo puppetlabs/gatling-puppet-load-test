@@ -66,6 +66,14 @@ However, each test run must use a separate instance of gatling-puppet-load-test 
 The currently recommended best practice is to create directory in your test user's home such as 'gatling' or 'gplt'.
 Within that directory create separate parent directories for each instance with a unique name based on the testing use-case or Jira ticket (i.e. ‘slv-demo’, ‘slv-321a’, etc…).
 
+```
+➜  gplt pwd
+/home/centos/gplt
+➜  gplt ls
+00  321a  321b  321c  321d  321k  p9
+➜  gplt 
+```
+
 ### Utility scripts
 The [util/p9](util/p9) directory contains a set of utility scripts for cloning the gatling-puppet-load-test repo, backing up the current instance, copying reports to nginx, etc...
 The scripts are designed to work from a parent directory that will contain an instance of the gatling-puppet-load-test repo with the default name.
@@ -74,46 +82,216 @@ The easiest way to get started with the scripts is to copy the 'p9' directory to
 These scripts are a work-in-progress and will eventually be converted into Bolt tasks with more extensive documentation.
 Using the scripts is not required but hopefully you find that they support the common workflows and reduce the manual effort of test execution and reporting.
 
-TODO: examples
+```
+➜  gplt pwd
+/home/centos/gplt
+➜  gplt ls p9
+backup     clone    plist  pshow    slist  sres
+bkreplace  metrics  pres   replace  slog   sshow
+➜  gplt cp -r p9 slv-demo
+➜  gplt cd slv-demo
+➜  slv-demo ls
+backup     clone    plist  pshow    slist  sres
+bkreplace  metrics  pres   replace  slog   sshow
+➜  slv-demo 
+```
 
 #### General
 ##### clone
 Clone the gatling-puppet-load-test repo into the current directory.
+```
+➜  slv-demo ls
+backup     clone    plist  pshow    slist  sres
+bkreplace  metrics  pres   replace  slog   sshow
+➜  slv-demo ./clone
+cloning gatling-puppet-load-test
+Cloning into 'gatling-puppet-load-test'...
+remote: Enumerating objects: 81, done.
+remote: Counting objects: 100% (81/81), done.
+remote: Compressing objects: 100% (60/60), done.
+remote: Total 8408 (delta 32), reused 58 (delta 19), pack-reused 8327
+Receiving objects: 100% (8408/8408), 5.08 MiB | 0 bytes/s, done.
+Resolving deltas: 100% (4306/4306), done.
+➜  slv-demo ls
+backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow
+➜  slv-demo 
+```
 
 ##### backup
 Create a timestamped backup of the gatling-puppet-load-test directory
+```
+➜  slv-demo ls
+backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow
+➜  slv-demo ./backup
+➜  slv-demo ls
+backup     clone                     gplt.2019-05-01_07-10-27.tar.gz  plist  pshow    slist  sres
+bkreplace  gatling-puppet-load-test  metrics                          pres   replace  slog   sshow
+➜  slv-demo 
+```
 
 ##### bkreplace
 Create a timestamped backup of the gatling-puppet-load-test directory
 Then remove the gatling-puppet-load-test directory and re-clone the repo
+```
+➜  slv-demo ls
+backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow
+➜  slv-demo ./bkreplace
+backing up gatling-puppet-load-test
+removing gatling-puppet-load-test
+cloning gatling-puppet-load-test
+Cloning into 'gatling-puppet-load-test'...
+remote: Enumerating objects: 81, done.
+remote: Counting objects: 100% (81/81), done.
+remote: Compressing objects: 100% (60/60), done.
+remote: Total 8408 (delta 32), reused 58 (delta 19), pack-reused 8327
+Receiving objects: 100% (8408/8408), 5.08 MiB | 0 bytes/s, done.
+Resolving deltas: 100% (4306/4306), done.
+refresh complete; adding timestamp to gatling-puppet-load-test
+➜  slv-demo ls
+backup     clone                     gplt.2019-05-01_07-12-04.tar.gz  plist  pshow    slist  sres
+bkreplace  gatling-puppet-load-test  metrics                          pres   replace  slog   sshow
+➜  slv-demo 
+```
 
 ##### replace
 Remove the gatling-puppet-load-test directory in the current directory
 Then clone the gatling-puppet-load-test repo into the current directory
+```
+➜  slv-demo ls
+backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow
+➜  slv-demo ./replace
+removing gatling-puppet-load-test
+cloning gatling-puppet-load-test
+Cloning into 'gatling-puppet-load-test'...
+remote: Enumerating objects: 81, done.
+remote: Counting objects: 100% (81/81), done.
+remote: Compressing objects: 100% (60/60), done.
+remote: Total 8408 (delta 32), reused 58 (delta 19), pack-reused 8327
+Receiving objects: 100% (8408/8408), 5.08 MiB | 0 bytes/s, done.
+Resolving deltas: 100% (4306/4306), done.
+refresh complete; adding timestamp to gatling-puppet-load-test
+➜  slv-demo ls
+backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow
+➜  slv-demo 
+```
 
 #### Performance
 ##### plist
-List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory
+List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory.
+```
+➜  slv-demo ls
+321k  backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow
+➜  slv-demo ./plist
+total 8
+drwxrwxr-x. 22 centos centos 4096 May  1 07:14 .
+drwxrwxr-x.  4 centos centos   46 May  1 07:14 ..
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556563726
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556565634
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556568072
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556569897
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556571720
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556573542
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556575364
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556577196
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556579091
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556580971
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556582800
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556584646
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556637018
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556638848
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556640672
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556642539
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556644381
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556646207
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556648072
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556649975
+-rw-rw-r--.  1 centos centos   66 May  1 07:14 PERF_RESULTS.md
+➜  slv-demo 
+```
 
 ##### pshow
-List the contents of the specified result folder
+List the contents of the specified result folder.
+```
+➜  slv-demo ./pshow PERF_1556649975
+total 8
+drwxrwxr-x.  4 centos centos   86 May  1 07:14 .
+drwxrwxr-x. 22 centos centos 4096 May  1 07:14 ..
+drwxrwxr-x.  3 centos centos   17 May  1 07:14 ip-10-227-1-27.amz-dev.puppet.net
+drwxrwxr-x.  2 centos centos 4096 May  1 07:14 ip-10-227-2-91.amz-dev.puppet.net
+➜  slv-demo 
+```
 
 ##### pres
-Copy the specified result folder to the specified nginx directory (default is ‘slv’)
+Copy the specified result folder to the specified nginx directory (the default is ‘slv’).
+```
+➜  slv-demo ./pres PERF_1556649975                           
+➜  slv-demo ls /usr/share/nginx/html/gplt/perf/slv
+➜  2019.0.1  PERF_1556649975  PERF_1556649975.tar.gz
+➜  slv-demo 
+```
 
 #### Scale
 ##### slist
-List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory
+List the result folders in the ‘gatling-puppet-load-test/results/perf’ directory.
+```
+➜  slv-demo ./slist
+total 20
+drwxrwxr-x.  5 centos centos 4096 May  1 07:28 .
+drwxrwxr-x.  4 centos centos   46 May  1 07:14 ..
+lrwxrwxrwx.  1 centos centos   87 May  1 07:28 latest -> /home/centos/gplt/slv-demo/gatling-puppet-load-test/results/scale/PERF_SCALE_1556635175
+drwxrwxr-x.  7 centos centos 4096 May  1 07:14 PERF_SCALE_1556561621
+drwxrwxr-x. 15 centos centos 4096 May  1 07:14 PERF_SCALE_1556566242
+drwxrwxr-x. 13 centos centos 4096 May  1 07:14 PERF_SCALE_1556635175
+-rw-rw-r--.  1 centos centos   73 May  1 07:14 SCALE_RESULTS.md
+➜  slv-demo 
+```
 
 ##### slog
-View the tests-run.log file for the specified scale run
+View the tests-run.log file for the specified scale run using `less` (type `q` to quit).
+```
+➜  slv-demo ./slog PERF_SCALE_1556635175
+
+Begin tests/Scale.rb
+
+Scale
+localhost $ scp simulation-runner/config/scenarios ip-10-227-1-27.amz-dev.puppet.net:gatling-puppet-load-test/simulation-runner/config {:ignore => }
+...
+
+```
 
 ##### sshow
-List the contents of the specified result folder
+List the contents of the specified result folder.
+```
+➜  slv-demo ./sshow PERF_SCALE_1556635175
+total 28
+drwxrwxr-x. 13 centos centos 4096 May  1 07:14 .
+drwxrwxr-x.  5 centos centos 4096 May  1 07:28 ..
+-rw-rw-r--.  1 centos centos  517 May  1 07:14 beaker_environment.txt
+drwxrwxr-x.  2 centos centos 4096 May  1 07:14 json
+drwxrwxr-x.  2 centos centos   90 May  1 07:14 log
+-rw-rw-r--.  1 centos centos  597 May  1 07:14 PERF_SCALE_1556635175.csv
+-rw-rw-r--.  1 centos centos 3012 May  1 07:14 PERF_SCALE_1556635175.csv.html
+-rw-rw-r--.  1 centos centos 1012 May  1 07:14 pe_tune_current.txt
+drwxrwxr-x.  5 centos centos   59 May  1 07:14 puppet-metrics-collector
+drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_01_4600
+drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_02_4700
+drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_03_4800
+drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_04_4900
+drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_05_5000
+drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_06_5100
+drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_07_5200
+drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_08_5300
+➜  slv-demo 
+```
 
 ##### sres
-Copy the specified result folder to the specified nginx directory (default is ‘slv’)
-
+Copy the specified result folder to the specified nginx directory (the default is ‘slv’).
+```
+➜  slv-demo ./sres PERF_SCALE_1556635175
+➜  slv-demo ls /usr/share/nginx/html/gplt/scale/slv               
+PERF_SCALE_1556635175  PERF_SCALE_1556635175.tar.gz
+➜  slv-demo 
+```
 
 ### Setting up a new instance
 These instructions assume that you're using the utility scripts described above and naming the instance 'slv-demo':

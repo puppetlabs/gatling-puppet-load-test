@@ -118,7 +118,7 @@ backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow 
 ```
 
 ##### backup
-Create a timestamped backup of the gatling-puppet-load-test directory
+Create a timestamped backup of the gatling-puppet-load-test directory.
 ```
 ➜  slv-demo ls
 backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow
@@ -130,8 +130,8 @@ bkreplace  gatling-puppet-load-test  metrics                          pres   rep
 ```
 
 ##### bkreplace
-Create a timestamped backup of the gatling-puppet-load-test directory
-Then remove the gatling-puppet-load-test directory and re-clone the repo
+Create a timestamped backup of the gatling-puppet-load-test directory.
+Then remove the gatling-puppet-load-test directory and re-clone the repo.
 ```
 ➜  slv-demo ls
 backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow
@@ -154,8 +154,8 @@ bkreplace  gatling-puppet-load-test  metrics                          pres   rep
 ```
 
 ##### replace
-Remove the gatling-puppet-load-test directory in the current directory
-Then clone the gatling-puppet-load-test repo into the current directory
+Remove the gatling-puppet-load-test directory in the current directory.
+Then clone the gatling-puppet-load-test repo into the current directory.
 ```
 ➜  slv-demo ls
 backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow

@@ -6,7 +6,7 @@ teardown do
   perf_teardown
 end
 
-# Execute 60 agent runs to warm up the JIT before starting our monitoring.
+# Execute agent runs to warm up the JIT before starting our monitoring.
 perf_setup('WarmUpJit.json','PerfTestLarge', '')
 stop_monitoring(master, '/opt/puppetlabs')
 
@@ -17,17 +17,21 @@ perf_setup('Soak.json','PerfTestLarge', gatlingassertions)
 
 atop_result, gatling_result = perf_result
 
+# TODO: remove commented steps below
+
 step 'max response' do
   # Temporarily disabling this step until SLV-208 is complete
   # assert_later(gatling_result.max_response_time_agent <= 20000, "Max response time per agent run was: #{gatling_result.max_response_time_agent}, expected <= 20000")
 end
 
 step 'successful request percentage' do
-  assert_later(gatling_result.successful_requests == 100, "Total successful request percentage was: #{gatling_result.successful_requests}%, expected 100%" )
+  # Temporarily disabling this step for Kearney testing
+  # assert_later(gatling_result.successful_requests == 100, "Total successful request percentage was: #{gatling_result.successful_requests}%, expected 100%" )
 end
 
 step 'average memory' do
-  assert_later(atop_result.avg_mem < 3000000, "Average memory was: #{atop_result.avg_mem}, expected < 3000000")
+  # Temporarily disabling this step for Kearney testing
+  # assert_later(atop_result.avg_mem < 3000000, "Average memory was: #{atop_result.avg_mem}, expected < 3000000")
 end
 
 ##This step will only be run if BASELINE_PE_VER and has been set.

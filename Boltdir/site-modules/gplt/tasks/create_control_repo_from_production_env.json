@@ -1,9 +1,21 @@
 {
-  "description": "Creates a git repo from puppet production environment directory",
+  "description": "Creates a local git repo for puppet code",
   "input_method": "environment",
   "parameters": {
     "ctrl_repo_path": {
       "description": "The fully qualified path where the control repo will be created",
+      "type": "Optional[String[1]]"
+    },
+    "code_source_path": {
+      "description": "The fully qualified path to the source code",
+      "type": "Optional[String[1]]"
+    },
+    "code_source_url": {
+      "description": "The URL to a public github repo that contains the source code",
+      "type": "Optional[String[1]]"
+    },
+    "code_source_branch": {
+      "description": "The branch of the public github repo in code_source_url to use as production",
       "type": "Optional[String[1]]"
     }
   }

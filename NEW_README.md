@@ -188,29 +188,43 @@ bundle exec rake opsworks_performance    # (takes about 1.5 hours)
 
 ## Soak performance tests
 
-In order to execute a Soak performance run:
+The soak performance test executes a long-running scenario under medium load:
+* 14 days
+* 600 agents
+* `role::by_size::large`
 
-* Follow the instructions from
-[Just set up PE and Gatling](#set-up-puppet-enterprise-and-gatling-but-do-not-execute-a-gatling-scenario).
+### Provision, tune, run
 
-* Then manually tune the master by running `puppet infrastructure tune` on the master.
+A set of 'soak' rake tasks are provided to handle setup and test execution, allowing nodes to be provisioned as part of the run or as a separate step.
+The pre-suite includes tuning of the master via 'puppet infrastructure tune' so this is no longer a manual step.
 
-* You will have to edit '/etc/puppetlabs/puppet/hiera.yaml' to add 'nodes/%{fqdn}' to the top of the hiera hierarchy.
+Note that when using the soak rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete.
 
-* Then create '/etc/puppetlabs/code/environments/production/hieradata/nodes/\<master fqdn>.yaml' where master fqdn is the result of `facter networking.fqdn` (run on master), and put the output of the tune command in it.
+To execute a soak performance run:
 
-* Verify that worked by running `puppet lookup puppet_enterprise::master::puppetserver::jruby_max_active_instances --explain` and checking that it got the key from your new file.
+#### To provision and set up nodes as part of the run:
 
-* Run `puppet agent -t` on the master.
-
-Then set the following environment variables (with other variables still set from first step above):
-*  `BEAKER_TESTS` to 'tests/Soak.rb'
-
-Execute:
 ```
-bundle exec rake performance_against_already_provisioned     # (takes about 10 days)
+bundle exec rake soak
 ```
 
+#### To provision and set up nodes separately:
+
+Run the `soak_setup` rake task to provision and set up the nodes:
+```
+bundle exec rake soak_setup
+```
+
+Then run the 'soak_provisioned' rake task to run the soak test:
+```
+bundle exec rake soak_provisioned
+```
+
+#### De-provision the nodes when testing is complete
+
+```
+bundle exec rake performance_deprovision_with_abs
+```
 
 ## Scale performance tests
 
@@ -227,7 +241,6 @@ The results for each iteration are copied to a folder named 'PERF_SCALE{$SCALE_T
 The sub-directory for each iteration is named based on the scenario, iteration, and number of agents.
 
 In order to execute a Scale performance run:
-
 
 ### Provision, tune, run
 

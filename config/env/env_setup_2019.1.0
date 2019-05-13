@@ -5,5 +5,5 @@
 # export PUPPET_GATLING_SCALE_SIMULATION_ID="PerfAutoScaleSmall"
 
 export BEAKER_INSTALL_TYPE=pe
-export BEAKER_PE_DIR=http://enterprise.delivery.puppetlabs.net/archives/internal/2019.1
-export BEAKER_PE_VER=2019.1.0-rc11
+export BEAKER_PE_DIR=http://enterprise.delivery.puppetlabs.net/archives/releases/2019.1.0
+export BEAKER_PE_VER=2019.1.0

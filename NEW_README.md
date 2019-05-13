@@ -193,22 +193,18 @@ The soak performance test executes a long-running scenario under medium load:
 * 600 agents
 * `role::by_size::large`
 
-### Provision, tune, run
-
 A set of 'soak' rake tasks are provided to handle setup and test execution, allowing nodes to be provisioned as part of the run or as a separate step.
-The pre-suite includes tuning of the master via 'puppet infrastructure tune' so this is no longer a manual step.
+The pre-suite includes tuning of the master via 'puppet infrastructure tune'.
 
 Note that when using the soak rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete.
 
-To execute a soak performance run:
-
-#### To provision and set up nodes as part of the run:
+### To provision and set up nodes as part of the run:
 
 ```
 bundle exec rake soak
 ```
 
-#### To provision and set up nodes separately:
+### To provision and set up nodes separately:
 
 Run the `soak_setup` rake task to provision and set up the nodes:
 ```
@@ -220,7 +216,7 @@ Then run the 'soak_provisioned' rake task to run the soak test:
 bundle exec rake soak_provisioned
 ```
 
-#### De-provision the nodes when testing is complete
+### De-provision the nodes when testing is complete
 
 ```
 bundle exec rake performance_deprovision_with_abs

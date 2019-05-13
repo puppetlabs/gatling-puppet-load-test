@@ -290,7 +290,7 @@ rototiller_task :soak do
   ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
   ENV['PUPPET_SCALE_CLASS'] = ENV['PUPPET_SCALE_CLASS'] || 'role::by_size::large'
   ENV['PUPPET_GATLING_SCALE_TUNE'] = ENV['PUPPET_GATLING_SCALE_TUNE'] || 'true'
-  ENV['ABS_AWS_REAP_DAYS'] = ENV['ABS_AWS_REAP_DAYS'] || '20'
+  ENV['ABS_AWS_REAP_DAYS'] = ENV['ABS_AWS_REAP_DAYS'] || '30'
   Rake::Task["performance"].execute
 end
 

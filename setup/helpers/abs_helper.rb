@@ -20,8 +20,9 @@ module AbsHelper
   # centos-7-x86-64-west is an AWS image, centos-7-x86_64 is vmpooler
   ABS_BEAKER_ENGINE = "aws".freeze
 
-  # TODO: is this the value we want to use?
-  AWS_REAP_TIME = "86400".freeze
+  # default reap time is one day
+  SECONDS_PER_DAY = 86400.freeze
+  AWS_REAP_TIME = SECONDS_PER_DAY.to_s.freeze
 
   # TODO: update mom and metrics config
   MOM_VOLUME_SIZE = AWS_VOLUME_SIZE.freeze
@@ -46,7 +47,15 @@ module AbsHelper
       @aws_platform = ENV["ABS_AWS_PLATFORM"] ? ENV["ABS_AWS_PLATFORM"] : AWS_PLATFORM
       @aws_image_id = ENV["ABS_AWS_IMAGE_ID"] ? ENV["ABS_AWS_IMAGE_ID"] : AWS_IMAGE_ID
       @aws_region = ENV["ABS_AWS_REGION"] ? ENV["ABS_AWS_REGION"] : AWS_REGION
-      @aws_reap_time = ENV["ABS_AWS_REAP_TIME"] ? ENV["ABS_AWS_REAP_TIME"] : AWS_REAP_TIME
+
+      # override default reap time with days?
+      if ENV["ABS_AWS_REAP_DAYS"]
+        days = ENV["ABS_AWS_REAP_DAYS"].to_i
+        @aws_reap_time = (days * SECONDS_PER_DAY).to_s
+      else
+        @aws_reap_time = ENV["ABS_AWS_REAP_TIME"] ? ENV["ABS_AWS_REAP_TIME"] : AWS_REAP_TIME
+      end
+
       @mom_size = ENV["ABS_AWS_MOM_SIZE"]
       @mom_volume_size = ENV["ABS_AWS_MOM_VOLUME_SIZE"] ? ENV["ABS_AWS_MOM_VOLUME_SIZE"] : MOM_VOLUME_SIZE
       @metrics_size = ENV["ABS_AWS_METRICS_SIZE"]

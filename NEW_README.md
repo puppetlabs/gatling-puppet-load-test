@@ -94,12 +94,19 @@ your `$HOME/.fog` file.  Here is an example: _FIXME: Reference fog website._
 
 ##### ABS (Always Be Scheduling)
 
-**NOTE: This facility is not publically available and can only be used by
+**NOTE: This facility is not publicly available and can only be used by
 personnel employed by Puppet the company.**
 
-**NOTE:** AWS instances provided by ABS are automatically destroyed after
-24 hours.  The lifetime of these instances  can be set to an alternative value
-by setting the with `ABS_AWS_REAP_TIME` environment variable in seconds.
+**NOTE:** AWS instances provided by ABS are automatically destroyed after 24 hours by the [AWS EC2 Reaper](https://github.com/puppetlabs/aws_resource_reaper/tree/master/lambdas/ec2#aws-ec2-reaper).  
+The lifetime of these instances can be set to an alternative value by setting the desired lifetime with the `ABS_AWS_REAP_TIME` environment variable in seconds.
+
+Alternatively, the lifetime can be specified in days via the `ABS_AWS_REAP_DAYS` environment variable.
+Setting this variable will override any value set for the `ABS_AWS_REAP_TIME` environment variable.
+
+In either case, the value is ultimately specified in seconds as the `reap_time` parameter of the request to the [`awsdirect` endpoint](https://github.com/puppetlabs/always-be-scheduling#apiv2awsdirect).
+This is translated to the `termination_date` tag specified by ABS for the EC2 instance; it can be manually edited in the EC2 console to change the specified value.
+
+The Terminator component of the Reaper runs periodically to ensure that all EC2 instances are terminated if they are past their `termination_date`.
 
 * In order to use an AWS account with access to
 puppetlabs network resources, you need to use
@@ -188,27 +195,41 @@ bundle exec rake opsworks_performance    # (takes about 1.5 hours)
 
 ## Soak performance tests
 
-In order to execute a Soak performance run:
+The soak performance test executes a long-running scenario under medium load:
+* 14 days
+* 600 agents
+* `role::by_size::large`
 
-* Follow the instructions from
-[Just set up PE and Gatling](#set-up-puppet-enterprise-and-gatling-but-do-not-execute-a-gatling-scenario).
+A set of 'soak' rake tasks are provided to handle setup and test execution, allowing nodes to be provisioned as part of the run or as a separate step.
+The pre-suite includes tuning of the master via 'puppet infrastructure tune'.
 
-* Then manually tune the master by running `puppet infrastructure tune` on the master.
+Note that when using the soak rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete.
 
-* You will have to edit '/etc/puppetlabs/puppet/hiera.yaml' to add 'nodes/%{fqdn}' to the top of the hiera hierarchy.
+To ensure AWS instances are not terminated before the test completes and post-test steps are performed the soak rake task sets the reap time to 30 days via the `ABS_AWS_REAP_DAYS` environment variable.
+This value can be overridden by specifying a different value for the environment variable.
 
-* Then create '/etc/puppetlabs/code/environments/production/hieradata/nodes/\<master fqdn>.yaml' where master fqdn is the result of `facter networking.fqdn` (run on master), and put the output of the tune command in it.
+### To provision and set up nodes as part of the run:
 
-* Verify that worked by running `puppet lookup puppet_enterprise::master::puppetserver::jruby_max_active_instances --explain` and checking that it got the key from your new file.
-
-* Run `puppet agent -t` on the master.
-
-Then set the following environment variables (with other variables still set from first step above):
-*  `BEAKER_TESTS` to 'tests/Soak.rb'
-
-Execute:
 ```
-bundle exec rake performance_against_already_provisioned     # (takes about 10 days)
+bundle exec rake soak
+```
+
+### To provision and set up nodes separately:
+
+Run the `soak_setup` rake task to provision and set up the nodes:
+```
+bundle exec rake soak_setup
+```
+
+Then run the 'soak_provisioned' rake task to run the soak test:
+```
+bundle exec rake soak_provisioned
+```
+
+### De-provision the nodes when testing is complete
+
+```
+bundle exec rake performance_deprovision_with_abs
 ```
 
 
@@ -227,7 +248,6 @@ The results for each iteration are copied to a folder named 'PERF_SCALE{$SCALE_T
 The sub-directory for each iteration is named based on the scenario, iteration, and number of agents.
 
 In order to execute a Scale performance run:
-
 
 ### Provision, tune, run
 
@@ -307,6 +327,8 @@ for `ABS_OS` and `BEAKER_HOSTS`.  Here is an example:
 ```
 ABS_OS=centos-7-x86-64-west BEAKER_HOSTS=config/beaker_hosts/pe-perf-test.cfg
 ```
+
+
 
 ## Other Topics
 

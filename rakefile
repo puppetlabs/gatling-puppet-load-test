@@ -283,6 +283,32 @@ rototiller_task :performance_setup do
   Rake::Task["performance"].execute
 end
 
+desc 'Run Soak setup and test for gatling'
+rototiller_task :soak do
+  ENV['ENVIRONMENT_TYPE'] = 'gatling'
+  ENV['BEAKER_TESTS'] = ENV['BEAKER_TESTS'] || 'tests/Soak.rb'
+  ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
+  ENV['PUPPET_SCALE_CLASS'] = ENV['PUPPET_SCALE_CLASS'] || 'role::by_size::large'
+  ENV['PUPPET_GATLING_SCALE_TUNE'] = ENV['PUPPET_GATLING_SCALE_TUNE'] || 'true'
+  ENV['ABS_AWS_REAP_DAYS'] = ENV['ABS_AWS_REAP_DAYS'] || '30'
+  Rake::Task["performance"].execute
+end
+
+desc 'Run Soak setup for gatling'
+rototiller_task :soak_setup do
+  ENV['BEAKER_TESTS'] = ''
+  Rake::Task["soak"].execute
+end
+
+desc 'Run Soak test for gatling on previously provisioned hosts'
+rototiller_task :soak_provisioned do
+  ENV['ENVIRONMENT_TYPE'] = 'gatling'
+  ENV['BEAKER_TESTS'] = ENV['BEAKER_TESTS'] || 'tests/Soak.rb'
+  ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
+  ENV['PUPPET_SCALE_CLASS'] = ENV['PUPPET_SCALE_CLASS'] || 'role::by_size::large'
+  Rake::Task["performance_against_already_provisioned"].execute
+end
+
 desc 'Run Scale setup and test for gatling'
 rototiller_task :autoscale do
   ENV['ENVIRONMENT_TYPE'] = 'gatling'

@@ -302,7 +302,7 @@ module PerfHelper
 
   def r10k_deploy
     bin = ENV['PUPPET_BIN_DIR']
-    r10k_version = ENV['PUPPET_R10K_VERSION'] || '3.0.0'
+    r10k_version = ENV['PUPPET_R10K_VERSION'] || '3.2.0'
 
     step "Install and configure r10k" do
       r10k_config = get_r10k_config_from_env

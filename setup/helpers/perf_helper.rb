@@ -552,8 +552,8 @@ module PerfHelper
       on metric, 'yum -y install \
                          java-1.8.0-openjdk java-1.8.0-openjdk-devel xauth'
     end
-    step "install scala build tool (sbt)" do
-      on metric, "rpm -ivh http://dl.bintray.com/sbt/rpm/sbt-0.13.7.rpm"
+    step 'install scala build tool (sbt)' do
+      on metric, 'yum localinstall -y http://dl.bintray.com/sbt/rpm/sbt-0.13.7.rpm'
     end
     step "create key for metrics to talk to primary master" do
       on metric, 'yes | ssh-keygen -q -t rsa -b 4096 \

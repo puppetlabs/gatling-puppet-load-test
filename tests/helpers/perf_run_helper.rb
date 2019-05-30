@@ -257,33 +257,6 @@ module PerfRunHelper
     return output
   end
 
-  # Restart the pe-puppetserver service
-  #
-  # @author Bill Claytor
-  #
-  # @return [void]
-  #
-  # @example
-  #   restart_puppetserver
-  #
-  def restart_puppetserver
-    if %w(foss aio).include?(ENV['BEAKER_INSTALL_TYPE'])
-      service = 'puppetserver'
-    else
-      service = 'pe-puppetserver'
-    end
-
-    puts "Restarting #{service} service..."
-    puts
-
-    on master, "service #{service} restart"
-
-    puts "Sleeping..."
-    puts
-
-    sleep 60
-  end
-
   # Purge the puppet-metrics-collector log files for each service
   #
   # @author Bill Claytor

@@ -659,12 +659,5 @@ module PerfHelper
     create_remote_file(master, custom_fact_path, custom_fact_content)
     on(master, 'puppet apply -e "include puppet_metrics_collector"', :acceptable_exit_codes => [0,2])
   end
-
-  def setup_puppet_metrics_collector_for_foss
-    custom_fact_content = 'pe_server_version=""'
-    custom_fact_path = '/opt/puppetlabs/facter/facts.d/custom.txt'
-    create_remote_file(master, custom_fact_path, custom_fact_content)
-    on(master, 'puppet apply -e "include puppet_metrics_collector"', :acceptable_exit_codes => [0,2])
-  end
 end
 # rubocop:enable Style/SpecialGlobalVars

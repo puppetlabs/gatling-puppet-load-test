@@ -1,15 +1,15 @@
 # TODO: move to perf_results_helper.rb
 # TODO: update to call csv2html
 
-require 'json'
-require 'csv'
+require "json"
+require "csv"
 
-raise Exception, 'you must provide a results directory' unless ARGV[0]
+raise Exception, "you must provide a results directory" unless ARGV[0]
 results_dir = ARGV[0]
+results_name = File.basename(results_dir)
+output_path = "#{results_dir}/#{results_name}.csv"
 
-# TODO: easier way using file_utils?
-results_name = results_dir.split('/')[results_dir.split('/').length - 1]
-stats_path = ARGV[0] + '/js/stats.json'
+stats_path = "#{results_dir}/js/stats.json"
 
 puts "Examining Gatling data: #{stats_path}"
 puts
@@ -17,40 +17,40 @@ puts
 stats = JSON.parse(File.open(stats_path).read)
 
 # the 'group' name will be something like 'group_nooptestwithout-9eb19'
-group_keys = stats['contents'].keys.select { |key| key.to_s.match(/group/) }
-group_node = stats['contents'][group_keys[0]]
+group_keys = stats["contents"].keys.select { |key| key.to_s.match(/group/) }
+group_node = stats["contents"][group_keys[0]]
 
-MAX = 'maxResponseTime'
-MEAN = 'meanResponseTime'
-STD = 'standardDeviation'
-TOTAL = 'total'
+MAX = "maxResponseTime"
+MEAN = "meanResponseTime"
+STD = "standardDeviation"
+TOTAL = "total"
 
 # totals row is in the 'stats' node
-totals = group_node['stats']
+totals = group_node["stats"]
 
 # transaction rows are in the 'contents' node
-contents = group_node['contents']
+contents = group_node["contents"]
 
 # TODO: verify each key
 puts "There are #{contents.keys.length} keys"
 puts
 
 for i in 0..contents.keys.length - 1 do
-  name = contents[contents.keys[i]]['name']
+  name = contents[contents.keys[i]]["name"]
   puts "key #{i}: #{name}"
 end
 
-node = contents[contents.keys[0]]['stats']
-filemeta_pluginfacts = contents[contents.keys[1]]['stats']
-filemeta_plugins = contents[contents.keys[2]]['stats']
-locales = contents[contents.keys[3]]['stats']
-catalog = contents[contents.keys[4]]['stats']
-report = contents[contents.keys[5]]['stats']
+node = contents[contents.keys[0]]["stats"]
+filemeta_pluginfacts = contents[contents.keys[1]]["stats"]
+filemeta_plugins = contents[contents.keys[2]]["stats"]
+locales = contents[contents.keys[3]]["stats"]
+catalog = contents[contents.keys[4]]["stats"]
+report = contents[contents.keys[5]]["stats"]
 
-puts "Creating #{results_name}.csv"
+puts "Creating #{output_path}"
 puts
 
-CSV.open("#{results_dir}/#{results_name}.csv", "wb") do |csv|
+CSV.open(output_path, "wb") do |csv|
   csv << ["Duration","max ms","mean ms","std dev"]
   csv << ["Total", totals[MAX][TOTAL], totals[MEAN][TOTAL], totals[STD][TOTAL]]
   csv << ["catalog", catalog[MAX][TOTAL], catalog[MEAN][TOTAL], catalog[STD][TOTAL]]

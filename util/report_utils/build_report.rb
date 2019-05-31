@@ -6,22 +6,22 @@
 
 TEMPLATE_PATH = "./soak_results_template.html"
 
-RESULT_A_PATH = "examples/template/PerfTestLarge-A.csv.html"
+RESULT_A_PATH = "examples/template_defaults/PerfTestLarge-A.csv.html"
 RESULT_A_NAME = "PerfTestLarge-12345678"
 
-RESULT_B_PATH = "examples/template/PerfTestLarge-B.csv.html"
+RESULT_B_PATH = "examples/template_defaults/PerfTestLarge-B.csv.html"
 RESULT_B_NAME = "PerfTestLarge-23456789"
 
-COMPARISON_PATH = "examples/template/PerfTestLarge-A_vs_PerfTestLarge-B.csv.html"
+COMPARISON_PATH = "examples/template_defaults/PerfTestLarge-A_vs_PerfTestLarge-B.csv.html"
 OUTPUT_PATH = "./example_soak_report.html"
 
 RELEASE_A_NAME = "RELEASE A"
 RELEASE_A_NUMBER = "1.2.3"
-RELEASE_A_IMAGE = "examples/template/release_a.png"
+RELEASE_A_IMAGE = "examples/template_defaults/release_a.png"
 
 RELEASE_B_NAME = "RELEASE B"
 RELEASE_B_NUMBER = "2.3.4"
-RELEASE_B_IMAGE = "examples/template/release_b.png"
+RELEASE_B_IMAGE = "examples/template_defaults/release_b.png"
 
 @template_path = ENV["TEMPLATE_PATH"] || TEMPLATE_PATH
 

@@ -15,24 +15,21 @@ Future possibilities include using the data in BigQuery rather than relying on C
 Notes: 
 * The following examples were created using previous runs from the Johnson and Kearney releases. 
 GPLT currently organizes the results directories based on the hostname; adjust actual paths accordingly.
-* The scripts should be run from the `util/report_utils` directory as shown in the examples below.
+* All commands should be run from the `util/report_utils` directory as shown in the examples below.
 
 ### Example soak test results
 In order to demonstrate the full workflow the example files referenced below are the actual test results from the Johnson and Kearney releases.
 They have been re-organized and archived in our AWS S3 bucket.
 If you do not have access to the example test results the resulting CSV and HTML files are available in the `examples/template_defaults` directory.
 
-
 Download the `kearney_example.tar.gz` file to the `examples` directory using the AWS CLI:
-
 ```
-test.user:~/gatling-puppet-load-test/util/report_utils> aws s3 cp s3://slv-performance-results/releases/Kearney/SLV-451/kearney_example.tar.gz examples/kearney_example.tar.gz --profile slv_s3_service_account
-download: s3://slv-performance-results/releases/Kearney/SLV-451/kearney_example.tar.gz to examples/kearney_example.tar.gz
-
+aws s3 cp s3://slv-performance-results/releases/Kearney/SLV-451/kearney_example.tar.gz examples/kearney_example.tar.gz --profile slv_s3_service_account
 ```
+
 Extract the `kearney_example.tar.gz` archive to use the provided CSV, HTML, and image files in the examples below:
 ```
-test.user:~/gatling-puppet-load-test/util/report_utils> tar xzf examples/kearney_example.tar.gz -C examples
+tar xzf examples/kearney_example.tar.gz -C examples
 ```
 Note: The CSV and HTML files created in the following steps are included in the archive so running each example is not required. 
 Re-running the examples will simply regenerate the files.

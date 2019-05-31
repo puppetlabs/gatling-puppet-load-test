@@ -11,7 +11,7 @@ module PerfRunHelper
   SCALE_ITERATIONS = 15
   SCALE_INCREMENT = 100
   SCALE_MAX_ALLOWED_KO = 10
-  PUPPET_METRICS_COLLECTOR_SERVICES = %w[orchestrator puppetdb puppetserver]
+  PUPPET_METRICS_COLLECTOR_SERVICES = ENV['BEAKER_INSTALL_TYPE'] == 'pe' ? %w[orchestrator puppetdb puppetserver] : ['puppetserver']
 
   def perf_setup(gatling_scenario, simulation_id, gatlingassertions)
     @atop_session_timestamp = start_monitoring(master, gatling_scenario, true, 30)
@@ -143,8 +143,10 @@ module PerfRunHelper
     # create scale results env file
     create_scale_results_env_file(scale_results_parent_dir)
 
-    # create current pe tune file
-    create_pe_tune_file(scale_results_parent_dir)
+    unless %w(foss aio).include?(ENV['BEAKER_INSTALL_TYPE'])
+      # create current pe tune file
+      create_pe_tune_file(scale_results_parent_dir)
+    end
   end
 
   # Create the CSV file for the scale run and add the headings row

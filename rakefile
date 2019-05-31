@@ -125,7 +125,6 @@ rototiller_task :performance_without_provision do |t|
   t.add_env({:name => 'PUPPET_GATLING_SCENARIO', :default => 'ApplesToApples.json'})
   t.add_env({:name => 'BEAKER_TESTS', :default => 'tests/ApplesToApples.rb'})
   t.add_env({:name => 'BEAKER_POST_SUITE', :default => ''})
-  t.add_env({:name => 'PUPPET_SERVER_SERVICE_NAME', :default => 'pe-puppetserver'})
   t.add_env({:name => 'SUT_ARCHIVE_FILES', :default => ''})
   t.add_env({:name => 'PACKAGE_BUILD_VERSION', :default => 'latest'}) if ENV['BEAKER_INSTALL_TYPE'] == 'foss'
   t.add_env({:name => 'PUPPET_AGENT_VERSION', :default => 'latest'}) if ENV['BEAKER_INSTALL_TYPE'] == 'foss'

@@ -247,6 +247,10 @@ After each iteration completes the results are checked and if a KO is found the 
 The results for each iteration are copied to a folder named 'PERF_SCALE{$SCALE_TIMESTAMP}' in `results/scale`.
 The sub-directory for each iteration is named based on the scenario, iteration, and number of agents.
 
+As with the Apples to Apples performance tests, to run against a FOSS build, set
+`BEAKER_INSTALL_TYPE=foss` and provide values for `PACKAGE_BUILD_VERSION` and
+`PUPPET_AGENT_VERSION` environment variables.
+
 In order to execute a Scale performance run:
 
 ### Provision, tune, run

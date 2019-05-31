@@ -61,7 +61,7 @@ def parse_scenario_file(scenario_file)
 end
 
 def get_puppet_server_service_name_from_env()
-  ENV['PUPPET_SERVER_SERVICE_NAME']
+  ENV['BEAKER_INSTALL_TYPE'] == 'pe' ? 'pe-puppetserver' : 'puppetserver'
 end
 
 def get_puppet_server_java_args_from_env()

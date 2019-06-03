@@ -13,4 +13,4 @@ rvm:
 env:
   matrix:
     - "CHECK=rspec spec --color"
-    # - "CHECK=rubocop"
+    - "CHECK=rubocop"

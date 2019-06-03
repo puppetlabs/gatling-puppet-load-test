@@ -12,6 +12,7 @@ gem "beaker-puppet", "~>1.0"
 gem "master_manipulator", "~>2.1"
 gem "rototiller", "~>1.0"
 gem "rspec", "~>3.0"
+gem "rubocop", "~> 0.67"
 gem "scooter", "~>4.3"
 
 eval(File.read("#{__FILE__}.local"), binding) if File.exist? "#{__FILE__}.local" # rubocop:disable Security/Eval

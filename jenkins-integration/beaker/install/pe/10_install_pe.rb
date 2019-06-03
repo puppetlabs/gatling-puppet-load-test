@@ -1,4 +1,6 @@
-test_name 'Install PE'
+# frozen_string_literal: true
+
+test_name "Install PE"
 
 # Environment variables:
 #   (required) pe_dir="http://enterprise.delivery.puppetlabs.net/2016.2/ci-ready/"

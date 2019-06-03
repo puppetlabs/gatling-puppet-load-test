@@ -1,11 +1,13 @@
-require 'puppet/gatling/config'
-require 'tmpdir'
-require 'yaml'
+# frozen_string_literal: true
 
-test_name 'Install hiera config'
+require "puppet/gatling/config"
+require "tmpdir"
+require "yaml"
+
+test_name "Install hiera config"
 
 def target_hiera_config_path(host)
-  return on(host, puppet('config print hiera_config')).stdout.chomp
+  on(host, puppet("config print hiera_config")).stdout.chomp
 end
 
 def get_source_hiera_config(host, hiera_config)
@@ -18,13 +20,13 @@ def get_source_hiera_config(host, hiera_config)
   File.join(local_hiera_dir, File.basename(source_hiera_config_path))
 end
 
-def update_hiera_datadir_in_local_config(host, hiera_config, local_hiera_config_path)
+def update_hiera_datadir_in_local_config(_host, hiera_config, local_hiera_config_path)
   datadir = hiera_config[:datadir]
-  if !datadir.nil? && !datadir.empty?
-    config = YAML.load_file(local_hiera_config_path)
-    config[:yaml][:datadir] = datadir
-    File.open(local_hiera_config_path, 'w') { |f| f.write(config.to_yaml) }
-  end
+  return unless !datadir.nil? && !datadir.empty?
+
+  config = YAML.load_file(local_hiera_config_path)
+  config[:yaml][:datadir] = datadir
+  File.open(local_hiera_config_path, "w") { |f| f.write(config.to_yaml) }
 end
 
 def install_hieraconfig(host, source_path)
@@ -33,7 +35,7 @@ def install_hieraconfig(host, source_path)
   on(host, "chmod 644 #{target_path}")
 end
 
-hiera_config = get_hiera_config_from_env()
+hiera_config = get_hiera_config_from_env
 local_hiera_config_path = get_source_hiera_config(master, hiera_config)
 update_hiera_datadir_in_local_config(master, hiera_config, local_hiera_config_path)
 install_hieraconfig(master, local_hiera_config_path)

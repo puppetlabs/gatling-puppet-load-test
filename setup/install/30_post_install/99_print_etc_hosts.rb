@@ -1,7 +1,8 @@
+# frozen_string_literal: true
 
 # retrieve the public IP address for a single host
 def public_ip_address(host)
-  if host['hypervisor'] == 'ec2'
+  if host["hypervisor"] == "ec2"
     curl_on(host, "http://169.254.169.254/latest/meta-data/public-ipv4").stdout.chomp
   else
     host.ip
@@ -10,14 +11,13 @@ end
 
 # retrieve public IPv4 addresses for each host
 def host_ips(hosts)
-  hosts.inject({}) do |results, host|
+  hosts.each_with_object({}) do |host, results|
     results[host.hostname] = public_ip_address(host)
-    results
   end
 end
 
-test_name 'print /etc/hosts info' do
-  step 'print /etc/hosts info' do
+test_name "print /etc/hosts info" do
+  step "print /etc/hosts info" do
     ip_mapping = host_ips(hosts)
     @logger.info "---------------------"
     @logger.info "instance IP -> hostname info for /etc/hosts"

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # TODO: include this functionality in every performance run
 # TODO: extract result names from path
 
@@ -52,23 +54,14 @@ def extract_table(html_path)
   table_start = false
 
   html_string.each_line do |line|
+    table_start = true if line.include?("<table")
 
-    if line.include?("<table")
-      table_start = true
-    end
+    table_string << line if table_start
 
-    if table_start
-      table_string << line
-    end
-
-    if line.include?("</table>")
-      break
-    end
-
+    break if line.include?("</table>")
   end
 
-  return table_string
-
+  table_string
 end
 
 # load template

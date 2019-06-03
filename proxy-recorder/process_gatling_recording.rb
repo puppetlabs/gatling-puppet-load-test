@@ -1,19 +1,19 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-unless RUBY_VERSION =~ /^2\.\d+\.\d+$/
+unless RUBY_VERSION.match?(/^2\.\d+\.\d+$/)
   puts "ERROR!  This script requires ruby 2.x."
   exit 1
 end
 
-
-require 'json'
+require "json"
 
 # Maps httpProtocol helper method names to http header names
 HELPER_TO_HEADER = {
-    "acceptHeader" => "Accept",
-    "acceptEncodingHeader" => "Accept-Encoding",
-    "userAgentHeader" => "User-Agent"
-}
+  "acceptHeader"         => "Accept",
+  "acceptEncodingHeader" => "Accept-Encoding",
+  "userAgentHeader"      => "User-Agent"
+}.freeze
 
 TERMINOLOGY = {
   "catalog"                                                 => "catalog",
@@ -24,25 +24,22 @@ TERMINOLOGY = {
   "file_content/modules"                                    => "file content",
   "static_file_content/modules"                             => "static file content",
   "node"                                                    => "node",
-  "report"                                                  => "report",
-}
+  "report"                                                  => "report"
+}.freeze
 
 def lookup_request_match(line, prefix)
   TERMINOLOGY.each do |url, rewrite|
-    if line.match(prefix + "/" + url)
-      return rewrite
-    end
+    return rewrite if line.match?(prefix + "/" + url)
   end
 end
 
 def grep_dir(dir, pattern)
   Dir.glob("#{dir}/**/*").each do |file|
     next unless File.file?(file)
+
     File.open(file) do |f|
       f.each_line do |line|
-        if line.match(pattern)
-          return File.absolute_path(file)
-        end
+        return File.absolute_path(file) if line.match?(pattern)
       end
     end
   end
@@ -63,26 +60,27 @@ def comment_line(line)
   "// #{line}"
 end
 
-def get_simulation_runner_root_dir()
+def get_simulation_runner_root_dir # rubocop:disable Naming/AccessorMethodName
   File.join(File.dirname(__FILE__), "..", "simulation-runner")
 end
 
 def validate_infile_path(infile)
   infile_dir = File.absolute_path(File.dirname(infile))
   sim_dir = File.absolute_path(
-                    File.join(get_simulation_runner_root_dir(),
-                              "src", "main", "scala", "com", "puppetlabs",
-                              "gatling", "node_simulations"))
+    File.join(get_simulation_runner_root_dir,
+              "src", "main", "scala", "com", "puppetlabs",
+              "gatling", "node_simulations")
+  )
 
-  unless infile_dir == sim_dir
-    puts "ERROR: Simulation recording must be placed in this directory: '#{sim_dir}'"
-    puts "(specified input file is in dir '#{infile_dir}')"
-    exit 1
-  end
+  return if infile_dir == sim_dir
+
+  puts "ERROR: Simulation recording must be placed in this directory: '#{sim_dir}'"
+  puts "(specified input file is in dir '#{infile_dir}')"
+  exit 1
 end
 
 def find_certname(text)
-  matches = text.match(/\n\s*\.get\("\/puppet\/v3\/node\/([^\?]+)\?environment/)
+  matches = text.match(%r{\n\s*\.get\("/puppet/v3/node/([^\?]+)\?environment})
   unless matches
     puts "Unable to find certname (from node request) in recording!"
     exit 1
@@ -97,7 +95,7 @@ def find_certname(text)
 end
 
 def find_report_request_info(text)
-  matches = text.match(/\n\s*\.put\("\/puppet\/v3\/report[^"]+"\)\s*\n\s*\.headers\(([^\)]+)\)\s*\n\s*\.body\(RawFileBody\("([^"]+)"\)\)\)\s*\n/)
+  matches = text.match(%r{\n\s*\.put\("/puppet/v3/report[^"]+"\)\s*\n\s*\.headers\(([^\)]+)\)\s*\n\s*\.body\(RawFileBody\("([^"]+)"\)\)\)\s*\n}) # rubocop:disable Metrics/LineLength
   unless matches
     puts "Unable to find report request in recording!"
     exit 1
@@ -105,12 +103,13 @@ def find_report_request_info(text)
 
   puts "Found report request."
 
-  result = {:request_headers_varname => matches[1],
-            :request_txt_file => matches[2]}
+  result = { request_headers_varname: matches[1],
+             request_txt_file: matches[2] }
 
   request_txt = File.absolute_path(
-                        File.join(get_simulation_runner_root_dir(), "user-files", "bodies",
-                                  result[:request_txt_file]))
+    File.join(get_simulation_runner_root_dir, "user-files", "bodies",
+              result[:request_txt_file])
+  )
 
   unless File.file?(request_txt)
     puts "Unable to find report request body file!  Expected to find it at #{request_txt}"
@@ -126,48 +125,41 @@ def find_report_request_info(text)
 end
 
 def find_node_config(simulation_class)
-  node_configs_dir = File.join(get_simulation_runner_root_dir(), "config", "nodes")
+  node_configs_dir = File.join(get_simulation_runner_root_dir, "config", "nodes")
   existing_node_config = grep_dir(node_configs_dir, /"simulation_class"\s*:\s*"#{simulation_class}"/)
   existing_node_config
 end
 
 def generate_node_config(simulation_class, certname)
-  node_configs_dir = File.join(get_simulation_runner_root_dir(), "config", "nodes")
+  node_configs_dir = File.join(get_simulation_runner_root_dir, "config", "nodes")
   node_config_filename = simulation_class.sub(/.*\.([^\.]+)$/, '\1') + ".json"
   node_config_file = File.absolute_path(File.join(node_configs_dir, node_config_filename))
-  if File.exists?(node_config_file)
+  if File.exist?(node_config_file)
     puts "ERROR: file already exists at path '#{node_config_file}'; exiting."
     exit 1
   end
 
   data = prompt("Node config file name? [#{node_config_filename}]> ")
-  if data
-    node_config_file = File.absolute_path(File.join(node_configs_dir, data))
-  end
+  node_config_file = File.absolute_path(File.join(node_configs_dir, data)) if data
 
-  certname_prefix = certname.sub(/^([^\.]+)\..*$/, '\1').sub(/\d+$/, '')
+  certname_prefix = certname.sub(/^([^\.]+)\..*$/, '\1').sub(/\d+$/, "")
 
-  data = prompt("Certname prefix? (this will be used to classify nodes and generate certnames)\n" +
+  data = prompt("Certname prefix? (this will be used to classify nodes and generate certnames)\n" \
       "[#{certname_prefix}]>")
-  if data
-    certname_prefix = data
-  end
+  certname_prefix = data if data
 
   classes = []
-  data = prompt("Puppet classes? (IMPORTANT!  This will be used to classify nodes,\n" +
-                    "and *must* match up to what your recorded catalog was compiled\n" +
-                    "with.  For best results use a single 'role' class, but if you\n" +
-                    "need to provide multiple classes, separate them with a comma.)\n" +
+  data = prompt("Puppet classes? (IMPORTANT!  This will be used to classify nodes,\n" \
+                    "and *must* match up to what your recorded catalog was compiled\n" \
+                    "with.  For best results use a single 'role' class, but if you\n" \
+                    "need to provide multiple classes, separate them with a comma.)\n" \
                     "[]>")
-  if data
-    classes = data.split(",")
-  end
+  classes = data.split(",") if data
 
-  node_config = {:simulation_class => simulation_class,
-                 :certname_prefix => certname_prefix,
-                 :classes => classes
-  }
-  File.open(node_config_file, 'w') do |f|
+  node_config = { simulation_class: simulation_class,
+                  certname_prefix: certname_prefix,
+                  classes: classes }
+  File.open(node_config_file, "w") do |f|
     f.write(JSON.pretty_generate(node_config))
   end
   puts "Wrote node config file to '#{node_config_file}'"
@@ -175,7 +167,7 @@ end
 
 # Creates a scala map from a ruby hash
 def generate_scala_map(new_hash)
-  inner = new_hash.map {|k, v| "\"#{k}\" -> \"#{v}\""}.join(",\n\t\t")
+  inner = new_hash.map { |k, v| "\"#{k}\" -> \"#{v}\"" }.join(",\n\t\t")
 
   "Map(#{inner})"
 end
@@ -186,18 +178,17 @@ end
 def step1_look_for_inferred_html_resources(text)
   puts "STEP 1: Look for inferred HTML resources"
 
-  if text.match(/\.inferHtmlResources\(\)/) or
-      text.match(/\.resource\(http/)
+  if text.match(/\.inferHtmlResources\(\)/) ||
+     text.match(/\.resource\(http/)
     puts
-    puts "ERROR: Found references to 'inferHtmlResources' and/or 'resources'.\n" +
-             "This most likely means that you had the 'Infer Html resources?' checkbox\n" +
-             "in the gatling proxy recorder GUI checked.  This causes the simulation to\n" +
-             "try to behave like a browser and request multiple 'resources' in parallel;\n" +
-             "this behavior is not suitable for simulating puppet agents.  Please re-record\n" +
-             "your scenario with the 'Infer Html resources?' checkbox *unchecked*."
+    puts "ERROR: Found references to 'inferHtmlResources' and/or 'resources'.\n" \
+         "This most likely means that you had the 'Infer Html resources?' checkbox\n" \
+         "in the gatling proxy recorder GUI checked.  This causes the simulation to\n" \
+         "try to behave like a browser and request multiple 'resources' in parallel;\n" \
+         "this behavior is not suitable for simulating puppet agents.  Please re-record\n" \
+         "your scenario with the 'Infer Html resources?' checkbox *unchecked*."
     exit 1
   end
-
 end
 
 # Step 2
@@ -210,13 +201,12 @@ end
 def step3_add_new_imports(text)
   puts "STEP 3: Adding additional import statements (for SimulationWithScenario and date/time classes)"
   out_text = text.lines.map do |line|
-    if line.match(/package com.puppetlabs.gatling.node_simulations$/)
+    if /package com.puppetlabs.gatling.node_simulations$/.match?(line)
       [line,
-        "import com.puppetlabs.gatling.runner.SimulationWithScenario\n",
-        "import org.joda.time.LocalDateTime\n",
-        "import org.joda.time.format.ISODateTimeFormat\n",
-        "import java.util.UUID\n",
-      ]
+       "import com.puppetlabs.gatling.runner.SimulationWithScenario\n",
+       "import org.joda.time.LocalDateTime\n",
+       "import org.joda.time.format.ISODateTimeFormat\n",
+       "import java.util.UUID\n"]
     else
       line
     end
@@ -238,11 +228,11 @@ def step5_update_extends(text)
 end
 
 def step6_extract_http_protocol_headers(text)
-  puts 'STEP 6: Extract common headers from httpProtocol'
+  puts "STEP 6: Extract common headers from httpProtocol"
   lines = text.lines
   found_header_data = {}
 
-  http_protocol_start = lines.find_index {|line| line.match(/^.*val httpProtocol/)}
+  http_protocol_start = lines.find_index { |line| line.match(/^.*val httpProtocol/) }
 
   if http_protocol_start.nil?
     puts "Can't find headers after httpProtocol definition"
@@ -256,9 +246,7 @@ def step6_extract_http_protocol_headers(text)
     matches = lines[index].match(/\.(?<header_name>[^(]+)\(\"(?<header_value>[^"]+)\"\)/)
 
     # Bail if we've reached the end of the code block
-    if matches.nil?
-      break
-    end
+    break if matches.nil?
 
     header_name = HELPER_TO_HEADER[matches[:header_name]]
     # Will skip any function call that isn't in HELPER_TO_HEADER
@@ -274,7 +262,7 @@ def step6_extract_http_protocol_headers(text)
 end
 
 def step7_add_extracted_headers(text, headers)
-  puts 'STEP 7: Merge headers with new common headers'
+  puts "STEP 7: Merge headers with new common headers"
 
   # Match until 2 newlines, meaning the whole block of code
   multiline_http_protocol_regex = /(val httpProtocol.*?)(?=\n\n)/m
@@ -295,13 +283,13 @@ def step8_comment_out_http_protocol(text)
   found_end_comment = false
 
   out_text = text.lines.map do |line|
-    found_begin_comment = true if line.match(/^.*val httpProtocol/)
+    found_begin_comment = true if line =~ /^.*val httpProtocol/
     found_end_comment = true if found_begin_comment && line.match(/^$/)
-    if found_begin_comment && !found_end_comment
-      retline = comment_line(line)
-    else
-      retline = line
-    end
+    retline = if found_begin_comment && !found_end_comment
+                comment_line(line)
+              else
+                line
+              end
     # This end check won't work with long chains
 
     retline
@@ -315,13 +303,13 @@ def step9_add_connection_close(text, report_headers_var)
   puts "STEP 9: Add 'Connection: close' after report request"
   report_header_regex = /(\s*val #{report_headers_var} =.*Map\()/
 
-  if !text.match(report_header_regex)
+  unless text.match?(report_header_regex)
     puts "Could not find report header variable (#{report_headers_var})"
     exit 1
   end
 
   text.gsub!(report_header_regex,
-       "\\1\n\t\t\"Connection\" -> \"close\",")
+             "\\1\n\t\t\"Connection\" -> \"close\",")
 end
 
 # Step 10
@@ -349,20 +337,18 @@ def step13_rename_request_bodies(text)
   out_lines = []
   # Here we replace request types according to step 12 in
   # https://github.com/puppetlabs/gatling-puppet-load-test/blob/master/simulation-runner/README-GENERATING-AGENT-SIMULATIONS.md
-  text.lines.reverse.each do |line|
-    #TODO toggle v3 URLs (Puppet 4) vs Puppet 3 URLs
-    if line.match(%r(\.(get|post|put)\("\/puppet\/v3\/))
-      if lookup = lookup_request_match(line, "/puppet/v3")
-        current_replacement = lookup
-      else
-        fail "Unrecognized request type. Please add to TERMINOLOGY."
-      end
+  text.lines.reverse_each do |line|
+    # TODO: toggle v3 URLs (Puppet 4) vs Puppet 3 URLs
+    if %r{\.(get|post|put)\("\/puppet\/v3\/}.match?(line)
+      raise "Unrecognized request type. Please add to TERMINOLOGY." \
+        unless (current_replacement = lookup_request_match(line, "/puppet/v3"))
+
       out_lines << line
     elsif line.match(/\.?exec\(http\("request_\d+"\)/) && !current_replacement.empty?
       out_lines << line.sub(/request_\d+/, current_replacement)
       current_replacement = ""
     elsif line.match(/\.?exec\(http\("request_\d+"\)/) && current_replacement.empty?
-      fail "Unexpected http request. Line: '#{line}' needs some work"
+      raise "Unexpected http request. Line: '#{line}' needs some work"
     else
       out_lines << line
     end
@@ -374,28 +360,28 @@ end
 # Step 14
 def step14_add_dynamic_timestamp(text, report_text, report_request_info)
   # Match until 2 newlines, meaning the whole block of code
-  multiline_http_protocol_regex = /(\/\/\s*val httpProtocol.*?)(?=\n\n)/m
+  multiline_http_protocol_regex = %r{(//\s*val httpProtocol.*?)(?=\n\n)}m
 
   puts "STEP 14: Use dynamic timestamp and transaction UUID"
   text.gsub!(multiline_http_protocol_regex,
              "\\1\n\n\tval reportBody = ElFileBody(\"#{report_request_info[:request_txt_file]}\")")
 
-  report_session_vars = <<EOS
+  report_session_vars = <<~VARS
 
-\t\t.exec((session:Session) => {
-\t\t\tsession.set("reportTimestamp",
-\t\t\t\tLocalDateTime.now.toString(ISODateTimeFormat.dateTime()))
-\t\t})
-\t\t.exec((session:Session) => {
-\t\t\tsession.set("transactionUuid",
-\t\t\t\tUUID.randomUUID().toString())
-\t\t})
-EOS
+    \t\t.exec((session:Session) => {
+    \t\t\tsession.set("reportTimestamp",
+    \t\t\t\tLocalDateTime.now.toString(ISODateTimeFormat.dateTime()))
+    \t\t})
+    \t\t.exec((session:Session) => {
+    \t\t\tsession.set("transactionUuid",
+    \t\t\t\tUUID.randomUUID().toString())
+    \t\t})
+  VARS
 
   text.gsub!(/\n(\s*\.exec\(http\("report"\)\s*\n)/,
              "#{report_session_vars}\\1")
   text.gsub!(/(\n\s*)\.body\(RawFileBody\("#{report_request_info[:request_txt_file]}"\)\)\)\n/,
-      "\\1.body(reportBody))\n\n")
+             "\\1.body(reportBody))\n\n")
 
   report_text.sub!(/"time":"[^"]+"/,
                    '"time":"${reportTimestamp}"')
@@ -410,7 +396,6 @@ def step15_setup_node_feeder(text, report_text, certname)
 end
 
 def main(infile, outfile)
-
   validate_infile_path(infile)
 
   # The main event.
@@ -426,7 +411,7 @@ def main(infile, outfile)
 
   report_request_output = File.read(report_request_info[:request_txt_file_path])
   certname = find_certname(output)
-  simulation_classname = "com.puppetlabs.gatling.node_simulations.#{File.basename(infile, ".*")}"
+  simulation_classname = "com.puppetlabs.gatling.node_simulations.#{File.basename(infile, '.*')}"
 
   step1_look_for_inferred_html_resources(output)
   step2_rename_package(output)
@@ -450,9 +435,9 @@ def main(infile, outfile)
 
   puts "All steps completed, writing output to file '#{outfile}'"
   # Dump the reformatted file to disk
-  File.open(outfile, 'w').write(output)
-  File.open(report_request_info[:request_txt_file_path] + ".new", 'w').
-      write(report_request_output)
+  File.open(outfile, "w").write(output)
+  File.open(report_request_info[:request_txt_file_path] + ".new", "w")
+      .write(report_request_output)
 
   puts
 
@@ -466,12 +451,10 @@ def main(infile, outfile)
   end
 end
 
-if $0 == __FILE__
-  if ARGV[0] && File.exists?(ARGV[0])
-    infile = ARGV[0]
-    outfile = infile + ".new"
-    main(infile, outfile)
-  else
-    fail "Input file is a required argument"
-  end
+if $PROGRAM_NAME == __FILE__
+  raise "Input file is a required argument" unless ARGV[0] && File.exist?(ARGV[0])
+
+  infile = ARGV[0]
+  outfile = infile + ".new"
+  main(infile, outfile)
 end

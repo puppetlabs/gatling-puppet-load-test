@@ -1,17 +1,24 @@
-require 'beaker'
-require 'beaker-benchmark'
-require 'google/cloud/bigquery'
-require 'master_manipulator'
-require 'beaker-puppet'
+# frozen_string_literal: true
 
+require "beaker"
+require "beaker-benchmark"
+require "google/cloud/bigquery"
+require "master_manipulator"
+require "beaker-puppet"
+
+# Helper methods for performance testing
 module PerfRunHelper
-
-  BEAKER_PE_VER = ENV['BEAKER_PE_VER']
-  BASELINE_PE_VER = ENV['BASELINE_PE_VER']
+  # rubocop: disable  Naming/AccessorMethodName
+  BEAKER_PE_VER = ENV["BEAKER_PE_VER"]
+  BASELINE_PE_VER = ENV["BASELINE_PE_VER"]
   SCALE_ITERATIONS = 15
   SCALE_INCREMENT = 100
   SCALE_MAX_ALLOWED_KO = 10
-  PUPPET_METRICS_COLLECTOR_SERVICES = ENV['BEAKER_INSTALL_TYPE'] == 'pe' ? %w[orchestrator puppetdb puppetserver] : ['puppetserver']
+  PUPPET_METRICS_COLLECTOR_SERVICES = if ENV["BEAKER_INSTALL_TYPE"] == "pe"
+                                        %w[orchestrator puppetdb puppetserver]
+                                      else
+                                        ["puppetserver"]
+                                      end
 
   def perf_setup(gatling_scenario, simulation_id, gatlingassertions)
     @atop_session_timestamp = start_monitoring(master, gatling_scenario, true, 30)
@@ -52,8 +59,8 @@ module PerfRunHelper
     @scale_timestamp = Time.now.getutc.to_i
     @scale_scenarios = []
 
-    env_iterations = ENV['PUPPET_GATLING_SCALE_ITERATIONS']
-    env_increment = ENV['PUPPET_GATLING_SCALE_INCREMENT']
+    env_iterations = ENV["PUPPET_GATLING_SCALE_ITERATIONS"]
+    env_increment = ENV["PUPPET_GATLING_SCALE_INCREMENT"]
     @scale_iterations = env_iterations ? Integer(env_iterations) : SCALE_ITERATIONS
     @scale_increment = env_increment ? Integer(env_increment) : SCALE_INCREMENT
 
@@ -73,11 +80,10 @@ module PerfRunHelper
     # execute each scenario
     ct = 0
     @scale_scenarios.each do |scenario_hash|
-
       scenario = scenario_hash[:name]
       # scale_scenario_instances = scenario_hash[:instances]
 
-      ct = ct + 1
+      ct += 1
 
       # run the scenario
       puts "Iteration #{ct} of #{@scale_scenarios.length}"
@@ -110,7 +116,6 @@ module PerfRunHelper
       success = handle_scale_results(scenario_hash)
       break unless success
     end
-
   end
 
   # Create a timestamped folder for the entire scale run
@@ -131,8 +136,8 @@ module PerfRunHelper
     puts "Linking s:#{s} to d:#{d}"
 
     # TODO: removal and force options seemed necessary to avoid sub-dir link
-    FileUtils.rm "results/scale/latest", :force => true
-    FileUtils.ln_s s, d, :force => true
+    FileUtils.rm "results/scale/latest", force: true
+    FileUtils.ln_s s, d, force: true
 
     # create log dir
     FileUtils.mkdir_p "#{scale_results_parent_dir}/log"
@@ -143,10 +148,9 @@ module PerfRunHelper
     # create scale results env file
     create_scale_results_env_file(scale_results_parent_dir)
 
-    unless %w(foss aio).include?(ENV['BEAKER_INSTALL_TYPE'])
-      # create current pe tune file
-      create_pe_tune_file(scale_results_parent_dir)
-    end
+    return if %w[foss aio].include?(ENV["BEAKER_INSTALL_TYPE"])
+
+    create_pe_tune_file(scale_results_parent_dir)
   end
 
   # Create the CSV file for the scale run and add the headings row
@@ -191,33 +195,32 @@ module PerfRunHelper
   #   create_scale_results_env_file(perf_scale_dir)
   #
   def create_scale_results_env_file(scale_results_parent_dir)
-    open("#{scale_results_parent_dir}/beaker_environment.txt", 'w') { |f|
-
+    File.open("#{scale_results_parent_dir}/beaker_environment.txt", "w") do |f|
       # beaker
-      f << "BEAKER_INSTALL_TYPE: #{ENV["BEAKER_INSTALL_TYPE"]}\n"
-      f << "BEAKER_PE_DIR: #{ENV["BEAKER_PE_DIR"]}\n"
-      f << "BEAKER_PE_VER: #{ENV["BEAKER_PE_VER"]}\n"
-      f << "BEAKER_TESTS: #{ENV["BEAKER_TESTS"]}\n"
+      f << "BEAKER_INSTALL_TYPE: #{ENV['BEAKER_INSTALL_TYPE']}\n"
+      f << "BEAKER_PE_DIR: #{ENV['BEAKER_PE_DIR']}\n"
+      f << "BEAKER_PE_VER: #{ENV['BEAKER_PE_VER']}\n"
+      f << "BEAKER_TESTS: #{ENV['BEAKER_TESTS']}\n"
 
       # TODO: rename PUPPET_SCALE_CLASS for consistency?
-      f << "PUPPET_SCALE_CLASS: #{ENV["PUPPET_SCALE_CLASS"]}\n"
+      f << "PUPPET_SCALE_CLASS: #{ENV['PUPPET_SCALE_CLASS']}\n"
 
       # scale
-      f << "PUPPET_GATLING_SCALE_SCENARIO: #{ENV["PUPPET_GATLING_SCALE_SCENARIO"]}\n"
-      f << "PUPPET_GATLING_SCALE_BASE_INSTANCES: #{ENV["PUPPET_GATLING_SCALE_BASE_INSTANCES"]}\n"
-      f << "PUPPET_GATLING_SCALE_ITERATIONS: #{ENV["PUPPET_GATLING_SCALE_ITERATIONS"]}\n"
-      f << "PUPPET_GATLING_SCALE_INCREMENT: #{ENV["PUPPET_GATLING_SCALE_INCREMENT"]}\n"
-      f << "PUPPET_GATLING_SCALE_TUNE: #{ENV["PUPPET_GATLING_SCALE_TUNE"]}\n"
-      f << "PUPPET_GATLING_SCALE_TUNE_FORCE: #{ENV["PUPPET_GATLING_SCALE_TUNE_FORCE"]}\n"
-      f << "PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER: #{ENV["PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER"]}\n"
+      f << "PUPPET_GATLING_SCALE_SCENARIO: #{ENV['PUPPET_GATLING_SCALE_SCENARIO']}\n"
+      f << "PUPPET_GATLING_SCALE_BASE_INSTANCES: #{ENV['PUPPET_GATLING_SCALE_BASE_INSTANCES']}\n"
+      f << "PUPPET_GATLING_SCALE_ITERATIONS: #{ENV['PUPPET_GATLING_SCALE_ITERATIONS']}\n"
+      f << "PUPPET_GATLING_SCALE_INCREMENT: #{ENV['PUPPET_GATLING_SCALE_INCREMENT']}\n"
+      f << "PUPPET_GATLING_SCALE_TUNE: #{ENV['PUPPET_GATLING_SCALE_TUNE']}\n"
+      f << "PUPPET_GATLING_SCALE_TUNE_FORCE: #{ENV['PUPPET_GATLING_SCALE_TUNE_FORCE']}\n"
+      f << "PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER: #{ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER']}\n"
 
       # abs
-      f << "ABS_AWS_METRICS_SIZE: #{ENV["ABS_AWS_METRICS_SIZE"]}\n"
-      f << "ABS_AWS_MOM_SIZE: #{ENV["ABS_AWS_MOM_SIZE"]}\n"
+      f << "ABS_AWS_METRICS_SIZE: #{ENV['ABS_AWS_METRICS_SIZE']}\n"
+      f << "ABS_AWS_MOM_SIZE: #{ENV['ABS_AWS_MOM_SIZE']}\n"
 
       # TODO: rename AWS_VOLUME_SIZE for consistency?
-      f << "AWS_VOLUME_SIZE: #{ENV["AWS_VOLUME_SIZE"]}\n"
-    }
+      f << "AWS_VOLUME_SIZE: #{ENV['AWS_VOLUME_SIZE']}\n"
+    end
   end
 
   # Create the pe_tune_current file for the scale run
@@ -254,7 +257,7 @@ module PerfRunHelper
     puts output
     puts
 
-    return output
+    output
   end
 
   # Purge the puppet-metrics-collector log files for each service
@@ -275,7 +278,6 @@ module PerfRunHelper
       command = "find #{dir} -type f -delete"
       on master, command
     end
-
   end
 
   # Copy the puppet-metrics-collector log files for each service
@@ -298,7 +300,7 @@ module PerfRunHelper
       dest_parent = "#{scale_results_parent_dir}/puppet-metrics-collector"
 
       FileUtils.mkdir_p dest_parent
-      scp_from(master, "#{source_dir}", "#{dest_parent}")
+      scp_from(master, source_dir.to_s, dest_parent.to_s)
     end
   end
 
@@ -326,11 +328,11 @@ module PerfRunHelper
 
     prefix = ""
     (1..prefix_len).each do
-      prefix = prefix + "0"
+      prefix += "0"
     end
 
     scenario_name = "#{scale_basename}_#{prefix}#{iteration}_#{instances}.json"
-    return scenario_name
+    scenario_name
   end
 
   # Generate the scenario files with the corresponding values for each iteration
@@ -345,7 +347,6 @@ module PerfRunHelper
   #   generate_scale_scenarios(gatling_scenario)
   #
   def generate_scale_scenarios(gatling_scenario)
-
     scenarios_dir = "simulation-runner/config/scenarios"
 
     # generate auto-scaled scenario files
@@ -355,7 +356,7 @@ module PerfRunHelper
     json = JSON.parse(file)
 
     # allow the base instances to be set via environment variable
-    env_base_instances = ENV['PUPPET_GATLING_SCALE_BASE_INSTANCES']
+    env_base_instances = ENV["PUPPET_GATLING_SCALE_BASE_INSTANCES"]
     json_base_instances = json["nodes"][0]["num_instances"]
 
     # TODO: refactor
@@ -374,25 +375,23 @@ module PerfRunHelper
 
     instances = @scale_base_instances
 
-    for iteration in 1..@scale_iterations do
-
+    (1..@scale_iterations).each do |iteration|
       # create scenario with the current data (first scenario is the original)
       scenario_name = generate_scale_scenario_name(scale_basename, iteration, instances)
       File.write("#{scenarios_dir}/#{scenario_name}", json.to_json)
 
       # add scenario hash to the array
-      @scale_scenarios << {:name => scenario_name, :instances => instances}
+      @scale_scenarios << { name: scenario_name, instances: instances }
 
       # update the data for the next iteration
-      instances = instances + @scale_increment
+      instances += @scale_increment
       desc = "'role::by_size_small' role from perf control repo, #{instances} agents, 1 iteration"
       json["run_description"] = desc
       json["nodes"][0]["num_instances"] = instances
-
     end
 
     # upload scenarios to metrics
-    scp_to(metric, "#{scenarios_dir}", "gatling-puppet-load-test/simulation-runner/config")
+    scp_to(metric, scenarios_dir.to_s, "gatling-puppet-load-test/simulation-runner/config")
   end
 
   # Handle gathering and evaluating the scale results for the current iteration
@@ -421,7 +420,7 @@ module PerfRunHelper
     # check results for KOs
     success = check_scale_results(scenario_hash)
 
-    return success
+    success
   end
 
   # Copy the perf results and log files (including puppet-metrics-collector) to the scale results folder
@@ -441,7 +440,7 @@ module PerfRunHelper
 
     # create scale scenario result folder
     scale_results_parent_dir = "results/scale/PERF_SCALE_#{@scale_timestamp}"
-    scale_result_dir = "#{scale_results_parent_dir}/#{scenario.gsub(".json", "")}"
+    scale_result_dir = "#{scale_results_parent_dir}/#{scenario.gsub('.json', '')}"
     FileUtils.mkdir_p scale_result_dir
 
     # copy entire results to scale results dir (TODO: remove this?)
@@ -455,7 +454,7 @@ module PerfRunHelper
 
     # copy master
     master_results = "#{@archive_root}/#{master.hostname}"
-    log_filename = "atop_log_#{scenario.downcase.gsub(".json", "_json")}"
+    log_filename = "atop_log_#{scenario.downcase.gsub('.json', '_json')}"
 
     # copy only the logs for this iteration (the dir contains logs from all previous iterations)
     # FileUtils.copy_entry master_results, "#{scale_result_dir}/master"
@@ -468,15 +467,14 @@ module PerfRunHelper
     stats_path = "#{scale_result_dir}/metric/js/stats.json"
     json_dir = "#{scale_results_parent_dir}/json"
     FileUtils.mkdir_p json_dir
-    FileUtils.copy_file global_stats_path, "#{json_dir}/#{scenario.gsub(".json", "global_stats.json")}"
-    FileUtils.copy_file stats_path, "#{json_dir}/#{scenario.gsub(".json", "stats.json")}"
+    FileUtils.copy_file global_stats_path, "#{json_dir}/#{scenario.gsub('.json', 'global_stats.json')}"
+    FileUtils.copy_file stats_path, "#{json_dir}/#{scenario.gsub('.json', 'stats.json')}"
 
     # copy puppet-metrics-collector to iteration result dir
     copy_puppet_metrics_collector(scale_result_dir)
 
     # copy puppet-metrics-collector to parent results dir
     copy_puppet_metrics_collector(scale_results_parent_dir)
-
   end
 
   # Process the scale results for the current iteration, update the CSV file, fail if KOs are found
@@ -492,7 +490,7 @@ module PerfRunHelper
   #
   # TODO: refactor
   #
-  def check_scale_results(scenario_hash)
+  def check_scale_results(scenario_hash) # rubocop:disable Metrics/AbcSize
     scenario = scenario_hash[:name]
     scale_scenario_instances = scenario_hash[:instances]
     success = true
@@ -502,7 +500,7 @@ module PerfRunHelper
 
     # stats dir
     scale_results_parent_dir = "results/scale/latest"
-    perf_scale_iteration_dir = "#{scale_results_parent_dir}/#{scenario.gsub(".json", "")}"
+    perf_scale_iteration_dir = "#{scale_results_parent_dir}/#{scenario.gsub('.json', '')}"
     js_dir = "#{perf_scale_iteration_dir}/metric/js"
 
     puts "Checking stats in: #{js_dir}"
@@ -529,26 +527,26 @@ module PerfRunHelper
     stats_json = JSON.parse(stats_file)
 
     # the 'group' name will be something like 'group_nooptestwithout-9eb19'
-    group_keys = stats_json['contents'].keys.select { |key| key.to_s.match(/group/) }
-    group_node = stats_json['contents'][group_keys[0]]
+    group_keys = stats_json["contents"].keys.select { |key| key.to_s.match(/group/) }
+    group_node = stats_json["contents"][group_keys[0]]
 
     # totals row is in the 'stats' node
-    totals = group_node['stats']
+    totals = group_node["stats"]
 
     # transaction rows are in the 'contents' node
-    contents = group_node['contents']
+    contents = group_node["contents"]
 
     # get each category
-    node = contents[contents.keys[0]]['stats']
-    filemeta_pluginfacts = contents[contents.keys[1]]['stats']
-    filemeta_plugins = contents[contents.keys[2]]['stats']
-    locales = contents[contents.keys[3]]['stats']
-    catalog = contents[contents.keys[4]]['stats']
-    report = contents[contents.keys[5]]['stats']
+    node = contents[contents.keys[0]]["stats"]
+    filemeta_pluginfacts = contents[contents.keys[1]]["stats"]
+    filemeta_plugins = contents[contents.keys[2]]["stats"]
+    locales = contents[contents.keys[3]]["stats"]
+    catalog = contents[contents.keys[4]]["stats"]
+    report = contents[contents.keys[5]]["stats"]
 
     # get atop results
     # get_scale_atop_results
-    atop_csv_path = "#{perf_scale_iteration_dir}/master/atop_log_#{scenario.downcase.gsub(".json", "_json")}.csv"
+    atop_csv_path = "#{perf_scale_iteration_dir}/master/atop_log_#{scenario.downcase.gsub('.json', '_json')}.csv"
     atop_csv_data = CSV.read(atop_csv_path)
 
     # results for csv
@@ -577,7 +575,7 @@ module PerfRunHelper
       success = false
     end
 
-    return success
+    success
   end
 
   # Add the results for the current scale iteration to the CSV file
@@ -603,52 +601,47 @@ module PerfRunHelper
   end
 
   def assert_later(expression_result, message)
-    begin
-      assert(expression_result, message)
-    rescue Minitest::Assertion => ex
-      assertion_exceptions.push(ex)
-    end
+    assert(expression_result, message)
+  rescue Minitest::Assertion => e
+    assertion_exceptions.push(e)
   end
 
   def assert_all
-    assertion_exceptions.each { |ex|
+    assertion_exceptions.each do |ex|
       logger.error("#{ex.message}\n#{ex.backtrace}")
-    }
-    flunk('One or more assertions failed') unless assertion_exceptions.size == 0
+    end
+    flunk("One or more assertions failed") unless assertion_exceptions.empty?
   end
 
   private
 
   def execute_gatling_scenario(gatling_scenario, simulation_id, gatlingassertions)
     step "Execute gatling scenario" do
-
       # Should gatling run reports only?
-      if ENV['PUPPET_GATLING_REPORTS_ONLY'] == "true"
+      if ENV["PUPPET_GATLING_REPORTS_ONLY"] == "true"
         reports_only = "true"
-        reports_target = ENV['PUPPET_GATLING_REPORTS_TARGET']
+        reports_target = ENV["PUPPET_GATLING_REPORTS_TARGET"]
       else
         reports_only = "false"
         reports_target = ""
       end
 
-      on(metric, "cd /root/gatling-puppet-load-test/simulation-runner/ && " +
-          "PUPPET_GATLING_MASTER_BASE_URL=https://#{master.hostname}:8140 " +
+      on(metric, "cd /root/gatling-puppet-load-test/simulation-runner/ && " \
+          "PUPPET_GATLING_MASTER_BASE_URL=https://#{master.hostname}:8140 " \
           "PUPPET_GATLING_SIMULATION_CONFIG=config/scenarios/#{gatling_scenario} " +
           gatlingassertions +
-          "PUPPET_GATLING_REPORTS_ONLY=#{reports_only} " +
-          "PUPPET_GATLING_REPORTS_TARGET=/root/gatling-puppet-load-test/simulation-runner/results/#{reports_target} " +
+          "PUPPET_GATLING_REPORTS_ONLY=#{reports_only} " \
+          "PUPPET_GATLING_REPORTS_TARGET=/root/gatling-puppet-load-test/simulation-runner/results/#{reports_target} " \
           "PUPPET_GATLING_SIMULATION_ID=#{simulation_id} sbt run",
-         {:accept_all_exit_codes => true}) do |result|
-        if result.exit_code != 0 then
-          fail_test "Gatling execution failed with: #{result.formatted_output(20)}"
-        end
-        #parse output to get name of log dir (in format PerfTestLarge-*time_stamp* )
+         accept_all_exit_codes: true) do |result|
+        fail_test "Gatling execution failed with: #{result.formatted_output(20)}" if result.exit_code != 0
+        # parse output to get name of log dir (in format PerfTestLarge-*time_stamp* )
         out = result.formatted_output(20)
         split = out.split("\n")
-        index = split.index{|s| s.include?("Please open the following file")}
+        index = split.index { |s| s.include?("Please open the following file") }
         dir_entry = split[index]
         path_array = dir_entry.split("/")
-        result_index = path_array.index{|s| s.include?(simulation_id)}
+        result_index = path_array.index { |s| s.include?(simulation_id) }
         @dir_name = path_array[result_index]
       end
     end
@@ -658,11 +651,12 @@ module PerfRunHelper
     dir = "#{@archive_root}/#{metric.hostname}/root/gatling-puppet-load-test/simulation-runner/results/#{@dir_name}"
     file = "/js/global_stats.json"
     logger.info("Getting mean response time from #{dir}#{file}")
-    raise System.StandardError 'The file does not exist' unless File.exist?("#{dir}#{file}")
+    raise System.StandardError "The file does not exist" unless File.exist?("#{dir}#{file}")
+
     json_from_file = File.read("#{dir}#{file}")
     logger.info("global_stats.json: #{json_from_file}")
     json = JSON.parse(json_from_file)
-    json.fetch('meanResponseTime').fetch('total')
+    json.fetch("meanResponseTime").fetch("total")
   end
 
   def mean_response_time
@@ -678,9 +672,9 @@ module PerfRunHelper
     json_from_file = File.read("#{dir}/js/assertions.json")
     json = JSON.parse(json_from_file)
     gatling_assertions = []
-    json['assertions'].each do |assertion|
-      gatling_assertions << {'expected_values' => assertion['expectedValues'], 'message' => assertion['message'] ,
-                             'actual_value' => assertion['actualValue'], 'target' => assertion['target']}
+    json["assertions"].each do |assertion|
+      gatling_assertions << { "expected_values" => assertion["expectedValues"], "message" => assertion["message"],
+                             "actual_value" => assertion["actualValue"], "target" => assertion["target"] }
     end
     gatling_assertions
   end
@@ -688,53 +682,60 @@ module PerfRunHelper
   def copy_archive_files
     now = Time.now.getutc.to_i
     # truncate the job name so it only has the name-y part and no parameters
-    if ENV['JOB_NAME']
-      job_name = ENV['JOB_NAME']
-                     .sub(/[A-Z0-9_]+=.*$/, '')
-                     .gsub(/[\/,.]/, '_')[0..200]
-    else
-      job_name = 'unknown_or_dev_job'
-    end
+    job_name = if ENV["JOB_NAME"]
+                 ENV["JOB_NAME"]
+                   .sub(/[A-Z0-9_]+=.*$/, "")
+                   .gsub(%r{[/,.]}, "_")[0..200]
+               else
+                 "unknown_or_dev_job"
+               end
 
     archive_name = "#{job_name}__#{ENV['BUILD_ID']}__#{now}__perf-files.tgz"
 
     # perf results now have a home
     @archive_root = "results/perf/PERF_#{now}"
 
-    # Archive the gatling result htmls from the metrics box and the atop results from the master (which are already copied locally)
-    if (Dir.exist?("tmp/atop/#{@atop_session_timestamp}/#{master.hostname}"))
-      FileUtils.mkdir_p "#{@archive_root}/#{master.hostname}"
-      FileUtils.cp_r "tmp/atop/#{@atop_session_timestamp}/#{master.hostname}/", "#{@archive_root}"
-      if !@dir_name.nil?
-        archive_file_from(metric, "/root/gatling-puppet-load-test/simulation-runner/results/#{@dir_name}", {}, @archive_root, archive_name)
-      end
-    end
+    # Archive the gatling result htmls from the metrics box and the atop results
+    # from the master (which are already copied locally).
+    return unless Dir.exist?("tmp/atop/#{@atop_session_timestamp}/#{master.hostname}")
+
+    FileUtils.mkdir_p "#{@archive_root}/#{master.hostname}"
+    FileUtils.cp_r "tmp/atop/#{@atop_session_timestamp}/#{master.hostname}/", @archive_root.to_s
+    return if @dir_name.nil?
+
+    archive_file_from(metric,
+                      "/root/gatling-puppet-load-test/simulation-runner/results/#{@dir_name}",
+                      {}, @archive_root, archive_name)
   end
 
   def get_perf_result
-    perf = stop_monitoring(master, '/opt/puppetlabs')
+    perf = stop_monitoring(master, "/opt/puppetlabs")
     if perf
       perf.log_summary
       # Write summary results to log so it can be archived
       perf.log_csv
       copy_archive_files
     end
-    return perf, GatlingResult.new(gatling_assertions, mean_response_time)
+    [perf, GatlingResult.new(gatling_assertions, mean_response_time)]
   end
 
+  # Gatling result object
   class GatlingResult
     attr_accessor :avg_response_time, :successful_requests, :max_response_time_agent, :request_count
     def initialize(assertions, mean_response)
       @avg_response_time = mean_response
-      @successful_requests = assertions.find {|result| result['target'] === 'percentage of successful requests' }.fetch('actual_value')[0].to_i
-      @max_response_time_agent = assertions.find {|result| result['target'] === '99th percentile of response time' }.fetch('actual_value')[0].to_i
-      @request_count = assertions.find {|result| result['target'] === 'count of all requests' }.fetch('actual_value')[0].to_i
+      @successful_requests = assertions.find { |result| result["target"] == "percentage of successful requests" }
+                                       .fetch("actual_value")[0].to_i
+      @max_response_time_agent = assertions.find { |result| result["target"] == "99th percentile of response time" }
+                                           .fetch("actual_value")[0].to_i
+      @request_count = assertions.find { |result| result["target"] == "count of all requests" }
+                                 .fetch("actual_value")[0].to_i
     end
   end
 
   def push_to_bigquery?
-    ENV['PUSH_TO_BIGQUERY'] ||= 'false'
-    eval(ENV['PUSH_TO_BIGQUERY'])
+    ENV["PUSH_TO_BIGQUERY"] ||= "false"
+    eval(ENV["PUSH_TO_BIGQUERY"]) # rubocop:disable Security/Eval
   end
 
   def push_to_bigquery
@@ -743,19 +744,19 @@ module PerfRunHelper
     atop_table = dataset.table "atop_metrics"
 
     row = [{
-               "pe_build_number" => BEAKER_PE_VER, #"2018.1.1-rc0-11-g8fbde83",
-               "test_scenario" => current_test_name(),
-               "time_stamp" => Time.now,
-               "avg_cpu" => @perf_result[0].avg_cpu,
-               "avg_mem" => @perf_result[0].avg_mem,
-               "avg_disk_write" => @perf_result[0].avg_disk_write,
-               "avg_response_time" => mean_response_time
-           }]
+      "pe_build_number"   => BEAKER_PE_VER, # "2018.1.1-rc0-11-g8fbde83",
+      "test_scenario"     => current_test_name,
+      "time_stamp"        => Time.now,
+      "avg_cpu"           => @perf_result[0].avg_cpu,
+      "avg_mem"           => @perf_result[0].avg_mem,
+      "avg_disk_write"    => @perf_result[0].avg_disk_write,
+      "avg_response_time" => mean_response_time
+    }]
 
     process_hash = get_process_hash @perf_result[0].processes
     row[0].merge! process_hash
 
-    logger.info "row is: #{row.to_s}"
+    logger.info "row is: #{row}"
 
     result = atop_table.insert row
     if result.success?
@@ -765,34 +766,37 @@ module PerfRunHelper
     end
   end
 
-  def get_process_hash perf_result_processes
+  def get_process_hash(perf_result_processes)
     process_hash = {}
     perf_result_processes.keys.each do |key|
       # All of the puppet processes we care about are jars
-      process_match = perf_result_processes[key][:cmd].match(/.*\/([a-z,\-]*)\.jar/)
-      unless process_match.nil?
-        process_name = process_match[1]
-        process_hash["process_#{process_name.gsub('-', '_')}_avg_cpu"] = perf_result_processes[key][:avg_cpu]
-        process_hash["process_#{process_name.gsub('-', '_')}_avg_mem"] = perf_result_processes[key][:avg_mem]
-      end
+      process_match = perf_result_processes[key][:cmd].match(%r{.*/([a-z,\-]*)\.jar})
+      next if process_match.nil?
+
+      process_name = process_match[1]
+      process_hash["process_#{process_name.tr('-', '_')}_avg_cpu"] = perf_result_processes[key][:avg_cpu]
+      process_hash["process_#{process_name.tr('-', '_')}_avg_mem"] = perf_result_processes[key][:avg_mem]
     end
     process_hash
   end
 
   def get_baseline_result
-    unless BASELINE_PE_VER.nil?
-      #compare results created in this run with latest baseline run
-      sql = 'SELECT avg_cpu, avg_mem, avg_disk_write, avg_response_time, ' \
-            'process_puppetdb_avg_cpu, process_puppetdb_avg_mem, ' \
-            'process_console_services_release_avg_cpu, process_console_services_release_avg_mem, ' \
-            'process_orchestration_services_release_avg_cpu, process_orchestration_services_release_avg_mem, ' \
-            'process_puppet_server_release_avg_cpu, process_puppet_server_release_avg_mem ' \
-            'FROM `perf-metrics.perf_metrics.atop_metrics` ' \
-            'WHERE time_stamp = (' \
-          'SELECT MAX(time_stamp) ' \
-        'FROM `perf-metrics.perf_metrics.atop_metrics` ' \
-        "WHERE pe_build_number = '#{BASELINE_PE_VER}' AND test_scenario = '#{current_test_name()}' " \
-           'GROUP BY pe_build_number, test_scenario)'
+    if BASELINE_PE_VER.nil?
+      logger.warn("Not comparing results with baseline as BASELINE_PE_VER was not set.")
+      nil
+    else
+      # compare results created in this run with latest baseline run
+      sql = "SELECT avg_cpu, avg_mem, avg_disk_write, avg_response_time, " \
+            "process_puppetdb_avg_cpu, process_puppetdb_avg_mem, " \
+            "process_console_services_release_avg_cpu, process_console_services_release_avg_mem, " \
+            "process_orchestration_services_release_avg_cpu, process_orchestration_services_release_avg_mem, " \
+            "process_puppet_server_release_avg_cpu, process_puppet_server_release_avg_mem " \
+            "FROM `perf-metrics.perf_metrics.atop_metrics` " \
+            "WHERE time_stamp = (" \
+          "SELECT MAX(time_stamp) " \
+        "FROM `perf-metrics.perf_metrics.atop_metrics` " \
+        "WHERE pe_build_number = '#{BASELINE_PE_VER}' AND test_scenario = '#{current_test_name}' " \
+           "GROUP BY pe_build_number, test_scenario)"
 
       bigquery = Google::Cloud::Bigquery.new project: "perf-metrics"
       data = bigquery.query sql
@@ -802,46 +806,42 @@ module PerfRunHelper
         logger.error("Cannot find result that matches query: #{sql}")
       end
       data[0]
-    else
-      logger.warn('Not comparing results with baseline as BASELINE_PE_VER was not set.')
-      return nil
     end
   end
 
-  def baseline_assert atop_result, gatling_result
+  def baseline_assert(atop_result, gatling_result)
     process_results = get_process_hash(atop_result.processes)
 
     # Handle 3 different things: avg_response_time which comes from gatling result,
     # global atop results and per process atop results
     baseline = get_baseline_result
-    unless baseline.nil?
-      baseline.each do |key, value|
-        if key.to_s == "avg_response_time"
-          assert_value = gatling_result.avg_response_time.to_f
-        elsif key.to_s.start_with? "process"
-          assert_value = process_results[key.to_s].to_f
-        else
-          assert_value = atop_result.send(key).to_f
-        end
+    baseline&.each do |key, value|
+      assert_value = if key.to_s == "avg_response_time"
+                       gatling_result.avg_response_time.to_f
+                     elsif key.to_s.start_with? "process"
+                       process_results[key.to_s].to_f
+                     else
+                       atop_result.send(key).to_f
+                     end
 
-        puts "Value for #{key} is baseline: #{value} Actual: #{assert_value}"
-        next if key.to_s.start_with?("process") && key.to_s.end_with?("cpu")
-        max_baseline_variance = \
-          if key.to_s == 'process_orchestration_services_release_avg_mem'
-            15
-          else
-            10
-          end
-        if value.is_a? Integer
-          assert_later((assert_value - value) / value * 100 <= max_baseline_variance,
-                       "The value of #{key} '#{assert_value}' " \
-                       "was not within #{max_baseline_variance}% " \
-                       "of the baseline '#{value}'")
+      puts "Value for #{key} is baseline: #{value} Actual: #{assert_value}"
+      next if key.to_s.start_with?("process") && key.to_s.end_with?("cpu")
+
+      max_baseline_variance = \
+        if key.to_s == "process_orchestration_services_release_avg_mem"
+          15
+        else
+          10
         end
-      end
+      next unless value.is_a? Integer
+
+      assert_later((assert_value - value) / value * 100 <= max_baseline_variance,
+                   "The value of #{key} '#{assert_value}' " \
+                   "was not within #{max_baseline_variance}% " \
+                   "of the baseline '#{value}'")
     end
   end
-
+  # rubocop: enable  Naming/AccessorMethodName
 end
 
 Beaker::TestCase.send(:include, PerfRunHelper)

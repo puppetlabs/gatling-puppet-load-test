@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "net/http"
 require "net/ssh"
 require "net/ssh/errors"
@@ -6,22 +8,22 @@ require "json"
 require "yaml"
 require "in_parallel"
 
-include InParallel
-
 # Provides functionality to provision and deprovision hosts via ABS
 module AbsHelper
-  ABS_BASE_URL = "https://cinext-abs.delivery.puppetlabs.net/api/v2".freeze
-  AWS_PLATFORM = "centos-7-x86_64".freeze
-  AWS_IMAGE_ID = "ami-01ed306a12b7d1c96".freeze
-  AWS_VOLUME_SIZE = "80".freeze
-  AWS_REGION = "us-west-2".freeze
+  include InParallel
+  # rubocop:disable Naming/AccessorMethodName
+  ABS_BASE_URL = "https://cinext-abs.delivery.puppetlabs.net/api/v2"
+  AWS_PLATFORM = "centos-7-x86_64"
+  AWS_IMAGE_ID = "ami-01ed306a12b7d1c96"
+  AWS_VOLUME_SIZE = "80"
+  AWS_REGION = "us-west-2"
 
   # Allows us to switch between AWS and VMPooler by selecting a different ABS OS
   # centos-7-x86-64-west is an AWS image, centos-7-x86_64 is vmpooler
-  ABS_BEAKER_ENGINE = "aws".freeze
+  ABS_BEAKER_ENGINE = "aws"
 
   # default reap time is one day
-  SECONDS_PER_DAY = 86400.freeze
+  SECONDS_PER_DAY = 86_400
   AWS_REAP_TIME = SECONDS_PER_DAY.to_s.freeze
 
   # TODO: update mom and metrics config
@@ -43,24 +45,24 @@ module AbsHelper
     if get_abs_token
       user_has_token = true
 
-      @abs_base_url = ENV["ABS_BASE_URL"] ? ENV["ABS_BASE_URL"] : ABS_BASE_URL
-      @aws_platform = ENV["ABS_AWS_PLATFORM"] ? ENV["ABS_AWS_PLATFORM"] : AWS_PLATFORM
-      @aws_image_id = ENV["ABS_AWS_IMAGE_ID"] ? ENV["ABS_AWS_IMAGE_ID"] : AWS_IMAGE_ID
-      @aws_region = ENV["ABS_AWS_REGION"] ? ENV["ABS_AWS_REGION"] : AWS_REGION
+      @abs_base_url = ENV["ABS_BASE_URL"] || ABS_BASE_URL
+      @aws_platform = ENV["ABS_AWS_PLATFORM"] || AWS_PLATFORM
+      @aws_image_id = ENV["ABS_AWS_IMAGE_ID"] || AWS_IMAGE_ID
+      @aws_region = ENV["ABS_AWS_REGION"] || AWS_REGION
 
       # override default reap time with days?
       if ENV["ABS_AWS_REAP_DAYS"]
         days = ENV["ABS_AWS_REAP_DAYS"].to_i
         @aws_reap_time = (days * SECONDS_PER_DAY).to_s
       else
-        @aws_reap_time = ENV["ABS_AWS_REAP_TIME"] ? ENV["ABS_AWS_REAP_TIME"] : AWS_REAP_TIME
+        @aws_reap_time = ENV["ABS_AWS_REAP_TIME"] || AWS_REAP_TIME
       end
 
       @mom_size = ENV["ABS_AWS_MOM_SIZE"]
-      @mom_volume_size = ENV["ABS_AWS_MOM_VOLUME_SIZE"] ? ENV["ABS_AWS_MOM_VOLUME_SIZE"] : MOM_VOLUME_SIZE
+      @mom_volume_size = ENV["ABS_AWS_MOM_VOLUME_SIZE"] || MOM_VOLUME_SIZE
       @metrics_size = ENV["ABS_AWS_METRICS_SIZE"]
-      @metrics_volume_size = ENV["ABS_METRICS_VOLUME_SIZE"] ? ENV["ABS_METRICS_VOLUME_SIZE"] : METRICS_VOLUME_SIZE
-      @abs_beaker_pe_version = ENV["BEAKER_PE_VER"] ? ENV["BEAKER_PE_VER"] : nil
+      @metrics_volume_size = ENV["ABS_METRICS_VOLUME_SIZE"] || METRICS_VOLUME_SIZE
+      @abs_beaker_pe_version = ENV["BEAKER_PE_VER"] || nil
     end
     user_has_token
   end
@@ -88,7 +90,7 @@ module AbsHelper
 
     hosts = [mom, metrics]
 
-    return hosts
+    hosts
   end
 
   # Initializes AbsHelper and returns the specified host
@@ -105,13 +107,13 @@ module AbsHelper
   def get_host_to_provision(role, size, volume_size)
     abs_initialize
     host =
-        { 'role': role,
-          'size': size,
-          'volume_size': volume_size }
+      { 'role': role,
+        'size': size,
+        'volume_size': volume_size }
 
     host_array = [host]
 
-    return host_array
+    host_array
   end
 
   # Attempts to provision the specified hosts via ABS
@@ -143,13 +145,10 @@ module AbsHelper
     puts
 
     begin
-
       hosts_to_request.each do |host_to_request|
         hosts << get_abs_resource_host(host_to_request)
       end
-
-    rescue => e
-
+    rescue StandardError => e
       puts "Error encountered: #{e.message}"
       puts
 
@@ -162,10 +161,9 @@ module AbsHelper
       end
 
       raise
-
     end
 
-    if !hosts.empty?
+    unless hosts.empty?
       abs_resource_hosts = hosts.to_json
       ENV["ABS_RESOURCE_HOSTS"] = abs_resource_hosts
       puts "ABS_RESOURCE_HOSTS=#{ENV['ABS_RESOURCE_HOSTS']}"
@@ -183,8 +181,7 @@ module AbsHelper
       puts "ABS hosts have been successfully provisioned"
     end
 
-    return verified_hosts
-
+    verified_hosts
   end
 
   # Attempts to provision the specified host via ABS
@@ -205,14 +202,9 @@ module AbsHelper
     request_body = get_awsdirect_request_body(host_to_request)
     response = perform_awsdirect_request(uri, request_body)
 
-    if !valid_abs_response?(response)
-      raise "Unable to provision host for role: #{host_to_request[:role]}"
-    else
-      host = parse_awsdirect_response_body(response.body)
-    end
+    raise "Unable to provision host for role: #{host_to_request[:role]}" unless valid_abs_response?(response)
 
-    return host
-
+    parse_awsdirect_response_body(response.body)
   end
 
   # Returns the specified ABS hosts via ABS
@@ -330,14 +322,14 @@ module AbsHelper
     volume_size = host_to_request[:volume_size]
 
     request_body = { "platform": @aws_platform,
-      "image_id": @aws_image_id,
-      "size": size,
-      "region": @aws_region,
-      "reap_time": @aws_reap_time,
-      "tags": get_aws_tags(role),
-      "volume_size": volume_size }.to_json
+                     "image_id": @aws_image_id,
+                     "size": size,
+                     "region": @aws_region,
+                     "reap_time": @aws_reap_time,
+                     "tags": get_aws_tags(role),
+                     "volume_size": volume_size }.to_json
 
-    return request_body
+    request_body
   end
 
   # Creates the awsdirectreturn request body for the specified host
@@ -376,7 +368,7 @@ module AbsHelper
       begin
         # TODO: safe_load?
         fog = YAML.load(file)
-      rescue
+      rescue StandardError
         # TODO: raise?
         puts "YAML error encountered parsing .fog file"
       end
@@ -404,7 +396,7 @@ module AbsHelper
   #   token = def abs_get_token
   #
   def get_abs_token
-    token = ENV["ABS_TOKEN"] ? ENV["ABS_TOKEN"] : get_abs_token_from_fog_file
+    token = ENV["ABS_TOKEN"] || get_abs_token_from_fog_file
     if token.nil?
       puts "An ABS token must be set in either the ABS_TOKEN environment variable"
       + " or the abs_token parameter in the .fog file"
@@ -523,12 +515,12 @@ module AbsHelper
     type = host["type"]
 
     abs_resource_host = {
-        'hostname': hostname,
-        'type':     type,
-        'engine':   ABS_BEAKER_ENGINE
+      'hostname': hostname,
+      'type': type,
+      'engine': ABS_BEAKER_ENGINE
     }
 
-    return abs_resource_host
+    abs_resource_host
   end
 
   # Writes the current ABS resource hosts to the log file
@@ -583,14 +575,13 @@ module AbsHelper
     result = nil
     success = false
     user = "root"
-    key_file = ENV['BEAKER_KEYFILE'] ? ENV['BEAKER_KEYFILE'] : "#{ENV['HOME']}/.ssh/id_rsa-acceptance"
+    key_file = ENV["BEAKER_KEYFILE"] || "#{ENV['HOME']}/.ssh/id_rsa-acceptance"
 
     puts "Verifying #{host}"
     puts
 
     # TODO: 8 tries?
-    for tries in 1..8
-
+    (1..8).each do |tries|
       puts "Attempt #{tries} for #{host}"
 
       begin
@@ -599,28 +590,23 @@ module AbsHelper
         result = ssh.exec!("rpm -q curl")
         ssh.close
 
-        if result
-          puts "Result: #{result}"
-          raise "Error: root account is not yet configured" if result.to_s.include?("centos")
-          success = true
-          break
+        raise "Unknown error" unless result
 
-        else
-          raise "Unknown error"
-        end
+        puts "Result: #{result}"
+        raise "Error: root account is not yet configured" if result.to_s.include?("centos")
 
-      rescue Net::SSH::HostKeyMismatch => err
-        err.remember_host!
-      rescue => err
-        puts "Attempted connection to #{host} failed with '#{err}'"
+        success = true
+        break
+      rescue Net::SSH::HostKeyMismatch => e
+        e.remember_host!
+      rescue StandardError => e
+        puts "Attempted connection to #{host} failed with '#{e}'"
         backoff_sleep(tries)
-
       end
-
     end
 
     puts "Failed to verify host #{host}" unless success
-    return success
+    success
   end
 
   # Verifies that the specified hosts can be accessed via ssh as the root user
@@ -646,7 +632,7 @@ module AbsHelper
     end
 
     puts "Unable to verify the provisioned hosts" unless success
-    return success
+    success
   end
 
   # Determines whether the specified hosts list is valid
@@ -678,7 +664,7 @@ module AbsHelper
           puts "The specified resource host array is not valid: #{abs_resource_hosts}"
           puts
         end
-      rescue
+      rescue StandardError
         # TODO: raise?
         puts "JSON::ParserError encountered parsing the hosts array: #{abs_resource_hosts}"
       end
@@ -687,4 +673,5 @@ module AbsHelper
 
     is_valid
   end
+  # rubocop:enable Naming/AccessorMethodName
 end

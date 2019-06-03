@@ -1,3 +1,5 @@
-source 'https://rubygems.org'
+# frozen_string_literal: true
 
-gem 'beaker', '2.50.0'
+source "https://rubygems.org"
+
+gem "beaker", "2.50.0"

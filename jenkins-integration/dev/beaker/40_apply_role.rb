@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 test_name "Apply puppet role for driver node in dev env"
 
 step "Apply role on dev machine" do
@@ -9,5 +11,6 @@ step "Apply role on dev machine" do
   #  r10k will automatically substitute underscores for any non-alpha characters
   #  (including slashes) in your branch name, so you need to use the underscore
   #  representation here.
-  on(jenkins, puppet("apply", "--environment", "production", "-e", "'include ::puppetserver_perf_driver::role::puppetserver::perf::driver::dev'"))
+  on(jenkins, puppet("apply", "--environment", "production",
+                     "-e", "'include ::puppetserver_perf_driver::role::puppetserver::perf::driver::dev'"))
 end

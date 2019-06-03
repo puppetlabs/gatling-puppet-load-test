@@ -1,8 +1,10 @@
-require 'puppet/gatling/config'
+# frozen_string_literal: true
 
-test_name 'Restart puppet master to pick up configuration changes'
+require "puppet/gatling/config"
 
-service_name = get_puppet_server_service_name_from_env()
+test_name "Restart puppet master to pick up configuration changes"
+
+service_name = get_puppet_server_service_name_from_env
 
 on(master, "systemctl restart #{service_name}")
 

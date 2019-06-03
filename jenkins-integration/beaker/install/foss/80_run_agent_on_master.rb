@@ -1,4 +1,6 @@
-test_name 'Run puppet agent on the master to prime directories' do
+# frozen_string_literal: true
+
+test_name "Run puppet agent on the master to prime directories" do
   # Before kicking off a Gatling run, we run the agent on the master against
   # itself one time.  This ensures that the master will create any directories
   # in which it will need to store artifacts for future agent runs.  Doing this

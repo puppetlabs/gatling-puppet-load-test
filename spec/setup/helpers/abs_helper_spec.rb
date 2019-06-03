@@ -1,3 +1,5 @@
+# frozen_string_literal: false
+
 require "./setup/helpers/abs_helper"
 require "net/ssh/errors"
 
@@ -5,6 +7,7 @@ class AbsHelperClass
   include AbsHelper
 end
 
+# rubocop:disable Metrics/BlockLength
 describe AbsHelperClass do
   let(:test_net_http) { Class.new }
   let(:test_net_http_instance) { Class.new }
@@ -1097,3 +1100,4 @@ describe AbsHelperClass do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength

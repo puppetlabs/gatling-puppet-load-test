@@ -1,12 +1,14 @@
-require 'json'
+# frozen_string_literal: true
 
-test_name 'Configure settings on SUT'
+require "json"
 
-def get_puppet_settings_from_env()
-  ENV['PUPPET_GATLING_PUPPET_SETTINGS']
+test_name "Configure settings on SUT"
+
+def get_puppet_settings_from_env # rubocop:disable Naming/AccessorMethodName
+  ENV["PUPPET_GATLING_PUPPET_SETTINGS"]
 end
 
-puppet_settings = JSON.parse(get_puppet_settings_from_env())
+puppet_settings = JSON.parse(get_puppet_settings_from_env)
 
 Beaker::Log.notify("INITIALIZING PUPPET SETTINGS to: #{puppet_settings}")
 
@@ -21,5 +23,3 @@ end
 
 puppet_conf = on(master, "cat /etc/puppetlabs/puppet/puppet.conf").stdout.chomp
 Beaker::Log.notify("Modified puppet.conf:\n\n#{puppet_conf}\n\n")
-
-

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 test_name "Classify Puppet agents on master" do
   skip_test "Only runs on FOSS" unless ENV["BEAKER_INSTALL_TYPE"] == "foss"
 
@@ -13,7 +15,7 @@ test_name "Classify Puppet agents on master" do
   hiera_configs << hc_env if master.file_exist?(hc_env)
 
   hiera_configs.each do |hiera_config|
-    config = YAML.load(on(master, "cat #{hiera_config}").stdout)
+    config = YAML.safe_load(on(master, "cat #{hiera_config}").stdout)
     config["hierarchy"].reject! { |backend| backend["name"] =~ /Classifier/i }
     create_remote_file(master, hiera_config, config.to_yaml)
   end

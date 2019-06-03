@@ -1,9 +1,11 @@
-require 'puppet/gatling/config'
+# frozen_string_literal: true
 
-test_name 'Configure java args'
+require "puppet/gatling/config"
 
-service_name = get_puppet_server_service_name_from_env()
+test_name "Configure java args"
+
+service_name = get_puppet_server_service_name_from_env
 service_config = service_config_name(service_name)
-java_args = get_puppet_server_java_args_from_env()
+java_args = get_puppet_server_java_args_from_env
 
-set_service_environment_variable(master, service_config, 'JAVA_ARGS', java_args)
+set_service_environment_variable(master, service_config, "JAVA_ARGS", java_args)

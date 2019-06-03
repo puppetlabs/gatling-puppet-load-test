@@ -301,8 +301,8 @@ module PerfHelper
   end
 
   def r10k_deploy
-    bin = ENV['PUPPET_BIN_DIR']
-    r10k_version = ENV['PUPPET_R10K_VERSION'] || '3.2.0'
+    bin = ENV["PUPPET_BIN_DIR"]
+    r10k_version = ENV["PUPPET_R10K_VERSION"] || "3.2.0"
 
     step "Install and configure r10k" do
       r10k_config = get_r10k_config_from_env
@@ -552,8 +552,8 @@ module PerfHelper
       on metric, 'yum -y install \
                          java-1.8.0-openjdk java-1.8.0-openjdk-devel xauth'
     end
-    step 'install scala build tool (sbt)' do
-      on metric, 'yum localinstall -y http://dl.bintray.com/sbt/rpm/sbt-0.13.7.rpm'
+    step "install scala build tool (sbt)" do
+      on metric, "yum localinstall -y http://dl.bintray.com/sbt/rpm/sbt-0.13.7.rpm"
     end
     step "create key for metrics to talk to primary master" do
       on metric, 'yes | ssh-keygen -q -t rsa -b 4096 \
@@ -655,9 +655,9 @@ module PerfHelper
 
   def setup_puppet_metrics_collector_for_foss
     custom_fact_content = 'pe_server_version=""'
-    custom_fact_path = '/opt/puppetlabs/facter/facts.d/custom.txt'
+    custom_fact_path = "/opt/puppetlabs/facter/facts.d/custom.txt"
     create_remote_file(master, custom_fact_path, custom_fact_content)
-    on(master, 'puppet apply -e "include puppet_metrics_collector"', :acceptable_exit_codes => [0,2])
+    on(master, 'puppet apply -e "include puppet_metrics_collector"', acceptable_exit_codes: [0, 2])
   end
 end
 # rubocop:enable Style/SpecialGlobalVars

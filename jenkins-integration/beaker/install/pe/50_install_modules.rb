@@ -1,6 +1,8 @@
-require 'puppet/gatling/config'
+# frozen_string_literal: true
 
-test_name 'Install Puppet modules into code-staging directory'
+require "puppet/gatling/config"
+
+test_name "Install Puppet modules into code-staging directory"
 
 # environmentsdir = '/etc/puppetlabs/code-staging/environments'
 # modules = modules_per_environment(node_configs(get_scenario_from_env()))

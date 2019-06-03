@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/puppetlabs/gatling-puppet-load-test.svg?branch=master)](https://travis-ci.com/puppetlabs/gatling-puppet-load-test)
+
 ## Welcome to load testing Puppet with Gatling!
 
 To use the new rake tasks to run in AWS, follow the instructions here: [`NEW_README.md`](./NEW_README.md)

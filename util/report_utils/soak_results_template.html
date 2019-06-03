@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>$RELEASE_B_NAME Soak Test Results</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="jumbotron">
+        <h1>$RELEASE_B_NAME ($RELEASE_B_NUMBER)</h1>
+        <h2>Soak Test Results</h2>
+        <p class="lead">The soak test is long-running test under medium load</p>
+    </div>
+
+    <div class="container">
+
+        <h2>Configuration:</h2>
+        <ul>
+            <li>Standard ref arch</li>
+            <li>Simulates 14 days of 600 puppet agents with 30 minute agent check-ins</li>
+            <li>All agents are configured with role::by_size::large in the control repo</li>
+            <ul>
+                <li>include ::profile::apache::basic</li>
+                <li>include ::profile::influxdb::basic</li>
+                <li>include ::profile::loop_through_file_resources</li>
+                <li>include ::profile::users</li>
+                <li>include ::profile::sysop::packages</li>
+                <li>include ::profile::motd</li>
+                <li>include ::profile::hiera_check</li>
+                <li>include ::profile::tomcat::basic</li>
+                <li>include ::profile::postgresql::basic</li>
+            </ul>
+        </ul>
+
+        <h2>Notes:</h2>
+        <ul>
+            <li>Note 1.</li>
+            <li>Note 2.</li>
+        </ul>
+
+    </div>
+
+    <div class="container">
+
+        <h2>$RELEASE_B_NAME ($RELEASE_B_NUMBER): $RESULT_B_NAME</h2>
+
+        <div class="container">
+            <img src="$RELEASE_B_IMAGE" class="mw-80" style="width: 1100px;" alt="$RELEASE_B_NAME">
+        </div>
+
+        <br>
+
+        $RELEASE_B_TABLE
+
+        <br>
+
+    </div>
+
+    <hr>
+
+    <div class="container">
+
+        <h2>$RELEASE_A_NAME ($RELEASE_A_NUMBER): $RESULT_A_NAME</h2>
+
+        <div class="container">
+            <img src="$RELEASE_A_IMAGE" class="mw-80" style="width: 1100px;" alt="$RELEASE_A_NAME">
+        </div>
+
+        <br>
+
+        $RELEASE_A_TABLE
+
+        <br>
+
+    </div>
+
+    <hr>
+
+    <div class="container">
+
+        <h2>$RELEASE_A_NAME_vs_$RELEASE_B_NAME.csv</h2>
+
+        $COMPARISON_TABLE
+
+    </div>
+
+</div>
+</body>
+</html>
+

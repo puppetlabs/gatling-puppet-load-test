@@ -172,7 +172,7 @@ rototiller_task :performance_without_provision do |t|
         option.name = '--options'
         option.message = 'Beaker options file'
         option.add_argument do |arg|
-          if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
+          unless ENV['BEAKER_INSTALL_TYPE'] == 'foss'
             if ENV['ENVIRONMENT_TYPE'] == 'clamps'
               arg.name = 'setup/options/options_pe_clamps.rb'
             else

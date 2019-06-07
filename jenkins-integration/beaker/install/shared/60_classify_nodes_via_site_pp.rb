@@ -1,19 +1,21 @@
-require 'puppet/gatling/config'
+# frozen_string_literal: true
+
+require "puppet/gatling/config"
 
 test_name "Classify Puppet agents on master"
 
 def generate_sitepp(node_configs)
   node_configs.map do |config|
-    config['classes'].
-      map { |klass| "include #{klass}" }.
-      insert(0, "node /#{config['certname_prefix']}.*/ {").
-      push('}').
-      join("\n")
+    config["classes"]
+      .map { |klass| "include #{klass}" }
+      .insert(0, "node /#{config['certname_prefix']}.*/ {")
+      .push("}")
+      .join("\n")
   end.push("node 'default' {}").join("\n").strip
 end
 
 def classify_foss_nodes(host, nodes)
-  environments = on(host, puppet('config print environmentpath')).stdout.chomp
+  environments = on(host, puppet("config print environmentpath")).stdout.chomp
   # on old PEs (3.3 at least), directory environments have to be enabled. We
   # can detect this situation because the command above will return an empty
   # string.  In that case we'll take a swing at enabling them by modifying the
@@ -26,14 +28,14 @@ def classify_foss_nodes(host, nodes)
     # need to restart the server to make this change take effect.
     # TODO: should move the restart into a helper method or something, this
     # is duplicated in 99_restart_server.rb.
-    service_name = get_puppet_server_service_name_from_env()
+    service_name = get_puppet_server_service_name_from_env
 
     on(host, "systemctl restart #{service_name}")
 
     Beaker::Log.notify("Finished restarting service #{service_name}")
 
     # now update the value for environments dir
-    environments = on(host, puppet('config print environmentpath')).stdout.chomp
+    environments = on(host, puppet("config print environmentpath")).stdout.chomp
   end
   nodes = group_by_environment(nodes)
   nodes.each_pair do |env, node_configs|
@@ -49,5 +51,5 @@ def classify_foss_nodes(host, nodes)
   end
 end
 
-nodes = node_configs(get_scenario_from_env())
+nodes = node_configs(get_scenario_from_env)
 classify_foss_nodes(master, nodes)

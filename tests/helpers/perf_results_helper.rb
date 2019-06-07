@@ -1,30 +1,32 @@
+# frozen_string_literal: true
+
 require "csv"
 
 # TODO: refactor csv2html POC and add spec tests
 # TODO: consolidate scale results code here
+# Helper module for the generation of HTML reports from CSV data
 module PerfResultsHelper
+  HTML_START = <<~HEREDOC
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <title>Scale Test Results</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    </head>
+    <body>
 
-  HTML_START = <<-HEREDOC.freeze
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Scale Test Results</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-</head>
-<body>
-
-<div class="container">
+    <div class="container">
 
   HEREDOC
 
-  HTML_END = <<-HEREDOC.freeze
-</div>
-</body>
-</html>
+  HTML_END = <<~HEREDOC
+    </div>
+    </body>
+    </html>
 
   HEREDOC
 
@@ -62,33 +64,31 @@ module PerfResultsHelper
     # add headers
     csv_data[0].each do |field|
       header = th_start + field + th_end + nl
-      header_row = header_row + header
+      header_row += header
     end
 
     # finish header row
     header_row = header_row + tr_end + nl
 
     # add header row to table
-    table = table + header_row
+    table += header_row
 
     # add rows
     (1..csv_data.length - 1).each do |ct|
-
       # start row
       current_row = tr_start + nl
 
       # add cells
       csv_data[ct].each do |field|
         cell = "#{td_start}#{field}#{td_end}" + nl
-        current_row = current_row + cell
+        current_row += cell
       end
 
       # end row
       current_row = current_row + tr_end + nl
 
       # add row
-      table = table + current_row
-
+      table += current_row
     end
 
     # end table
@@ -99,5 +99,4 @@ module PerfResultsHelper
     html = HTML_START + heading + table + HTML_END
     File.write("#{csv_path}.html", html)
   end
-
 end

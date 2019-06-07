@@ -1,20 +1,21 @@
-source ENV['GEM_SOURCE'] || 'https://artifactory.delivery.puppetlabs.net/artifactory/api/gems/rubygems/'
+# frozen_string_literal: true
 
-gem 'beaker', '~>4.0'
-gem 'beaker-benchmark', '~>0.0'
-gem 'beaker-pe', '~>2.0'
-gem 'beaker-aws'
-gem 'beaker-abs', '~>0.1'
-gem 'beaker-pe-large-environments', '~>0.3'
-gem 'scooter', '~>4.3'
-gem 'rototiller', '~>1.0'
-gem 'rspec', '~>3.0'
-gem 'master_manipulator', '~>2.1'
-gem 'beaker-puppet', '~>1.0'
+source ENV["GEM_SOURCE"] || "https://artifactory.delivery.puppetlabs.net/artifactory/api/gems/rubygems/"
 
-if File.exists? "#{__FILE__}.local"
-  eval(File.read("#{__FILE__}.local"), binding)
-end
+gem "beaker", "~>4.0"
+gem "beaker-abs", "~>0.1"
+gem "beaker-aws"
+gem "beaker-benchmark", "~>0.0"
+gem "beaker-pe", "~>2.0"
+gem "beaker-pe-large-environments", "~>0.3"
+gem "beaker-puppet", "~>1.0"
+gem "master_manipulator", "~>2.1"
+gem "rototiller", "~>1.0"
+gem "rspec", "~>3.0"
+gem "rubocop", "~> 0.67"
+gem "scooter", "~>4.3"
 
-gem 'google-cloud', '~> 0.52.0'
-gem 'google-api-client', '~> 0.19.0'
+eval(File.read("#{__FILE__}.local"), binding) if File.exist? "#{__FILE__}.local" # rubocop:disable Security/Eval
+
+gem "google-api-client", "~> 0.19.0"
+gem "google-cloud", "~> 0.52.0"

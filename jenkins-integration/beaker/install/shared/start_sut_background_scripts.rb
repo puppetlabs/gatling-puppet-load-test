@@ -1,9 +1,11 @@
-require 'json'
+# frozen_string_literal: true
+
+require "json"
 
 step "Launch background scripts on SUT" do
-  bg_scripts = ENV['SUT_BACKGROUND_SCRIPTS'].split("\n")
+  bg_scripts = ENV["SUT_BACKGROUND_SCRIPTS"].split("\n")
   Beaker::Log.notify("Launching #{bg_scripts.count} background scripts")
-  master_tempdir = master.tmpdir('gplt_bg_scripts')
+  master_tempdir = master.tmpdir("gplt_bg_scripts")
   pids = {}
   bg_scripts.each do |s|
     script_filename = File.basename(s)

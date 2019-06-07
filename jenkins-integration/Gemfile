@@ -1,11 +1,11 @@
-source ENV['GEM_SOURCE'] || 'https://rubygems.org'
+# frozen_string_literal: true
 
-gem 'beaker', '~>3.2.0'
-gem 'beaker-hostgenerator', '0.8.0'
-gem 'beaker-pe', '~>1.4'
+source ENV["GEM_SOURCE"] || "https://rubygems.org"
 
-gem 'scooter', '~> 3.2.0'
+gem "beaker", "~>3.2.0"
+gem "beaker-hostgenerator", "0.8.0"
+gem "beaker-pe", "~>1.4"
 
-if File.exists? "#{__FILE__}.local"
-  eval(File.read("#{__FILE__}.local"), binding)
-end
+gem "scooter", "~> 3.2.0"
+
+eval(File.read("#{__FILE__}.local"), binding) if File.exist? "#{__FILE__}.local" # rubocop:disable Security/Eval

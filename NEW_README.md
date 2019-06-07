@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/puppetlabs/gatling-puppet-load-test.svg?branch=master)](https://travis-ci.com/puppetlabs/gatling-puppet-load-test)
+
 # Running Performance Test Profiles
 
 #### Table of Contents
@@ -97,7 +99,7 @@ your `$HOME/.fog` file.  Here is an example: _FIXME: Reference fog website._
 **NOTE: This facility is not publicly available and can only be used by
 personnel employed by Puppet the company.**
 
-**NOTE:** AWS instances provided by ABS are automatically destroyed after 24 hours by the [AWS EC2 Reaper](https://github.com/puppetlabs/aws_resource_reaper/tree/master/lambdas/ec2#aws-ec2-reaper).  
+**NOTE:** AWS instances provided by ABS are automatically destroyed after 24 hours by the [AWS EC2 Reaper](https://github.com/puppetlabs/aws_resource_reaper/tree/master/lambdas/ec2#aws-ec2-reaper).
 The lifetime of these instances can be set to an alternative value by setting the desired lifetime with the `ABS_AWS_REAP_TIME` environment variable in seconds.
 
 Alternatively, the lifetime can be specified in days via the `ABS_AWS_REAP_DAYS` environment variable.

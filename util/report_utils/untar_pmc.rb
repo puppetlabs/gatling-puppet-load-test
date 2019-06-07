@@ -1,11 +1,14 @@
+# frozen_string_literal: true
+
 # TODO: move to perf_results_helper.rb?
 
-require 'json'
-require 'csv'
+require "json"
+require "csv"
 
-PUPPET_METRICS_COLLECTOR_SERVICES = %w[orchestrator puppetdb puppetserver]
+PUPPET_METRICS_COLLECTOR_SERVICES = %w[orchestrator puppetdb puppetserver].freeze
 
-raise Exception, 'you must provide a result folder' unless ARGV[0]
+raise Exception, "you must provide a result folder" unless ARGV[0]
+
 puppet_metrics_dir = ARGV[0]
 
 puts "Extracting all tar files in #{puppet_metrics_dir}"
@@ -20,19 +23,13 @@ PUPPET_METRICS_COLLECTOR_SERVICES.each do |service|
   Dir.chdir service_dir
 
   # extract each tar file to the service directory
-  Dir.glob("*.tar.gz").each do|file|
-
+  Dir.glob("*.tar.gz").each do |file|
     puts "Extracting #{file}"
 
     # extract
     command = "tar xfz #{file} -C #{service_dir}"
     `#{command}`
-
   end
 
   puts
-
 end
-
-
-

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 step "disable firewall" do
   # TODO: use puppet?  service resource? something more reusable anyway
   on(master, "systemctl stop firewalld")

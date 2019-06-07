@@ -2,6 +2,8 @@ Layout/AlignHash:
   EnforcedHashRocketStyle: table
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+Metrics/LineLength:
+  Max: 120
 Metrics/MethodLength:
   Max: 99
 Metrics/BlockLength:
@@ -15,4 +17,6 @@ Metrics/CyclomaticComplexity:
 Metrics/PerceivedComplexity:
   Max: 15
 Style/MultilineIfModifier:
+  Enabled: false
+Naming/FileName:
   Enabled: false

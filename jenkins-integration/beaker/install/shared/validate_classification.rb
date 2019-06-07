@@ -1,5 +1,7 @@
-require 'puppet/gatling/config'
-require 'json'
+# frozen_string_literal: true
+
+require "puppet/gatling/config"
+require "json"
 
 test_name "Validate node classification"
 
@@ -7,16 +9,14 @@ test_name "Validate node classification"
 ## - agent certs/keys are already on the master in the $ssldir (SERVER-787)
 
 def check_for_classes(catalog_response, config)
-  expected = config['classes']
-  actual = catalog_response['classes']
+  expected = config["classes"]
+  actual = catalog_response["classes"]
   all_found = expected.all? { |klass| actual.include?(klass) }
-  if not all_found
-    abort "Node '#{config['certname']}' missing classes.\nExpected: #{expected}\nActual: #{actual}"
-  end
+  abort "Node '#{config['certname']}' missing classes.\nExpected: #{expected}\nActual: #{actual}" unless all_found
 end
 
 def build_catalog_query(host, node_config, server, cacert)
-  certname = node_config['certname']
+  certname = node_config["certname"]
   cert = on(host, puppet("config print hostcert --certname #{certname}")).stdout.chomp
   key = on(host, puppet("config print hostprivkey --certname #{certname}")).stdout.chomp
   environment = node_environment(node_config)
@@ -25,8 +25,8 @@ def build_catalog_query(host, node_config, server, cacert)
 end
 
 def validate_classification(host, nodes)
-  server = on(host, puppet('config print certname')).stdout.chomp
-  cacert = on(host, puppet('config print localcacert')).stdout.chomp
+  server = on(host, puppet("config print certname")).stdout.chomp
+  cacert = on(host, puppet("config print localcacert")).stdout.chomp
   nodes.each do |config|
     catalog_query = build_catalog_query(host, config, server, cacert)
     response = on(host, catalog_query).stdout.chomp
@@ -34,5 +34,5 @@ def validate_classification(host, nodes)
   end
 end
 
-nodes = node_configs(get_scenario_from_env())
+nodes = node_configs(get_scenario_from_env)
 validate_classification(master, nodes)

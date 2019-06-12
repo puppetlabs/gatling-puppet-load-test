@@ -3,6 +3,11 @@
 # Run scale tests for each Standard Ref Arch size on docs page
 #   Ref: https://puppet.com/docs/pe/latest/hardware_requirements.html
 
+##########
+# Variables
+##########
+
+WORK_DIR="$HOME/gatling"
 
 ##########
 # Function Definitions
@@ -36,19 +41,10 @@ ABS_AWS_MOM_SIZE=$ABS_AWS_MOM_SIZE
 ============================================"
 }
 
-# Link scale results to nginx content location
-function link_results () {
-    # test name is arg1, pe_ver is arg2
-    source=$HOME/gplt/$1/gatling-puppet-load-test/results/scale
-    dest=/usr/share/nginx/html/gplt/scale/$1/$2
-
-    sudo mkdir -p "${dest}"
-    sudo ln -s "${source}" "${dest}"
-}
-
 # Prepare checkout of puppet-gatling-load-test
 function prep_gplt () {
-    cd "$HOME/gplt" || exit 1
+    mkdir -p "$WORK_DIR"
+    cd "$WORK_DIR" || exit 1
     mkdir "$1"
     cd "$1" || exit 1
     git clone git@github.com:puppetlabs/gatling-puppet-load-test
@@ -114,7 +110,6 @@ export PUPPET_GATLING_SCALE_TUNE=$tune
 # export PUPPET_GATLING_SCALE_TUNE_FORCE=true
 
 
-mkdir "$HOME/gplt"
 
 echo "========================================================================"
 echo "Testing Ref Arch 1: Monolithic deploy for 10 or fewer nodes"
@@ -175,7 +170,6 @@ echo "Testing Ref Arch 2: Monolithic deploy for up to 4,000 nodes"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
             if [ -z $DEBUG ]; then
                 prep_gplt "$test"
-                link_results "$test" "$BEAKER_PE_VER"
                 (bundle exec rake $task > "$test-$run_type-$i.log") &
             else
                 (echo_env) &
@@ -214,7 +208,7 @@ echo "Testing Ref Arch 2: Monolithic deploy for up to 4,000 nodes"
             test="slv-414-ref2-$ec2-tune-$tune"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
             if [ -z $DEBUG ]; then
-                cd "$HOME/gplt/$test/gatling-puppet-load-test" || exit 1
+                cd "$WORK_DIR/$test/gatling-puppet-load-test" || exit 1
                 (bundle exec rake $task > "$test-$run_type-$i.log") &
             else
                 (echo_env) &

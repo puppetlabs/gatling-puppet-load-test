@@ -8,6 +8,8 @@
 ##########
 
 WORK_DIR="$HOME/gatling"
+PREFIX=$(date -u +%Y%m%d%H%M%S)
+
 
 ##########
 # Function Definitions
@@ -23,6 +25,8 @@ usage () {
     echo "Mandatory arguments to long options are mandatory for short options too."
     echo "  -h|--help             show this help text"
     echo "  -d|--debug            debug mode: prints ENV values and commands to be executed, but does not run anything"
+    echo "  -i|--run-id           Set a value to prepend to scale run directories"
+    echo "                        (default: '')"
     echo
 }
 
@@ -30,6 +34,10 @@ usage () {
 # expected environment variables.
 function echo_env () {
     echo "============================================
+Provided args:
+RUN_ID=$RUN_ID
+PE_VERSION=$PE_VERSION
+
 In subshell for $test $run_type round $i
 cmd=$cmd
 BEAKER_INSTALL_TYPE=$BEAKER_INSTALL_TYPE
@@ -70,6 +78,11 @@ do
             DEBUG=true
             shift
             ;;
+        -i|--run-id)
+          RUN_ID=$2
+          PREFIX="$PREFIX-$RUN_ID"
+          shift 2
+          ;;
         --) # end argument parsing
             shift
             break
@@ -149,7 +162,7 @@ echo "Testing Standard Ref Arch: For Trial Use"
 
     run_type="cold"
     ec2=$ABS_AWS_MOM_SIZE
-    test="slv-414-ref1-$ec2"
+    test="$PREFIX-trial-$ec2"
     cmd="bundle exec rake autoscale_$run_type > \"$test-$run_type.log\""
     if [ -z $DEBUG ]; then
         prep_gplt "$test"
@@ -194,7 +207,7 @@ echo "Testing Standard Ref Arch: Standard Deployment"
                 export PUPPET_GATLING_SCALE_BASE_INSTANCES=3800
             fi
             export ABS_AWS_MOM_SIZE="$ec2"
-            test="slv-414-ref2-$ec2-tune-$tune"
+            test="$PREFIX-std-$ec2-tune-$tune"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
             if [ -z $DEBUG ]; then
                 prep_gplt "$test"
@@ -233,7 +246,7 @@ echo "Testing Standard Ref Arch: Standard Deployment"
                 export PUPPET_GATLING_SCALE_BASE_INSTANCES=3800
             fi
             export ABS_AWS_MOM_SIZE="$ec2"
-            test="slv-414-ref2-$ec2-tune-$tune"
+            test="$PREFIX-std-$ec2-tune-$tune"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
             if [ -z $DEBUG ]; then
                 cd "$WORK_DIR/$test/gatling-puppet-load-test" || exit 1

@@ -97,12 +97,32 @@ PE_VERSION=${ARGS[0]}
 # Ensure PE_VERSION is semver
 # e.g. 2019.1.1-rc0-207-g4e47830
 # Regex from: https://regexr.com/39s32
-if ! [[ $PE_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+((-[0-9a-zA-Z-]+)*)?$ ]]; then
-    echo "Supplied PE_VERSION is malformed"
+RE='[^0-9]*\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\)\([0-9A-Za-z-]*\)'
+PE_MAJOR=$(echo "$PE_VERSION" | sed -e "s#$RE#\1#")
+PE_MINOR=$(echo "$PE_VERSION" | sed -e "s#$RE#\2#")
+PE_PATCH=$(echo "$PE_VERSION" | sed -e "s#$RE#\3#")
+PE_BUILD=$(echo "$PE_VERSION" | sed -e "s#$RE#\4#")
+echo "PE_MAJOR=$PE_MAJOR"
+echo "PE_MINOR=$PE_MINOR"
+echo "PE_PATCH=$PE_PATCH"
+echo "PE_BUILD=$PE_BUILD"
+#if ! [[ $PE_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+((-[0-9a-zA-Z-]+)*)?$ ]]; then
+if ! { [ "$PE_MAJOR" ] && [ "$PE_MINOR" ] && [ "$PE_PATCH" ]; }; then
+    echo "Supplied PE_VERSION ($PE_VERSION) is malformed"
     echo
     usage
     exit 1
 fi
+
+# Ensure packages can be found for PE_VERSION
+if [ "$PE_BUILD" ]; then
+  URL=http://enterprise.delivery.puppetlabs.net/$PE_MAJOR.$PE_MINOR/ci-ready/
+else
+  URL=http://enterprise.delivery.puppetlabs.net/archives/releases/$PE_VERSION/
+fi
+echo "$URL"
+curl "$URL" | grep "puppet-enterprise-$PE_VERSION-el-7-x86_64.tar" || \
+    { echo "Error: Unable to find packages for $PE_VERSION.  Double check that $PE_VERSION is available."; exit 1; }
 
 
 ##########

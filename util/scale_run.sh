@@ -112,10 +112,8 @@ ABS_AWS_MOM_SIZE=$ABS_AWS_MOM_SIZE
 function prep_gplt () {
     mkdir -p "$WORK_DIR"
     cd "$WORK_DIR" || exit 1
-    mkdir "$1"
+    git clone git@github.com:puppetlabs/gatling-puppet-load-test "$1"
     cd "$1" || exit 1
-    git clone git@github.com:puppetlabs/gatling-puppet-load-test
-    cd gatling-puppet-load-test || exit 1
     bundle install --path vendor/bundle
 }
 

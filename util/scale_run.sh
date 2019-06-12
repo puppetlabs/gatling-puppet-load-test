@@ -4,6 +4,60 @@
 #   Ref: https://puppet.com/docs/pe/latest/hardware_requirements.html
 
 ##########
+# Gatling settings
+##########
+#
+# Change these values if needed prior to running the script.
+#
+
+# export PUPPET_GATLING_SCALE_TUNE_FORCE=true
+
+# AWS instance sizes to be tested on
+declare -a TRIAL_EC2_TYPES=("m5.large")
+declare -a STD_EC2_TYPES=("c5.xlarge" "c5.2xlarge" "c5.4xlarge")
+
+# These values are used to populate the PUPPET_GATLING_SCALE_* variables
+# for the scale test runs.
+#
+# The schema for the variable naming convention is
+# ARCH: [TRIAL|STD] (only used with BASE_INSTANCES)
+# AWSSIZE: [L|XL|2XL|4XL] (only used with BASE_INSTANCES)
+# START: [COLD|WARM] (only used with BASE_INSTANCES)
+# TUNING: [TUNED|UNTUNED] (only used with BASE_INSTANCES)
+# TUNING: [TUNED|UNTUNED] (only used with BASE_INSTANCES)
+# SCALE-VARIABLE [SCENARIO|ITERATIONS|BASE_INSTANCES]
+#
+
+TRIAL_SCENARIO="Scale.json"
+TRIAL_ITERATIONS=1
+TRIAL_L_COLD_TUNED_BASE_INSTANCES=100
+TRIAL_L_COLD_UNTUNED_BASE_INSTANCES=100
+
+STD_SCENARIO="Scale.json"
+STD_ITERATIONS=15
+STD_INCREMENT=100
+STD_XL_COLD_TUNED_BASE_INSTANCES=2000
+STD_XL_COLD_UNTUNED_BASE_INSTANCES=2000
+STD_XL_WARM_TUNED_BASE_INSTANCES=1800
+STD_XL_WARM_UNTUNED_BASE_INSTANCES=1800
+STD_2XL_COLD_TUNED_BASE_INSTANCES=4100
+STD_2XL_COLD_UNTUNED_BASE_INSTANCES=3800
+STD_2XL_WARM_TUNED_BASE_INSTANCES=5000
+STD_2XL_WARM_UNTUNED_BASE_INSTANCES=3800
+STD_4XL_COLD_TUNED_BASE_INSTANCES=4100
+STD_4XL_COLD_UNTUNED_BASE_INSTANCES=3800
+STD_4XL_WARM_TUNED_BASE_INSTANCES=6000
+STD_4XL_WARM_UNTUNED_BASE_INSTANCES=4000
+STD_DEFAULT_BASE_INSTANCES=3800
+
+
+##############################################################################
+##############################################################################
+##############################################################################
+# Nothing below this line should need to be changed
+##############################################################################
+
+##########
 # Variables
 ##########
 
@@ -27,6 +81,8 @@ usage () {
     echo "  -d|--debug            debug mode: prints ENV values and commands to be executed, but does not run anything"
     echo "  -i|--run-id           Set a value to prepend to scale run directories"
     echo "                        (default: '')"
+    echo "  --[no]tune            apply pe-tune to deployment"
+    echo "                        (default: 'tune')"
     echo
 }
 
@@ -35,6 +91,7 @@ usage () {
 function echo_env () {
     echo "============================================
 Provided args:
+TUNE=$TUNE
 RUN_ID=$RUN_ID
 PE_VERSION=$PE_VERSION
 
@@ -83,6 +140,14 @@ do
           PREFIX="$PREFIX-$RUN_ID"
           shift 2
           ;;
+        --tune)
+          TUNE=true
+          shift
+          ;;
+        --notune)
+          TUNE=false
+          shift
+          ;;
         --) # end argument parsing
             shift
             break
@@ -97,6 +162,9 @@ do
             ;;
         esac
 done
+
+# Ensure that TUNE is set to true by default
+TUNE="${TUNE:-true}"
 
 # Ensure PE_VERSION is provided
 if [ "${#ARGS[@]}" -le "0" ]; then
@@ -142,72 +210,75 @@ curl "$URL" | grep "puppet-enterprise-$PE_VERSION-el-7-x86_64.tar" || \
 # Main
 ##########
 
-tune=false
 # Global settings
 export BEAKER_INSTALL_TYPE=pe
-export BEAKER_PE_DIR=http://enterprise.delivery.puppetlabs.net/archives/releases/2019.1.0
+export BEAKER_PE_DIR=$URL
 export BEAKER_PE_VER=$PE_VERSION
-export PUPPET_GATLING_SCALE_TUNE=$tune
-# export PUPPET_GATLING_SCALE_TUNE_FORCE=true
+export PUPPET_GATLING_SCALE_TUNE=$TUNE
 
 
 
 echo "========================================================================"
 echo "Testing Standard Ref Arch: For Trial Use"
 
-    export PUPPET_GATLING_SCALE_BASE_INSTANCES=100
-    export PUPPET_GATLING_SCALE_ITERATIONS=1
-    export PUPPET_GATLING_SCALE_SCENARIO="Scale.json"
-    export ABS_AWS_MOM_SIZE="m5.large"
+    export PUPPET_GATLING_SCALE_ITERATIONS=$TRIAL_ITERATIONS
+    export PUPPET_GATLING_SCALE_SCENARIO=$TRIAL_SCENARIO
 
     run_type="cold"
-    ec2=$ABS_AWS_MOM_SIZE
-    test="$PREFIX-trial-$ec2"
-    cmd="bundle exec rake autoscale_$run_type > \"$test-$run_type.log\""
-    if [ -z $DEBUG ]; then
-        prep_gplt "$test"
-        (bundle exec rake autoscale_$run_type > "$test-$run_type.log") &
-    else
-        (echo_env) &
-    fi
+    for ec2 in "${TRIAL_EC2_TYPES[@]}"; do
+        if [[ $TUNE == "false" ]]; then
+            export PUPPET_GATLING_SCALE_BASE_INSTANCES=$TRIAL_L_COLD_UNTUNED_BASE_INSTANCES
+        else
+            export PUPPET_GATLING_SCALE_BASE_INSTANCES=$TRIAL_L_COLD_TUNED_BASE_INSTANCES
+        fi
+        export ABS_AWS_MOM_SIZE="$ec2"
+        test="$PREFIX-trial-$ec2-tune-$TUNE"
+        cmd="bundle exec rake autoscale_$run_type > \"$test-$run_type.log\""
+        if [ -z $DEBUG ]; then
+            prep_gplt "$test"
+            (bundle exec rake autoscale_$run_type > "$test-$run_type.log") &
+        else
+            (echo_env) &
+        fi
+    done
 
 
 echo "========================================================================"
 echo "Testing Standard Ref Arch: Standard Deployment"
 
-    export PUPPET_GATLING_SCALE_ITERATIONS=15
-    export PUPPET_GATLING_SCALE_INCREMENT=100
-    export PUPPET_GATLING_SCALE_SCENARIO="Scale.json"
+    export PUPPET_GATLING_SCALE_ITERATIONS=$STD_ITERATIONS
+    export PUPPET_GATLING_SCALE_INCREMENT=$STD_INCREMENT
+    export PUPPET_GATLING_SCALE_SCENARIO=$STD_SCENARIO
 
     run_type="cold"
-    declare -a ec2_types=("c5.xlarge" "c5.2xlarge" "c5.4xlarge")
     for i in {0..4}; do
         wait
+        # use _provisioned_ task after the first run
         [[ $i = 0 ]] && task="autoscale_$run_type" || task="autoscale_provisioned_$run_type"
-        for ec2 in "${ec2_types[@]}"; do
+        for ec2 in "${STD_EC2_TYPES[@]}"; do
             if [[ $ec2 == "c5.xlarge" ]]; then
-                if [[ $tune == "false" ]]; then
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=2000
+                if [[ $TUNE == "false" ]]; then
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_XL_COLD_UNTUNED_BASE_INSTANCES
                 else
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=2000
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_XL_COLD_TUNED_BASE_INSTANCES
                 fi
             elif [[ $ec2 == "c5.2xlarge" ]]; then
-                if [[ $tune == "false" ]]; then
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=3800
+                if [[ $TUNE == "false" ]]; then
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_2XL_COLD_UNTUNED_BASE_INSTANCES
                 else
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=4100
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_2XL_COLD_TUNED_BASE_INSTANCES
                 fi
             elif [[ $ec2 == "c5.4xlarge" ]]; then
-                if [[ $tune == "false" ]]; then
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=4100
+                if [[ $TUNE == "false" ]]; then
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_4XL_COLD_UNTUNED_BASE_INSTANCES
                 else
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=3800
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_4XL_COLD_TUNED_BASE_INSTANCES
                 fi
             else
-                export PUPPET_GATLING_SCALE_BASE_INSTANCES=3800
+                export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_DEFAULT_BASE_INSTANCES
             fi
             export ABS_AWS_MOM_SIZE="$ec2"
-            test="$PREFIX-std-$ec2-tune-$tune"
+            test="$PREFIX-std-$ec2-tune-$TUNE"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
             if [ -z $DEBUG ]; then
                 prep_gplt "$test"
@@ -223,30 +294,30 @@ echo "Testing Standard Ref Arch: Standard Deployment"
     for i in {0..4}; do
         wait
         task=autoscale_provisioned_$run_type
-        for ec2 in "${ec2_types[@]}"; do
+        for ec2 in "${STD_EC2_TYPES[@]}"; do
             if [[ $ec2 == "c5.xlarge" ]]; then
-                if [[ $tune == "false" ]]; then
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=1800
+                if [[ $TUNE == "false" ]]; then
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_XL_WARM_UNTUNED_BASE_INSTANCES
                 else
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=1800
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_XL_WARM_TUNED_BASE_INSTANCES
                 fi
             elif [[ $ec2 == "c5.2xlarge" ]]; then
-                if [[ $tune == "false" ]]; then
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=3800
+                if [[ $TUNE == "false" ]]; then
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_2XL_WARM_UNTUNED_BASE_INSTANCES
                 else
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=5000
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_2XL_WARM_TUNED_BASE_INSTANCES
                 fi
             elif [[ $ec2 == "c5.4xlarge" ]]; then
-                if [[ $tune == "false" ]]; then
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=4000
+                if [[ $TUNE == "false" ]]; then
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_4XL_WARM_UNTUNED_BASE_INSTANCES
                 else
-                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=6000
+                    export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_4XL_WARM_TUNED_BASE_INSTANCES
                 fi
             else
-                export PUPPET_GATLING_SCALE_BASE_INSTANCES=3800
+                export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_DEFAULT_BASE_INSTANCES
             fi
             export ABS_AWS_MOM_SIZE="$ec2"
-            test="$PREFIX-std-$ec2-tune-$tune"
+            test="$PREFIX-std-$ec2-tune-$TUNE"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
             if [ -z $DEBUG ]; then
                 cd "$WORK_DIR/$test/gatling-puppet-load-test" || exit 1

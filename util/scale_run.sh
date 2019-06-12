@@ -15,12 +15,14 @@ WORK_DIR="$HOME/gatling"
 
 # Display usage help
 usage () {
-    echo "$0 [-h] [-d] PE_VERSION -- Run scale testing on specified PE_VERSION"
+    echo "Usage: $0 [OPTION]... PE_VERSION"
     echo
-    echo "where:"
-    echo "            -h  show this help text"
-    echo "            -d  debug mode: prints ENV values and commands to be executed, but does not run anything"
-    echo "    PE_VERSION  in semver notation (e.g 2019.1.0)"
+    echo "Run scale testing on specified PE_VERSION."
+    echo "  PE_VERSION in semver notation (e.g 2019.1.0)"
+    echo
+    echo "Mandatory arguments to long options are mandatory for short options too."
+    echo "  -h|--help             show this help text"
+    echo "  -d|--debug            debug mode: prints ENV values and commands to be executed, but does not run anything"
     echo
 }
 
@@ -60,21 +62,27 @@ function prep_gplt () {
 ARGS=()
 while [ $# -gt 0 ]
 do
-    unset OPTIND
-    unset OPTARG
-    while getopts hd  options
-    do
-    case $options in
-        h)  usage
+    case "$1" in
+        -h|--help)  usage
             exit 1
             ;;
-        d)  DEBUG=true
+        -d|--debug)
+            DEBUG=true
+            shift
+            ;;
+        --) # end argument parsing
+            shift
+            break
+            ;;
+        -*|--*=) # unsupported flags
+            echo "Error: Unsupported flag $1" >&2
+            exit 1
+            ;;
+        *) # preserve positional arguments
+            ARGS+=("$1")
+            shift
             ;;
         esac
-   done
-   shift $((OPTIND-1))
-   ARGS+=($1)
-   shift
 done
 
 # Ensure PE_VERSION is provided

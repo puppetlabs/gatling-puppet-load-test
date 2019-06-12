@@ -140,7 +140,7 @@ export PUPPET_GATLING_SCALE_TUNE=$tune
 
 
 echo "========================================================================"
-echo "Testing Ref Arch 1: Monolithic deploy for 10 or fewer nodes"
+echo "Testing Standard Ref Arch: For Trial Use"
 
     export PUPPET_GATLING_SCALE_BASE_INSTANCES=100
     export PUPPET_GATLING_SCALE_ITERATIONS=1
@@ -160,7 +160,7 @@ echo "Testing Ref Arch 1: Monolithic deploy for 10 or fewer nodes"
 
 
 echo "========================================================================"
-echo "Testing Ref Arch 2: Monolithic deploy for up to 4,000 nodes"
+echo "Testing Standard Ref Arch: Standard Deployment"
 
     export PUPPET_GATLING_SCALE_ITERATIONS=15
     export PUPPET_GATLING_SCALE_INCREMENT=100
@@ -244,9 +244,5 @@ echo "Testing Ref Arch 2: Monolithic deploy for up to 4,000 nodes"
         done
     done
 
-echo "========================================================================"
-echo "NOT IN SCOPE: Ref Arch 3: Monolithic with Compiler deploy for up to 20,000 nodes"
-echo "========================================================================"
-
-# Create report from data
+# TODO: Create report from data
 # for i in $(ls -d PERF_SCALE_*); do ; cat $i/PERF_SCALE_*.csv| sed 's/,/|/g' | sed 's/^/|/' | sed 's/$/|/' >> unified_results.txt ; done

@@ -8,20 +8,20 @@ GPLT Report Utilities
   * [Scripts](#scripts)
   * [Examples](#examples)
     + [Soak test results examples](#soak-test-examples)
-        * [extract_csv.rb](#extract_csv.rb)
-        * [compare_results.rb](#compare_results.rb)
-        * [csv2html.rb](#csv2html.rb)
-        * [build_soak_report.rb](#build_soak_report.rb)
+        * [extract_csv.rb](#extract_csvrb)
+        * [compare_results.rb](#compare_resultsrb)
+        * [csv2html.rb](#csv2htmlrb)
+        * [build_soak_report.rb](#build_soak_reportrb)
     + [Performance test examples](#performance-test-examples)
-        * [split_atop_csv.rb](#split_atop_csv.rb)
-        * [build_perf_report.rb](#build_perf_report.rb)
+        * [split_atop_csv.rb](#split_atop_csvrb)
+        * [build_perf_report.rb](#build_perf_reportrb)
     + [Performance comparison example](#performance-comparison-example)
-        * [compare_results.rb](#compare_results.rb)
-        * [compare_atop.rb](#compare_atop.rb)
-    + [Scale test example](#)
-        * [build_scale_csv_summary.rb](#build_scale_csv_summary.rb)
+        * [compare_results.rb](#compare_resultsrb)
+        * [compare_atop.rb](#compare_atoprb)
+    + [Scale test example](#scale-test-example)
+        * [build_scale_csv_summary.rb](#build_scale_csv_summaryrb)
 - [Puppet Metrics Collector](#puppet-metrics-collector)
-    * [untar_pmc.rb](#untar_pmc.rb)
+    * [untar_pmc.rb](#untar_pmcrb)
 
 # Background
 These scripts were used in the process of creating the Kearney soak test report.
@@ -38,15 +38,15 @@ Future possibilities include using the data in BigQuery rather than relying on C
 These scripts perform a variety of functions from extracting Gatling result data to building full reports from parameterized templates.
 In the following examples the scripts are listed in the order they are used; they are listed here in alphabetical order for reference and linked to the corresponding examples:
 
-- [build_perf_report.rb](#build_perf_report.rb)
-- [build_scale_csv_summary.rb](#build_scale_csv_summary.rb)
-- [build_soak_report.rb](#build_soak_report.rb)
-- [compare_atop.rb](#compare_atop.rb)
-- [compare_results.rb](#compare_results.rb)
-- [csv2html.rb](#csv2html.rb)
-- [extract_csv.rb](#extract_csv.rb)
-- [split_atop_csv.rb](#split_atop_csv.rb)
-- [untar_pmc.rb](#untar_pmc.rb)
+- [build_perf_report.rb](#build_perf_reportrb)
+- [build_scale_csv_summary.rb](#build_scale_csv_summaryrb)
+- [build_soak_report.rb](#build_soak_reportrb)
+- [compare_atop.rb](#compare_atoprb)
+- [compare_results.rb](#compare_resultsrb)
+- [csv2html.rb](#csv2htmlrb)
+- [extract_csv.rb](#extract_csvrb)
+- [split_atop_csv.rb](#split_atop_csvrb)
+- [untar_pmc.rb](#untar_pmcrb)
 
 
 ## Examples
@@ -257,7 +257,7 @@ You should see that the file `kearney_soak_report.html` has been created in the 
 These examples include additional scripts used in the creation of a basic performance results report.
 
 #### split_atop_csv.rb
-Each performance report contains a `atop_log_applestoapples_json.csv` file that includes performance statistics collected from the atop logs on the master. 
+Each performance report contains an `atop_log_applestoapples_json.csv` file that includes performance statistics collected from the atop logs on the master. 
 This file combines summary and detail tables into the same file which thwarts the csv2html conversion.
 This script splits the `atop_log_applestoapples_json.csv` file into separate standard CSV files for the summary and detail.
 The example below uses the `atop_log_applestoapples_json.csv` file extracted from a previous performance run.
@@ -325,7 +325,7 @@ ATOP_DETAIL_PATH
 This example uses the files in the `examples/perf_comparison_example` directory.
 
 #### compare_results.rb
-See the description [above](#compare-results.rb).
+See the description [above](#compare-resultsrb).
 This example will compare the `PerfTestLarge-A.csv` and `PerfTestLarge-B.csv` files which were previously extracted from performance runs using the `extract_csv.rb` script.
 ```
 test.user:~/gatling-puppet-load-test/util/report_utils> ruby compare_results.rb examples/perf_comparison_example/PerfTestLarge-A.csv examples/perf_comparison_example/PerfTestLarge-B.csv examples/perf_comparison_example/perf_comparison_a_vs_b.csv

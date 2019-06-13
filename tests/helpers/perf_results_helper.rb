@@ -39,7 +39,7 @@ module PerfResultsHelper
   end
 
   def csv2html(csv_path)
-    puts "  Converting: #{csv_path}"
+    puts "  converting CSV file: #{csv_path}"
     csv_data = CSV.read(csv_path)
 
     table_start = '  <table class="table table-bordered">'
@@ -97,6 +97,11 @@ module PerfResultsHelper
     # create HTML doc
     heading = "  <h2>#{File.basename(csv_path)}</h2>" + nl
     html = HTML_START + heading + table + HTML_END
-    File.write("#{csv_path}.html", html)
+    html_path = "#{csv_path}.html"
+
+    puts "  creating HTML file: #{html_path}"
+    puts
+
+    File.write(html_path, html)
   end
 end

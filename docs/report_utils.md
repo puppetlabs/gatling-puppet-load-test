@@ -125,7 +125,7 @@ In this example the 'A' results folder is the baseline `PerfTestLarge-1538778214
 
 ##### default output file name
 The output filename will be generated automatically by default.
-Run `compare-results.rb` by providing the CSV files to compare:
+Run `compare_results.rb` by providing the CSV files to compare:
 
 `ruby compare_results.rb a.csv b.csv`
 
@@ -139,7 +139,7 @@ Creating ./PerfTestLarge-1538778214573_vs_PerfTestLarge-1557766039747.csv
 
 ##### specified output file name
 You may specify an output filename as an optional argument.
-Run `compare-results.rb` by providing the CSV files to compare and an output path:
+Run `compare_results.rb` by providing the CSV files to compare and an output path:
 
 `ruby compare_results.rb a.csv b.csv output.csv`
 
@@ -194,7 +194,7 @@ writing report to examples/sample_soak_report.html
 ```
 You should see that the file `sample_soak_report.html` has been created in the `examples` directory and that the default parameter values have been used.
 
-Note: The default image paths in the example reference the files in the `examples/template_defaults` directory.
+Note: The default image paths in the example reference the files in the `examples/soak_template_defaults` directory.
 In real-world use the images should be referenced relative to the results directory.
 
 ##### User-specified parameter values

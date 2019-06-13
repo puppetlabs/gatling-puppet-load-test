@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>$RESULT_NAME - Performance Test Results</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="jumbotron">
+        <h1>$RESULT_NAME</h1>
+        <h2>Performance Test Results</h2>
+        <p class="lead"></p>
+    </div>
+
+    <div class="container">
+
+        <h2>Configuration:</h2>
+        <ul>
+            <li>Standard reference architecture</li>
+            <li>.....</li>
+            <ul>
+                <li>....</li>
+
+            </ul>
+        </ul>
+
+    </div>
+
+    <div class="container">
+        <pre><code>
+$RESULT_TUNE
+        </code></pre>
+    </div>
+
+    <div class="container">
+        <h2>Notes:</h2>
+        <ul>
+            <li>Note 1.</li>
+            <li>Note 2.</li>
+        </ul>
+    </div>
+
+    <div class="container">
+
+        <h2>$RESULT_NAME</h2>
+
+        <div class="container">
+            <img src="$RESULT_IMAGE" class="mw-80" style="width: 1100px;" alt="$RESULT_NAME">
+        </div>
+
+        <br>
+
+        $RESULT_TABLE
+
+        <br>
+
+    </div>
+
+    <hr>
+
+    <div class="container">
+
+        <h2>atop_log_applestoapples_json.summary.csv</h2>
+        $ATOP_SUMMARY_TABLE
+
+        <h2>atop_log_applestoapples_json.detail.csv</h2>
+        $ATOP_DETAIL_TABLE
+
+    </div>
+
+    <hr>
+
+
+</div>
+</body>
+</html>
+

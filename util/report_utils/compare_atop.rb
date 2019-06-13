@@ -98,7 +98,6 @@ def compare_atop_summary(csv_path_a, csv_path_b, comparison_path)
   end
 
   csv2html(comparison_path)
-
 end
 
 # TODO: get this working

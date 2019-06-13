@@ -3,7 +3,10 @@
 TEMPLATE_PATH = "templates/perf_comparison_template.html".freeze
 
 RESULT_COMPARISON_PATH = "examples/perf_comparison_template_defaults/perf_comparison_a_vs_b.csv.html".freeze
+
+# rubocop: disable Metrics/LineLength
 ATOP_SUMMARY_COMPARISON_PATH = "examples/perf_comparison_template_defaults/atop_comparison_a_vs_b.summary.csv.html".freeze
+# rubocop: enable Metrics/LineLength
 
 RESULT_A = "PerfTestLarge-12345678".freeze
 RELEASE_A_NAME = "Release A".freeze
@@ -30,7 +33,6 @@ def init
   @release_b_number = ENV["RELEASE_B_NUMBER"] || RELEASE_B_NUMBER
 
   @output_path = ENV["OUTPUT_PATH"] || OUTPUT_PATH
-
 end
 
 # TODO: move to perf_results_helper
@@ -84,14 +86,14 @@ def build_report
 
   # atop detail
   # TODO: enable
-  #atop_detail_comparison_table = extract_table(@atop_detail_comparison_path)
+  # atop_detail_comparison_table = extract_table(@atop_detail_comparison_path)
 
   # replace tables (do this first since table data may include parameters)
   report = report.gsub("$RESULT_COMPARISON_TABLE", result_comparison_table)
   report = report.gsub("$ATOP_SUMMARY_COMPARISON_TABLE", atop_summary_comparison_table)
 
   # TODO: enable
-  #report = report.gsub("$ATOP_DETAIL_TABLE", atop_detail_table)
+  # report = report.gsub("$ATOP_DETAIL_TABLE", atop_detail_table)
 
   # replace parameters
   report = replace_parameters(report)

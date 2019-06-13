@@ -1,8 +1,0 @@
-Duration,max ms,mean ms,std dev
-Total,40903,3480,525
-catalog,39692,3048,432
-filemeta plugins,5604,106,105
-filemeta pluginfacts,3370,20,55
-locales,6765,28,103
-node,6011,41,151
-report,7049,237,175

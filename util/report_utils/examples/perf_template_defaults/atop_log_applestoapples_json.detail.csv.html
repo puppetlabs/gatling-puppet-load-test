@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Scale Test Results</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+  <h2>atop_log_applestoapples_json.detail.csv</h2>
+  <table class="table table-bordered">
+    <tr>
+      <th>Process pid</th>
+      <th>command</th>
+      <th>Avg CPU</th>
+      <th>Avg MEM</th>
+      <th>Avg DSK read</th>
+      <th>Avg DSK Write</th>
+    </tr>
+    <tr>
+      <td>14249</td>
+      <td>'/opt/puppetlabs/puppet/bin/pxp-agent --foreground'</td>
+      <td>1</td>
+      <td>12436</td>
+      <td></td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>15018</td>
+      <td>'/opt/puppetlabs/server/apps/postgresql/9.6/bin/postgres -D /opt/puppetlabs/server/data/postgresql/9.6/data -c log_directory=/var/log/puppetlabs/postgresql/9.6 -p 5432'</td>
+      <td>2</td>
+      <td>103720</td>
+      <td></td>
+      <td>10444</td>
+    </tr>
+    <tr>
+      <td>17618</td>
+      <td>'/opt/puppetlabs/server/bin/java -Xmx256m -Xms256m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:/var/log/puppetlabs/puppetdb/puppetdb_gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=16 -XX:GCLogFileSize=64m -Djava.security.egd=/dev/urandom -XX:OnOutOfMemoryError=kill -9 %p -cp /opt/puppetlabs/server/apps/puppetdb/puppetdb.jar clojure.main -m puppetlabs.puppetdb.cli.services --config /etc/puppetlabs/puppetdb/conf.d --bootstrap-config /etc/puppetlabs/puppetdb/bootstrap.cfg --restart-file /opt/puppetlabs/server/data/puppetdb/restartcounter'</td>
+      <td>0</td>
+      <td>764443</td>
+      <td></td>
+      <td>1130</td>
+    </tr>
+    <tr>
+      <td>18119</td>
+      <td>'nginx: master process /opt/puppetlabs/server/bin/nginx -c /etc/puppetlabs/nginx/nginx.conf'</td>
+      <td>7</td>
+      <td>1040</td>
+      <td></td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>18292</td>
+      <td>'/opt/puppetlabs/server/bin/java -Xmx704m -Xms704m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:/var/log/puppetlabs/orchestration-services/orchestration-services_gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=16 -XX:GCLogFileSize=64m -Djava.security.egd=/dev/urandom -XX:OnOutOfMemoryError=kill -9 %p -cp /opt/puppetlabs/server/apps/orchestration-services/orchestration-services-release.jar clojure.main -m puppetlabs.trapperkeeper.main --config /etc/puppetlabs/orchestration-services/conf.d --bootstrap-config /etc/puppetlabs/orchestration-services/bootstrap.cfg --restart-file /opt/puppetlabs/server/data/orchestration-services/restartcounter'</td>
+      <td>2</td>
+      <td>641525</td>
+      <td></td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>18907</td>
+      <td>'/opt/puppetlabs/server/bin/java -Xmx256m -Xms256m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:/var/log/puppetlabs/console-services/console-services_gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=16 -XX:GCLogFileSize=64m -Djava.security.egd=/dev/urandom -XX:OnOutOfMemoryError=kill -9 %p -cp /opt/puppetlabs/server/apps/console-services/console-services-release.jar clojure.main -m puppetlabs.trapperkeeper.main --config /etc/puppetlabs/console-services/conf.d --bootstrap-config /etc/puppetlabs/console-services/bootstrap.cfg --restart-file /opt/puppetlabs/server/data/console-services/restartcounter'</td>
+      <td>0</td>
+      <td>593294</td>
+      <td></td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <td>24155</td>
+      <td>'/opt/puppetlabs/server/bin/java -Xms2048m -Xmx2048m -Djava.io.tmpdir=/opt/puppetlabs/server/apps/puppetserver/tmp -XX:ReservedCodeCacheSize=512m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:/var/log/puppetlabs/puppetserver/puppetserver_gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=16 -XX:GCLogFileSize=64m -Djava.security.egd=/dev/urandom -XX:OnOutOfMemoryError=kill -9 %p -cp /opt/puppetlabs/server/apps/puppetserver/puppet-server-release.jar:/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar:/opt/puppetlabs/server/data/puppetserver/jars/* clojure.main -m puppetlabs.trapperkeeper.main --config /etc/puppetlabs/puppetserver/conf.d --bootstrap-config /etc/puppetlabs/puppetserver/bootstrap.cfg --restart-file /opt/puppetlabs/server/data/puppetserver/restartcounter'</td>
+      <td>4</td>
+      <td>3717979</td>
+      <td></td>
+      <td>311</td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>
+

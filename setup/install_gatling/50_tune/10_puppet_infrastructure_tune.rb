@@ -39,7 +39,7 @@ test_name "Run puppet infrastructure tune" do # rubocop:disable Metrics/BlockLen
       --cert $(puppet config print hostcert)
       --key $(puppet config print hostprivkey)
       --cacert $(puppet config print localcacert)
-      https://$(hostname):8140/file-sync/v1/commit"
+      https://$(hostname):8140/file-sync/v1/commit
     ].join(" ")
     on master, commit
 

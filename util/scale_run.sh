@@ -77,7 +77,7 @@ usage () {
     echo
     echo "Mandatory arguments to long options are mandatory for short options too."
     echo "  -h|--help             show this help text"
-    echo "  -d|--debug            debug mode: prints ENV values and commands to be executed, but does not run anything"
+    echo "  -n|--noop             noop mode: prints ENV values and commands to be executed, but does not run anything"
     echo "  -i|--run-id           Set a value to prepend to scale run directories"
     echo "                        (default: '')"
     echo "  --[no]tune            apply pe-tune to deployment"
@@ -85,7 +85,7 @@ usage () {
     echo
 }
 
-# Debug function to validate that bash subshells inherit
+# Noop function to validate that bash subshells inherit
 # expected environment variables.
 function echo_env () {
     echo "============================================
@@ -128,8 +128,8 @@ do
         -h|--help)  usage
             exit 1
             ;;
-        -d|--debug)
-            DEBUG=true
+        -n|--noop)
+            NOOP=true
             shift
             ;;
         -i|--run-id)
@@ -191,15 +191,16 @@ if ! { [ "$PE_MAJOR" ] && [ "$PE_MINOR" ] && [ "$PE_PATCH" ]; }; then
     exit 1
 fi
 
-# Ensure packages can be found for PE_VERSION
-if [ "$PE_BUILD" ]; then
-  URL=http://enterprise.delivery.puppetlabs.net/$PE_MAJOR.$PE_MINOR/ci-ready/
-else
-  URL=http://enterprise.delivery.puppetlabs.net/archives/releases/$PE_VERSION/
+if [ -z $NOOP ]; then
+    # Ensure packages can be found for PE_VERSION
+    if [ "$PE_BUILD" ]; then
+      URL=http://enterprise.delivery.puppetlabs.net/$PE_MAJOR.$PE_MINOR/ci-ready/
+    else
+      URL=http://enterprise.delivery.puppetlabs.net/archives/releases/$PE_VERSION/
+    fi
+    curl "$URL" | grep "puppet-enterprise-$PE_VERSION-el-7-x86_64.tar" || \
+        { echo "Error: Unable to find packages for $PE_VERSION.  Double check that $PE_VERSION is available."; exit 1; }
 fi
-echo "$URL"
-curl "$URL" | grep "puppet-enterprise-$PE_VERSION-el-7-x86_64.tar" || \
-    { echo "Error: Unable to find packages for $PE_VERSION.  Double check that $PE_VERSION is available."; exit 1; }
 
 
 ##########
@@ -231,7 +232,7 @@ echo "Testing Standard Ref Arch: For Trial Use"
         export ABS_AWS_MOM_SIZE="$ec2"
         test="$PREFIX-trial-$ec2-tune-$TUNE"
         cmd="bundle exec rake autoscale_$run_type > \"$test-$run_type-$i.log\""
-        if [ -z $DEBUG ]; then
+        if [ -z $NOOP ]; then
             prep_gplt "$test"
             (bundle exec rake autoscale_$run_type > "$test-$run_type-$i.log") &
         else
@@ -282,7 +283,7 @@ echo "Testing Standard Ref Arch: Standard Deployment"
             export ABS_AWS_MOM_SIZE="$ec2"
             test="$PREFIX-std-$ec2-tune-$TUNE"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
-            if [ -z $DEBUG ]; then
+            if [ -z $NOOP ]; then
                 prep_gplt "$test"
                 (bundle exec rake $task > "$test-$run_type-$i.log") &
             else
@@ -321,7 +322,7 @@ echo "Testing Standard Ref Arch: Standard Deployment"
             export ABS_AWS_MOM_SIZE="$ec2"
             test="$PREFIX-std-$ec2-tune-$TUNE"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
-            if [ -z $DEBUG ]; then
+            if [ -z $NOOP ]; then
                 cd "$WORK_DIR/$test/gatling-puppet-load-test" || exit 1
                 (bundle exec rake $task > "$test-$run_type-$i.log") &
             else

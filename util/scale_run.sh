@@ -24,7 +24,6 @@ declare -a STD_EC2_TYPES=("c5.xlarge" "c5.2xlarge" "c5.4xlarge")
 # AWSSIZE: [L|XL|2XL|4XL] (only used with BASE_INSTANCES)
 # START: [COLD|WARM] (only used with BASE_INSTANCES)
 # TUNING: [TUNED|UNTUNED] (only used with BASE_INSTANCES)
-# TUNING: [TUNED|UNTUNED] (only used with BASE_INSTANCES)
 # SCALE-VARIABLE [SCENARIO|ITERATIONS|BASE_INSTANCES]
 #
 
@@ -185,7 +184,6 @@ echo "PE_MAJOR=$PE_MAJOR"
 echo "PE_MINOR=$PE_MINOR"
 echo "PE_PATCH=$PE_PATCH"
 echo "PE_BUILD=$PE_BUILD"
-#if ! [[ $PE_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+((-[0-9a-zA-Z-]+)*)?$ ]]; then
 if ! { [ "$PE_MAJOR" ] && [ "$PE_MINOR" ] && [ "$PE_PATCH" ]; }; then
     echo "Supplied PE_VERSION ($PE_VERSION) is malformed"
     echo
@@ -222,6 +220,7 @@ echo "Testing Standard Ref Arch: For Trial Use"
     export PUPPET_GATLING_SCALE_ITERATIONS=$TRIAL_ITERATIONS
     export PUPPET_GATLING_SCALE_SCENARIO=$TRIAL_SCENARIO
 
+    i=0
     run_type="cold"
     for ec2 in "${TRIAL_EC2_TYPES[@]}"; do
         if [[ $TUNE == "false" ]]; then
@@ -231,10 +230,10 @@ echo "Testing Standard Ref Arch: For Trial Use"
         fi
         export ABS_AWS_MOM_SIZE="$ec2"
         test="$PREFIX-trial-$ec2-tune-$TUNE"
-        cmd="bundle exec rake autoscale_$run_type > \"$test-$run_type.log\""
+        cmd="bundle exec rake autoscale_$run_type > \"$test-$run_type-$i.log\""
         if [ -z $DEBUG ]; then
             prep_gplt "$test"
-            (bundle exec rake autoscale_$run_type > "$test-$run_type.log") &
+            (bundle exec rake autoscale_$run_type > "$test-$run_type-$i.log") &
         else
             (echo_env) &
         fi
@@ -252,7 +251,12 @@ echo "Testing Standard Ref Arch: Standard Deployment"
     for i in {0..4}; do
         wait
         # use _provisioned_ task after the first run
-        [[ $i = 0 ]] && task="autoscale_$run_type" || task="autoscale_provisioned_$run_type"
+        if [[ $i = 0 ]]; then
+            task="autoscale_$run_type"
+        else
+            task="autoscale_provisioned_$run_type"
+        fi
+
         for ec2 in "${STD_EC2_TYPES[@]}"; do
             if [[ $ec2 == "c5.xlarge" ]]; then
                 if [[ $TUNE == "false" ]]; then

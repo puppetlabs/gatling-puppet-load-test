@@ -175,11 +175,11 @@ PE_VERSION=${ARGS[0]}
 # Ensure PE_VERSION is semver
 # e.g. 2019.1.1-rc0-207-g4e47830
 # Regex from: https://regexr.com/39s32
-RE='[^0-9]*\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\)\([0-9A-Za-z-]*\)'
-PE_MAJOR=$(echo "$PE_VERSION" | sed -e "s#$RE#\1#")
-PE_MINOR=$(echo "$PE_VERSION" | sed -e "s#$RE#\2#")
-PE_PATCH=$(echo "$PE_VERSION" | sed -e "s#$RE#\3#")
-PE_BUILD=$(echo "$PE_VERSION" | sed -e "s#$RE#\4#")
+RE='[^0-9]*([0-9]*)[.]([0-9]*)[.]([0-9]*)([0-9A-Za-z-]*)'
+PE_MAJOR=$(echo "$PE_VERSION" | sed -nEe "s/$RE/\1/p")
+PE_MINOR=$(echo "$PE_VERSION" | sed -nEe "s/$RE/\2/p")
+PE_PATCH=$(echo "$PE_VERSION" | sed -nEe "s/$RE/\3/p")
+PE_BUILD=$(echo "$PE_VERSION" | sed -nEe "s/$RE/\4/p")
 echo "PE_MAJOR=$PE_MAJOR"
 echo "PE_MINOR=$PE_MINOR"
 echo "PE_PATCH=$PE_PATCH"

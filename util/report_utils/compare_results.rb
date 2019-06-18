@@ -7,10 +7,11 @@ require "csv"
 require "../../tests/helpers/perf_results_helper.rb"
 include PerfResultsHelper # rubocop:disable Style/MixinUsage
 
-raise Exception, "you must provide two csv files to compare" unless ARGV[1] && ARGV[2]
+raise Exception, "you must provide two csv files to compare" unless ARGV[0] && ARGV[1]
 
 result_a_path = ARGV[0]
 result_b_path = ARGV[1]
+output_path = (ARGV[2])
 
 # TODO: refactor
 # rubocop: disable Metrics/AbcSize
@@ -47,12 +48,11 @@ def write_csv(output_path, result_a, result_b)
 end
 # rubocop: enable Metrics/AbcSize
 
-def compare_results(result_a_path, result_b_path)
+def compare_results(result_a_path, result_b_path, output_path)
   result_a_name = File.basename(result_a_path, ".*")
   result_b_name = File.basename(result_b_path, ".*")
 
-  # TODO: refactor
-  output_path = ARGV[2] || "./#{result_a_name}_vs_#{result_b_name}.csv"
+  output_path ||= "./#{result_a_name}_vs_#{result_b_name}.csv"
 
   puts "Comparing #{result_a_name} and #{result_b_name}"
   puts "Creating #{output_path}"
@@ -64,4 +64,4 @@ def compare_results(result_a_path, result_b_path)
   csv2html(output_path)
 end
 
-compare_results(result_a_path, result_b_path)
+compare_results(result_a_path, result_b_path, output_path)

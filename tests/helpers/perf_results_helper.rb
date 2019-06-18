@@ -227,7 +227,7 @@ module PerfResultsHelper
     puts
 
     html_string = File.read(html_path)
-    table_string = ""
+    table_string = "".dup
     table_start = false
 
     html_string.each_line do |line|

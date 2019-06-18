@@ -6,4 +6,4 @@ include PerfResultsHelper # rubocop:disable Style/MixinUsage
 raise Exception, "you must provide a csv file" unless ARGV[0]
 
 csv_path = ARGV[0]
-split_atop_csv csv_path
+split_atop_csv_results csv_path

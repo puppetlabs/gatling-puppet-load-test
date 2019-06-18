@@ -2,10 +2,19 @@
 
 require "csv"
 
-# TODO: refactor csv2html POC and add spec tests
-# TODO: consolidate scale results code here
 # Helper module for the generation of HTML reports from CSV data
+# TODO: add spec tests
+# TODO: refactor gatling2csv and csv2html POCs
+# TODO: consolidate scale results code here
 module PerfResultsHelper
+  # stats used in gatling2csv
+  MAX = "maxResponseTime"
+  MEAN = "meanResponseTime"
+  STD = "standardDeviation"
+  TOTAL = "total"
+
+  # HTML template used in csv2html
+  # TODO: use these (and other custom parameterized blocks) in the release report generation scripts?
   HTML_START = <<~HEREDOC
     <!DOCTYPE html>
     <html lang="en">
@@ -30,6 +39,90 @@ module PerfResultsHelper
 
   HEREDOC
 
+  # Extract Gatling JSON data into a CSV file in the format used in our release test reports
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] results_dir The directory containing the Gatling results from the metrics node
+  #
+  # @return [void]
+  #
+  # @example
+  #   gatling2csv(results_dir)
+  #
+  # TODO: refactor into separate methods for extract and output
+  # TODO: update scale results handling to use this code
+  # rubocop: disable Metrics/AbcSize
+  def gatling2csv(results_dir)
+    results_name = File.basename(results_dir)
+    output_path = "#{results_dir}/#{results_name}.csv"
+
+    stats_path = "#{results_dir}/js/stats.json"
+
+    puts "Examining Gatling data: #{stats_path}"
+    puts
+
+    stats = JSON.parse(File.open(stats_path).read)
+
+    # the 'group' name will be something like 'group_nooptestwithout-9eb19'
+    group_keys = stats["contents"].keys.select { |key| key.to_s.match(/group/) }
+    group_node = stats["contents"][group_keys[0]]
+
+    # totals row is in the 'stats' node
+    totals = group_node["stats"]
+
+    # transaction rows are in the 'contents' node
+    contents = group_node["contents"]
+
+    # TODO: verify each key
+    # TODO: unit test to ensure data validity
+    puts "There are #{contents.keys.length} keys"
+    puts
+
+    (0..contents.keys.length - 1).each do |i|
+      name = contents[contents.keys[i]]["name"]
+      puts "key #{i}: #{name}"
+    end
+
+    node = contents[contents.keys[0]]["stats"]
+    filemeta_pluginfacts = contents[contents.keys[1]]["stats"]
+    filemeta_plugins = contents[contents.keys[2]]["stats"]
+    locales = contents[contents.keys[3]]["stats"]
+    catalog = contents[contents.keys[4]]["stats"]
+    report = contents[contents.keys[5]]["stats"]
+
+    puts "Creating #{output_path}"
+    puts
+
+    # TODO: determine and verify values prior to CSV output
+    # TODO: unit test to ensure data validity
+    CSV.open(output_path, "wb") do |csv|
+      csv << ["Duration", "max ms", "mean ms", "std dev"]
+      csv << ["Total", totals[MAX][TOTAL], totals[MEAN][TOTAL], totals[STD][TOTAL]]
+      csv << ["catalog", catalog[MAX][TOTAL], catalog[MEAN][TOTAL], catalog[STD][TOTAL]]
+      csv << ["filemeta plugins", filemeta_plugins[MAX][TOTAL], filemeta_plugins[MEAN][TOTAL],
+              filemeta_plugins[STD][TOTAL]]
+      csv << ["filemeta pluginfacts", filemeta_pluginfacts[MAX][TOTAL], filemeta_pluginfacts[MEAN][TOTAL],
+              filemeta_pluginfacts[STD][TOTAL]]
+      csv << ["locales", locales[MAX][TOTAL], locales[MEAN][TOTAL], locales[STD][TOTAL]]
+      csv << ["node", node[MAX][TOTAL], node[MEAN][TOTAL], node[STD][TOTAL]]
+      csv << ["report", report[MAX][TOTAL], report[MEAN][TOTAL], report[STD][TOTAL]]
+    end
+  end
+  # rubocop: enable Metrics/AbcSize
+
+  # Find every CSV file in the specified directory (recursively) and convert each
+  # to an HTML file containing a table with the CSV data using a Bootstrap-based template
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] scale_results_dir The top-level scale results directory
+  #
+  # @return [void]
+  #
+  # @example
+  #   scale_results_csv2html(scale_results_dir)
+  #
   def scale_results_csv2html(scale_results_dir)
     puts "Converting CSV files to HTML in: #{scale_results_dir}"
     files = Dir.glob("#{scale_results_dir}/**/*.csv")
@@ -38,6 +131,18 @@ module PerfResultsHelper
     end
   end
 
+  # Convert the specified CSV file to an HTML file containing a table
+  # with the CSV data using a Bootstrap-based template
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] csv_path The path to the CSV file
+  #
+  # @return [void]
+  #
+  # @example
+  #   csv2html(csv_path)
+  #
   def csv2html(csv_path)
     puts "  converting CSV file: #{csv_path}"
     csv_data = CSV.read(csv_path)
@@ -103,5 +208,204 @@ module PerfResultsHelper
     puts
 
     File.write(html_path, html)
+  end
+
+  # Extract the HTML table from the csv2html output
+  # so it can be used in template-based release reports
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] html_path The path to the csv2html formatted HTML file
+  #
+  # @return [String] The HTML table
+  #
+  # @example
+  #   results_table = extract_table_from_csv2html_output(html_path)
+  #
+  def extract_table_from_csv2html_output(html_path)
+    puts "extracting table from #{html_path}"
+    puts
+
+    html_string = File.read(html_path)
+    table_string = ""
+    table_start = false
+
+    html_string.each_line do |line|
+      table_start = true if line.include?("<table")
+
+      table_string << line if table_start
+
+      break if line.include?("</table>")
+    end
+
+    table_string
+  end
+
+  # Splits the specified atop summary CSV file generated by beaker-benchmark
+  # into separate CSV files for the summary and detail
+  # so they can be converted into HTML tables using csv2html
+  # and used in release reports
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] csv_path The path to the atop csv file
+  #
+  # @return [void]
+  #
+  # @example
+  #   split_atop_csv(csv_path)
+  #
+  # TODO: eliminate the need for this by generating separate csv files after the run
+  #
+  def split_atop_csv_results(csv_path)
+    puts "processing CSV file: #{csv_path}"
+    output_path_summary = csv_path.gsub(".csv", ".summary.csv")
+    output_path_detail = csv_path.gsub(".csv", ".detail.csv")
+
+    output_path = output_path_summary
+
+    contents = File.read(csv_path)
+
+    puts "creating summary: #{output_path_summary}"
+    File.open(output_path_summary, "w")
+
+    puts "creating detail: #{output_path_detail}"
+    File.open(output_path_detail, "w")
+
+    line_ct = 0
+    contents.each_line do |line|
+      line_ct += 1
+
+      output_path = output_path_detail if line_ct > 3
+
+      File.open(output_path, "a") do |f|
+        f.puts line
+      end
+    end
+
+    # csv2html
+    puts "converting CSV files to HTML:"
+    csv2html(output_path_summary)
+    csv2html(output_path_detail)
+  end
+
+  # Create comparison CSV and HTML files for the summary (working) and detail (TBD)
+  # sections of the specified beaker-benchmark atop CSV report
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] csv_path_a The baseline atop CSV file
+  # @param [String] csv_path_b The SUT atop CSV file
+  # @param [String] comparison_path The output path for the comparison file(s)
+  #
+  # @return [String] desc
+  #
+  # @example
+  #   output = method(arg)
+  #
+  def compare_atop_csv_results(csv_path_a, csv_path_b, comparison_path)
+    split_atop_csv_results(csv_path_a)
+    split_atop_csv_results(csv_path_b)
+
+    summary_path_a = csv_path_a.gsub(".csv", ".summary.csv")
+    summary_path_b = csv_path_b.gsub(".csv", ".summary.csv")
+    summary_comparison_path = comparison_path.gsub(".csv", ".summary.csv")
+
+    detail_path_a = csv_path_a.gsub(".csv", ".detail.csv")
+    detail_path_b = csv_path_b.gsub(".csv", ".detail.csv")
+    detail_comparison_path = comparison_path.gsub(".csv", ".detail.csv")
+
+    compare_atop_summary(summary_path_a, summary_path_b, summary_comparison_path)
+    compare_atop_detail(detail_path_a, detail_path_b, detail_comparison_path)
+  end
+
+  # Create comparison CSV and HTML files for the summary
+  # sections of the specified beaker-benchmark atop CSV report
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] csv_path_a The baseline atop summary CSV file
+  # @param [String] csv_path_b The SUT atop summary CSV file
+  # @param [String] comparison_path The output path for the summary comparison file(s)
+  #
+  # @return [void]
+  #
+  # @example
+  #   compare_atop_summary(csv_path_a, csv_path_b, comparison_path)
+  #
+  def compare_atop_summary(csv_path_a, csv_path_b, comparison_path)
+    puts "Comparing #{csv_path_a} and #{csv_path_b}"
+    puts "Creating #{comparison_path}"
+
+    result_a = CSV.read(csv_path_a)
+    result_b = CSV.read(csv_path_b)
+
+    CSV.open(comparison_path.to_s, "wb") do |csv|
+      csv << ["", "$RESULT_A", "$RESULT_B", "% diff"]
+
+      action_a = result_a[1][0]
+      duration_a = result_a[1][1]
+      cpu_a = result_a[1][2]
+      mem_a = result_a[1][3]
+      dr_a = result_a[1][4]
+      dw_a = result_a[1][5]
+
+      action_b = result_b[1][0]
+      duration_b = result_b[1][1]
+      cpu_b = result_b[1][2]
+      mem_b = result_b[1][3]
+      dr_b = result_b[1][4]
+      dw_b = result_b[1][5]
+
+      csv << ["Action", action_a, action_b, "N/A"]
+      csv << ["Duration", duration_a, duration_b, diff_perf_results(duration_a, duration_b)]
+      csv << ["Avg CPU", cpu_a, cpu_b, diff_perf_results(cpu_a, cpu_b)]
+      csv << ["Avg MEM", mem_a, mem_b, diff_perf_results(mem_a, mem_b)]
+      csv << ["Avg DSK read", dr_a, dr_b, diff_perf_results(dr_a, dr_b)]
+      csv << ["Avg DSK Write", dw_a, dw_b, diff_perf_results(dw_a, dw_b)]
+    end
+
+    csv2html(comparison_path)
+  end
+
+  # Create comparison CSV and HTML files for the detail
+  # sections of the specified beaker-benchmark atop CSV report
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] csv_path_a The baseline atop detail CSV file
+  # @param [String] csv_path_b The SUT atop detail CSV file
+  # @param [String] comparison_path The output path for the detail comparison file(s)
+  #
+  # @return [void]
+  #
+  # @example
+  #   compare_atop_detail(csv_path_a, csv_path_b, comparison_path)
+  #
+  # TODO: get this working
+  def compare_atop_detail(csv_path_a, csv_path_b, comparison_path)
+    # puts "Comparing #{csv_path_a} and #{csv_path_b}"
+    # puts "Creating #{comparison_path}"
+
+    # result_a = CSV.read(csv_path_a)
+    # result_b = CSV.read(csv_path_b)
+  end
+
+  # Calculate the percentage difference between the specified perf result values
+  # and return the rounded result as a string formatted with a %
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] result_a The baseline value
+  # @param [String] result_b The comparison value
+  #
+  # @return [String] The rounded result as a string formatted with a %
+  #
+  # @example
+  #   diff_string = diff_perf_results(result_a, result_b)
+  #
+  def diff_perf_results(result_a, result_b)
+    result = ((result_b.to_f - result_a.to_f) / result_a.to_f) * 100
+    "#{result.round(2)}%"
   end
 end

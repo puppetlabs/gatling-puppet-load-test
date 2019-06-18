@@ -1,4 +1,4 @@
-# rubocop: disable Style/FrozenStringLiteralComment
+# frozen_string_literal: true
 
 require "../../tests/helpers/perf_results_helper.rb"
 include PerfResultsHelper # rubocop:disable Style/MixinUsage
@@ -7,7 +7,7 @@ raise Exception, "you must provide a results directory" unless ARGV[0]
 
 parent_dir = ARGV[0]
 
-TEMPLATE_PATH = "./templates/scale_csv_summary_template.html".freeze
+TEMPLATE_PATH = "./templates/scale_csv_summary_template.html"
 
 SUMMARY_CSV_HEADINGS = ["result",
                         "agents",
@@ -167,5 +167,3 @@ def build_report(parent_dir)
 end
 
 build_report(parent_dir)
-
-# rubocop: enable Style/FrozenStringLiteralComment

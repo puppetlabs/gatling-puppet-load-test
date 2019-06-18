@@ -14,8 +14,15 @@ result_b_path = ARGV[1]
 output_path = (ARGV[2])
 
 # TODO: refactor
-# rubocop: disable Metrics/AbcSize
 def write_csv(output_path, result_a, result_b)
+  row_labels = ["Total",
+                "catalog",
+                "filemeta plugins",
+                "filemeta pluginfacts",
+                "locales",
+                "node",
+                "report"]
+
   # TODO: use release names
   CSV.open(output_path.to_s, "wb") do |csv|
     csv << ["", "$RELEASE_A_NAME ($RELEASE_A_NUMBER)", "", "",
@@ -23,30 +30,14 @@ def write_csv(output_path, result_a, result_b)
     csv << ["Duration", "max ms", "mean ms", "std dev", "max ms", "mean ms",
             "std dev", "% (mean) diff"]
 
-    csv << ["Total", result_a[1][1], result_a[1][2], result_a[1][3],
-            result_b[1][1], result_b[1][2], result_b[1][3],
-            diff_perf_results(result_a[1][2], result_b[1][2])]
-    csv << ["catalog", result_a[2][1], result_a[2][2], result_a[2][3],
-            result_b[2][1], result_b[2][2], result_b[2][3],
-            diff_perf_results(result_a[2][2], result_b[2][2])]
-    csv << ["filemeta plugins", result_a[3][1], result_a[3][2], result_a[3][3],
-            result_b[3][1], result_b[3][2], result_b[3][3],
-            diff_perf_results(result_a[3][2], result_b[3][2])]
-    csv << ["filemeta pluginfacts", result_a[4][1], result_a[4][2],
-            result_a[4][3], result_b[4][1], result_b[4][2], result_b[4][3],
-            diff_perf_results(result_a[4][2], result_b[4][2])]
-    csv << ["locales", result_a[5][1], result_a[5][2], result_a[5][3],
-            result_b[5][1], result_b[5][2], result_b[5][3],
-            diff_perf_results(result_a[5][2], result_b[5][2])]
-    csv << ["node", result_a[1][1], result_a[6][2], result_a[6][3],
-            result_b[6][1], result_b[6][2], result_b[6][3],
-            diff_perf_results(result_a[6][2], result_b[6][2])]
-    csv << ["report", result_a[7][1], result_a[7][2], result_a[7][3],
-            result_b[7][1], result_b[7][2], result_b[7][3],
-            diff_perf_results(result_a[7][2], result_b[7][2])]
+    row_labels.each_with_index do |item, index|
+      res_index = index + 1
+      csv << [item, result_a[res_index][1], result_a[res_index][2], result_a[res_index][3],
+              result_b[res_index][1], result_b[res_index][2], result_b[res_index][3],
+              percent_diff_string(result_a[res_index][2], result_b[res_index][2])]
+    end
   end
 end
-# rubocop: enable Metrics/AbcSize
 
 def compare_results(result_a_path, result_b_path, output_path)
   result_a_name = File.basename(result_a_path, ".*")

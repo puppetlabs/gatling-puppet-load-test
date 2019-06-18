@@ -1,4 +1,4 @@
-# rubocop: disable Style/FrozenStringLiteralComment
+# frozen_string_literal: true
 
 require "../../tests/helpers/perf_results_helper.rb"
 include PerfResultsHelper # rubocop:disable Style/MixinUsage
@@ -7,18 +7,18 @@ include PerfResultsHelper # rubocop:disable Style/MixinUsage
 # TODO: include this functionality in every performance run
 # TODO: extract result names from path
 
-TEMPLATE_PATH = "templates/perf_results_template.html".freeze
+TEMPLATE_PATH = "templates/perf_results_template.html"
 
-RESULT_PATH = "examples/perf_template_defaults/PerfTestLarge-A.csv.html".freeze
-RESULT_NAME = "PerfTestLarge-12345678".freeze
+RESULT_PATH = "examples/perf_template_defaults/PerfTestLarge-A.csv.html"
+RESULT_NAME = "PerfTestLarge-12345678"
 
-OUTPUT_PATH = "examples/example_perf_report.html".freeze
+OUTPUT_PATH = "examples/example_perf_report.html"
 
-RELEASE_NUMBER = "1.2.3".freeze
-RESULT_IMAGE = "perf_template_defaults/release_a.png".freeze
+RELEASE_NUMBER = "1.2.3"
+RESULT_IMAGE = "perf_template_defaults/release_a.png"
 
-ATOP_SUMMARY_PATH = "examples/perf_template_defaults/atop_log_applestoapples_json.summary.csv.html".freeze
-ATOP_DETAIL_PATH = "examples/perf_template_defaults/atop_log_applestoapples_json.detail.csv.html".freeze
+ATOP_SUMMARY_PATH = "examples/perf_template_defaults/atop_log_applestoapples_json.summary.csv.html"
+ATOP_DETAIL_PATH = "examples/perf_template_defaults/atop_log_applestoapples_json.detail.csv.html"
 
 def init
   @template_path = ENV["TEMPLATE_PATH"] || TEMPLATE_PATH
@@ -80,5 +80,3 @@ end
 
 init
 build_report
-
-# rubocop: enable Style/FrozenStringLiteralComment

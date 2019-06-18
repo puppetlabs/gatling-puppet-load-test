@@ -1,4 +1,4 @@
-# rubocop: disable Style/FrozenStringLiteralComment
+# frozen_string_literal: true
 
 require "../../tests/helpers/perf_results_helper.rb"
 include PerfResultsHelper # rubocop:disable Style/MixinUsage
@@ -6,24 +6,24 @@ include PerfResultsHelper # rubocop:disable Style/MixinUsage
 # TODO: include this functionality in every performance run
 # TODO: extract result names from path
 
-TEMPLATE_PATH = "templates/soak_results_template.html".freeze
+TEMPLATE_PATH = "templates/soak_results_template.html"
 
-RESULT_A_PATH = "examples/soak_template_defaults/PerfTestLarge-A.csv.html".freeze
-RESULT_A_NAME = "PerfTestLarge-12345678".freeze
+RESULT_A_PATH = "examples/soak_template_defaults/PerfTestLarge-A.csv.html"
+RESULT_A_NAME = "PerfTestLarge-12345678"
 
-RESULT_B_PATH = "examples/soak_template_defaults/PerfTestLarge-B.csv.html".freeze
-RESULT_B_NAME = "PerfTestLarge-23456789".freeze
+RESULT_B_PATH = "examples/soak_template_defaults/PerfTestLarge-B.csv.html"
+RESULT_B_NAME = "PerfTestLarge-23456789"
 
-COMPARISON_PATH = "examples/soak_template_defaults/PerfTestLarge-A_vs_PerfTestLarge-B.csv.html".freeze
-OUTPUT_PATH = "examples/example_soak_report.html".freeze
+COMPARISON_PATH = "examples/soak_template_defaults/PerfTestLarge-A_vs_PerfTestLarge-B.csv.html"
+OUTPUT_PATH = "examples/example_soak_report.html"
 
-RELEASE_A_NAME = "RELEASE A".freeze
-RELEASE_A_NUMBER = "1.2.3".freeze
-RELEASE_A_IMAGE = "soak_template_defaults/release_a.png".freeze
+RELEASE_A_NAME = "RELEASE A"
+RELEASE_A_NUMBER = "1.2.3"
+RELEASE_A_IMAGE = "soak_template_defaults/release_a.png"
 
-RELEASE_B_NAME = "RELEASE B".freeze
-RELEASE_B_NUMBER = "2.3.4".freeze
-RELEASE_B_IMAGE = "soak_template_defaults/release_b.png".freeze
+RELEASE_B_NAME = "RELEASE B"
+RELEASE_B_NUMBER = "2.3.4"
+RELEASE_B_IMAGE = "soak_template_defaults/release_b.png"
 
 def init
   @template_path = ENV["TEMPLATE_PATH"] || TEMPLATE_PATH
@@ -88,5 +88,3 @@ end
 
 init
 build_report
-
-# rubocop: enable Style/FrozenStringLiteralComment

@@ -358,11 +358,11 @@ module PerfResultsHelper
       dw_b = result_b[1][5]
 
       csv << ["Action", action_a, action_b, "N/A"]
-      csv << ["Duration", duration_a, duration_b, diff_perf_results(duration_a, duration_b)]
-      csv << ["Avg CPU", cpu_a, cpu_b, diff_perf_results(cpu_a, cpu_b)]
-      csv << ["Avg MEM", mem_a, mem_b, diff_perf_results(mem_a, mem_b)]
-      csv << ["Avg DSK read", dr_a, dr_b, diff_perf_results(dr_a, dr_b)]
-      csv << ["Avg DSK Write", dw_a, dw_b, diff_perf_results(dw_a, dw_b)]
+      csv << ["Duration", duration_a, duration_b, percent_diff_string(duration_a, duration_b)]
+      csv << ["Avg CPU", cpu_a, cpu_b, percent_diff_string(cpu_a, cpu_b)]
+      csv << ["Avg MEM", mem_a, mem_b, percent_diff_string(mem_a, mem_b)]
+      csv << ["Avg DSK read", dr_a, dr_b, percent_diff_string(dr_a, dr_b)]
+      csv << ["Avg DSK Write", dw_a, dw_b, percent_diff_string(dw_a, dw_b)]
     end
 
     csv2html(comparison_path)
@@ -392,20 +392,37 @@ module PerfResultsHelper
   end
 
   # Calculate the percentage difference between the specified perf result values
-  # and return the rounded result as a string formatted with a %
+  # and return the rounded result
   #
   # @author Bill Claytor
   #
   # @param [String] result_a The baseline value
   # @param [String] result_b The comparison value
   #
-  # @return [String] The rounded result as a string formatted with a %
+  # @return [Float] The rounded result
   #
   # @example
-  #   diff_string = diff_perf_results(result_a, result_b)
+  #   diff = percent_diff(result_a, result_b)
   #
-  def diff_perf_results(result_a, result_b)
+  def percent_diff(result_a, result_b)
     result = ((result_b.to_f - result_a.to_f) / result_a.to_f) * 100
-    "#{result.round(2)}%"
+    result.round(2)
   end
+
+  # Call percent_diff and return the result as a string formatted with a %
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] result_a The baseline value
+  # @param [String] result_b The comparison value
+  #
+  # @return [String] The result of percent_diff as a string formatted with a %
+  #
+  # @example
+  #   diff_string = percent_diff_string(result_a, result_b)
+  #
+  def percent_diff_string(result_a, result_b)
+    "#{percent_diff(result_a, result_b)}%"
+  end
+
 end

@@ -1,25 +1,31 @@
-# rubocop: disable Style/FrozenStringLiteralComment
+# frozen_string_literal: true
 
 require "../../tests/helpers/perf_results_helper.rb"
 include PerfResultsHelper # rubocop:disable Style/MixinUsage
 
-TEMPLATE_PATH = "templates/perf_comparison_template.html".freeze
+TEMPLATE_PATH = "templates/perf_comparison_template.html"
 
-RESULT_COMPARISON_PATH = "examples/perf_comparison_template_defaults/perf_comparison_a_vs_b.csv.html".freeze
+RESULT_COMPARISON_PATH = %w[
+  examples
+  perf_comparison_template_defaults
+  perf_comparison_a_vs_b.csv.html
+].join("/")
 
-# rubocop: disable Metrics/LineLength
-ATOP_SUMMARY_COMPARISON_PATH = "examples/perf_comparison_template_defaults/atop_comparison_a_vs_b.summary.csv.html".freeze
-# rubocop: enable Metrics/LineLength
+ATOP_SUMMARY_COMPARISON_PATH = %w[
+  examples
+  perf_comparison_template_defaults
+  atop_comparison_a_vs_b.summary.csv.html
+].join("/")
 
-RESULT_A = "PerfTestLarge-12345678".freeze
-RELEASE_A_NAME = "Release A".freeze
-RELEASE_A_NUMBER = "1.2.3".freeze
+RESULT_A = "PerfTestLarge-12345678"
+RELEASE_A_NAME = "Release A"
+RELEASE_A_NUMBER = "1.2.3"
 
-RESULT_B = "PerfTestLarge-23456789".freeze
-RELEASE_B_NAME = "Release B".freeze
-RELEASE_B_NUMBER = "2.3.4".freeze
+RESULT_B = "PerfTestLarge-23456789"
+RELEASE_B_NAME = "Release B"
+RELEASE_B_NUMBER = "2.3.4"
 
-OUTPUT_PATH = "examples/example_perf_comparison_report.html".freeze
+OUTPUT_PATH = "examples/example_perf_comparison_report.html"
 
 def init
   @template_path = ENV["TEMPLATE_PATH"] || TEMPLATE_PATH
@@ -90,5 +96,3 @@ end
 
 init
 build_report
-
-# rubocop: enable Style/FrozenStringLiteralComment

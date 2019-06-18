@@ -180,7 +180,7 @@ It replaces parameter strings in the template with the specified information for
 The default parameter values reference the examples in the `util/report_utils/examples/soak_template_defaults` directory.
 To generate a report with the default example parameter values:
 ```
-test.user:~/gatling-puppet-load-test/util/report_utils> ruby build_report.rb
+test.user:~/gatling-puppet-load-test/util/report_utils> ruby build_soak_report.rb
 extracting table from examples/template_defaults/PerfTestLarge-A.csv.html
 
 extracting table from examples/template_defaults/PerfTestLarge-B.csv.html

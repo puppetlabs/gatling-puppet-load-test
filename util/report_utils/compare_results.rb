@@ -12,11 +12,6 @@ raise Exception, "you must provide two csv files to compare" unless ARGV[1] && A
 result_a_path = ARGV[0]
 result_b_path = ARGV[1]
 
-def diff(result_a, result_b)
-  result = ((result_b.to_f - result_a.to_f) / result_a.to_f) * 100
-  "#{result.round(2)}%"
-end
-
 # TODO: refactor
 # rubocop: disable Metrics/AbcSize
 def write_csv(output_path, result_a, result_b)
@@ -29,25 +24,25 @@ def write_csv(output_path, result_a, result_b)
 
     csv << ["Total", result_a[1][1], result_a[1][2], result_a[1][3],
             result_b[1][1], result_b[1][2], result_b[1][3],
-            diff(result_a[1][2], result_b[1][2])]
+            diff_perf_results(result_a[1][2], result_b[1][2])]
     csv << ["catalog", result_a[2][1], result_a[2][2], result_a[2][3],
             result_b[2][1], result_b[2][2], result_b[2][3],
-            diff(result_a[2][2], result_b[2][2])]
+            diff_perf_results(result_a[2][2], result_b[2][2])]
     csv << ["filemeta plugins", result_a[3][1], result_a[3][2], result_a[3][3],
             result_b[3][1], result_b[3][2], result_b[3][3],
-            diff(result_a[3][2], result_b[3][2])]
+            diff_perf_results(result_a[3][2], result_b[3][2])]
     csv << ["filemeta pluginfacts", result_a[4][1], result_a[4][2],
             result_a[4][3], result_b[4][1], result_b[4][2], result_b[4][3],
-            diff(result_a[4][2], result_b[4][2])]
+            diff_perf_results(result_a[4][2], result_b[4][2])]
     csv << ["locales", result_a[5][1], result_a[5][2], result_a[5][3],
             result_b[5][1], result_b[5][2], result_b[5][3],
-            diff(result_a[5][2], result_b[5][2])]
+            diff_perf_results(result_a[5][2], result_b[5][2])]
     csv << ["node", result_a[1][1], result_a[6][2], result_a[6][3],
             result_b[6][1], result_b[6][2], result_b[6][3],
-            diff(result_a[6][2], result_b[6][2])]
+            diff_perf_results(result_a[6][2], result_b[6][2])]
     csv << ["report", result_a[7][1], result_a[7][2], result_a[7][3],
             result_b[7][1], result_b[7][2], result_b[7][3],
-            diff(result_a[7][2], result_b[7][2])]
+            diff_perf_results(result_a[7][2], result_b[7][2])]
   end
 end
 # rubocop: enable Metrics/AbcSize

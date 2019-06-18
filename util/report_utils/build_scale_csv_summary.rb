@@ -25,25 +25,6 @@ SUMMARY_CSV_HEADINGS = ["result",
 
 @template_path = ENV["TEMPLATE_PATH"] || TEMPLATE_PATH
 
-def extract_table(html_path)
-  puts "extracting table from #{html_path}"
-  puts
-
-  html_string = File.read(html_path)
-  table_string = ""
-  table_start = false
-
-  html_string.each_line do |line|
-    table_start = true if line.include?("<table")
-
-    table_string << line if table_start
-
-    break if line.include?("</table>")
-  end
-
-  table_string
-end
-
 def process_results_csv(csv_path, summary_csv_path)
   # ensure the expected result csv file exists
   raise "File not found: #{csv_path}" unless File.file?(csv_path)
@@ -70,7 +51,7 @@ def process_results_csv(csv_path, summary_csv_path)
   csv2html(output_path)
 
   # table
-  table = extract_table("#{output_path}.html")
+  table = extract_table_from_csv2html_output("#{output_path}.html")
 
   table
 end
@@ -167,7 +148,7 @@ def build_report(parent_dir)
   csv2html(summary_csv_path)
 
   # extract summary table
-  summary_table = extract_table("#{summary_csv_path}.html")
+  summary_table = extract_table_from_csv2html_output("#{summary_csv_path}.html")
 
   # result name
   report = report.gsub("$RESULT_NAME", parent_name)

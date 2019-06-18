@@ -1,10 +1,10 @@
 # rubocop: disable Style/FrozenStringLiteralComment
 
+require "../../tests/helpers/perf_results_helper.rb"
+include PerfResultsHelper # rubocop:disable Style/MixinUsage
+
 # TODO: include this functionality in every performance run
 # TODO: extract result names from path
-
-# raise Exception, 'you must provide a results directory' unless ARGV[0]
-# arg_0 = ARGV[0]
 
 TEMPLATE_PATH = "templates/soak_results_template.html".freeze
 
@@ -46,38 +46,18 @@ def init
   @release_b_image = ENV["RELEASE_B_IMAGE"] || RELEASE_B_IMAGE
 end
 
-# TODO: refactor
-def extract_table(html_path)
-  puts "extracting table from #{html_path}"
-  puts
-
-  html_string = File.read(html_path)
-  table_string = ""
-  table_start = false
-
-  html_string.each_line do |line|
-    table_start = true if line.include?("<table")
-
-    table_string << line if table_start
-
-    break if line.include?("</table>")
-  end
-
-  table_string
-end
-
 def build_report
   # load template
   report = File.read(@template_path)
 
   # result a
-  result_a_table = extract_table(@result_a_path)
+  result_a_table = extract_table_from_csv2html_output(@result_a_path)
 
   # result b
-  result_b_table = extract_table(@result_b_path)
+  result_b_table = extract_table_from_csv2html_output(@result_b_path)
 
   # comparison
-  comparison_table = extract_table(@comparison_path)
+  comparison_table = extract_table_from_csv2html_output(@comparison_path)
 
   # replace params
   # TODO: iterate a hash of param, replacement

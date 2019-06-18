@@ -1,5 +1,8 @@
 # rubocop: disable Style/FrozenStringLiteralComment
 
+require "../../tests/helpers/perf_results_helper.rb"
+include PerfResultsHelper # rubocop:disable Style/MixinUsage
+
 TEMPLATE_PATH = "templates/perf_comparison_template.html".freeze
 
 RESULT_COMPARISON_PATH = "examples/perf_comparison_template_defaults/perf_comparison_a_vs_b.csv.html".freeze
@@ -35,26 +38,6 @@ def init
   @output_path = ENV["OUTPUT_PATH"] || OUTPUT_PATH
 end
 
-# TODO: move to perf_results_helper
-def extract_table(html_path)
-  puts "extracting table from #{html_path}"
-  puts
-
-  html_string = File.read(html_path)
-  table_string = ""
-  table_start = false
-
-  html_string.each_line do |line|
-    table_start = true if line.include?("<table")
-
-    table_string << line if table_start
-
-    break if line.include?("</table>")
-  end
-
-  table_string
-end
-
 # TODO: iterate a hash of param, replacement
 def replace_parameters(report)
   puts "replacing parameters..."
@@ -71,6 +54,7 @@ def replace_parameters(report)
   report
 end
 
+# TODO: move to perf_results_helper.rb as build_perf_comparison_report
 def build_report
   puts "building report..."
   puts
@@ -79,10 +63,10 @@ def build_report
   report = File.read(@template_path)
 
   # metrics result
-  result_comparison_table = extract_table(@result_comparison_path)
+  result_comparison_table = extract_table_from_csv2html_output(@result_comparison_path)
 
   # atop summary
-  atop_summary_comparison_table = extract_table(@atop_summary_comparison_path)
+  atop_summary_comparison_table = extract_table_from_csv2html_output(@atop_summary_comparison_path)
 
   # atop detail
   # TODO: enable

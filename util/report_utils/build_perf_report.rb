@@ -1,5 +1,8 @@
 # rubocop: disable Style/FrozenStringLiteralComment
 
+require "../../tests/helpers/perf_results_helper.rb"
+include PerfResultsHelper # rubocop:disable Style/MixinUsage
+
 # TODO: move to perf_results_helper
 # TODO: include this functionality in every performance run
 # TODO: extract result names from path
@@ -32,26 +35,6 @@ def init
   @atop_detail_path = ENV["ATOP_TABLE_DETAIL"] || ATOP_DETAIL_PATH
 end
 
-# TODO: move to perf_results_helper
-def extract_table(html_path)
-  puts "extracting table from #{html_path}"
-  puts
-
-  html_string = File.read(html_path)
-  table_string = ""
-  table_start = false
-
-  html_string.each_line do |line|
-    table_start = true if line.include?("<table")
-
-    table_string << line if table_start
-
-    break if line.include?("</table>")
-  end
-
-  table_string
-end
-
 # TODO: iterate a hash of param, replacement
 def replace_parameters(report)
   puts "replacing parameters..."
@@ -64,6 +47,7 @@ def replace_parameters(report)
   report
 end
 
+# TODO: move to perf_results_helper.rb as build_perf_report
 def build_report
   puts "building report..."
   puts
@@ -72,13 +56,13 @@ def build_report
   report = File.read(@template_path)
 
   # metrics result
-  result_table = extract_table(@result_path)
+  result_table = extract_table_from_csv2html_output(@result_path)
 
   # atop summary
-  atop_summary_table = extract_table(@atop_summary_path)
+  atop_summary_table = extract_table_from_csv2html_output(@atop_summary_path)
 
   # atop detail
-  atop_detail_table = extract_table(@atop_detail_path)
+  atop_detail_table = extract_table_from_csv2html_output(@atop_detail_path)
 
   # replace tables (do this first since table data may include parameters)
   report = report.gsub("$RESULT_TABLE", result_table)

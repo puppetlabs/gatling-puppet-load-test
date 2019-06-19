@@ -424,5 +424,4 @@ module PerfResultsHelper
   def percent_diff_string(result_a, result_b)
     "#{percent_diff(result_a, result_b)}%"
   end
-
 end

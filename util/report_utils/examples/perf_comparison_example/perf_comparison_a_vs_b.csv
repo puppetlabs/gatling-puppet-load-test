@@ -1,9 +1,9 @@
 "",$RELEASE_A_NAME ($RELEASE_A_NUMBER),"","",$RELEASE_B_NAME ($RELEASE_B_NUMBER),"",""
 Duration,max ms,mean ms,std dev,max ms,mean ms,std dev,% (mean) diff
-Total,43629,4040,661,40903,3480,525,-13.86%
-catalog,42547,3462,544,39692,3048,432,-11.96%
-filemeta plugins,14839,134,165,5604,106,105,-20.9%
-filemeta pluginfacts,7781,28,95,3370,20,55,-28.57%
-locales,3497,35,121,6765,28,103,-20.0%
+overall response time,43629,4040,661,40903,3480,525,-13.86%
 node,17561,54,193,6011,41,151,-24.07%
+filemeta pluginfacts,7781,28,95,3370,20,55,-28.57%
+filemeta plugins,14839,134,165,5604,106,105,-20.9%
+locales,3497,35,121,6765,28,103,-20.0%
+catalog,42547,3462,544,39692,3048,432,-11.96%
 report,16691,328,220,7049,237,175,-27.74%

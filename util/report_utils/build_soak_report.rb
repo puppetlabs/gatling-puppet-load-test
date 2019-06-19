@@ -47,6 +47,9 @@ def init
 end
 
 def build_report
+  puts "building soak test report..."
+  puts
+
   # load template
   report = File.read(@template_path)
 

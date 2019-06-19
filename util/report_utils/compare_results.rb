@@ -15,13 +15,7 @@ output_path = (ARGV[2])
 
 # TODO: refactor
 def write_csv(output_path, result_a, result_b)
-  row_labels = ["Total",
-                "catalog",
-                "filemeta plugins",
-                "filemeta pluginfacts",
-                "locales",
-                "node",
-                "report"]
+  row_labels = PerfResultsHelper::PERF_CSV_ROW_LABELS
 
   # TODO: use release names
   CSV.open(output_path.to_s, "wb") do |csv|

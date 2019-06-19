@@ -39,12 +39,12 @@ def process_results_csv(csv_path, summary_csv_path)
   contents = File.readlines(csv_path)
   File.open(output_path, "w") do |f|
     f << contents[0]
-    f << contents[contents.length - 2]
-    f << contents[contents.length - 1]
+    f << contents[-2]
+    f << contents[-1]
   end
 
   # add the 2nd to last line to the summary
-  line = contents[contents.length - 2]
+  line = contents[-2]
   update_summary_csv(summary_csv_path, "#{result_name},#{line}")
 
   # csv2html
@@ -106,7 +106,7 @@ def average_summary_csv(summary_csv_path)
 end
 
 def build_report(parent_dir)
-  puts "building report for parent dir: #{parent_dir}"
+  puts "building scale test csv summary report for parent dir: #{parent_dir}"
   puts
 
   parent_name = File.basename(parent_dir)

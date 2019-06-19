@@ -13,6 +13,17 @@ module PerfResultsHelper
   STD = "standardDeviation"
   TOTAL = "total"
 
+  PERF_CSV_COLUMN_HEADINGS = ["Duration", "max ms", "mean ms", "std dev"].freeze
+
+  # these must be in the same order as the Gatling data
+  PERF_CSV_ROW_LABELS = ["overall response time",
+                         "node",
+                         "filemeta pluginfacts",
+                         "filemeta plugins",
+                         "locales",
+                         "catalog",
+                         "report"].freeze
+
   # HTML template used in csv2html
   # TODO: use these (and other custom parameterized blocks) in the release report generation scripts?
   HTML_START = <<~HEREDOC
@@ -52,7 +63,6 @@ module PerfResultsHelper
   #
   # TODO: refactor into separate methods for extract and output
   # TODO: update scale results handling to use this code
-  # rubocop: disable Metrics/AbcSize
   def gatling2csv(results_dir)
     results_name = File.basename(results_dir)
     output_path = "#{results_dir}/#{results_name}.csv"
@@ -66,10 +76,9 @@ module PerfResultsHelper
 
     # the 'group' name will be something like 'group_nooptestwithout-9eb19'
     group_keys = stats["contents"].keys.select { |key| key.to_s.match(/group/) }
-    group_node = stats["contents"][group_keys[0]]
+    raise "JSON parse of #{stats_path} should only result in one key matching 'group'" unless group_keys.length == 1
 
-    # totals row is in the 'stats' node
-    totals = group_node["stats"]
+    group_node = stats["contents"][group_keys[0]]
 
     # transaction rows are in the 'contents' node
     contents = group_node["contents"]
@@ -84,32 +93,32 @@ module PerfResultsHelper
       puts "key #{i}: #{name}"
     end
 
-    node = contents[contents.keys[0]]["stats"]
-    filemeta_pluginfacts = contents[contents.keys[1]]["stats"]
-    filemeta_plugins = contents[contents.keys[2]]["stats"]
-    locales = contents[contents.keys[3]]["stats"]
-    catalog = contents[contents.keys[4]]["stats"]
-    report = contents[contents.keys[5]]["stats"]
-
     puts "Creating #{output_path}"
     puts
 
     # TODO: determine and verify values prior to CSV output
     # TODO: unit test to ensure data validity
     CSV.open(output_path, "wb") do |csv|
-      csv << ["Duration", "max ms", "mean ms", "std dev"]
-      csv << ["Total", totals[MAX][TOTAL], totals[MEAN][TOTAL], totals[STD][TOTAL]]
-      csv << ["catalog", catalog[MAX][TOTAL], catalog[MEAN][TOTAL], catalog[STD][TOTAL]]
-      csv << ["filemeta plugins", filemeta_plugins[MAX][TOTAL], filemeta_plugins[MEAN][TOTAL],
-              filemeta_plugins[STD][TOTAL]]
-      csv << ["filemeta pluginfacts", filemeta_pluginfacts[MAX][TOTAL], filemeta_pluginfacts[MEAN][TOTAL],
-              filemeta_pluginfacts[STD][TOTAL]]
-      csv << ["locales", locales[MAX][TOTAL], locales[MEAN][TOTAL], locales[STD][TOTAL]]
-      csv << ["node", node[MAX][TOTAL], node[MEAN][TOTAL], node[STD][TOTAL]]
-      csv << ["report", report[MAX][TOTAL], report[MEAN][TOTAL], report[STD][TOTAL]]
+      # add headings
+      csv << PERF_CSV_COLUMN_HEADINGS
+
+      # add rows
+      PERF_CSV_ROW_LABELS.each_with_index do |item, index|
+        row_data = if index.zero?
+                     # overall response time row is in the 'stats' node
+                     group_node["stats"]
+                   else
+                     # individual component rows are in the 'contents' node
+                     # offset the index to get the the corresponding key
+                     contents[contents.keys[index - 1]]["stats"]
+                   end
+
+        csv << [item, row_data[MAX][TOTAL], row_data[MEAN][TOTAL], row_data[STD][TOTAL]]
+      end
     end
+
+    csv2html(output_path)
   end
-  # rubocop: enable Metrics/AbcSize
 
   # Find every CSV file in the specified directory (recursively) and convert each
   # to an HTML file containing a table with the CSV data using a Bootstrap-based template
@@ -298,7 +307,7 @@ module PerfResultsHelper
   # @param [String] csv_path_b The SUT atop CSV file
   # @param [String] comparison_path The output path for the comparison file(s)
   #
-  # @return [String] desc
+  # @return [void]
   #
   # @example
   #   output = method(arg)

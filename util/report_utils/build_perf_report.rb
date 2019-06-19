@@ -49,7 +49,7 @@ end
 
 # TODO: move to perf_results_helper.rb as build_perf_report
 def build_report
-  puts "building report..."
+  puts "building performance test report..."
   puts
 
   # load template

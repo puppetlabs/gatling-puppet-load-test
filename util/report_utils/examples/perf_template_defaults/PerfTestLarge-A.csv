@@ -1,0 +1,8 @@
+Duration,max ms,mean ms,std dev
+overall response time,43629,4040,661
+node,17561,54,193
+filemeta pluginfacts,7781,28,95
+filemeta plugins,14839,134,165
+locales,3497,35,121
+catalog,42547,3462,544
+report,16691,328,220

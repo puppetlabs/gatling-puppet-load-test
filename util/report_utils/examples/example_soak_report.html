@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>RELEASE B Soak Test Results</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="jumbotron">
+        <h1>RELEASE B (2.3.4)</h1>
+        <h2>Soak Test Results</h2>
+        <p class="lead">The soak test is long-running test under medium load</p>
+    </div>
+
+    <div class="container">
+
+        <h2>Configuration:</h2>
+        <ul>
+            <li>Standard ref arch</li>
+            <li>Simulates 14 days of 600 puppet agents with 30 minute agent check-ins</li>
+            <li>All agents are configured with role::by_size::large in the control repo</li>
+            <ul>
+                <li>include ::profile::apache::basic</li>
+                <li>include ::profile::influxdb::basic</li>
+                <li>include ::profile::loop_through_file_resources</li>
+                <li>include ::profile::users</li>
+                <li>include ::profile::sysop::packages</li>
+                <li>include ::profile::motd</li>
+                <li>include ::profile::hiera_check</li>
+                <li>include ::profile::tomcat::basic</li>
+                <li>include ::profile::postgresql::basic</li>
+            </ul>
+        </ul>
+
+        <h2>Notes:</h2>
+        <ul>
+            <li>Note 1.</li>
+            <li>Note 2.</li>
+        </ul>
+
+    </div>
+
+    <div class="container">
+
+        <h2>RELEASE B (2.3.4): PerfTestLarge-23456789</h2>
+
+        <div class="container">
+            <img src="soak_template_defaults/release_b.png" class="mw-80" style="width: 1100px;" alt="RELEASE B">
+        </div>
+
+        <br>
+
+          <table class="table table-bordered">
+    <tr>
+      <th>Duration</th>
+      <th>max ms</th>
+      <th>mean ms</th>
+      <th>std dev</th>
+    </tr>
+    <tr>
+      <td>overall response time</td>
+      <td>40903</td>
+      <td>3480</td>
+      <td>525</td>
+    </tr>
+    <tr>
+      <td>node</td>
+      <td>6011</td>
+      <td>41</td>
+      <td>151</td>
+    </tr>
+    <tr>
+      <td>filemeta pluginfacts</td>
+      <td>3370</td>
+      <td>20</td>
+      <td>55</td>
+    </tr>
+    <tr>
+      <td>filemeta plugins</td>
+      <td>5604</td>
+      <td>106</td>
+      <td>105</td>
+    </tr>
+    <tr>
+      <td>locales</td>
+      <td>6765</td>
+      <td>28</td>
+      <td>103</td>
+    </tr>
+    <tr>
+      <td>catalog</td>
+      <td>39692</td>
+      <td>3048</td>
+      <td>432</td>
+    </tr>
+    <tr>
+      <td>report</td>
+      <td>7049</td>
+      <td>237</td>
+      <td>175</td>
+    </tr>
+  </table>
+
+
+        <br>
+
+    </div>
+
+    <hr>
+
+    <div class="container">
+
+        <h2>RELEASE A (1.2.3): PerfTestLarge-12345678</h2>
+
+        <div class="container">
+            <img src="soak_template_defaults/release_a.png" class="mw-80" style="width: 1100px;" alt="RELEASE A">
+        </div>
+
+        <br>
+
+          <table class="table table-bordered">
+    <tr>
+      <th>Duration</th>
+      <th>max ms</th>
+      <th>mean ms</th>
+      <th>std dev</th>
+    </tr>
+    <tr>
+      <td>overall response time</td>
+      <td>43629</td>
+      <td>4040</td>
+      <td>661</td>
+    </tr>
+    <tr>
+      <td>node</td>
+      <td>17561</td>
+      <td>54</td>
+      <td>193</td>
+    </tr>
+    <tr>
+      <td>filemeta pluginfacts</td>
+      <td>7781</td>
+      <td>28</td>
+      <td>95</td>
+    </tr>
+    <tr>
+      <td>filemeta plugins</td>
+      <td>14839</td>
+      <td>134</td>
+      <td>165</td>
+    </tr>
+    <tr>
+      <td>locales</td>
+      <td>3497</td>
+      <td>35</td>
+      <td>121</td>
+    </tr>
+    <tr>
+      <td>catalog</td>
+      <td>42547</td>
+      <td>3462</td>
+      <td>544</td>
+    </tr>
+    <tr>
+      <td>report</td>
+      <td>16691</td>
+      <td>328</td>
+      <td>220</td>
+    </tr>
+  </table>
+
+
+        <br>
+
+    </div>
+
+    <hr>
+
+    <div class="container">
+
+        <h2>RELEASE A_vs_RELEASE B.csv</h2>
+
+          <table class="table table-bordered">
+    <tr>
+      <th></th>
+      <th>RELEASE A (1.2.3)</th>
+      <th></th>
+      <th></th>
+      <th>RELEASE B (2.3.4)</th>
+      <th></th>
+      <th></th>
+    </tr>
+    <tr>
+      <td>Duration</td>
+      <td>max ms</td>
+      <td>mean ms</td>
+      <td>std dev</td>
+      <td>max ms</td>
+      <td>mean ms</td>
+      <td>std dev</td>
+      <td>% (mean) diff</td>
+    </tr>
+    <tr>
+      <td>overall response time</td>
+      <td>43629</td>
+      <td>4040</td>
+      <td>661</td>
+      <td>40903</td>
+      <td>3480</td>
+      <td>525</td>
+      <td>-13.86%</td>
+    </tr>
+    <tr>
+      <td>node</td>
+      <td>17561</td>
+      <td>54</td>
+      <td>193</td>
+      <td>6011</td>
+      <td>41</td>
+      <td>151</td>
+      <td>-24.07%</td>
+    </tr>
+    <tr>
+      <td>filemeta pluginfacts</td>
+      <td>7781</td>
+      <td>28</td>
+      <td>95</td>
+      <td>3370</td>
+      <td>20</td>
+      <td>55</td>
+      <td>-28.57%</td>
+    </tr>
+    <tr>
+      <td>filemeta plugins</td>
+      <td>14839</td>
+      <td>134</td>
+      <td>165</td>
+      <td>5604</td>
+      <td>106</td>
+      <td>105</td>
+      <td>-20.9%</td>
+    </tr>
+    <tr>
+      <td>locales</td>
+      <td>3497</td>
+      <td>35</td>
+      <td>121</td>
+      <td>6765</td>
+      <td>28</td>
+      <td>103</td>
+      <td>-20.0%</td>
+    </tr>
+    <tr>
+      <td>catalog</td>
+      <td>42547</td>
+      <td>3462</td>
+      <td>544</td>
+      <td>39692</td>
+      <td>3048</td>
+      <td>432</td>
+      <td>-11.96%</td>
+    </tr>
+    <tr>
+      <td>report</td>
+      <td>16691</td>
+      <td>328</td>
+      <td>220</td>
+      <td>7049</td>
+      <td>237</td>
+      <td>175</td>
+      <td>-27.74%</td>
+    </tr>
+  </table>
+
+
+    </div>
+
+</div>
+</body>
+</html>
+

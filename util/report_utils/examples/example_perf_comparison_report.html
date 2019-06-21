@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>PerfTestLarge-12345678 vs PerfTestLarge-23456789 - Performance Comparison</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="jumbotron">
+        <h1>PerfTestLarge-12345678 vs PerfTestLarge-23456789</h1>
+        <h2>Performance Comparison</h2>
+        <p class="lead"></p>
+    </div>
+
+    <h2>Gatling results</h2>
+    <h4>PerfTestLarge-12345678_vs_PerfTestLarge-23456789.csv</h4>
+      <table class="table table-bordered">
+    <tr>
+      <th></th>
+      <th>Release A (1.2.3)</th>
+      <th></th>
+      <th></th>
+      <th>Release B (2.3.4)</th>
+      <th></th>
+      <th></th>
+    </tr>
+    <tr>
+      <td>Duration</td>
+      <td>max ms</td>
+      <td>mean ms</td>
+      <td>std dev</td>
+      <td>max ms</td>
+      <td>mean ms</td>
+      <td>std dev</td>
+      <td>% (mean) diff</td>
+    </tr>
+    <tr>
+      <td>overall response time</td>
+      <td>43629</td>
+      <td>4040</td>
+      <td>661</td>
+      <td>40903</td>
+      <td>3480</td>
+      <td>525</td>
+      <td>-13.86%</td>
+    </tr>
+    <tr>
+      <td>node</td>
+      <td>17561</td>
+      <td>54</td>
+      <td>193</td>
+      <td>6011</td>
+      <td>41</td>
+      <td>151</td>
+      <td>-24.07%</td>
+    </tr>
+    <tr>
+      <td>filemeta pluginfacts</td>
+      <td>7781</td>
+      <td>28</td>
+      <td>95</td>
+      <td>3370</td>
+      <td>20</td>
+      <td>55</td>
+      <td>-28.57%</td>
+    </tr>
+    <tr>
+      <td>filemeta plugins</td>
+      <td>14839</td>
+      <td>134</td>
+      <td>165</td>
+      <td>5604</td>
+      <td>106</td>
+      <td>105</td>
+      <td>-20.9%</td>
+    </tr>
+    <tr>
+      <td>locales</td>
+      <td>3497</td>
+      <td>35</td>
+      <td>121</td>
+      <td>6765</td>
+      <td>28</td>
+      <td>103</td>
+      <td>-20.0%</td>
+    </tr>
+    <tr>
+      <td>catalog</td>
+      <td>42547</td>
+      <td>3462</td>
+      <td>544</td>
+      <td>39692</td>
+      <td>3048</td>
+      <td>432</td>
+      <td>-11.96%</td>
+    </tr>
+    <tr>
+      <td>report</td>
+      <td>16691</td>
+      <td>328</td>
+      <td>220</td>
+      <td>7049</td>
+      <td>237</td>
+      <td>175</td>
+      <td>-27.74%</td>
+    </tr>
+  </table>
+
+
+    <h2>atop results</h2>
+    <h4>atop_PerfTestLarge-12345678_vs_PerfTestLarge-23456789.summary.csv</h4>
+      <table class="table table-bordered">
+    <tr>
+      <th></th>
+      <th>PerfTestLarge-12345678</th>
+      <th>PerfTestLarge-23456789</th>
+      <th>% diff</th>
+    </tr>
+    <tr>
+      <td>Action</td>
+      <td>ApplesToApples.json</td>
+      <td>ApplesToApples.json</td>
+      <td>N/A</td>
+    </tr>
+    <tr>
+      <td>Duration</td>
+      <td>14415.265035548</td>
+      <td>14415.174970805</td>
+      <td>-0.0%</td>
+    </tr>
+    <tr>
+      <td>Avg CPU</td>
+      <td>20</td>
+      <td>17</td>
+      <td>-15.0%</td>
+    </tr>
+    <tr>
+      <td>Avg MEM</td>
+      <td>2638004</td>
+      <td>3490727</td>
+      <td>32.32%</td>
+    </tr>
+    <tr>
+      <td>Avg DSK read</td>
+      <td></td>
+      <td></td>
+      <td>NaN%</td>
+    </tr>
+    <tr>
+      <td>Avg DSK Write</td>
+      <td>20067</td>
+      <td>12025</td>
+      <td>-40.08%</td>
+    </tr>
+  </table>
+
+
+</div>
+</body>
+</html>
+

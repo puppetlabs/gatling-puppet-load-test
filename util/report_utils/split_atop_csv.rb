@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-require "json"
-require "csv"
 require "../../tests/helpers/perf_results_helper.rb"
 include PerfResultsHelper # rubocop:disable Style/MixinUsage
 
-raise Exception, "you must provide a results directory" unless ARGV[0]
+raise Exception, "you must provide a csv file" unless ARGV[0]
 
-results_dir = ARGV[0]
-gatling2csv(results_dir)
+csv_path = ARGV[0]
+split_atop_csv_results csv_path

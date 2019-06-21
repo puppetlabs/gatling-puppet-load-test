@@ -1,0 +1,3 @@
+agents,ok,ko,combined mean,catalog mean,filemeta plugins mean,filemeta pluginfacts mean,locales mean,node mean,report mean,average CPU %,average memory
+1800,1798,2,129681,26814,19730,18487,18783,22667,23262,71,3529851
+1900,1766,134,144113,30996,20185,20654,20908,27201,28087,72,3582546

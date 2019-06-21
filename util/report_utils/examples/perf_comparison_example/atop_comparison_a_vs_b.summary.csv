@@ -1,0 +1,7 @@
+"",$RESULT_A,$RESULT_B,% diff
+Action,ApplesToApples.json,ApplesToApples.json,N/A
+Duration,14415.265035548,14415.174970805,-0.0%
+Avg CPU,20,17,-15.0%
+Avg MEM,2638004,3490727,32.32%
+Avg DSK read,,,NaN%
+Avg DSK Write,20067,12025,-40.08%

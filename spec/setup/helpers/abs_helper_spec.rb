@@ -822,20 +822,22 @@ describe AbsHelperClass do
     end
   end
 
+  # TODO: review test cases
   # TODO: implement
   describe "#update_last_abs_resource_hosts" do
     context "when a host string is specified" do
       it "writes the string to the log file" do
-        skip
+        skip "TODO: review test cases, implement"
       end
     end
   end
 
+  # TODO: review test cases
   # TODO: implement
   describe "#backoff_sleep" do
     context "when called with a positive number of tries" do
       it "sleeps for a multiple of the number of tries" do
-        skip
+        skip "TODO: review test cases, implement"
       end
     end
   end
@@ -1096,6 +1098,72 @@ describe AbsHelperClass do
         expect(subject).to receive(:puts).with("A valid hosts array is required; nil was specified")
 
         expect(subject.valid_abs_resource_hosts?(nil)).to eq(false)
+      end
+    end
+  end
+
+  # TODO: review test cases
+  # TODO: implement
+  describe "#parse_abs_resource_hosts" do
+    context "when a valid hosts JSON string is specified" do
+      it "returns the hosts array" do
+        skip "TODO: review test cases, implement"
+      end
+    end
+
+    context "when an invalid hosts JSON string is specified" do
+      it "outputs a helpful message" do
+        skip "TODO: review test cases, implement"
+      end
+
+      it "returns the nil" do
+        skip "TODO: review test cases, implement"
+      end
+    end
+  end
+
+  # TODO: review test cases
+  # TODO: implement
+  describe "#provision_host_for_role" do
+    context "when only required args are specified" do
+      it "provisions the host with the specified role using default values" do
+        skip "TODO: review test cases, implement"
+      end
+
+      it "returns the hostname" do
+        skip "TODO: review test cases, implement"
+      end
+    end
+
+    context "when all args are specified" do
+      it "provisions the host with the specified role using specified values" do
+        skip "TODO: review test cases, implement"
+      end
+
+      it "returns the hostname" do
+        skip "TODO: review test cases, implement"
+      end
+    end
+  end
+
+  describe "#provision_hosts_for_roles" do
+    context "when only required args are specified" do
+      it "provisions hosts with the specified roles using default values" do
+        skip "TODO: review test cases, implement"
+      end
+
+      it "returns the hosts array" do
+        skip "TODO: review test cases, implement"
+      end
+    end
+
+    context "when all args are specified" do
+      it "provisions hosts with the specified roles using specified values" do
+        skip "TODO: review test cases, implement"
+      end
+
+      it "returns the hosts array" do
+        skip "TODO: review test cases, implement"
       end
     end
   end

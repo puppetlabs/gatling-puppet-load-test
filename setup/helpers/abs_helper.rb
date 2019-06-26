@@ -9,12 +9,12 @@ require "yaml"
 require "parallel"
 
 # Provides functionality to provision and deprovision hosts via ABS
+# rubocop:disable Naming/AccessorMethodName
 module AbsHelper
-  # rubocop:disable Naming/AccessorMethodName
   ABS_BASE_URL = "https://cinext-abs.delivery.puppetlabs.net/api/v2"
   AWS_PLATFORM = "centos-7-x86_64"
   AWS_IMAGE_ID = "ami-01ed306a12b7d1c96"
-  AWS_DEFAULT_SIZE = "c5.2xlarge"
+  AWS_SIZE = "c5.2xlarge"
   AWS_VOLUME_SIZE = "80"
   AWS_REGION = "us-west-2"
 
@@ -62,6 +62,8 @@ module AbsHelper
         @aws_reap_time = ENV["ABS_AWS_REAP_TIME"] || AWS_REAP_TIME
       end
 
+      @default_volume_size = ENV["AWS_DEFAULT_SIZE"] || AWS_SIZE
+      @default_size = ENV["AWS_DEFAULT_SIZE"] || AWS_SIZE
       @mom_size = ENV["ABS_AWS_MOM_SIZE"]
       @mom_volume_size = ENV["ABS_AWS_MOM_VOLUME_SIZE"] || MOM_VOLUME_SIZE
       @metrics_size = ENV["ABS_AWS_METRICS_SIZE"]
@@ -108,7 +110,7 @@ module AbsHelper
   #   host = get_host_to_provision(role, size, volume_size)
   #
   # TODO: spec test
-  #
+  # TODO: validate size and volume_size?
   def get_host_to_provision(role, size, volume_size)
     abs_initialize
     host =
@@ -660,36 +662,24 @@ module AbsHelper
       puts
     else
 
-      # begin
-      #   hosts = JSON.parse(abs_resource_hosts)
-      #   host = hosts[0]
-      #   hostname = host["hostname"]
-      #   if !hostname.nil? && !hostname.empty?
-      #     is_valid = true
-      #   else
-      #     puts "The specified resource host array is not valid: #{abs_resource_hosts}"
-      #     puts
-      #   end
-      # rescue StandardError
-      #   # TODO: raise?
-      #   puts "JSON::ParserError encountered parsing the hosts array: #{abs_resource_hosts}"
-      # end
-
-      hosts = parse_abs_resource_hosts(abs_resource_hosts)
-      host = hosts[0]
-      hostname = host["hostname"]
-      if !hostname.nil? && !hostname.empty?
-        is_valid = true
-      else
-        puts "The specified resource host array is not valid: #{abs_resource_hosts}"
-        puts
+      begin
+        hosts = parse_abs_resource_hosts(abs_resource_hosts)
+        hostname = hosts[0]["hostname"]
+        if !hostname.nil? && !hostname.empty?
+          is_valid = true
+        else
+          puts "The specified resource host array is not valid: #{abs_resource_hosts}"
+          puts
+        end
+      rescue StandardError => e
+        # TODO: raise?
+        puts "#{e.inspect}  encountered parsing the hosts array: #{abs_resource_hosts}"
       end
 
     end
 
     is_valid
   end
-  # rubocop:enable Naming/AccessorMethodName
 
   # Parses the specified abs_resource_hosts JSON
   # note: consolidating this here since it is used by multiple methods
@@ -711,9 +701,7 @@ module AbsHelper
 
     # TODO: JSON::ParserError?
     rescue StandardError => e
-      # TODO: raise? (current expected behavior is puts)
-      puts "#{e.inspect} encountered parsing the hosts array: #{abs_resource_hosts}"
-      hosts = nil
+      raise "#{e.inspect} encountered parsing the hosts array: #{abs_resource_hosts}"
     end
     hosts
   end
@@ -733,13 +721,11 @@ module AbsHelper
   #
   # @example
   #   hostname = provision_host_for_role(role)
-  #
-  #   or
-  #
+  #     or
   #   hostname = provision_host_for_role(role, "c5.xlarge", "40")
   #
   # TODO: spec test(s)
-  def provision_host_for_role(role, size = AWS_DEFAULT_SIZE, volume_size = AWS_VOLUME_SIZE)
+  def provision_host_for_role(role, size = AWS_SIZE, volume_size = AWS_VOLUME_SIZE)
     host_to_provision = get_host_to_provision(role, size, volume_size)
     abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
     raise "Unable to provision host via ABS" unless abs_resource_hosts
@@ -768,13 +754,11 @@ module AbsHelper
   # @example
   #   roles = ["master","puppet_db"]
   #   hosts = provision_hosts_for_roles(roles)
-  #
-  #   or
-  #
+  #     or
   #   hosts = provision_host_for_role(roles, "slv-test", "c5.xlarge", "40")
   #
   # TODO: spec test(s)
-  def provision_hosts_for_roles(roles, abs_id = nil, size = AWS_DEFAULT_SIZE, volume_size = AWS_VOLUME_SIZE)
+  def provision_hosts_for_roles(roles, abs_id = nil, size = AWS_SIZE, volume_size = AWS_VOLUME_SIZE)
     hosts = []
 
     puts "Provisioning hosts for the following pe_xl roles:"
@@ -787,8 +771,6 @@ module AbsHelper
 
     # uses in_threads to allow variable modification
     Parallel.map(roles.each, in_threads: num_threads) do |role|
-      # role = "#{abs_id}_#{role}" unless abs_id.nil?
-
       hostname = provision_host_for_role(role, size, volume_size)
       hosts << { role: role, hostname: hostname }
     end
@@ -800,3 +782,4 @@ module AbsHelper
     hosts
   end
 end
+# rubocop:enable Naming/AccessorMethodName

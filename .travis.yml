@@ -14,3 +14,4 @@ env:
   matrix:
     - "CHECK=rspec spec --color"
     - "CHECK=rubocop"
+  - GEM_SOURCE="https://rubygems.org/"

@@ -1138,7 +1138,7 @@ describe AbsHelperClass do
 
     context "when nil is specified" do
       it "reports the error and returns false" do
-        message = "A valid JSON string is required; nil was specified"
+        message = /encountered parsing the hosts array/
         expect(subject).to receive(:puts).with(message)
 
         expect(subject.valid_abs_resource_hosts?(nil)).to eq(false)

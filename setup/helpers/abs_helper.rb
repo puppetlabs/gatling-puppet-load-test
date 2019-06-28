@@ -662,20 +662,12 @@ module AbsHelper
   def valid_abs_resource_hosts?(abs_resource_hosts)
     is_valid = false
 
-    # initially included this here since it is validating the string being read from a file
-    # TODO: move this check into parse_abs_resource_hosts as well?
-    if abs_resource_hosts.nil?
-      puts "A valid JSON string is required; nil was specified"
-      puts
-    else
-
-      begin
-        parse_abs_resource_hosts(abs_resource_hosts)
-        is_valid = true
-      rescue StandardError => e
-        # TODO: raise?
-        puts e.message.to_s
-      end
+    begin
+      parse_abs_resource_hosts(abs_resource_hosts)
+      is_valid = true
+    rescue StandardError => e
+      # TODO: raise?
+      puts e.message.to_s
     end
 
     is_valid

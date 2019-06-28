@@ -1167,7 +1167,7 @@ describe AbsHelperClass do
         json_hosts = TEST_INVALID_ABS_RESOURCE_HOSTS
         message = /Invalid abs_resource_hosts JSON specified/
         expect { subject.parse_abs_resource_hosts(json_hosts) }
-            .to raise_error(RuntimeError, message)
+          .to raise_error(RuntimeError, message)
       end
     end
 

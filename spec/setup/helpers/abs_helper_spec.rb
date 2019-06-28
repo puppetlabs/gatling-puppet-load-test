@@ -1153,19 +1153,30 @@ describe AbsHelperClass do
       end
     end
 
-    context "when an invalid hosts JSON string is specified" do
+    context "when an invalid JSON string is specified" do
       it "raises an error" do
         json_hosts = "Not valid JSON"
+        message = /encountered parsing the hosts array/
         expect { subject.parse_abs_resource_hosts(json_hosts) }
-          .to raise_error(RuntimeError, /encountered parsing the hosts array/)
+          .to raise_error(RuntimeError, message)
+      end
+    end
+
+    context "when an invalid hosts JSON string is specified" do
+      it "raises an error" do
+        json_hosts = TEST_INVALID_ABS_RESOURCE_HOSTS
+        message = /Invalid abs_resource_hosts JSON specified/
+        expect { subject.parse_abs_resource_hosts(json_hosts) }
+            .to raise_error(RuntimeError, message)
       end
     end
 
     context "when nil is specified" do
       it "raises the error" do
         json_hosts = nil
+        message = /encountered parsing the hosts array/
         expect { subject.parse_abs_resource_hosts(json_hosts) }
-          .to raise_error(RuntimeError, /encountered parsing the hosts array/)
+          .to raise_error(RuntimeError, message)
       end
     end
   end

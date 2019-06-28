@@ -122,15 +122,18 @@ describe AbsHelperClass do
   TEST_ABS_RESOURCE_HOSTS = TEST_ABS_HOSTS.to_json
 
   TEST_INVALID_ABS_RESOURCE_HOSTS = [
-    { 'hostz': TEST_HOSTNAME,
-      'typez': TEST_BEAKER_TYPE,
-      'enginez': TEST_ENGINE },
+    { 'hostname': TEST_HOSTNAME,
+      'type': TEST_BEAKER_TYPE,
+      'engine': TEST_ENGINE },
     { 'hostz': TEST_HOSTNAME,
       'typez': TEST_BEAKER_TYPE,
       'enginez': TEST_ENGINE }
   ].to_json.freeze
 
   TEST_ABS_RESOURCE_HOSTS_EMPTY = [
+    { 'hostname': TEST_HOSTNAME,
+      'type': TEST_BEAKER_TYPE,
+      'engine': TEST_ENGINE },
     { 'hostname': "",
       'type': "",
       'engine': "" }

@@ -696,13 +696,19 @@ module AbsHelper
     puts abs_resource_hosts
     puts
 
+    expected_keys = %w[hostname type engine]
+
     begin
       hosts = JSON.parse(abs_resource_hosts)
-      hostname = hosts[0]["hostname"]
-      if hostname.nil? || hostname.empty?
-        raise "Invalid abs_resource_hosts JSON specified;" \
-              "the first element must have a 'hostname' key with a non-empty value."
+      hosts.each do |host|
+        expected_keys.each do |key|
+          if host[key].nil? || host[key].empty?
+            raise "Invalid abs_resource_hosts JSON specified;" \
+              "each element must have a '#{key}' key with a non-empty value."
+          end
+        end
       end
+
     # TODO: JSON::ParserError?
     rescue StandardError => e
       raise "#{e.inspect} encountered parsing the hosts array: #{abs_resource_hosts}"

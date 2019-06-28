@@ -708,7 +708,8 @@ module AbsHelper
       hosts = JSON.parse(abs_resource_hosts)
       hostname = hosts[0]["hostname"]
       if hostname.nil? || hostname.empty?
-        raise "Invalid abs_resource_hosts JSON specified; the first element must have a 'hostname' key."
+        raise "Invalid abs_resource_hosts JSON specified;" \
+              "the first element must have a 'hostname' key with a non-empty value."
       end
     # TODO: JSON::ParserError?
     rescue StandardError => e

@@ -130,6 +130,12 @@ describe AbsHelperClass do
       'enginez': TEST_ENGINE }
   ].to_json.freeze
 
+  TEST_ABS_RESOURCE_HOSTS_EMPTY = [
+    { 'hostname': "",
+      'type': "",
+      'engine': "" }
+  ].to_json.freeze
+
   before do
     ENV["BEAKER_PE_VER"] = TEST_BEAKER_PE_VERSION
     subject.instance_variable_set(:@abs_base_url, TEST_ABS_BASE_URL)
@@ -1165,6 +1171,15 @@ describe AbsHelperClass do
     context "when an invalid hosts JSON string is specified" do
       it "raises an error" do
         json_hosts = TEST_INVALID_ABS_RESOURCE_HOSTS
+        message = /Invalid abs_resource_hosts JSON specified/
+        expect { subject.parse_abs_resource_hosts(json_hosts) }
+          .to raise_error(RuntimeError, message)
+      end
+    end
+
+    context "when a hosts JSON string is specified with empty values" do
+      it "raises an error" do
+        json_hosts = TEST_ABS_RESOURCE_HOSTS_EMPTY
         message = /Invalid abs_resource_hosts JSON specified/
         expect { subject.parse_abs_resource_hosts(json_hosts) }
           .to raise_error(RuntimeError, message)

@@ -62,8 +62,6 @@ module AbsHelper
         @aws_reap_time = ENV["ABS_AWS_REAP_TIME"] || AWS_REAP_TIME
       end
 
-      @default_volume_size = ENV["AWS_DEFAULT_SIZE"] || AWS_SIZE
-      @default_size = ENV["AWS_DEFAULT_SIZE"] || AWS_SIZE
       @mom_size = ENV["ABS_AWS_MOM_SIZE"]
       @mom_volume_size = ENV["ABS_AWS_MOM_VOLUME_SIZE"] || MOM_VOLUME_SIZE
       @metrics_size = ENV["ABS_AWS_METRICS_SIZE"]
@@ -643,45 +641,50 @@ module AbsHelper
     success
   end
 
-  # Determines whether the specified hosts list is valid
+  # Determines whether the specified JSON string can be parsed
+  # Validates the parsed output to ensure the first element contains a 'hostname' key
   #
   # @author Bill Claytor
   #
-  # @param [JSON] abs_resource_hosts The hosts to validate
+  # @param [JSON] abs_resource_hosts The JSON string to validate
   #
-  # @return [true, false] Based on the validity of the specified hosts
+  # @return [true, false] Based on the validity of the specified JSON string
   #
   # @example
-  #   valid = abs_valid_resource_hosts?(abs_resource_hosts)
+  #   json_string = "[{"hostname":"ip-10-227-2-105.amz-dev.puppet.net","type":"centos-7-x86_64","engine":"aws"}]"
+  #   valid = abs_valid_resource_hosts?(json_string)
+  #   valid == true
+  #
+  #   json_string = "[{"abc":"123","xyz":"567"}]"
+  #   valid = abs_valid_resource_hosts?(json_string)
+  #   valid == false
   #
   def valid_abs_resource_hosts?(abs_resource_hosts)
     is_valid = false
 
+    # initially included this here since it is validating the string being read from a file
+    # TODO: move this check into parse_abs_resource_hosts as well?
     if abs_resource_hosts.nil?
-      puts "A valid hosts array is required; nil was specified"
+      puts "A valid JSON string is required; nil was specified"
       puts
     else
 
       begin
-        hosts = parse_abs_resource_hosts(abs_resource_hosts)
-        hostname = hosts[0]["hostname"]
-        if !hostname.nil? && !hostname.empty?
-          is_valid = true
-        else
-          puts "The specified resource host array is not valid: #{abs_resource_hosts}"
-          puts
-        end
+        parse_abs_resource_hosts(abs_resource_hosts)
+        is_valid = true
       rescue StandardError => e
         # TODO: raise?
-        puts "#{e.inspect}  encountered parsing the hosts array: #{abs_resource_hosts}"
+        puts e.message.to_s
       end
-
     end
 
     is_valid
   end
 
-  # Parses the specified abs_resource_hosts JSON
+  # Parses the specified JSON string
+  # Validates the parsed output to ensure the first element contains a 'hostname' key
+  # Returns the parsed hosts array
+  #
   # note: consolidating this here since it is used by multiple methods
   #
   # @author Bill Claytor
@@ -693,16 +696,25 @@ module AbsHelper
   # @return [Array] The hosts array
   #
   # @example
-  #   hosts = parse_abs_resource_hosts(abs_resource_hosts)
+  #   json_string = "[{"hostname":"ip-10-227-2-105.amz-dev.puppet.net","type":"centos-7-x86_64","engine":"aws"}]"
+  #   hosts = parse_abs_resource_hosts(json_string)
   #
   def parse_abs_resource_hosts(abs_resource_hosts)
+    puts "Parsing the specified abs_resource_hosts JSON:"
+    puts abs_resource_hosts
+    puts
+
     begin
       hosts = JSON.parse(abs_resource_hosts)
-
+      hostname = hosts[0]["hostname"]
+      if hostname.nil? && hostname.empty?
+        raise "Invalid abs_resource_hosts JSON specified; the first element must have a 'hostname' key."
+      end
     # TODO: JSON::ParserError?
     rescue StandardError => e
       raise "#{e.inspect} encountered parsing the hosts array: #{abs_resource_hosts}"
     end
+
     hosts
   end
 
@@ -757,11 +769,10 @@ module AbsHelper
   #     or
   #   hosts = provision_host_for_role(roles, "slv-test", "c5.xlarge", "40")
   #
-  # TODO: spec test(s)
   def provision_hosts_for_roles(roles, abs_id = nil, size = AWS_SIZE, volume_size = AWS_VOLUME_SIZE)
     hosts = []
 
-    puts "Provisioning hosts for the following pe_xl roles:"
+    puts "Provisioning hosts for the following roles:"
     puts roles
     puts
 

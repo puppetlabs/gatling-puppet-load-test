@@ -3,8 +3,12 @@
 require "./setup/helpers/abs_helper.rb"
 include AbsHelper # rubocop:disable Style/MixinUsage
 
-# TODO: specify as env variable or arg?
-ABS_ID = "slv-473"
+# TODO: specify via env variable, arg, options file, etc?
+# currently uses ARGV[0], ARGV[1] if specified, otherwise these defaults
+ABS_ID = "slv"
+OUTPUT_DIR = "./"
+
+TEMPLATE_DIR = "./util/abs/templates"
 
 # TODO: allow different sizes for each node?
 ABS_SIZE = "c5.2xlarge"
@@ -45,9 +49,7 @@ TEST_HOSTS = [{ role: "puppet_db", hostname: "ip-10-227-3-22.amz-dev.puppet.net"
 #
 # TODO: move to abs_helper or elsewhere?
 # TODO: spec test(s)
-def create_pe_xl_bolt_files(hosts)
-  template_dir = "./util/abs/templates"
-
+def create_pe_xl_bolt_files(hosts, output_dir)
   # HA?
   master_replica = hosts.detect { |m| m[:role] == "master_replica" }
   suffix = if master_replica
@@ -57,8 +59,8 @@ def create_pe_xl_bolt_files(hosts)
            end
 
   # TODO: better alternative to having separate files for ha / no ha?
-  nodes_yaml = File.read("#{template_dir}/nodes_#{suffix}.yaml")
-  params_json = File.read("#{template_dir}/params_#{suffix}.json")
+  nodes_yaml = File.read("#{TEMPLATE_DIR}/nodes_#{suffix}.yaml")
+  params_json = File.read("#{TEMPLATE_DIR}/params_#{suffix}.json")
 
   # replace parameters for each host
   hosts.each do |host|
@@ -77,9 +79,11 @@ def create_pe_xl_bolt_files(hosts)
     params_json = params_json.gsub(param, hostname)
   end
 
-  File.write("nodes.yaml", nodes_yaml)
-  File.write("params.json", params_json)
+  File.write("#{output_dir}/nodes.yaml", nodes_yaml)
+  File.write("#{output_dir}/params.json", params_json)
 end
 
-hosts = provision_hosts_for_roles(ROLES, ABS_ID, ABS_SIZE, ABS_VOLUME_SIZE)
-create_pe_xl_bolt_files(hosts)
+abs_id = ARGV[0] || ABS_ID
+output_dir = ARGV[1] || "./"
+hosts = provision_hosts_for_roles(ROLES, abs_id, ABS_SIZE, ABS_VOLUME_SIZE)
+create_pe_xl_bolt_files(hosts, output_dir)

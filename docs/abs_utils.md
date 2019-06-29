@@ -79,7 +79,7 @@ The script accepts the following optional arguments:
 This can be helpful when filtering instances in the EC2 console.
 The default value is `slv`.
 
-* output_dir - The directory where the `nodes.yaml` and `params.json` files will be created.
+* output_dir - This value specifies the directory where the `nodes.yaml` and `params.json` files will be created.
 The default value is `./` which should be the `gatling-puppet-load-test` directory.
 However, you may want to create the files elsewhere.
 

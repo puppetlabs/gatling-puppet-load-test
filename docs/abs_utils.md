@@ -13,8 +13,8 @@ Over time `abs_helper` has been updated to make it easier to make ad-hoc request
 To avoid the proliferation of rake tasks the following Ruby scripts have been added to the `utils/abs` directory:
 
 ### provision_pe_xl_nodes.rb
-This script was created to assist in working with the pe_xl module.
-It provisions the nodes used by the module and generates the Bolt inventory and parameter files populated with the provisioned hosts.
+This script was created to assist in working with the [`pe_xl`](https://github.com/reidmv/reidmv-pe_xl) module.
+It provisions the nodes used by the module and generates the [Bolt](https://github.com/puppetlabs/bolt) [inventory](https://puppet.com/docs/bolt/latest/inventory_file.html) and [parameter](https://puppet.com/docs/bolt/latest/writing_tasks.html#concept-21) files populated with the provisioned hosts.
 
 EC2 hosts using the GPLT defaults (c5.2xlarge / 80GB ) are provisioned for the following roles:
 

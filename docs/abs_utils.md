@@ -4,7 +4,7 @@
 personnel employed by Puppet the company.**
 
 ## Background
-The `abs_helper` module was initially created when updating GPLT to use the new (at the time) [`awsdirect`](https://github.com/puppetlabs/always-be-scheduling#apiv2awsdirect)
+The `abs_helper` module was initially created when updating GPLT to use the [`awsdirect`](https://github.com/puppetlabs/always-be-scheduling#apiv2awsdirect)
 endpoint to provision the `mom` and `metrics` nodes used for performance testing.
 This endpoint bypasses the queuing functionality of ABS and returns the requested host immediately after provisioning rather than requiring multiple requests.
 Over time `abs_helper` has been updated to make it easier to make ad-hoc requests to provision hosts, originally for CD4PE testing via rake tasks.

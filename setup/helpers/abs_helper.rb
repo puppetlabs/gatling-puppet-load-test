@@ -700,6 +700,8 @@ module AbsHelper
 
     begin
       hosts = JSON.parse(abs_resource_hosts)
+      raise "The specified JSON has no elements" if hosts.empty?
+
       hosts.each do |host|
         expected_keys.each do |key|
           if host[key].nil? || host[key].empty?

@@ -1162,6 +1162,15 @@ describe AbsHelperClass do
       end
     end
 
+    context "when an empty JSON string is specified" do
+      it "raises an error" do
+        json_hosts = "{}"
+        message = /JSON has no elements/
+        expect { subject.parse_abs_resource_hosts(json_hosts) }
+          .to raise_error(RuntimeError, message)
+      end
+    end
+
     context "when an invalid JSON string is specified" do
       it "raises an error" do
         json_hosts = "Not valid JSON"

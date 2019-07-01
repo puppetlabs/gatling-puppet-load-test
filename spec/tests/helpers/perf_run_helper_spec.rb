@@ -206,6 +206,10 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
   end
 
   describe ".baseline_assert" do
+    before do
+      allow(subject).to receive(:puts)
+    end
+
     context "when assertion succeeds" do
       it "succeeds with no exceptions" do
         expect(subject).to receive(:get_process_hash).with(any_args).and_return(valid_process_hash)

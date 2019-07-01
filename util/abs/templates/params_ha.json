@@ -1,0 +1,19 @@
+{
+  "install": true,
+  "configure": true,
+  "upgrade": false,
+
+  "master_host": "$MASTER$",
+  "puppetdb_database_host": "$PUPPET_DB$",
+  "master_replica_host": "$MASTER_REPLICA$",
+  "puppetdb_database_replica_host": "$PUPPET_DB_REPLICA$",
+  "compiler_hosts": [
+    "$COMPILER_A$",
+    "$COMPILER_B$"
+  ],
+
+  "console_password": "puppetlabs",
+  "dns_alt_names": [ "puppet", "$MASTER$" ],
+  "compiler_pool_address": "$MASTER$",
+  "version": "2019.1.0"
+}

@@ -122,12 +122,21 @@ describe AbsHelperClass do
   TEST_ABS_RESOURCE_HOSTS = TEST_ABS_HOSTS.to_json
 
   TEST_INVALID_ABS_RESOURCE_HOSTS = [
-    { 'hostz': TEST_HOSTNAME,
-      'typez': TEST_BEAKER_TYPE,
-      'enginez': TEST_ENGINE },
+    { 'hostname': TEST_HOSTNAME,
+      'type': TEST_BEAKER_TYPE,
+      'engine': TEST_ENGINE },
     { 'hostz': TEST_HOSTNAME,
       'typez': TEST_BEAKER_TYPE,
       'enginez': TEST_ENGINE }
+  ].to_json.freeze
+
+  TEST_ABS_RESOURCE_HOSTS_EMPTY = [
+    { 'hostname': TEST_HOSTNAME,
+      'type': TEST_BEAKER_TYPE,
+      'engine': TEST_ENGINE },
+    { 'hostname': "",
+      'type': "",
+      'engine': "" }
   ].to_json.freeze
 
   before do
@@ -227,6 +236,16 @@ describe AbsHelperClass do
       it "initializes the helper and returns the a2a hosts" do
         expect(subject).to receive(:abs_initialize)
         expect(subject.get_a2a_hosts).to eq(TEST_A2A_HOSTS)
+      end
+    end
+  end
+
+  describe "#get_host_to_provision" do
+    role = "mom"
+    host_array = [TEST_A2A_MOM]
+    context "when the required arguments are specified" do
+      it "returns the expected host array" do
+        expect(subject.get_host_to_provision(role, TEST_SIZE, TEST_VOLUME_SIZE)).to eq(host_array)
       end
     end
   end
@@ -822,20 +841,25 @@ describe AbsHelperClass do
     end
   end
 
-  # TODO: implement
   describe "#update_last_abs_resource_hosts" do
     context "when a host string is specified" do
       it "writes the string to the log file" do
-        skip
+        expect(File).to receive(:write).with("last_abs_resource_hosts.log", TEST_ABS_RESOURCE_HOSTS)
+        subject.update_last_abs_resource_hosts(TEST_ABS_RESOURCE_HOSTS)
       end
     end
   end
 
-  # TODO: implement
   describe "#backoff_sleep" do
     context "when called with a positive number of tries" do
-      it "sleeps for a multiple of the number of tries" do
-        skip
+      it "sleeps for a multiple of the number of tries and returns nil" do
+        tries = 2
+        sleep_time = 2**tries
+        message = "Sleeping for #{sleep_time} seconds after attempt #{tries}..."
+        expect(subject).to receive(:sleep).with(sleep_time)
+        expect(subject).to receive(:puts).with(message)
+
+        subject.backoff_sleep(tries)
       end
     end
   end
@@ -1073,6 +1097,10 @@ describe AbsHelperClass do
   end
 
   describe "#valid_abs_resource_hosts?" do
+    before do
+      allow(subject).to receive(:puts)
+    end
+
     context "when a valid resource host array is specified" do
       it "returns true" do
         expect(subject.valid_abs_resource_hosts?(TEST_ABS_RESOURCE_HOSTS)).to eq(true)
@@ -1081,21 +1109,183 @@ describe AbsHelperClass do
 
     context "when an invalid resource host array is specified" do
       it "reports the error and returns false" do
-        hosts = TEST_INVALID_ABS_RESOURCE_HOSTS
-        message = "The specified resource host array is not valid: #{hosts}"
-        allow(subject).to receive(:puts)
+        json_hosts = TEST_INVALID_ABS_RESOURCE_HOSTS
+        message = /Invalid abs_resource_hosts JSON specified/
+
+        # parse_abs_resource_hosts should raise (this method depends on this behavior)
+        expect(subject).to receive(:parse_abs_resource_hosts)
+          .with(json_hosts).and_raise(RuntimeError, message)
+
+        # rescue and report the error message
         expect(subject).to receive(:puts).with(message)
 
-        expect(subject.valid_abs_resource_hosts?(hosts)).to eq(false)
+        expect(subject.valid_abs_resource_hosts?(json_hosts)).to eq(false)
       end
     end
 
-    context "when an nil is specified" do
+    context "when invalid JSON is specified" do
       it "reports the error and returns false" do
-        allow(subject).to receive(:puts)
-        expect(subject).to receive(:puts).with("A valid hosts array is required; nil was specified")
+        json_hosts = "THIS IS NOT JSON!"
+        message = /encountered parsing the hosts array/
+
+        # parse_abs_resource_hosts should raise (this method depends on this behavior)
+        expect(subject).to receive(:parse_abs_resource_hosts)
+          .with(json_hosts).and_raise(RuntimeError, message)
+
+        # rescue and report the error message
+        expect(subject).to receive(:puts).with(message)
+
+        expect(subject.valid_abs_resource_hosts?(json_hosts)).to eq(false)
+      end
+    end
+
+    context "when nil is specified" do
+      it "reports the error and returns false" do
+        message = /encountered parsing the hosts array/
+        expect(subject).to receive(:puts).with(message)
 
         expect(subject.valid_abs_resource_hosts?(nil)).to eq(false)
+      end
+    end
+  end
+
+  describe "#parse_abs_resource_hosts" do
+    before do
+      allow(subject).to receive(:puts)
+    end
+
+    context "when a valid hosts JSON string is specified" do
+      it "returns the hosts array" do
+        json_hosts = TEST_ABS_RESOURCE_HOSTS
+        hosts_array = JSON.parse(TEST_ABS_RESOURCE_HOSTS)
+        expect(subject.parse_abs_resource_hosts(json_hosts)).to eq(hosts_array)
+      end
+    end
+
+    context "when an empty JSON string is specified" do
+      it "raises an error" do
+        json_hosts = "{}"
+        message = /JSON has no elements/
+        expect { subject.parse_abs_resource_hosts(json_hosts) }
+          .to raise_error(RuntimeError, message)
+      end
+    end
+
+    context "when an invalid JSON string is specified" do
+      it "raises an error" do
+        json_hosts = "Not valid JSON"
+        message = /encountered parsing the hosts array/
+        expect { subject.parse_abs_resource_hosts(json_hosts) }
+          .to raise_error(RuntimeError, message)
+      end
+    end
+
+    context "when an invalid hosts JSON string is specified" do
+      it "raises an error" do
+        json_hosts = TEST_INVALID_ABS_RESOURCE_HOSTS
+        message = /Invalid abs_resource_hosts JSON specified/
+        expect { subject.parse_abs_resource_hosts(json_hosts) }
+          .to raise_error(RuntimeError, message)
+      end
+    end
+
+    context "when a hosts JSON string is specified with empty values" do
+      it "raises an error" do
+        json_hosts = TEST_ABS_RESOURCE_HOSTS_EMPTY
+        message = /Invalid abs_resource_hosts JSON specified/
+        expect { subject.parse_abs_resource_hosts(json_hosts) }
+          .to raise_error(RuntimeError, message)
+      end
+    end
+
+    context "when nil is specified" do
+      it "raises the error" do
+        json_hosts = nil
+        message = /encountered parsing the hosts array/
+        expect { subject.parse_abs_resource_hosts(json_hosts) }
+          .to raise_error(RuntimeError, message)
+      end
+    end
+  end
+
+  describe "#provision_host_for_role" do
+    before do
+      allow(subject).to receive(:puts)
+    end
+
+    host_to_provision = [TEST_A2A_MOM]
+    role = "mom"
+    hostname = TEST_HOSTNAME
+    message = "Successfully provisioned host - role: #{role}, hostname: #{hostname}"
+
+    context "when only required args are specified" do
+      before do
+        stub_const("AbsHelper::AWS_SIZE", TEST_SIZE)
+        stub_const("AbsHelper::AWS_VOLUME_SIZE", TEST_VOLUME_SIZE)
+      end
+
+      it "provisions the host with the specified role using default values and returns the hostname" do
+        expect(subject).to receive(:get_abs_resource_hosts)
+          .with(host_to_provision).and_return(TEST_ABS_RESOURCE_HOSTS_SINGLE)
+        expect(subject).to receive(:puts).with(message)
+        allow(subject).to receive(:puts)
+        expect(subject.provision_host_for_role(role)).to eq(hostname)
+      end
+    end
+
+    context "when all args are specified" do
+      it "provisions the host with the specified role using specified values and returns the hostname" do
+        expect(subject).to receive(:get_abs_resource_hosts)
+          .with(host_to_provision).and_return(TEST_ABS_RESOURCE_HOSTS_SINGLE)
+        expect(subject).to receive(:puts).with(message)
+        allow(subject).to receive(:puts)
+        expect(subject.provision_host_for_role(role, TEST_SIZE, TEST_VOLUME_SIZE)).to eq(hostname)
+      end
+    end
+
+    context "when get_abs_resource_hosts returns nil" do
+      it "raises an error" do
+        message = "Unable to provision host via ABS"
+        expect(subject).to receive(:get_abs_resource_hosts).with(host_to_provision).and_return(nil)
+
+        expect { subject.provision_host_for_role(role, TEST_SIZE, TEST_VOLUME_SIZE) }
+          .to raise_error(RuntimeError, message)
+      end
+    end
+  end
+
+  describe "#provision_hosts_for_roles" do
+    before do
+      allow(subject).to receive(:puts)
+    end
+
+    roles = %w[mom metrics]
+    abs_id = "testing"
+    expected_hosts = [{ role: "mom", hostname: TEST_HOSTNAME_MOM },
+                      { role: "metrics", hostname: TEST_HOSTNAME_METRICS }].freeze
+
+    context "when only required args are specified" do
+      before do
+        stub_const("AbsHelper::AWS_SIZE", TEST_SIZE)
+        stub_const("AbsHelper::AWS_VOLUME_SIZE", TEST_VOLUME_SIZE)
+      end
+
+      it "uses the default values and returns the hosts array" do
+        expect(subject).to receive(:provision_host_for_role).with("mom", TEST_SIZE, TEST_VOLUME_SIZE)
+                                                            .and_return(TEST_HOSTNAME_MOM)
+        expect(subject).to receive(:provision_host_for_role).with("metrics", TEST_SIZE, TEST_VOLUME_SIZE)
+                                                            .and_return(TEST_HOSTNAME_METRICS)
+        expect(subject.provision_hosts_for_roles(roles)).to eq(expected_hosts)
+      end
+    end
+
+    context "when all args are specified" do
+      it "provisions hosts with the specified roles using specified values and returns the hosts array" do
+        expect(subject).to receive(:provision_host_for_role).with("mom", TEST_SIZE, TEST_VOLUME_SIZE)
+                                                            .and_return(TEST_HOSTNAME_MOM)
+        expect(subject).to receive(:provision_host_for_role).with("metrics", TEST_SIZE, TEST_VOLUME_SIZE)
+                                                            .and_return(TEST_HOSTNAME_METRICS)
+        expect(subject.provision_hosts_for_roles(roles, abs_id, TEST_SIZE, TEST_VOLUME_SIZE)).to eq(expected_hosts)
       end
     end
   end

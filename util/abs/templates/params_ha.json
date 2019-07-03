@@ -2,6 +2,7 @@
   "install": true,
   "configure": true,
   "upgrade": false,
+  "ha": true,
 
   "master_host": "$MASTER$",
   "puppetdb_database_host": "$PUPPET_DB$",

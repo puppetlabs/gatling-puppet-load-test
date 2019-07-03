@@ -85,11 +85,11 @@ However, you may want to create the files elsewhere.
 
 Run the script from the `gatling-puppet-load-test` directory:
 ```
-ruby ./util/abs/provision_pe_xl_nodes.rb
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb
 
 or
 
-ruby ./util/abs/provision_pe_xl_nodes.rb my_id ~/tmp/my/output/dir
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb my_id ~/tmp/my/output/dir
 ```
 
 The `pe_xl` plan can then be run from the `gatling-puppet-load-test` directory using the generated files.

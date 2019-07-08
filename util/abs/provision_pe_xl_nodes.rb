@@ -102,12 +102,11 @@ end
 #
 # @author Bill Claytor
 #
-# @param [String] output_dir The directory where the file should be written
+# @param [String] file The 'nodes.yaml' file to check
 #
 # @example
 #   check_nodes_yaml(output_dir)
-def check_nodes_yaml(output_dir)
-  file = "#{output_dir}/nodes.yaml"
+def check_nodes_yaml(file)
   puts "Checking #{file}"
 
   yaml = YAML.load_file file

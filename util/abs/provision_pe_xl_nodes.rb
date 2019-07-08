@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "yaml"
 require "./setup/helpers/abs_helper.rb"
 include AbsHelper # rubocop:disable Style/MixinUsage
 
@@ -39,7 +40,7 @@ TEST_HOSTS_NO_HA = [{ role: "puppet_db", hostname: "ip-10-227-3-22.amz-dev.puppe
                     { role: "master", hostname: "ip-10-227-3-127.amz-dev.puppet.net" },
                     { role: "compiler_a", hostname: "ip-10-227-3-242.amz-dev.puppet.net" }].freeze
 
-NODES_YAML_START = <<~NODES
+NODES_YAML = <<~NODES_YAML
   ---
   groups:
     - name: pe_xl_nodes
@@ -50,8 +51,7 @@ NODES_YAML_START = <<~NODES
           user: centos
           run-as: root
           tty: true
-      nodes:
-NODES
+NODES_YAML
 
 # Creates the Bolt inventory file (nodes.yaml) and
 # parameters file (params.json) for the specified hosts
@@ -87,13 +87,36 @@ end
 #   hosts = provision_hosts_for_roles(roles)
 #   create_nodes_yaml(hosts, output_dir)
 def create_nodes_yaml(hosts, output_dir)
-  File.open("#{output_dir}/nodes.yaml", "w+") do |f|
-    f.puts NODES_YAML_START
-    hosts.each do |host|
-      hostname = host[:hostname]
-      f.puts "      - #{hostname}"
-    end
+  yaml = YAML.safe_load NODES_YAML
+  nodes = []
+
+  hosts.each do |host|
+    nodes << host[:hostname]
   end
+
+  yaml["groups"][0]["nodes"] = nodes
+  File.write("#{output_dir}/nodes.yaml", YAML.dump(yaml))
+end
+
+# Checks the nodes.yaml file to ensure it has been written correctly
+#
+# @author Bill Claytor
+#
+# @param [String] output_dir The directory where the file should be written
+#
+# @example
+#   check_nodes_yaml(output_dir)
+def check_nodes_yaml(output_dir)
+  file = "#{output_dir}/nodes.yaml"
+  puts "Checking #{file}"
+
+  yaml = YAML.load_file file
+  nodes = yaml["groups"][0]["nodes"]
+
+  puts
+  puts "nodes:"
+  puts nodes
+  puts
 end
 
 # Creates the Bolt parameters file (params.json) for the specified hosts

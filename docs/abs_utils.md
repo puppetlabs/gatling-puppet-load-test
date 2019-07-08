@@ -49,14 +49,14 @@ ROLES = ROLES_CORE + ROLES_HA
 
 #### Templates
 This script was written to assist in updating the `pe_xl` module to optionally set up a non-HA environment (see [SLV-365](https://tickets.puppetlabs.com/browse/SLV-365)).
-It currently uses 'HA' and 'non-HA' versions of parameterized template files to create the `nodes.yaml` and `params.json` files.
-These template files are located in the `utils/abs/templates` directory:
-* nodes_ha.yaml
-* nodes_no_ha.yaml
+It creates the `nodes.yaml` and `params.json` files used by the `pe_xl` plan.
+In the case of the `params.json` file it uses 'HA' and 'non-HA' versions of parameterized template files located in the `utils/abs/templates` directory:
 * params_ha.json
 * params_no_ha.json
 
-Currently, the only difference between the templates is the elimination of the HA nodes in the non-HA versions.
+The role-based parameters in the template are replaced with the hostname provisioned for the corresponding role.
+
+Currently, the templates differ only in the value specified for the `ha` parameter and the elimination of the HA nodes in the non-HA version.
 There is no need to edit the template files directly.
 The script determines whether to use the 'HA' or 'non-HA' version of the template based on the specified roles.
 While the roles are currently hardcoded, the 'HA' roles can be eliminated by changing the line:
@@ -85,11 +85,11 @@ However, you may want to create the files elsewhere.
 
 Run the script from the `gatling-puppet-load-test` directory:
 ```
-ruby ./util/abs/provision_pe_xl_nodes.rb
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb
 
 or
 
-ruby ./util/abs/provision_pe_xl_nodes.rb my_id ~/tmp/my/output/dir
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb my_id ~/tmp/my/output/dir
 ```
 
 The `pe_xl` plan can then be run from the `gatling-puppet-load-test` directory using the generated files.
@@ -101,4 +101,4 @@ Using the example in the `pe_xl` [documentation](https://github.com/reidmv/reidm
    --params @params.json
 ```
 
-Note: this assumes the `pe_xl` module has been installed in the `~/modules` directory as specified the instructions.
+Note: this assumes the `pe_xl` module has been installed in the `~/modules` directory as specified in the documentation.

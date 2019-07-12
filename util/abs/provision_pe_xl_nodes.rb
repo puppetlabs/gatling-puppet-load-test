@@ -4,17 +4,6 @@ require "yaml"
 require "./setup/helpers/abs_helper.rb"
 include AbsHelper # rubocop:disable Style/MixinUsage
 
-# TODO: specify via env variable, arg, options file, etc?
-# currently uses ARGV[0], ARGV[1] if specified, otherwise these defaults
-ABS_ID = "slv"
-OUTPUT_DIR = "./"
-
-TEMPLATE_DIR = "./util/abs/templates"
-
-# TODO: allow different sizes for each node?
-ABS_SIZE = "c5.2xlarge"
-ABS_VOLUME_SIZE = "80"
-
 ROLES_CORE = %w[master
                 puppet_db
                 compiler_a
@@ -23,8 +12,29 @@ ROLES_CORE = %w[master
 ROLES_HA = %w[master_replica
               puppet_db_replica].freeze
 
-# TODO: specify as env variable or arg?
-ROLES = ROLES_CORE + ROLES_HA
+# TODO: update to use OptionParser
+# NOTE: set HA to false for a non-HA environment
+HA = false
+ROLES = if HA
+          ROLES_CORE + ROLES_HA
+        else
+          ROLES_CORE
+        end
+
+# TODO: update to use OptionParser
+# currently uses ARGV[0], ARGV[1] if specified, otherwise these defaults
+ABS_ID = "slv"
+OUTPUT_DIR = "./"
+
+# TODO: update to use OptionParser
+PE_VERSION = "2019.1.0"
+
+# TODO: remove when no longer needed
+TEMPLATE_DIR = "./util/abs/templates"
+
+# TODO: allow different sizes for each node?
+ABS_SIZE = "c5.2xlarge"
+ABS_VOLUME_SIZE = "80"
 
 # TODO: move to spec when test cases are implemented
 # for now this allows testing of the create_pe_xl_bolt_files method without provisioning
@@ -52,6 +62,31 @@ NODES_YAML = <<~NODES_YAML
           run-as: root
           tty: true
 NODES_YAML
+
+# TODO: update to use variables / symbols for all parameter values?
+PARAMS_JSON = <<~PARAMS_JSON
+  {
+    "install": true,
+    "configure": true,
+    "upgrade": false,
+    "ha": #{HA},
+
+    "master_host": "$MASTER$",
+    "puppetdb_database_host": "$PUPPET_DB$",
+    "master_replica_host": "$MASTER_REPLICA$",
+    "puppetdb_database_replica_host": "$PUPPET_DB_REPLICA$",
+    "compiler_hosts": [
+      "$COMPILER_A$",
+      "$COMPILER_B$"
+    ],
+
+    "console_password": "puppetlabs",
+    "dns_alt_names": [ "puppet", "$MASTER$" ],
+    "compiler_pool_address": "$MASTER$",
+    "version": "#{PE_VERSION}"
+  }
+
+PARAMS_JSON
 
 # Creates the Bolt inventory file (nodes.yaml) and
 # parameters file (params.json) for the specified hosts
@@ -131,15 +166,7 @@ end
 #   hosts = provision_hosts_for_roles(roles)
 #   create_params_json(hosts, output_dir)
 def create_params_json(hosts, output_dir)
-  # HA?
-  master_replica = hosts.detect { |m| m[:role] == "master_replica" }
-  suffix = if master_replica
-             "ha"
-           else
-             "no_ha"
-           end
-
-  params_json = File.read("#{TEMPLATE_DIR}/params_#{suffix}.json")
+  params_json = PARAMS_JSON
 
   # replace parameters for each host
   hosts.each do |host|

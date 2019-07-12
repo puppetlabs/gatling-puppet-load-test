@@ -6,6 +6,8 @@
 
   "master_host": "$MASTER$",
   "puppetdb_database_host": "$PUPPET_DB$",
+  "master_replica_host": "master_replica_na",
+  "puppetdb_database_replica_host": "puppetdb_database_replica_na",
   "compiler_hosts": [
     "$COMPILER_A$",
     "$COMPILER_B$"

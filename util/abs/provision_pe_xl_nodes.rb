@@ -29,9 +29,6 @@ OUTPUT_DIR = "./"
 # TODO: update to use OptionParser
 PE_VERSION = "2019.1.0"
 
-# TODO: remove when no longer needed
-TEMPLATE_DIR = "./util/abs/templates"
-
 # TODO: allow different sizes for each node?
 ABS_SIZE = "c5.2xlarge"
 ABS_VOLUME_SIZE = "80"

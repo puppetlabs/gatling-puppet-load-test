@@ -33,9 +33,6 @@ These default settings are currently hardcoded but can be updated by editing the
 A future update to `abs_helper` will provide a CLI with the ability to specify all settings.
 
 ```
-ABS_SIZE = "c5.2xlarge"
-ABS_VOLUME_SIZE = "80"
-
 ROLES_CORE = %w[master
                 puppet_db
                 compiler_a
@@ -44,34 +41,23 @@ ROLES_CORE = %w[master
 ROLES_HA = %w[master_replica
               puppet_db_replica].freeze
 
-ROLES = ROLES_CORE + ROLES_HA
+# NOTE: set HA to true for a HA environment
+HA = false
+ROLES = if HA
+          ROLES_CORE + ROLES_HA
+        else
+          ROLES_CORE
+        end
+
+...
+
+PE_VERSION = "2019.1.0"
+
+...
+
+ABS_SIZE = "c5.2xlarge"
+ABS_VOLUME_SIZE = "80"
 ```
-
-#### Templates
-This script was written to assist in updating the `pe_xl` module to optionally set up a non-HA environment (see [SLV-365](https://tickets.puppetlabs.com/browse/SLV-365)).
-It creates the `nodes.yaml` and `params.json` files used by the `pe_xl` plan.
-In the case of the `params.json` file it uses 'HA' and 'non-HA' versions of parameterized template files located in the `utils/abs/templates` directory:
-* params_ha.json
-* params_no_ha.json
-
-The role-based parameters in the template are replaced with the hostname provisioned for the corresponding role.
-
-Currently, the templates differ only in the value specified for the `ha` parameter and the elimination of the HA nodes in the non-HA version.
-There is no need to edit the template files directly.
-The script determines whether to use the 'HA' or 'non-HA' version of the template based on the specified roles.
-While the roles are currently hardcoded, the 'HA' roles can be eliminated by changing the line:
-```
-ROLES = ROLES_CORE + ROLES_HA
-```
-
-to specify only the core roles:
-
-```
-ROLES = ROLES_CORE
-```
-
-If the script finds the `master_replica` role in the specified roles array it will use the 'HA' version of the template, otherwise the 'non-HA' version.
-A future update will make this an optional parameter.
 
 #### Optional arguments
 The script accepts the following optional arguments:

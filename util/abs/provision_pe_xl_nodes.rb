@@ -1,8 +1,53 @@
 # frozen_string_literal: true
 
+require "optparse"
 require "yaml"
 require "./setup/helpers/abs_helper.rb"
 include AbsHelper # rubocop:disable Style/MixinUsage
+
+DESCRIPTION = <<~DESCRIPTION
+  This script was created to assist in working with the pe_xl module (https://github.com/reidmv/reidmv-pe_xl).
+  It provisions the nodes used by the module and generates the Bolt inventory and parameter files populated with the provisioned hosts.
+
+  * Note: Because the script is designed to work with GPLT it sets up the environment without HA by default.
+
+  EC2 hosts are provisioned for the following roles:
+  * Core roles:
+   - master
+   - puppet_db
+   - compiler_a
+   - compiler_b
+
+  * HA roles:
+   - master_replica
+   - puppet_db_replica
+
+DESCRIPTION
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: provision_pe_xl_nodes.rb [options]"
+
+  # TODO: order?
+
+  opts.on("-h", "--help", "Display the help text") do
+    puts DESCRIPTION
+    puts opts
+    puts
+    exit
+  end
+
+  # TODO: description seems awkward; suggestions?
+  opts.on("--ha HA", TrueClass, "Whether the environment should be set up for HA")
+
+  opts.on("-i", "--id ID", String, 'The value for the AWS "id" tag')
+
+  # TODO: verify these
+  opts.on("-o", "--output_dir DIR", String, "The directory where the Bolt files should be written")
+  opts.on("-v", "--pe_version VERSION", String, "The PE version to install")
+  opts.on("-t", "--type TYPE", String, "The AWS EC2 instance type to provision")
+  opts.on("-s", "--size SIZE", Integer, "The AWS EC2 volume size to specify")
+end.parse!(into: options)
 
 ROLES_CORE = %w[master
                 puppet_db
@@ -14,7 +59,7 @@ ROLES_HA = %w[master_replica
 
 # TODO: update to use OptionParser
 # NOTE: set HA to false for a non-HA environment
-HA = false
+HA = options[:ha] || false
 ROLES = if HA
           ROLES_CORE + ROLES_HA
         else
@@ -23,15 +68,15 @@ ROLES = if HA
 
 # TODO: update to use OptionParser
 # currently uses ARGV[0], ARGV[1] if specified, otherwise these defaults
-ABS_ID = "slv"
-OUTPUT_DIR = "./"
+AWS_TAG_ID = options[:id] || "slv"
+OUTPUT_DIR = options[:output_dir] || "./"
 
 # TODO: update to use OptionParser
-PE_VERSION = "2019.1.0"
+PE_VERSION = options[:pe_version] || "2019.1.0"
 
-# TODO: allow different sizes for each node?
-ABS_SIZE = "c5.2xlarge"
-ABS_VOLUME_SIZE = "80"
+# TODO: allow different type / size for each node?
+AWS_INSTANCE_TYPE = options[:type] || "c5.2xlarge"
+AWS_VOLUME_SIZE = options[:size] || "80"
 
 # TODO: move to spec when test cases are implemented
 # for now this allows testing of the create_pe_xl_bolt_files method without provisioning
@@ -85,6 +130,22 @@ PARAMS_JSON = <<~PARAMS_JSON
 
 PARAMS_JSON
 
+def provision_pe_xl_nodes
+  puts "Provisioning pe_xl nodes with the following options:"
+  puts "  HA: #{HA}"
+  puts "  Output directory for Bolt inventory and parameter files: #{OUTPUT_DIR}"
+  puts "  PE version: #{PE_VERSION}"
+  puts "  AWS EC2 id tag: #{AWS_TAG_ID}"
+  puts "  AWS EC2 instance type: #{AWS_INSTANCE_TYPE}"
+  puts "  AWS EC2 volume size: #{AWS_VOLUME_SIZE}"
+  puts
+
+  # TODO: update provision_hosts_for_roles to generate last_abs_resource_hosts.log
+  # # and generate Beaker hosts files
+  hosts = provision_hosts_for_roles(ROLES, AWS_TAG_ID, AWS_SIZE, AWS_VOLUME_SIZE)
+  create_pe_xl_bolt_files(hosts, OUTPUT_DIR)
+end
+
 # Creates the Bolt inventory file (nodes.yaml) and
 # parameters file (params.json) for the specified hosts
 #
@@ -120,6 +181,7 @@ end
 #   create_nodes_yaml(hosts, output_dir)
 def create_nodes_yaml(hosts, output_dir)
   yaml = YAML.safe_load NODES_YAML
+  output_path = "#{File.expand_path(output_dir)}/nodes.yaml"
   nodes = []
 
   hosts.each do |host|
@@ -127,7 +189,11 @@ def create_nodes_yaml(hosts, output_dir)
   end
 
   yaml["groups"][0]["nodes"] = nodes
-  File.write("#{output_dir}/nodes.yaml", YAML.dump(yaml))
+
+  puts "Writing #{output_path}"
+  puts
+
+  File.write(output_path, YAML.dump(yaml))
 end
 
 # Checks the nodes.yaml file to ensure it has been written correctly
@@ -164,6 +230,9 @@ end
 #   create_params_json(hosts, output_dir)
 def create_params_json(hosts, output_dir)
   params_json = PARAMS_JSON
+  output_path = "#{File.expand_path(output_dir)}/params.json"
+
+  puts "Replacing parameters in params.json: "
 
   # replace parameters for each host
   hosts.each do |host|
@@ -171,23 +240,18 @@ def create_params_json(hosts, output_dir)
     role = host[:role]
     param = "$#{role.upcase}$"
 
-    puts "Replacing parameters: "
-    puts " hostname: #{hostname}"
-    puts " role: #{role}"
-    puts " parameter: #{param}"
-    puts
+    puts " hostname: #{hostname}, role: #{role}, parameter: #{param}"
 
     # replace parameters
     params_json = params_json.gsub(param, hostname)
   end
 
-  File.write("#{output_dir}/params.json", params_json)
+  puts
+  puts "Writing #{output_path}"
+  puts
+
+  File.write(output_path, params_json)
 end
 
-abs_id = ARGV[0] || ABS_ID
-output_dir = ARGV[1] || "./"
-
-# TODO: update provision_hosts_for_roles to generate last_abs_resource_hosts.log
-# and generate Beaker hosts file
-hosts = provision_hosts_for_roles(ROLES, abs_id, ABS_SIZE, ABS_VOLUME_SIZE)
-create_pe_xl_bolt_files(hosts, output_dir)
+# provision pe_xl nodes
+provision_pe_xl_nodes

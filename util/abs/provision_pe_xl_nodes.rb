@@ -2,6 +2,7 @@
 
 require "optparse"
 require "yaml"
+require "json"
 require "./setup/helpers/abs_helper.rb"
 include AbsHelper # rubocop:disable Style/MixinUsage
 
@@ -25,10 +26,11 @@ DESCRIPTION = <<~DESCRIPTION
 DESCRIPTION
 
 options = {}
+
+# TODO: error when invalid options are specified
+# TODO: re-order the options?
 OptionParser.new do |opts|
   opts.banner = "Usage: provision_pe_xl_nodes.rb [options]"
-
-  # TODO: order?
 
   opts.on("-h", "--help", "Display the help text") do
     puts DESCRIPTION
@@ -37,10 +39,19 @@ OptionParser.new do |opts|
     exit
   end
 
-  # TODO: description seems awkward; suggestions?
-  opts.on("--ha HA", TrueClass, "Whether the environment should be set up for HA")
+  opts.on("--ha", "Specifies that the environment should be set up for HA")
 
-  opts.on("-i", "--id ID", String, 'The value for the AWS "id" tag')
+  # TODO: noop and test options are mutually exclusive;
+  # error when both are specified?
+  #
+  # omitted short versions to avoid collisions
+  opts.on("--noop", "Run in no-op mode")
+  opts.on("--test", "Use test data rather than provisioning hosts")
+
+  # TODO: this description seems awkward; suggestions?
+  opts.on("--ha", "Specifies that the environment should be set up for HA")
+
+  opts.on("-i", "--id ID", String, "The value for the AWS 'id' tag")
 
   # TODO: verify these
   opts.on("-o", "--output_dir DIR", String, "The directory where the Bolt files should be written")
@@ -57,21 +68,20 @@ ROLES_CORE = %w[master
 ROLES_HA = %w[master_replica
               puppet_db_replica].freeze
 
-# TODO: update to use OptionParser
-# NOTE: set HA to false for a non-HA environment
-HA = options[:ha] || false
-ROLES = if HA
-          ROLES_CORE + ROLES_HA
-        else
-          ROLES_CORE
-        end
+if options[:ha]
+  HA = true
+  ROLES = ROLES_CORE + ROLES_HA
+else
+  HA = false
+  ROLES = ROLES_CORE
+end
 
-# TODO: update to use OptionParser
-# currently uses ARGV[0], ARGV[1] if specified, otherwise these defaults
+NOOP = options[:noop] || false
+TEST = options[:test] || false
+PROVISIONING_TXT = NOOP || TEST ? "Would have provisioned" : "Provisioning"
+
 AWS_TAG_ID = options[:id] || "slv"
 OUTPUT_DIR = options[:output_dir] || "./"
-
-# TODO: update to use OptionParser
 PE_VERSION = options[:pe_version] || "2019.1.0"
 
 # TODO: allow different type / size for each node?
@@ -80,17 +90,17 @@ AWS_VOLUME_SIZE = options[:size] || "80"
 
 # TODO: move to spec when test cases are implemented
 # for now this allows testing of the create_pe_xl_bolt_files method without provisioning
-TEST_HOSTS_HA = [{ role: "puppet_db", hostname: "ip-10-227-3-22.amz-dev.puppet.net" },
-                 { role: "compiler_b", hostname: "ip-10-227-1-195.amz-dev.puppet.net" },
-                 { role: "puppet_db_replica", hostname: "ip-10-227-3-158.amz-dev.puppet.net" },
-                 { role: "master", hostname: "ip-10-227-3-127.amz-dev.puppet.net" },
-                 { role: "compiler_a", hostname: "ip-10-227-3-242.amz-dev.puppet.net" },
-                 { role: "master_replica", hostname: "ip-10-227-1-82.amz-dev.puppet.net" }].freeze
+TEST_HOSTS_HA = [{ role: "puppet_db", hostname: "ip-10-227-3-22.test.puppet.net" },
+                 { role: "compiler_b", hostname: "ip-10-227-1-195.test.puppet.net" },
+                 { role: "puppet_db_replica", hostname: "ip-10-227-3-158.test.puppet.net" },
+                 { role: "master", hostname: "ip-10-227-3-127.test.puppet.net" },
+                 { role: "compiler_a", hostname: "ip-10-227-3-242.test.puppet.net" },
+                 { role: "master_replica", hostname: "ip-10-227-1-82.test.puppet.net" }].freeze
 
-TEST_HOSTS_NO_HA = [{ role: "puppet_db", hostname: "ip-10-227-3-22.amz-dev.puppet.net" },
-                    { role: "compiler_b", hostname: "ip-10-227-1-195.amz-dev.puppet.net" },
-                    { role: "master", hostname: "ip-10-227-3-127.amz-dev.puppet.net" },
-                    { role: "compiler_a", hostname: "ip-10-227-3-242.amz-dev.puppet.net" }].freeze
+TEST_HOSTS_NO_HA = [{ role: "puppet_db", hostname: "ip-10-227-3-22.test.puppet.net" },
+                    { role: "compiler_b", hostname: "ip-10-227-1-195.test.puppet.net" },
+                    { role: "master", hostname: "ip-10-227-3-127.test.puppet.net" },
+                    { role: "compiler_a", hostname: "ip-10-227-3-242.test.puppet.net" }].freeze
 
 NODES_YAML = <<~NODES_YAML
   ---
@@ -106,6 +116,7 @@ NODES_YAML = <<~NODES_YAML
 NODES_YAML
 
 # TODO: update to use variables / symbols for all parameter values?
+# TODO: should this use `<<-` vs `<<~`?
 PARAMS_JSON = <<~PARAMS_JSON
   {
     "install": true,
@@ -130,20 +141,65 @@ PARAMS_JSON = <<~PARAMS_JSON
 
 PARAMS_JSON
 
+PROVISION_MESSAGE = <<~PROVISION_MESSAGE
+
+  #{PROVISIONING_TXT} pe_xl nodes with the following options:
+    HA: #{HA}
+    Output directory for Bolt inventory and parameter files: #{OUTPUT_DIR}
+    PE version: #{PE_VERSION}
+    AWS EC2 id tag: #{AWS_TAG_ID}
+    AWS EC2 instance type: #{AWS_INSTANCE_TYPE}
+    AWS EC2 volume size: #{AWS_VOLUME_SIZE}
+
+PROVISION_MESSAGE
+
+NOOP_MESSAGE = "*** Running in no-op mode ***"
+NOOP_EXEC = <<~NOOP_EXEC
+  Would have called:
+
+    hosts = provision_hosts_for_roles(#{ROLES},
+                                      #{AWS_TAG_ID},
+                                      #{AWS_SIZE},
+                                      #{AWS_VOLUME_SIZE})
+
+  to provision the hosts, then:
+
+    create_pe_xl_bolt_files(hosts, #{OUTPUT_DIR})
+
+  to create the Bolt inventory and parameter files.
+
+NOOP_EXEC
+
+TEST_MESSAGE = "*** Running in test mode ***"
+
+# This is the main entry point to the provision_pe_xl_nodes.rb script
+# It provisions EC2 hosts for pe_xl using ABS (via abs_helper)
+#
+# TODO: more...
+#
+# @author Bill Claytor
+#
+# @example
+#   provision_pe_xl_nodes
+#
 def provision_pe_xl_nodes
-  puts "Provisioning pe_xl nodes with the following options:"
-  puts "  HA: #{HA}"
-  puts "  Output directory for Bolt inventory and parameter files: #{OUTPUT_DIR}"
-  puts "  PE version: #{PE_VERSION}"
-  puts "  AWS EC2 id tag: #{AWS_TAG_ID}"
-  puts "  AWS EC2 instance type: #{AWS_INSTANCE_TYPE}"
-  puts "  AWS EC2 volume size: #{AWS_VOLUME_SIZE}"
-  puts
+  puts NOOP_MESSAGE if NOOP
+  puts TEST_MESSAGE if TEST
+  puts PROVISION_MESSAGE
 
   # TODO: update provision_hosts_for_roles to generate last_abs_resource_hosts.log
-  # # and generate Beaker hosts files
-  hosts = provision_hosts_for_roles(ROLES, AWS_TAG_ID, AWS_SIZE, AWS_VOLUME_SIZE)
-  create_pe_xl_bolt_files(hosts, OUTPUT_DIR)
+  # and generate Beaker hosts files
+  if NOOP
+    puts NOOP_EXEC
+  else
+    hosts = if TEST
+              HA ? TEST_HOSTS_HA : TEST_HOSTS_NO_HA
+            else
+              provision_hosts_for_roles(ROLES, AWS_TAG_ID, AWS_SIZE, AWS_VOLUME_SIZE)
+            end
+
+    create_pe_xl_bolt_files(hosts, OUTPUT_DIR)
+  end
 end
 
 # Creates the Bolt inventory file (nodes.yaml) and
@@ -194,6 +250,8 @@ def create_nodes_yaml(hosts, output_dir)
   puts
 
   File.write(output_path, YAML.dump(yaml))
+
+  check_nodes_yaml(output_path) if TEST
 end
 
 # Checks the nodes.yaml file to ensure it has been written correctly
@@ -203,15 +261,27 @@ end
 # @param [String] file The 'nodes.yaml' file to check
 #
 # @example
-#   check_nodes_yaml(output_dir)
+#   check_nodes_yaml(file)
 def check_nodes_yaml(file)
-  puts "Checking #{file}"
+  puts "Checking #{file}..."
+  puts
 
-  yaml = YAML.load_file file
+  contents = File.read file
+  puts contents
+  puts
+
+  puts "Parsing YAML..."
+  puts
+
+  yaml = YAML.safe_load contents
+  puts yaml
+  puts
+
+  puts "Verifying YAML..."
   nodes = yaml["groups"][0]["nodes"]
 
   puts
-  puts "nodes:"
+  puts "Verified parameter 'nodes':"
   puts nodes
   puts
 end
@@ -251,7 +321,37 @@ def create_params_json(hosts, output_dir)
   puts
 
   File.write(output_path, params_json)
+
+  check_params_json(output_path) if TEST
 end
 
-# provision pe_xl nodes
+# Checks the params.json file to ensure it has been written correctly
+#
+# @author Bill Claytor
+#
+# @param [String] file The 'params.json' file to check
+#
+# @example
+#   check_params_json(file)
+def check_params_json(file)
+  puts "Checking #{file}..."
+  puts
+
+  contents = File.read(file)
+  puts contents
+
+  puts "Parsing JSON..."
+  puts
+
+  json = JSON.parse contents
+  puts json
+  puts
+
+  puts "Verifying JSON..."
+  install = json["install"]
+
+  puts "Verified parameter 'install': #{install}"
+  puts
+end
+
 provision_pe_xl_nodes

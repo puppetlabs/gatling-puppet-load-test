@@ -16,7 +16,7 @@ To avoid the proliferation of rake tasks the following Ruby scripts have been ad
 This script was created to assist in working with the [`pe_xl`](https://github.com/reidmv/reidmv-pe_xl) module.
 It provisions the nodes used by the module and generates the [Bolt](https://github.com/puppetlabs/bolt) [inventory](https://puppet.com/docs/bolt/latest/inventory_file.html) and [parameter](https://puppet.com/docs/bolt/latest/writing_tasks.html#concept-21) files populated with the provisioned hosts.
 
-EC2 hosts using the GPLT defaults (c5.2xlarge / 80GB ) are provisioned for the following roles:
+EC2 hosts are provisioned for the following roles:
 
 #### Core roles
 * master
@@ -28,54 +28,88 @@ EC2 hosts using the GPLT defaults (c5.2xlarge / 80GB ) are provisioned for the f
 * master_replica
 * puppet_db_replica
 
-#### Overriding the default settings
-These default settings are currently hardcoded but can be updated by editing the script.
-A future update to `abs_helper` will provide a CLI with the ability to specify all settings.
-
+#### Options
+The script accepts the following options which override the default values:
 ```
-ROLES_CORE = %w[master
-                puppet_db
-                compiler_a
-                compiler_b].freeze
-
-ROLES_HA = %w[master_replica
-              puppet_db_replica].freeze
-
-# NOTE: set HA to true for a HA environment
-HA = false
-ROLES = if HA
-          ROLES_CORE + ROLES_HA
-        else
-          ROLES_CORE
-        end
-
-...
-
-PE_VERSION = "2019.1.0"
-
-...
-
-ABS_SIZE = "c5.2xlarge"
-ABS_VOLUME_SIZE = "80"
+    -h, --help                       Display the help text
+        --noop                       Run in no-op mode
+        --test                       Use test data rather than provisioning hosts
+        --ha                         Specifies that the environment should be set up for HA
+    -i, --id ID                      The value for the AWS 'id' tag
+    -o, --output_dir DIR             The directory where the Bolt files should be written
+    -v, --pe_version VERSION         The PE version to install
+    -t, --type TYPE                  The AWS EC2 instance type to provision
+    -s, --size SIZE                  The AWS EC2 volume size to specify
 ```
 
-#### Optional arguments
-The script accepts the following optional arguments:
-* id - This value will be specified for the `id` tag when provisioning the EC2 instance.
-This can be helpful when filtering instances in the EC2 console.
-The default value is `slv`.
+#### Default values
+When run without specifying any options the script uses the following default values:
 
-* output_dir - This value specifies the directory where the `nodes.yaml` and `params.json` files will be created.
-The default value is `./` which should be the `gatling-puppet-load-test` directory.
-However, you may want to create the files elsewhere.
+* AWS_TAG_ID (-i, --id): slv
+* OUTPUT_DIR (-o, --output_dir): ./
+* PE_VERSION (-v, --pe_version): 2019.1.0
+* AWS_INSTANCE_TYPE (-t, --type): c5.2xlarge
+* AWS_VOLUME_SIZE (-s, --size): 80
 
+
+#### Examples
 Run the script from the `gatling-puppet-load-test` directory:
+
+##### Default options
 ```
 bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb
+```
 
-or
+##### noop
+This option enables no-op mode which provides output but does not provision hosts or create files.
+```
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --noop
+```
 
-bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb my_id ~/tmp/my/output/dir
+##### test
+This option enables test mode which uses the included test host arrays to generate the Bolt files and verifies the output.
+```
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --test
+```
+
+##### id
+Specify a unique ID for each set of hosts:
+```
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb -i example
+```
+
+##### pe_version
+Specify the PE version to install:
+```
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb -v 2018.1.3
+```
+
+##### all options
+Specify every option:
+```
+test.user:~/gatling-puppet-load-test> bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --noop --ha -i example -o ~/tmp -v 2018.1.3 -t c5.4xlarge -s 120
+*** Running in no-op mode ***
+
+Would have provisioned pe_xl nodes with the following options:
+  HA: true
+  Output directory for Bolt inventory and parameter files: /Users/test.user/tmp
+  PE version: 2018.1.3
+  AWS EC2 id tag: example
+  AWS EC2 instance type: c5.4xlarge
+  AWS EC2 volume size: 120
+
+Would have called:
+
+  hosts = provision_hosts_for_roles(["master", "puppet_db", "compiler_a", "compiler_b", "master_replica", "puppet_db_replica"],
+                                    example,
+                                    c5.2xlarge,
+                                    120)
+
+to provision the hosts, then:
+
+  create_pe_xl_bolt_files(hosts, /Users/test.user/tmp)
+
+to create the Bolt inventory and parameter files.                                  
 ```
 
 The `pe_xl` plan can then be run from the `gatling-puppet-load-test` directory using the generated files.
@@ -87,4 +121,4 @@ Using the example in the `pe_xl` [documentation](https://github.com/reidmv/reidm
    --params @params.json
 ```
 
-Note: this assumes the `pe_xl` module has been installed in the `~/modules` directory as specified in the documentation.
+Note: this assumes the `pe_xl` module has been installed in the `~/modules` directory as specified in the documentation and that an alternate output directory was not specified.

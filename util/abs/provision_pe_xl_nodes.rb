@@ -29,6 +29,10 @@ DESCRIPTION
 
 options = {}
 
+# Note: looks like 'Store options to a Hash' doesn't work in Ruby 2.3.0.
+# https://ruby-doc.org/stdlib-2.6.3/libdoc/optparse/rdoc/OptionParser.html
+#  `end.parse!(into: options)`
+# TODO: update to use '(into: options)' after Ruby update
 # TODO: error when invalid options are specified
 # TODO: re-order the options?
 OptionParser.new do |opts|
@@ -47,20 +51,33 @@ OptionParser.new do |opts|
   # error when both are specified?
   #
   # omitted short versions to avoid collisions
-  opts.on("--noop", "Run in no-op mode")
-  opts.on("--test", "Use test data rather than provisioning hosts")
+  opts.on("--noop", "Run in no-op mode") { options[:noop] = true }
+  opts.on("--test", "Use test data rather than provisioning hosts") { options[:test] = true }
 
   # TODO: this description seems awkward; suggestions?
-  opts.on("--ha", "Specifies that the environment should be set up for HA")
+  opts.on("--ha", "Specifies that the environment should be set up for HA") { options[:ha] = true }
 
-  opts.on("-i", "--id ID", String, "The value for the AWS 'id' tag")
+  opts.on("-i", "--id ID", String, "The value for the AWS 'id' tag") do |id|
+    options[:id] = id
+  end
 
   # TODO: verify these
-  opts.on("-o", "--output_dir DIR", String, "The directory where the Bolt files should be written")
-  opts.on("-v", "--pe_version VERSION", String, "The PE version to install")
-  opts.on("-t", "--type TYPE", String, "The AWS EC2 instance type to provision")
-  opts.on("-s", "--size SIZE", Integer, "The AWS EC2 volume size to specify")
-end.parse!(into: options)
+  opts.on("-o", "--output_dir DIR", String, "The directory where the Bolt files should be written") do |output_dir|
+    options[:output_dir] = output_dir
+  end
+
+  opts.on("-v", "--pe_version VERSION", String, "The PE version to install") do |pe_version|
+    options[:pe_version] = pe_version
+  end
+
+  opts.on("-t", "--type TYPE", String, "The AWS EC2 instance type to provision") do |type|
+    options[:type] = type
+  end
+
+  opts.on("-s", "--size SIZE", Integer, "The AWS EC2 volume size to specify") do |size|
+    options[:size] = size
+  end
+end.parse!
 
 ROLES_CORE = %w[master
                 puppet_db

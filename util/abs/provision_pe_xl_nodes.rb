@@ -378,4 +378,3 @@ def check_params_json(file)
 end
 
 provision_pe_xl_nodes
-

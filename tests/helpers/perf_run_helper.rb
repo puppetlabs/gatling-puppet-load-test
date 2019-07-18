@@ -816,6 +816,12 @@ module PerfRunHelper
     # global atop results and per process atop results
     baseline = get_baseline_result
     baseline&.each do |key, value|
+      # orchestration has a jump in memory usage in 2019.2 due to plan executor
+      # https://tickets.puppetlabs.com/browse/BOLT-986
+      # Currently we don't have a way to whitelist that... so just turning off the check
+      # Ticket to make a way https://tickets.puppetlabs.com/browse/SLV-515
+      next if key.to_s == "process_orchestration_services_release_avg_mem" && BEAKER_PE_VER =~ /^2019.2*/
+
       assert_value = if key.to_s == "avg_response_time"
                        gatling_result.avg_response_time.to_f
                      elsif key.to_s.start_with? "process"

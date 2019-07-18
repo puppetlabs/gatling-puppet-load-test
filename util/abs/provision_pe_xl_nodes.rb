@@ -299,6 +299,8 @@ def check_nodes_yaml(file)
   puts "Verifying YAML..."
   nodes = yaml["groups"][0]["nodes"]
 
+  raise "Invalid pe_xl inventory file; must contain non-empty `nodes` element" if nodes.nil? || nodes.empty?
+
   puts
   puts "Verified parameter 'nodes':"
   puts nodes
@@ -369,8 +371,15 @@ def check_params_json(file)
   puts "Verifying JSON..."
   install = json["install"]
 
+  unless [true, false].include? install
+    raise "Invalid pe_xl parameter file; must contain `install` parameter specifying either `true` or `false`"
+  end
+
   puts "Verified parameter 'install': #{install}"
   puts
 end
 
-provision_pe_xl_nodes
+# provision_pe_xl_nodes
+
+check_params_json("params.json")
+check_nodes_yaml("nodes.yaml")

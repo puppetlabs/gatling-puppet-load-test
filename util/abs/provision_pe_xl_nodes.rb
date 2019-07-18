@@ -377,7 +377,5 @@ def check_params_json(file)
   puts
 end
 
-# provision_pe_xl_nodes
+provision_pe_xl_nodes
 
-check_params_json("params.json")
-check_nodes_yaml("nodes.yaml")

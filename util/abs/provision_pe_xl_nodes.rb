@@ -54,8 +54,7 @@ OptionParser.new do |opts|
   opts.on("--noop", "Run in no-op mode") { options[:noop] = true }
   opts.on("--test", "Use test data rather than provisioning hosts") { options[:test] = true }
 
-  # TODO: this description seems awkward; suggestions?
-  opts.on("--ha", "Specifies that the environment should be set up for HA") { options[:ha] = true }
+  opts.on("--ha", "Deploy HA environment") { options[:ha] = true }
 
   opts.on("-i", "--id ID", String, "The value for the AWS 'id' tag") do |id|
     options[:id] = id
@@ -135,7 +134,6 @@ NODES_YAML = <<~NODES_YAML
 NODES_YAML
 
 # TODO: update to use variables / symbols for all parameter values?
-# TODO: should this use `<<-` vs `<<~`?
 PARAMS_JSON = <<~PARAMS_JSON
   {
     "install": true,

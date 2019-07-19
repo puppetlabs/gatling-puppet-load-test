@@ -34,7 +34,7 @@ The script accepts the following options which override the default values:
     -h, --help                       Display the help text
         --noop                       Run in no-op mode
         --test                       Use test data rather than provisioning hosts
-        --ha                         Specifies that the environment should be set up for HA
+        --ha                         Deploy HA environment
     -i, --id ID                      The value for the AWS 'id' tag
     -o, --output_dir DIR             The directory where the Bolt files should be written
     -v, --pe_version VERSION         The PE version to install
@@ -45,6 +45,7 @@ The script accepts the following options which override the default values:
 #### Default values
 When run without specifying any options the script uses the following default values:
 
+* HA (--ha): false
 * AWS_TAG_ID (-i, --id): slv
 * OUTPUT_DIR (-o, --output_dir): ./
 * PE_VERSION (-v, --pe_version): 2019.1.0
@@ -60,6 +61,24 @@ Run the script from the `gatling-puppet-load-test` directory:
 bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb
 ```
 
+##### id
+Specify the value for the AWS 'id' tag (you will almost always want to specify a value to identify a set of hosts):
+```
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb -i non_ha_example
+```
+
+##### ha (and id)
+Deploy HA environment (false unless specified):
+```
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --ha -i ha_example
+```
+
+##### pe_version
+Specify the PE version to install:
+```
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb -v 2018.1.3
+```
+
 ##### noop
 This option enables no-op mode which provides output but does not provision hosts or create files.
 ```
@@ -70,18 +89,6 @@ bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --noop
 This option enables test mode which uses the included test host arrays to generate the Bolt files and verifies the output.
 ```
 bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --test
-```
-
-##### id
-Specify a unique ID for each set of hosts:
-```
-bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb -i example
-```
-
-##### pe_version
-Specify the PE version to install:
-```
-bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb -v 2018.1.3
 ```
 
 ##### all options

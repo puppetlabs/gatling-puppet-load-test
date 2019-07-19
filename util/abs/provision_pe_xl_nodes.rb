@@ -8,6 +8,13 @@ require "json"
 require "./setup/helpers/abs_helper.rb"
 include AbsHelper # rubocop:disable Style/MixinUsage
 
+DEFAULT_HA = false
+DEFAULT_AWS_TAG_ID = "slv"
+DEFAULT_OUTPUT_DIR = "./"
+DEFAULT_PE_VERSION = "2019.1.0"
+DEFAULT_AWS_INSTANCE_TYPE = "c5.2xlarge"
+DEFAULT_AWS_VOLUME_SIZE = "80"
+
 DESCRIPTION = <<~DESCRIPTION
   This script was created to assist in working with the pe_xl module (https://github.com/reidmv/reidmv-pe_xl).
   It provisions the nodes used by the module and generates the Bolt inventory and parameter files populated with the provisioned hosts.
@@ -27,6 +34,18 @@ DESCRIPTION = <<~DESCRIPTION
 
 DESCRIPTION
 
+DEFAULTS = <<~DEFAULTS
+
+  The following defaults values are used if the options are not specified:
+  * HA (--ha): #{DEFAULT_HA}
+  * AWS_TAG_ID (-i, --id): #{DEFAULT_AWS_TAG_ID}
+  * OUTPUT_DIR (-o, --output_dir): #{DEFAULT_OUTPUT_DIR}
+  * PE_VERSION (-v, --pe_version): #{DEFAULT_PE_VERSION}
+  * AWS_INSTANCE_TYPE (-t, --type): #{DEFAULT_AWS_INSTANCE_TYPE}
+  * AWS_VOLUME_SIZE (-s, --size): #{DEFAULT_AWS_VOLUME_SIZE}
+
+DEFAULTS
+
 options = {}
 
 # Note: looks like 'Store options to a Hash' doesn't work in Ruby 2.3.0.
@@ -41,7 +60,7 @@ OptionParser.new do |opts|
   opts.on("-h", "--help", "Display the help text") do
     puts DESCRIPTION
     puts opts
-    puts
+    puts DEFAULTS
     exit
   end
 
@@ -90,7 +109,7 @@ if options[:ha]
   HA = true
   ROLES = ROLES_CORE + ROLES_HA
 else
-  HA = false
+  HA = DEFAULT_HA
   ROLES = ROLES_CORE
 end
 
@@ -98,13 +117,13 @@ NOOP = options[:noop] || false
 TEST = options[:test] || false
 PROVISIONING_TXT = NOOP || TEST ? "Would have provisioned" : "Provisioning"
 
-AWS_TAG_ID = options[:id] || "slv"
-OUTPUT_DIR = options[:output_dir] || "./"
-PE_VERSION = options[:pe_version] || "2019.1.0"
+AWS_TAG_ID = options[:id] || DEFAULT_AWS_TAG_ID
+OUTPUT_DIR = options[:output_dir] || DEFAULT_OUTPUT_DIR
+PE_VERSION = options[:pe_version] || DEFAULT_PE_VERSION
 
 # TODO: allow different type / size for each node?
-AWS_INSTANCE_TYPE = options[:type] || "c5.2xlarge"
-AWS_VOLUME_SIZE = options[:size] || "80"
+AWS_INSTANCE_TYPE = options[:type] || DEFAULT_AWS_INSTANCE_TYPE
+AWS_VOLUME_SIZE = options[:size] || DEFAULT_AWS_VOLUME_SIZE
 
 # TODO: move to spec when test cases are implemented
 # for now this allows testing of the create_pe_xl_bolt_files method without provisioning

@@ -57,41 +57,46 @@ When run without specifying any options the script uses the following default va
 Run the script from the `gatling-puppet-load-test` directory:
 
 ##### Default options
+Running the script without specifying any options uses the default values listed above.
 ```
 bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb
 ```
 
-##### id
-Specify the value for the AWS 'id' tag (you will almost always want to specify a value to identify a set of hosts):
+##### Common usage scenarios
+
+###### id
+The `id` parameter specifies the value for the AWS 'id' tag. 
+You will almost always want to specify a value to identify a set of hosts.
+Typically this will be a variation of the JIRA ticket number; for example:
 ```
-bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb -i non_ha_example
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb -i slv-504-no-ha
 ```
 
-##### ha (and id)
+###### ha (and id)
 Deploy HA environment (false unless specified):
 ```
-bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --ha -i ha_example
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --ha -i slv-504-ha
 ```
 
-##### pe_version
+###### pe_version
 Specify the PE version to install:
 ```
 bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb -v 2018.1.3
 ```
 
-##### noop
+###### noop
 This option enables no-op mode which provides output but does not provision hosts or create files.
 ```
 bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --noop
 ```
 
-##### test
+###### test
 This option enables test mode which uses the included test host arrays to generate the Bolt files and verifies the output.
 ```
 bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --test
 ```
 
-##### all options
+###### all options
 Specify every option:
 ```
 test.user:~/gatling-puppet-load-test> bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --noop --ha -i example -o ~/tmp -v 2018.1.3 -t c5.4xlarge -s 120

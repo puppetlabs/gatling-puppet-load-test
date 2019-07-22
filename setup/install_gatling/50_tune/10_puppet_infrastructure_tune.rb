@@ -3,7 +3,7 @@
 test_name "Run puppet infrastructure tune" do # rubocop:disable Metrics/BlockLength
   def puppet_infrastructure_tune
     base_tune_command = "puppet infrastructure tune"
-    common_yaml_path = "/etc/puppetlabs/code-staging/environments/production/hieradata/common.yaml"
+    common_yaml_path = "/etc/puppetlabs/code-staging/environments/production/data/common.yaml"
     tune_output_dir = "tune_output"
     tune_output_path = "#{tune_output_dir}/nodes/#{master.hostname}.yaml"
 

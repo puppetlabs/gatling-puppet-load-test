@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require "rspec"
-require File.expand_path("../../../tests/helpers/perf_run_helper", __dir__)
+require "spec_helper"
 require "minitest/assertions"
 
 class PerfRunHelperClass

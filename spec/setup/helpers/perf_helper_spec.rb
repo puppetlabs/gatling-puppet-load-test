@@ -2,8 +2,7 @@
 
 # rubocop:disable Metrics/BlockLength
 
-require "rspec"
-require File.expand_path("../../../setup/helpers/perf_helper", __dir__)
+require "spec_helper"
 
 class PerfHelperClass
   include PerfHelper

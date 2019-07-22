@@ -16,6 +16,10 @@ gem "rspec", "~>3.0"
 gem "rubocop", "~> 0.67"
 gem "scooter", "~>4.3"
 
+group :test do
+  gem "simplecov", "~> 0.17.0", require: false
+end
+
 eval(File.read("#{__FILE__}.local"), binding) if File.exist? "#{__FILE__}.local" # rubocop:disable Security/Eval
 
 gem "google-api-client", "~> 0.19.0"

@@ -30,3 +30,6 @@ results
 
 # Bolt
 .rerun.json
+
+# simplecov
+coverage

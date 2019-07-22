@@ -1,6 +1,6 @@
 # frozen_string_literal: false
 
-require "./setup/helpers/abs_helper"
+require "spec_helper"
 require "net/ssh/errors"
 
 class AbsHelperClass

@@ -86,6 +86,27 @@ def get_java_args(file)
   value
 end
 
+# Parses the specified java args into a hash with the following keys:
+#  "Xms": the value for the 'Xms' parameter
+#  "Xmx": the value for the 'Xmx' parameter
+#  "Misc": the remaining args
+#
+# @author Bill Claytor
+#
+# @return [Hash] The parsed java args
+#
+# @example
+#   result = parse_java_aggs(args)
+#
+def parse_java_aggs(args)
+  xmx = args.match(/-Xmx\K[^\s]+/)
+  xms = args.match(/-Xms\K[^\s]+/)
+  misc = args.gsub("-Xmx#{xmx} ", "").gsub("-Xms#{xms} ", "")
+
+  result = { "Xms" => xms, "Xmx" => xmx, "Misc" => misc }
+  result
+end
+
 # Returns the value for the following setting:
 # "puppet_enterprise::master::puppetserver::reserved_code_cache"
 #
@@ -116,7 +137,7 @@ end
 #   value = console_java_args
 #
 def console_java_args
-  get_java_args("pe-console-services")
+  parse_java_aggs(get_java_args("pe-console-services"))
 end
 
 # Returns the value for the following setting:
@@ -132,7 +153,7 @@ end
 #   value = master_java_args
 #
 def master_java_args
-  get_java_args("pe-puppetserver")
+  parse_java_aggs(get_java_args("pe-puppetserver"))
 end
 
 # Returns the value for the following setting:
@@ -148,7 +169,7 @@ end
 #   value = zzz
 #
 def orchestrator_java_args
-  get_java_args("pe-orchestration-services")
+  parse_java_aggs(get_java_args("pe-orchestration-services"))
 end
 
 # Returns the value for the following setting:
@@ -164,7 +185,7 @@ end
 #   value = puppetdb_java_args
 #
 def puppetdb_java_args
-  get_java_args("pe-puppetdb")
+  parse_java_aggs(get_java_args("pe-puppetdb"))
 end
 
 # Returns the value for the specified parameter in the specified config file

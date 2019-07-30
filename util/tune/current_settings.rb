@@ -44,6 +44,9 @@ def puppetserver_jruby_max_active_instances
     output = `#{command}`
 
     if output
+      # See the docs link in the description above
+      # The default used in PE is the number of CPUs - 1, expressed as $::processorcount - 1.
+      # One instance is the minimum value and four instances is the maximum value.
       num_cores = output.to_i
       value = [[(num_cores - 1), MIN_DEFAULT_JRUBIES].max, MAX_DEFAULT_JRUBIES].min.to_s
     else

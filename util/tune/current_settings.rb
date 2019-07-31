@@ -1,6 +1,7 @@
 #!/opt/puppetlabs/puppet/bin/ruby
-
 # frozen_string_literal: true
+
+# brozen_string_literal: true
 
 # This script returns a JSON array of the current values for the settings adjusted by the 'pe_tune' module:
 #   https://github.com/tkishel/pe_tune
@@ -12,13 +13,13 @@
 
 require "json"
 
-# TODO: "N/A" or error?
 NA = "N/A"
 PE_PUPPET_SERVER_CONF = "/etc/puppetlabs/puppetserver/conf.d/pe-puppet-server.conf"
 POSTGRES_CONF = Dir.glob("/opt/puppetlabs/server/data/postgresql/*/data/postgresql.conf")[-1]
 PUPPET_DB_CONF = "/etc/puppetlabs/puppetdb/conf.d/config.ini"
 MIN_DEFAULT_JRUBIES = 1
 MAX_DEFAULT_JRUBIES = 4
+DEFAULT_EXCLUSION = ""
 
 # Returns the value for the 'max-active-instances' parameter if found, otherwise the default value
 #
@@ -47,6 +48,9 @@ def puppetserver_jruby_max_active_instances
       # See the docs link in the description above
       # The default used in PE is the number of CPUs - 1, expressed as $::processorcount - 1.
       # One instance is the minimum value and four instances is the maximum value.
+      #
+      # TODO: Determine if / where the default value for the 'jruby_max_active_instances' is set
+      #   See https://tickets.puppetlabs.com/browse/SLV-530
       num_cores = output.to_i
       value = [[(num_cores - 1), MIN_DEFAULT_JRUBIES].max, MAX_DEFAULT_JRUBIES].min.to_s
     else
@@ -203,10 +207,18 @@ end
 #   value = get_conf_parameter(file, parameter)
 #   value = get_conf_parameter(file, parameter, /(example_a|example_b)/)
 #
-def get_conf_parameter(file, parameter, exclusions = NA)
+# TODO: update to eliminate the use of exclusions
+#   See https://tickets.puppetlabs.com/browse/SLV-531
+#
+def get_conf_parameter(file, parameter, exclusions = DEFAULT_EXCLUSION)
   value = if File.exist? file
-            match_val = /#{parameter} = \K[^\s]+/
-            File.open(file).grep_v(exclusions).grep(/#{parameter}/).grep_v(/^#/)[0].match(match_val)
+
+            # this pattern extracts the value from the result with the '\K'
+            match_pattern = /#{parameter} = \K[^\s]+/
+
+            # eliminate comments, search for the parameter, apply exclusions, extract the value
+            File.open(file).grep_v(/^#/).grep(/#{parameter}/).grep_v(exclusions)[0].match(match_pattern)
+
           else
             NA
           end
@@ -228,7 +240,7 @@ end
 #   value = get_postgres_parameter(parameter)
 #   value = get_postgres_parameter(parameter, /(example_a|example_b)/)
 #
-def get_postgres_parameter(parameter, exclusions = NA)
+def get_postgres_parameter(parameter, exclusions = DEFAULT_EXCLUSION)
   get_conf_parameter(POSTGRES_CONF, parameter, exclusions)
 end
 
@@ -247,7 +259,7 @@ end
 #   value = get_puppetdb_parameter(parameter)
 #   value = get_puppetdb_parameter(parameter, /(example_a|example_b)/)
 #
-def get_puppetdb_parameter(parameter, exclusions = NA)
+def get_puppetdb_parameter(parameter, exclusions = DEFAULT_EXCLUSION)
   get_conf_parameter(PUPPET_DB_CONF, parameter, exclusions)
 end
 

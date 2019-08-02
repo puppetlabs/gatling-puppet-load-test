@@ -20,3 +20,5 @@ Style/MultilineIfModifier:
   Enabled: false
 Naming/FileName:
   Enabled: false
+Style/RedundantReturn:
+  Enabled: false

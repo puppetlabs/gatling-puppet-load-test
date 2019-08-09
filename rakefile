@@ -1,5 +1,5 @@
 require 'rototiller'
-require 'rspec/core/rake_task'
+require 'rubocop/rake_task'
 
 require './setup/helpers/abs_helper'
 include AbsHelper
@@ -471,10 +471,46 @@ rototiller_task :abs_provision_host_worker do
   raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
 end
 
-desc "Run spec tests"
-RSpec::Core::RakeTask.new(:spec) do |t|
-  t.rspec_opts = ['--color']
-  t.pattern = 'spec/**/*_spec.rb'
+namespace :test do
+  begin
+    # this will produce the 'test:spec' task
+    require "rspec/core/rake_task"
+    desc "Run unit tests"
+    RSpec::Core::RakeTask.new do |t|
+      t.rspec_opts = ["--color", "-I ./Boltdir/site-modules/metrics/spec"]
+      t.pattern = 'spec/**/*_spec.rb,Boltdir/site-modules/metrics/spec/**/*_spec.rb'
+    end
+      # if rspec isn't available, we can still use this Rakefile
+      # rubocop:disable Lint/HandleExceptions
+  rescue LoadError
+  end
+end
+
+namespace :lint do
+  RuboCop::RakeTask.new
+end
+
+namespace :pr do
+  desc "Run the lint, and test tasks for pull requests"
+  task :check do
+    puts "Running GPLT PR checks"
+    tasks = ["lint:rubocop", "test:spec"]
+    failed_tasks = []
+    tasks.each do |task_name|
+      puts "#{task_name}"
+      begin
+        Rake::Task[task_name].execute
+      rescue SystemExit => e
+        puts "rescued #{e}"
+        failed_tasks << task_name
+      end
+
+    end
+    unless failed_tasks.empty?
+      puts "\nERROR: The following PR tasks failed: #{failed_tasks.join(", ")}\n\n"
+      raise
+    end
+  end
 end
 
 desc 'Clean up artifacts created by performance runs'

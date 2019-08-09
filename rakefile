@@ -474,7 +474,7 @@ end
 desc "Run spec tests"
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = ['--color']
-  t.pattern = 'spec/'
+  t.pattern = 'spec/**/*_spec.rb'
 end
 
 desc 'Clean up artifacts created by performance runs'

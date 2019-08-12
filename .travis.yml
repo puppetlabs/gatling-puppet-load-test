@@ -4,13 +4,8 @@ bundler_args: --jobs 4 --retry 2 --without packaging documentation
 before_install:
   - gem update --system && gem install bundler --no-document
 script:
-  - "bundle exec $CHECK"
+  - "bundle exec rake pr:check"
 notifications:
   email: false
 rvm:
   - 2.6.2
-
-env:
-  matrix:
-    - "CHECK=rspec spec --color"
-    - "CHECK=rubocop"

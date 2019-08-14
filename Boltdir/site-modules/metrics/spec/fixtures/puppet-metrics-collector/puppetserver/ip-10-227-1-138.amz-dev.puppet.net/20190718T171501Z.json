@@ -1,0 +1,2106 @@
+{
+  "timestamp": "2019-07-18T17:15:01Z",
+  "servers": {
+    "ip-10-227-1-138-amz-dev-puppet-net": {
+      "puppetserver": {
+        "ca": {
+          "service_version": "6.3.0",
+          "service_status_version": 1,
+          "detail_level": "debug",
+          "state": "running",
+          "status": {
+          },
+          "active_alerts": [
+
+          ]
+        },
+        "pe-puppet-profiler": {
+          "service_version": "2019.1.0.55",
+          "service_status_version": 1,
+          "detail_level": "debug",
+          "state": "running",
+          "status": {
+            "experimental": {
+              "function-metrics": [
+                {
+                  "function": "include",
+                  "count": 1904474,
+                  "mean": 112,
+                  "aggregate": 213301088
+                },
+                {
+                  "function": "template",
+                  "count": 1757976,
+                  "mean": 22,
+                  "aggregate": 38675472
+                },
+                {
+                  "function": "has_key",
+                  "count": 1438344,
+                  "mean": 7,
+                  "aggregate": 10068408
+                },
+                {
+                  "function": "defined",
+                  "count": 699195,
+                  "mean": 9,
+                  "aggregate": 6292755
+                },
+                {
+                  "function": "contain",
+                  "count": 33295,
+                  "mean": 163,
+                  "aggregate": 5427085
+                },
+                {
+                  "function": "each",
+                  "count": 26636,
+                  "mean": 165,
+                  "aggregate": 4394940
+                },
+                {
+                  "function": "lookup",
+                  "count": 13318,
+                  "mean": 208,
+                  "aggregate": 2770144
+                },
+                {
+                  "function": "sha1",
+                  "count": 133180,
+                  "mean": 15,
+                  "aggregate": 1997700
+                },
+                {
+                  "function": "require",
+                  "count": 13318,
+                  "mean": 136,
+                  "aggregate": 1811248
+                },
+                {
+                  "function": "ensure_resource",
+                  "count": 79908,
+                  "mean": 21,
+                  "aggregate": 1678068
+                },
+                {
+                  "function": "pick",
+                  "count": 732490,
+                  "mean": 2,
+                  "aggregate": 1464980
+                },
+                {
+                  "function": "new",
+                  "count": 1238574,
+                  "mean": 1,
+                  "aggregate": 1238574
+                },
+                {
+                  "function": "hocon_data",
+                  "count": 6659,
+                  "mean": 177,
+                  "aggregate": 1178643
+                },
+                {
+                  "function": "defined_with_params",
+                  "count": 39954,
+                  "mean": 15,
+                  "aggregate": 599310
+                },
+                {
+                  "function": "create_resources",
+                  "count": 66590,
+                  "mean": 4,
+                  "aggregate": 266360
+                },
+                {
+                  "function": "hiera",
+                  "count": 79908,
+                  "mean": 2,
+                  "aggregate": 159816
+                },
+                {
+                  "function": "getvar",
+                  "count": 6659,
+                  "mean": 9,
+                  "aggregate": 59931
+                },
+                {
+                  "function": "filter",
+                  "count": 6659,
+                  "mean": 2,
+                  "aggregate": 13318
+                },
+                {
+                  "function": "inline_template",
+                  "count": 13318,
+                  "mean": 1,
+                  "aggregate": 13318
+                },
+                {
+                  "function": "pe_flatten",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_clamp",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "versioncmp",
+                  "count": 446153,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "regsubst",
+                  "count": 1012168,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "postgresql_escape",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "map",
+                  "count": 6659,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_is_integer",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "get",
+                  "count": 6659,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "file",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_min",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_merge",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "downcase",
+                  "count": 6659,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_max",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "postgresql_password",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "upcase",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_empty",
+                  "count": 186452,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "any2array",
+                  "count": 79908,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_to_bytes",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "assert_type",
+                  "count": 53272,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "postgresql_acls_to_resources_hash",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_pick",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "tag",
+                  "count": 106544,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "join",
+                  "count": 6659,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_any2array",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "merge",
+                  "count": 79908,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "split",
+                  "count": 19977,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "sprintf",
+                  "count": 119862,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "empty",
+                  "count": 479448,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_size",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "prefix",
+                  "count": 79908,
+                  "mean": 0,
+                  "aggregate": 0
+                }
+              ],
+              "resource-metrics": [
+                {
+                  "resource": "Class[Role::By_size::Large]",
+                  "count": 6659,
+                  "mean": 15243,
+                  "aggregate": 101503137
+                },
+                {
+                  "resource": "Class[Role::By_size::Medium]",
+                  "count": 6659,
+                  "mean": 7391,
+                  "aggregate": 49216669
+                },
+                {
+                  "resource": "Class[Profile::Apache::Basic]",
+                  "count": 6659,
+                  "mean": 5838,
+                  "aggregate": 38875242
+                },
+                {
+                  "resource": "Class[Apache]",
+                  "count": 6659,
+                  "mean": 3932,
+                  "aggregate": 26183188
+                },
+                {
+                  "resource": "Class[Role::By_size::Small]",
+                  "count": 6659,
+                  "mean": 3777,
+                  "aggregate": 25151043
+                },
+                {
+                  "resource": "Class[Profile::Sysop::Packages]",
+                  "count": 6659,
+                  "mean": 3216,
+                  "aggregate": 21415344
+                },
+                {
+                  "resource": "Class[Profile::Postgresql::Basic]",
+                  "count": 6659,
+                  "mean": 2941,
+                  "aggregate": 19584119
+                },
+                {
+                  "resource": "Class[Postgresql::Server]",
+                  "count": 6659,
+                  "mean": 2215,
+                  "aggregate": 14749685
+                },
+                {
+                  "resource": "Class[Epel]",
+                  "count": 6659,
+                  "mean": 1972,
+                  "aggregate": 13131548
+                },
+                {
+                  "resource": "Class[Profile::Influxdb::Basic]",
+                  "count": 6659,
+                  "mean": 1310,
+                  "aggregate": 8723290
+                },
+                {
+                  "resource": "Class[Apache::Default_mods]",
+                  "count": 6659,
+                  "mean": 1108,
+                  "aggregate": 7378172
+                },
+                {
+                  "resource": "Class[Influxdb]",
+                  "count": 6659,
+                  "mean": 1045,
+                  "aggregate": 6958655
+                },
+                {
+                  "resource": "Class[Puppet_enterprise]",
+                  "count": 6659,
+                  "mean": 912,
+                  "aggregate": 6073008
+                },
+                {
+                  "resource": "Class[Profile::Tomcat::Basic]",
+                  "count": 6659,
+                  "mean": 784,
+                  "aggregate": 5220656
+                },
+                {
+                  "resource": "Class[Puppet_enterprise::Profile::Agent]",
+                  "count": 6659,
+                  "mean": 695,
+                  "aggregate": 4628005
+                },
+                {
+                  "resource": "Class[Puppet_enterprise::Params]",
+                  "count": 6659,
+                  "mean": 607,
+                  "aggregate": 4042013
+                },
+                {
+                  "resource": "Class[Java]",
+                  "count": 6659,
+                  "mean": 588,
+                  "aggregate": 3915492
+                },
+                {
+                  "resource": "Class[Profile::Loop_through_file_resources]",
+                  "count": 6659,
+                  "mean": 587,
+                  "aggregate": 3908833
+                },
+                {
+                  "resource": "Class[Apache::Mod::Prefork]",
+                  "count": 6659,
+                  "mean": 586,
+                  "aggregate": 3902174
+                },
+                {
+                  "resource": "Class[Apache::Mod::Ssl]",
+                  "count": 6659,
+                  "mean": 530,
+                  "aggregate": 3529270
+                },
+                {
+                  "resource": "Class[Apache::Mod::Alias]",
+                  "count": 6659,
+                  "mean": 482,
+                  "aggregate": 3209638
+                },
+                {
+                  "resource": "Class[Influxdb::Config]",
+                  "count": 6659,
+                  "mean": 443,
+                  "aggregate": 2949937
+                },
+                {
+                  "resource": "Class[Apache::Mod::Php]",
+                  "count": 6659,
+                  "mean": 395,
+                  "aggregate": 2630305
+                },
+                {
+                  "resource": "Class[Postgresql::Server::Config]",
+                  "count": 6659,
+                  "mean": 340,
+                  "aggregate": 2264060
+                },
+                {
+                  "resource": "Class[Postgresql::Params]",
+                  "count": 6659,
+                  "mean": 332,
+                  "aggregate": 2210788
+                },
+                {
+                  "resource": "Class[Postgresql::Globals]",
+                  "count": 6659,
+                  "mean": 327,
+                  "aggregate": 2177493
+                },
+                {
+                  "resource": "Class[Influxdb::Install]",
+                  "count": 6659,
+                  "mean": 309,
+                  "aggregate": 2057631
+                },
+                {
+                  "resource": "Class[Tomcat]",
+                  "count": 6659,
+                  "mean": 278,
+                  "aggregate": 1851202
+                },
+                {
+                  "resource": "Class[Postgresql::Server::Service]",
+                  "count": 6659,
+                  "mean": 226,
+                  "aggregate": 1504934
+                },
+                {
+                  "resource": "Class[Puppet_enterprise::Pxp_agent]",
+                  "count": 6659,
+                  "mean": 194,
+                  "aggregate": 1291846
+                },
+                {
+                  "resource": "Class[Profile::Users]",
+                  "count": 6659,
+                  "mean": 173,
+                  "aggregate": 1152007
+                },
+                {
+                  "resource": "Class[Java::Config]",
+                  "count": 6659,
+                  "mean": 151,
+                  "aggregate": 1005509
+                },
+                {
+                  "resource": "Class[Apache::Mod::Proxy]",
+                  "count": 6659,
+                  "mean": 149,
+                  "aggregate": 992191
+                },
+                {
+                  "resource": "Class[Influxdb::Repo]",
+                  "count": 6659,
+                  "mean": 135,
+                  "aggregate": 898965
+                },
+                {
+                  "resource": "Class[Influxdb::Repo::Yum]",
+                  "count": 6659,
+                  "mean": 133,
+                  "aggregate": 885647
+                },
+                {
+                  "resource": "Class[Epel::Params]",
+                  "count": 6659,
+                  "mean": 110,
+                  "aggregate": 732490
+                },
+                {
+                  "resource": "Class[Profile::Sysop::Packages::Dhclient]",
+                  "count": 6659,
+                  "mean": 95,
+                  "aggregate": 632605
+                },
+                {
+                  "resource": "Class[Apache::Mod::Mime]",
+                  "count": 6659,
+                  "mean": 90,
+                  "aggregate": 599310
+                },
+                {
+                  "resource": "Class[Postgresql::Server::Install]",
+                  "count": 6659,
+                  "mean": 78,
+                  "aggregate": 519402
+                },
+                {
+                  "resource": "Class[Apache::Mod::Version]",
+                  "count": 6659,
+                  "mean": 73,
+                  "aggregate": 486107
+                },
+                {
+                  "resource": "Class[Profile::Sysop::Packages::Cronie]",
+                  "count": 6659,
+                  "mean": 67,
+                  "aggregate": 446153
+                },
+                {
+                  "resource": "Class[Userwrapper]",
+                  "count": 6659,
+                  "mean": 64,
+                  "aggregate": 426176
+                },
+                {
+                  "resource": "Class[Profile::Motd]",
+                  "count": 6659,
+                  "mean": 42,
+                  "aggregate": 279678
+                },
+                {
+                  "resource": "Class[Profile::Sysop::Packages::Openssl]",
+                  "count": 6659,
+                  "mean": 40,
+                  "aggregate": 266360
+                },
+                {
+                  "resource": "Class[Sudo]",
+                  "count": 6659,
+                  "mean": 40,
+                  "aggregate": 266360
+                },
+                {
+                  "resource": "Class[Motd]",
+                  "count": 6659,
+                  "mean": 38,
+                  "aggregate": 253042
+                },
+                {
+                  "resource": "Class[Apache::Params]",
+                  "count": 6659,
+                  "mean": 33,
+                  "aggregate": 219747
+                },
+                {
+                  "resource": "Class[Apache::Mod::Disk_cache]",
+                  "count": 6659,
+                  "mean": 32,
+                  "aggregate": 213088
+                },
+                {
+                  "resource": "Class[Profile::Hiera_check]",
+                  "count": 6659,
+                  "mean": 32,
+                  "aggregate": 213088
+                },
+                {
+                  "resource": "Class[Apache::Version]",
+                  "count": 6659,
+                  "mean": 31,
+                  "aggregate": 206429
+                }
+              ],
+              "catalog-metrics": [
+                {
+                  "metric": "static_compile",
+                  "count": 6659,
+                  "mean": 30224,
+                  "aggregate": 201261616
+                },
+                {
+                  "metric": "static_compile_postprocessing",
+                  "count": 6659,
+                  "mean": 392,
+                  "aggregate": 2610328
+                },
+                {
+                  "metric": "find_node",
+                  "count": 6659,
+                  "mean": 73,
+                  "aggregate": 486107
+                }
+              ],
+              "puppetdb-metrics": [
+                {
+                  "metric": "command_submit_replace_catalog",
+                  "count": 6659,
+                  "mean": 3039,
+                  "aggregate": 20236701
+                },
+                {
+                  "metric": "catalog_munge",
+                  "count": 6659,
+                  "mean": 1087,
+                  "aggregate": 7238333
+                },
+                {
+                  "metric": "command_submit_store_report",
+                  "count": 5174,
+                  "mean": 996,
+                  "aggregate": 5153304
+                },
+                {
+                  "metric": "report_convert_to_wire_format_hash",
+                  "count": 5174,
+                  "mean": 426,
+                  "aggregate": 2204124
+                },
+                {
+                  "metric": "facts_encode",
+                  "count": 6659,
+                  "mean": 95,
+                  "aggregate": 632605
+                },
+                {
+                  "metric": "command_submit_replace_facts",
+                  "count": 6659,
+                  "mean": 83,
+                  "aggregate": 552697
+                }
+              ],
+              "inline-metrics": [
+                {
+                  "metric": "skipped_file_metadata",
+                  "count": 992191
+                },
+                {
+                  "metric": "skipped_file_metadata.no_sources",
+                  "count": 985532
+                },
+                {
+                  "metric": "inlined_file_metadata",
+                  "count": 406199
+                },
+                {
+                  "metric": "skipped_file_metadata.absent",
+                  "count": 6659
+                }
+              ]
+            }
+          },
+          "active_alerts": [
+
+          ]
+        },
+        "jruby-metrics": {
+          "service_version": "6.3.0",
+          "service_status_version": 1,
+          "detail_level": "debug",
+          "state": "running",
+          "status": {
+            "experimental": {
+              "jruby-pool-lock-status": {
+                "current-state": ":not-in-use",
+                "last-change-time": "2019-07-09T00:01:32.518Z"
+              },
+              "metrics": {
+                "average-lock-wait-time": 0,
+                "num-free-jrubies": 4,
+                "borrow-count": 46298,
+                "average-requested-jrubies": 0.0,
+                "borrow-timeout-count": 0,
+                "return-count": 46298,
+                "borrow-retry-count": 0,
+                "borrowed-instances": [
+
+                ],
+                "average-borrow-time": 5203,
+                "num-jrubies": 4,
+                "requested-count": 46298,
+                "queue-limit-hit-rate": 0.0,
+                "average-lock-held-time": 0,
+                "requested-instances": [
+
+                ],
+                "queue-limit-hit-count": 0,
+                "average-free-jrubies": 3.9286052890270655,
+                "num-pool-locks": 0,
+                "average-wait-time": 0
+              }
+            }
+          },
+          "active_alerts": [
+
+          ]
+        },
+        "pe-master": {
+          "service_version": "2019.1.0.55",
+          "service_status_version": 1,
+          "detail_level": "debug",
+          "state": "running",
+          "status": {
+            "experimental": {
+              "http-metrics": [
+                {
+                  "route-id": "puppet-v3-node-/*/",
+                  "count": 10200,
+                  "mean": 102228,
+                  "aggregate": 1042725600
+                },
+                {
+                  "route-id": "puppet-v3-catalog-/*/",
+                  "count": 6659,
+                  "mean": 94804,
+                  "aggregate": 631299836
+                },
+                {
+                  "route-id": "puppet-v3-file_metadatas-/*/",
+                  "count": 21181,
+                  "mean": 17654,
+                  "aggregate": 373929374
+                },
+                {
+                  "route-id": "puppet-v3-report-/*/",
+                  "count": 5497,
+                  "mean": 63970,
+                  "aggregate": 351643090
+                },
+                {
+                  "route-id": "total",
+                  "count": 46298,
+                  "mean": 5203,
+                  "aggregate": 240888494
+                },
+                {
+                  "route-id": "puppet-v3-environment_classes-/*/",
+                  "count": 1380,
+                  "mean": 9680,
+                  "aggregate": 13358400
+                },
+                {
+                  "route-id": "puppet-v3-environments",
+                  "count": 1380,
+                  "mean": 2,
+                  "aggregate": 2760
+                },
+                {
+                  "route-id": "puppet-v3-environment_modules-/*/",
+                  "count": 1,
+                  "mean": 219,
+                  "aggregate": 219
+                },
+                {
+                  "route-id": "puppet-v3-static_file_content-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-file_content-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-tasks-:module-name-:task-name",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-file_metadata-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-facts-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "other",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-status-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-tasks",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-file_bucket_file-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v4-catalog",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-environment-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                }
+              ],
+              "http-client-metrics": [
+                {
+                  "count": 16859,
+                  "mean": 63,
+                  "aggregate": 1062117,
+                  "metric-name": "puppetlabs.ip-10-227-1-138.http-client.experimental.with-metric-id.classifier.nodes.full-response",
+                  "metric-id": [
+                    "classifier",
+                    "nodes"
+                  ]
+                },
+                {
+                  "count": 6659,
+                  "mean": 84,
+                  "aggregate": 559356,
+                  "metric-name": "puppetlabs.ip-10-227-1-138.http-client.experimental.with-metric-id.puppetdb.command.replace_catalog.full-response",
+                  "metric-id": [
+                    "puppetdb",
+                    "command",
+                    "replace_catalog"
+                  ]
+                },
+                {
+                  "count": 5174,
+                  "mean": 12,
+                  "aggregate": 62088,
+                  "metric-name": "puppetlabs.ip-10-227-1-138.http-client.experimental.with-metric-id.puppetdb.command.store_report.full-response",
+                  "metric-id": [
+                    "puppetdb",
+                    "command",
+                    "store_report"
+                  ]
+                },
+                {
+                  "count": 6659,
+                  "mean": 5,
+                  "aggregate": 33295,
+                  "metric-name": "puppetlabs.ip-10-227-1-138.http-client.experimental.with-metric-id.puppetdb.command.replace_facts.full-response",
+                  "metric-id": [
+                    "puppetdb",
+                    "command",
+                    "replace_facts"
+                  ]
+                },
+                {
+                  "count": 1246,
+                  "mean": 4,
+                  "aggregate": 4984,
+                  "metric-name": "puppetlabs.ip-10-227-1-138.http-client.experimental.with-metric-id.puppetdb.facts.find.full-response",
+                  "metric-id": [
+                    "puppetdb",
+                    "facts",
+                    "find"
+                  ]
+                }
+              ]
+            }
+          },
+          "active_alerts": [
+
+          ]
+        },
+        "puppet-profiler": {
+          "service_version": "6.3.0",
+          "service_status_version": 1,
+          "detail_level": "debug",
+          "state": "running",
+          "status": {
+            "experimental": {
+              "function-metrics": [
+                {
+                  "function": "include",
+                  "count": 1904474,
+                  "mean": 112,
+                  "aggregate": 213301088
+                },
+                {
+                  "function": "template",
+                  "count": 1757976,
+                  "mean": 22,
+                  "aggregate": 38675472
+                },
+                {
+                  "function": "has_key",
+                  "count": 1438344,
+                  "mean": 7,
+                  "aggregate": 10068408
+                },
+                {
+                  "function": "defined",
+                  "count": 699195,
+                  "mean": 9,
+                  "aggregate": 6292755
+                },
+                {
+                  "function": "contain",
+                  "count": 33295,
+                  "mean": 163,
+                  "aggregate": 5427085
+                },
+                {
+                  "function": "each",
+                  "count": 26636,
+                  "mean": 165,
+                  "aggregate": 4394940
+                },
+                {
+                  "function": "lookup",
+                  "count": 13318,
+                  "mean": 208,
+                  "aggregate": 2770144
+                },
+                {
+                  "function": "sha1",
+                  "count": 133180,
+                  "mean": 15,
+                  "aggregate": 1997700
+                },
+                {
+                  "function": "require",
+                  "count": 13318,
+                  "mean": 136,
+                  "aggregate": 1811248
+                },
+                {
+                  "function": "ensure_resource",
+                  "count": 79908,
+                  "mean": 21,
+                  "aggregate": 1678068
+                },
+                {
+                  "function": "pick",
+                  "count": 732490,
+                  "mean": 2,
+                  "aggregate": 1464980
+                },
+                {
+                  "function": "new",
+                  "count": 1238574,
+                  "mean": 1,
+                  "aggregate": 1238574
+                },
+                {
+                  "function": "hocon_data",
+                  "count": 6659,
+                  "mean": 177,
+                  "aggregate": 1178643
+                },
+                {
+                  "function": "defined_with_params",
+                  "count": 39954,
+                  "mean": 15,
+                  "aggregate": 599310
+                },
+                {
+                  "function": "create_resources",
+                  "count": 66590,
+                  "mean": 4,
+                  "aggregate": 266360
+                },
+                {
+                  "function": "hiera",
+                  "count": 79908,
+                  "mean": 2,
+                  "aggregate": 159816
+                },
+                {
+                  "function": "getvar",
+                  "count": 6659,
+                  "mean": 9,
+                  "aggregate": 59931
+                },
+                {
+                  "function": "filter",
+                  "count": 6659,
+                  "mean": 2,
+                  "aggregate": 13318
+                },
+                {
+                  "function": "inline_template",
+                  "count": 13318,
+                  "mean": 1,
+                  "aggregate": 13318
+                },
+                {
+                  "function": "pe_flatten",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_clamp",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "versioncmp",
+                  "count": 446153,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "regsubst",
+                  "count": 1012168,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "postgresql_escape",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "map",
+                  "count": 6659,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_is_integer",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "get",
+                  "count": 6659,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "file",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_min",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_merge",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "downcase",
+                  "count": 6659,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_max",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "postgresql_password",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "upcase",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_empty",
+                  "count": 186452,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "any2array",
+                  "count": 79908,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_to_bytes",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "assert_type",
+                  "count": 53272,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "postgresql_acls_to_resources_hash",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_pick",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "tag",
+                  "count": 106544,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "join",
+                  "count": 6659,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_any2array",
+                  "count": 13318,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "merge",
+                  "count": 79908,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "split",
+                  "count": 19977,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "sprintf",
+                  "count": 119862,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "empty",
+                  "count": 479448,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "pe_size",
+                  "count": 26636,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "function": "prefix",
+                  "count": 79908,
+                  "mean": 0,
+                  "aggregate": 0
+                }
+              ],
+              "resource-metrics": [
+                {
+                  "resource": "Class[Role::By_size::Large]",
+                  "count": 6659,
+                  "mean": 15243,
+                  "aggregate": 101503137
+                },
+                {
+                  "resource": "Class[Role::By_size::Medium]",
+                  "count": 6659,
+                  "mean": 7391,
+                  "aggregate": 49216669
+                },
+                {
+                  "resource": "Class[Profile::Apache::Basic]",
+                  "count": 6659,
+                  "mean": 5838,
+                  "aggregate": 38875242
+                },
+                {
+                  "resource": "Class[Apache]",
+                  "count": 6659,
+                  "mean": 3932,
+                  "aggregate": 26183188
+                },
+                {
+                  "resource": "Class[Role::By_size::Small]",
+                  "count": 6659,
+                  "mean": 3777,
+                  "aggregate": 25151043
+                },
+                {
+                  "resource": "Class[Profile::Sysop::Packages]",
+                  "count": 6659,
+                  "mean": 3216,
+                  "aggregate": 21415344
+                },
+                {
+                  "resource": "Class[Profile::Postgresql::Basic]",
+                  "count": 6659,
+                  "mean": 2941,
+                  "aggregate": 19584119
+                },
+                {
+                  "resource": "Class[Postgresql::Server]",
+                  "count": 6659,
+                  "mean": 2215,
+                  "aggregate": 14749685
+                },
+                {
+                  "resource": "Class[Epel]",
+                  "count": 6659,
+                  "mean": 1972,
+                  "aggregate": 13131548
+                },
+                {
+                  "resource": "Class[Profile::Influxdb::Basic]",
+                  "count": 6659,
+                  "mean": 1310,
+                  "aggregate": 8723290
+                },
+                {
+                  "resource": "Class[Apache::Default_mods]",
+                  "count": 6659,
+                  "mean": 1108,
+                  "aggregate": 7378172
+                },
+                {
+                  "resource": "Class[Influxdb]",
+                  "count": 6659,
+                  "mean": 1045,
+                  "aggregate": 6958655
+                },
+                {
+                  "resource": "Class[Puppet_enterprise]",
+                  "count": 6659,
+                  "mean": 912,
+                  "aggregate": 6073008
+                },
+                {
+                  "resource": "Class[Profile::Tomcat::Basic]",
+                  "count": 6659,
+                  "mean": 784,
+                  "aggregate": 5220656
+                },
+                {
+                  "resource": "Class[Puppet_enterprise::Profile::Agent]",
+                  "count": 6659,
+                  "mean": 695,
+                  "aggregate": 4628005
+                },
+                {
+                  "resource": "Class[Puppet_enterprise::Params]",
+                  "count": 6659,
+                  "mean": 607,
+                  "aggregate": 4042013
+                },
+                {
+                  "resource": "Class[Java]",
+                  "count": 6659,
+                  "mean": 588,
+                  "aggregate": 3915492
+                },
+                {
+                  "resource": "Class[Profile::Loop_through_file_resources]",
+                  "count": 6659,
+                  "mean": 587,
+                  "aggregate": 3908833
+                },
+                {
+                  "resource": "Class[Apache::Mod::Prefork]",
+                  "count": 6659,
+                  "mean": 586,
+                  "aggregate": 3902174
+                },
+                {
+                  "resource": "Class[Apache::Mod::Ssl]",
+                  "count": 6659,
+                  "mean": 530,
+                  "aggregate": 3529270
+                },
+                {
+                  "resource": "Class[Apache::Mod::Alias]",
+                  "count": 6659,
+                  "mean": 482,
+                  "aggregate": 3209638
+                },
+                {
+                  "resource": "Class[Influxdb::Config]",
+                  "count": 6659,
+                  "mean": 443,
+                  "aggregate": 2949937
+                },
+                {
+                  "resource": "Class[Apache::Mod::Php]",
+                  "count": 6659,
+                  "mean": 395,
+                  "aggregate": 2630305
+                },
+                {
+                  "resource": "Class[Postgresql::Server::Config]",
+                  "count": 6659,
+                  "mean": 340,
+                  "aggregate": 2264060
+                },
+                {
+                  "resource": "Class[Postgresql::Params]",
+                  "count": 6659,
+                  "mean": 332,
+                  "aggregate": 2210788
+                },
+                {
+                  "resource": "Class[Postgresql::Globals]",
+                  "count": 6659,
+                  "mean": 327,
+                  "aggregate": 2177493
+                },
+                {
+                  "resource": "Class[Influxdb::Install]",
+                  "count": 6659,
+                  "mean": 309,
+                  "aggregate": 2057631
+                },
+                {
+                  "resource": "Class[Tomcat]",
+                  "count": 6659,
+                  "mean": 278,
+                  "aggregate": 1851202
+                },
+                {
+                  "resource": "Class[Postgresql::Server::Service]",
+                  "count": 6659,
+                  "mean": 226,
+                  "aggregate": 1504934
+                },
+                {
+                  "resource": "Class[Puppet_enterprise::Pxp_agent]",
+                  "count": 6659,
+                  "mean": 194,
+                  "aggregate": 1291846
+                },
+                {
+                  "resource": "Class[Profile::Users]",
+                  "count": 6659,
+                  "mean": 173,
+                  "aggregate": 1152007
+                },
+                {
+                  "resource": "Class[Java::Config]",
+                  "count": 6659,
+                  "mean": 151,
+                  "aggregate": 1005509
+                },
+                {
+                  "resource": "Class[Apache::Mod::Proxy]",
+                  "count": 6659,
+                  "mean": 149,
+                  "aggregate": 992191
+                },
+                {
+                  "resource": "Class[Influxdb::Repo]",
+                  "count": 6659,
+                  "mean": 135,
+                  "aggregate": 898965
+                },
+                {
+                  "resource": "Class[Influxdb::Repo::Yum]",
+                  "count": 6659,
+                  "mean": 133,
+                  "aggregate": 885647
+                },
+                {
+                  "resource": "Class[Epel::Params]",
+                  "count": 6659,
+                  "mean": 110,
+                  "aggregate": 732490
+                },
+                {
+                  "resource": "Class[Profile::Sysop::Packages::Dhclient]",
+                  "count": 6659,
+                  "mean": 95,
+                  "aggregate": 632605
+                },
+                {
+                  "resource": "Class[Apache::Mod::Mime]",
+                  "count": 6659,
+                  "mean": 90,
+                  "aggregate": 599310
+                },
+                {
+                  "resource": "Class[Postgresql::Server::Install]",
+                  "count": 6659,
+                  "mean": 78,
+                  "aggregate": 519402
+                },
+                {
+                  "resource": "Class[Apache::Mod::Version]",
+                  "count": 6659,
+                  "mean": 73,
+                  "aggregate": 486107
+                },
+                {
+                  "resource": "Class[Profile::Sysop::Packages::Cronie]",
+                  "count": 6659,
+                  "mean": 67,
+                  "aggregate": 446153
+                },
+                {
+                  "resource": "Class[Userwrapper]",
+                  "count": 6659,
+                  "mean": 64,
+                  "aggregate": 426176
+                },
+                {
+                  "resource": "Class[Profile::Motd]",
+                  "count": 6659,
+                  "mean": 42,
+                  "aggregate": 279678
+                },
+                {
+                  "resource": "Class[Profile::Sysop::Packages::Openssl]",
+                  "count": 6659,
+                  "mean": 40,
+                  "aggregate": 266360
+                },
+                {
+                  "resource": "Class[Sudo]",
+                  "count": 6659,
+                  "mean": 40,
+                  "aggregate": 266360
+                },
+                {
+                  "resource": "Class[Motd]",
+                  "count": 6659,
+                  "mean": 38,
+                  "aggregate": 253042
+                },
+                {
+                  "resource": "Class[Apache::Params]",
+                  "count": 6659,
+                  "mean": 33,
+                  "aggregate": 219747
+                },
+                {
+                  "resource": "Class[Apache::Mod::Disk_cache]",
+                  "count": 6659,
+                  "mean": 32,
+                  "aggregate": 213088
+                },
+                {
+                  "resource": "Class[Profile::Hiera_check]",
+                  "count": 6659,
+                  "mean": 32,
+                  "aggregate": 213088
+                },
+                {
+                  "resource": "Class[Apache::Version]",
+                  "count": 6659,
+                  "mean": 31,
+                  "aggregate": 206429
+                }
+              ],
+              "catalog-metrics": [
+                {
+                  "metric": "static_compile",
+                  "count": 6659,
+                  "mean": 30224,
+                  "aggregate": 201261616
+                },
+                {
+                  "metric": "static_compile_postprocessing",
+                  "count": 6659,
+                  "mean": 392,
+                  "aggregate": 2610328
+                },
+                {
+                  "metric": "find_node",
+                  "count": 6659,
+                  "mean": 73,
+                  "aggregate": 486107
+                }
+              ],
+              "puppetdb-metrics": [
+                {
+                  "metric": "command_submit_replace_catalog",
+                  "count": 6659,
+                  "mean": 3039,
+                  "aggregate": 20236701
+                },
+                {
+                  "metric": "catalog_munge",
+                  "count": 6659,
+                  "mean": 1087,
+                  "aggregate": 7238333
+                },
+                {
+                  "metric": "command_submit_store_report",
+                  "count": 5174,
+                  "mean": 996,
+                  "aggregate": 5153304
+                },
+                {
+                  "metric": "report_convert_to_wire_format_hash",
+                  "count": 5174,
+                  "mean": 426,
+                  "aggregate": 2204124
+                },
+                {
+                  "metric": "facts_encode",
+                  "count": 6659,
+                  "mean": 95,
+                  "aggregate": 632605
+                },
+                {
+                  "metric": "command_submit_replace_facts",
+                  "count": 6659,
+                  "mean": 83,
+                  "aggregate": 552697
+                }
+              ],
+              "inline-metrics": [
+                {
+                  "metric": "skipped_file_metadata",
+                  "count": 992191
+                },
+                {
+                  "metric": "skipped_file_metadata.no_sources",
+                  "count": 985532
+                },
+                {
+                  "metric": "inlined_file_metadata",
+                  "count": 406199
+                },
+                {
+                  "metric": "skipped_file_metadata.absent",
+                  "count": 6659
+                }
+              ]
+            }
+          },
+          "active_alerts": [
+
+          ]
+        },
+        "master": {
+          "service_version": "6.3.0",
+          "service_status_version": 1,
+          "detail_level": "debug",
+          "state": "running",
+          "status": {
+            "experimental": {
+              "http-metrics": [
+                {
+                  "route-id": "puppet-v3-node-/*/",
+                  "count": 10200,
+                  "mean": 102228,
+                  "aggregate": 1042725600
+                },
+                {
+                  "route-id": "puppet-v3-catalog-/*/",
+                  "count": 6659,
+                  "mean": 94804,
+                  "aggregate": 631299836
+                },
+                {
+                  "route-id": "puppet-v3-file_metadatas-/*/",
+                  "count": 21181,
+                  "mean": 17654,
+                  "aggregate": 373929374
+                },
+                {
+                  "route-id": "puppet-v3-report-/*/",
+                  "count": 5497,
+                  "mean": 63970,
+                  "aggregate": 351643090
+                },
+                {
+                  "route-id": "total",
+                  "count": 46298,
+                  "mean": 5203,
+                  "aggregate": 240888494
+                },
+                {
+                  "route-id": "puppet-v3-environment_classes-/*/",
+                  "count": 1380,
+                  "mean": 9680,
+                  "aggregate": 13358400
+                },
+                {
+                  "route-id": "puppet-v3-environments",
+                  "count": 1380,
+                  "mean": 2,
+                  "aggregate": 2760
+                },
+                {
+                  "route-id": "puppet-v3-environment_modules-/*/",
+                  "count": 1,
+                  "mean": 219,
+                  "aggregate": 219
+                },
+                {
+                  "route-id": "puppet-v3-static_file_content-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-file_content-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-tasks-:module-name-:task-name",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-file_metadata-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-facts-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "other",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-status-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-tasks",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-file_bucket_file-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v4-catalog",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                },
+                {
+                  "route-id": "puppet-v3-environment-/*/",
+                  "count": 0,
+                  "mean": 0,
+                  "aggregate": 0
+                }
+              ],
+              "http-client-metrics": [
+                {
+                  "count": 16859,
+                  "mean": 63,
+                  "aggregate": 1062117,
+                  "metric-name": "puppetlabs.ip-10-227-1-138.http-client.experimental.with-metric-id.classifier.nodes.full-response",
+                  "metric-id": [
+                    "classifier",
+                    "nodes"
+                  ]
+                },
+                {
+                  "count": 6659,
+                  "mean": 84,
+                  "aggregate": 559356,
+                  "metric-name": "puppetlabs.ip-10-227-1-138.http-client.experimental.with-metric-id.puppetdb.command.replace_catalog.full-response",
+                  "metric-id": [
+                    "puppetdb",
+                    "command",
+                    "replace_catalog"
+                  ]
+                },
+                {
+                  "count": 5174,
+                  "mean": 12,
+                  "aggregate": 62088,
+                  "metric-name": "puppetlabs.ip-10-227-1-138.http-client.experimental.with-metric-id.puppetdb.command.store_report.full-response",
+                  "metric-id": [
+                    "puppetdb",
+                    "command",
+                    "store_report"
+                  ]
+                },
+                {
+                  "count": 6659,
+                  "mean": 5,
+                  "aggregate": 33295,
+                  "metric-name": "puppetlabs.ip-10-227-1-138.http-client.experimental.with-metric-id.puppetdb.command.replace_facts.full-response",
+                  "metric-id": [
+                    "puppetdb",
+                    "command",
+                    "replace_facts"
+                  ]
+                },
+                {
+                  "count": 1246,
+                  "mean": 4,
+                  "aggregate": 4984,
+                  "metric-name": "puppetlabs.ip-10-227-1-138.http-client.experimental.with-metric-id.puppetdb.facts.find.full-response",
+                  "metric-id": [
+                    "puppetdb",
+                    "facts",
+                    "find"
+                  ]
+                }
+              ]
+            }
+          },
+          "active_alerts": [
+
+          ]
+        },
+        "file-sync-client-service": {
+          "service_version": "2019.1.0.0",
+          "service_status_version": 1,
+          "detail_level": "debug",
+          "state": "running",
+          "status": {
+            "last_check_in": {
+              "timestamp": "2019-07-18T17:14:57.631Z",
+              "response": {
+                "puppet-code": {
+                  "commit": "e65adfcb57e09b3b90ddb5cbaf4426464d40480a",
+                  "submodules": {
+                    "production": {
+                      "commit": "bdebf9d2e46b9b2fa45176e7d74fb6077619533d",
+                      "path": "environments/production"
+                    }
+                  }
+                }
+              }
+            },
+            "last_successful_sync_time": "2019-07-18T17:14:57.634Z",
+            "last_sync": null,
+            "current_activity": "idle",
+            "repos": {
+              "puppet-code": {
+                "status": "ok",
+                "latest_commit": {
+                  "commit": "e65adfcb57e09b3b90ddb5cbaf4426464d40480a",
+                  "date": "2019-07-08T23:58:10.000Z",
+                  "message": "Commit content to file sync storage service",
+                  "identity": {
+                    "name": "PE File Sync Service",
+                    "email": ""
+                  }
+                },
+                "submodules": {
+                  "production": {
+                    "status": "ok",
+                    "latest_commit": {
+                      "commit": "bdebf9d2e46b9b2fa45176e7d74fb6077619533d",
+                      "date": "2019-07-08T23:58:10.000Z",
+                      "message": "Commit content to file sync storage service",
+                      "identity": {
+                        "name": "PE File Sync Service",
+                        "email": ""
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "experimental": {
+              "metrics": {
+                "num-fetches": 0,
+                "average-fetch-time": 0,
+                "num-clones": 0,
+                "average-clone-time": 0,
+                "num-syncs": 0,
+                "average-sync-time": 0,
+                "num-sync-clean-checks": 0,
+                "average-sync-clean-check-time": 0
+              }
+            },
+            "timestamp": "2019-07-18T17:15:01.343Z"
+          },
+          "active_alerts": [
+
+          ]
+        },
+        "file-sync-storage-service": {
+          "service_version": "2019.1.0.0",
+          "service_status_version": 1,
+          "detail_level": "debug",
+          "state": "running",
+          "status": {
+            "repos": {
+              "puppet-code": {
+                "latest_commit": {
+                  "commit": "e65adfcb57e09b3b90ddb5cbaf4426464d40480a",
+                  "date": "2019-07-08T23:58:10.000Z",
+                  "message": "Commit content to file sync storage service",
+                  "identity": {
+                    "name": "PE File Sync Service",
+                    "email": ""
+                  }
+                },
+                "total_commits": 1,
+                "staging_dir": {
+                  "clean": true,
+                  "added": [
+
+                  ],
+                  "removed": [
+
+                  ],
+                  "changed": [
+
+                  ],
+                  "missing": [
+
+                  ],
+                  "untracked": [
+
+                  ],
+                  "modified": [
+
+                  ]
+                },
+                "submodules": {
+                  "production": {
+                    "latest_commit": {
+                      "commit": "bdebf9d2e46b9b2fa45176e7d74fb6077619533d",
+                      "date": "2019-07-08T23:58:10.000Z",
+                      "message": "Commit content to file sync storage service",
+                      "identity": {
+                        "name": "PE File Sync Service",
+                        "email": ""
+                      }
+                    },
+                    "total_commits": 1,
+                    "staging_dir": {
+                      "clean": true,
+                      "added": [
+
+                      ],
+                      "removed": [
+
+                      ],
+                      "changed": [
+
+                      ],
+                      "missing": [
+
+                      ],
+                      "untracked": [
+
+                      ],
+                      "modified": [
+
+                      ]
+                    },
+                    "path": "environments/production"
+                  }
+                }
+              }
+            },
+            "timestamp": "2019-07-18T17:15:01.344Z",
+            "latest_commit_request": null,
+            "clients": {
+              "ip-10-227-1-138.amz-dev.puppet.net": {
+                "last_sync": null,
+                "repos": {
+                  "puppet-code": {
+                    "status": "ok",
+                    "latest_commit": {
+                      "commit": "e65adfcb57e09b3b90ddb5cbaf4426464d40480a",
+                      "date": "2019-07-08T23:58:10.000Z",
+                      "message": "Commit content to file sync storage service",
+                      "identity": {
+                        "name": "PE File Sync Service",
+                        "email": ""
+                      }
+                    },
+                    "submodules": {
+                      "production": {
+                        "status": "ok",
+                        "latest_commit": {
+                          "commit": "bdebf9d2e46b9b2fa45176e7d74fb6077619533d",
+                          "date": "2019-07-08T23:58:10.000Z",
+                          "message": "Commit content to file sync storage service",
+                          "identity": {
+                            "name": "PE File Sync Service",
+                            "email": ""
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "client_identifier": "ip-10-227-1-138.amz-dev.puppet.net",
+                "last_check_in_time": "2019-07-18T17:14:57.630Z",
+                "last_ip_address": "10.227.1.138"
+              }
+            },
+            "experimental": {
+              "metrics": {
+                "num-commits": 0,
+                "average-commit-time": 0,
+                "num-commit-add-rm-ops": 0,
+                "num-pre-commit-hook-ops": 0,
+                "average-commit-add-rm-time": 0,
+                "average-pre-commit-hook-time": 0
+              }
+            }
+          },
+          "active_alerts": [
+
+          ]
+        },
+        "status-service": {
+          "service_version": "1.1.0",
+          "service_status_version": 1,
+          "detail_level": "debug",
+          "state": "running",
+          "status": {
+            "experimental": {
+              "jvm-metrics": {
+                "cpu-usage": 0.05,
+                "up-time-ms": 839856247,
+                "gc-cpu-usage": 0.0,
+                "threading": {
+                  "thread-count": 146,
+                  "peak-thread-count": 319
+                },
+                "heap-memory": {
+                  "committed": 1908932608,
+                  "init": 2147483648,
+                  "max": 1908932608,
+                  "used": 1558568600
+                },
+                "gc-stats": {
+                  "PS Scavenge": {
+                    "count": 15546,
+                    "total-time-ms": 650254,
+                    "last-gc-info": {
+                      "duration-ms": 666
+                    }
+                  },
+                  "PS MarkSweep": {
+                    "count": 20361,
+                    "total-time-ms": 22986244,
+                    "last-gc-info": {
+                      "duration-ms": 896
+                    }
+                  }
+                },
+                "start-time-ms": 1562630245121,
+                "file-descriptors": {
+                  "used": 263,
+                  "max": 12000
+                },
+                "non-heap-memory": {
+                  "committed": 1237319680,
+                  "init": 2555904,
+                  "max": -1,
+                  "used": 892253384
+                }
+              }
+            }
+          },
+          "active_alerts": [
+
+          ]
+        },
+        "pe-jruby-metrics": {
+          "service_version": "2019.1.0.55",
+          "service_status_version": 1,
+          "detail_level": "debug",
+          "state": "running",
+          "status": {
+            "experimental": {
+              "jruby-pool-lock-status": {
+                "current-state": ":not-in-use",
+                "last-change-time": "2019-07-09T00:01:32.518Z"
+              },
+              "metrics": {
+                "average-lock-wait-time": 0,
+                "num-free-jrubies": 4,
+                "borrow-count": 46298,
+                "average-requested-jrubies": 0.0,
+                "borrow-timeout-count": 0,
+                "return-count": 46298,
+                "borrow-retry-count": 0,
+                "borrowed-instances": [
+
+                ],
+                "average-borrow-time": 5203,
+                "num-jrubies": 4,
+                "requested-count": 46298,
+                "queue-limit-hit-rate": 0.0,
+                "average-lock-held-time": 0,
+                "requested-instances": [
+
+                ],
+                "queue-limit-hit-count": 0,
+                "average-free-jrubies": 3.9286052890270655,
+                "num-pool-locks": 0,
+                "average-wait-time": 0
+              }
+            }
+          },
+          "active_alerts": [
+
+          ]
+        },
+        "error": [
+
+        ],
+        "error_count": 0,
+        "api-query-start": "2019-07-18T17:15:01Z",
+        "api-query-duration": 0.132775519
+      }
+    }
+  }
+}

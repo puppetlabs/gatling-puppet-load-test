@@ -1,3 +1,8 @@
+AllCops:
+  TargetRubyVersion: 2.3
+  Exclude:
+    - 'Boltdir/site-modules/metrics/spec/fixtures/**/*'
+    - 'vendor/**/*'
 Layout/AlignHash:
   EnforcedHashRocketStyle: table
 Style/StringLiterals:

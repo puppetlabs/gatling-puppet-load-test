@@ -1,8 +1,6 @@
 #!/opt/puppetlabs/puppet/bin/ruby
 # frozen_string_literal: true
 
-# brozen_string_literal: true
-
 # This script returns a JSON array of the current values for the settings adjusted by the 'pe_tune' module:
 #   https://github.com/tkishel/pe_tune
 #
@@ -11,6 +9,7 @@
 #
 # TODO: spec
 
+require "fileutils"
 require "json"
 
 NA = "N/A"
@@ -20,6 +19,8 @@ PUPPET_DB_CONF = "/etc/puppetlabs/puppetdb/conf.d/config.ini"
 MIN_DEFAULT_JRUBIES = 1
 MAX_DEFAULT_JRUBIES = 4
 DEFAULT_EXCLUSION = ""
+DEFAULT_WORKING_DIRECTORY = "~/tmp"
+DEFAULT_OUTPUT_FILE = "current_tune_settings.json"
 
 # Returns the value for the 'max-active-instances' parameter if found, otherwise the default value
 #
@@ -362,38 +363,43 @@ def puppetdb_command_processing_threads
   get_puppetdb_parameter("threads")
 end
 
-# Returns a JSON array of the current values for the settings that can be adjusted using the 'pe_tune' module
+# Returns a JSON hash of the current values for the settings that can be adjusted using the 'pe_tune' module
 # @author Bill Claytor
 #
-# @return [JSON] The current_settings array
+# @return [JSON] The current_settings hash
 #
 # @example
 #   settings = current_settings
 #
 # rubocop:disable Metrics/LineLength
 def current_settings
-  params = []
-  params << { "puppet_enterprise::master::puppetserver::jruby_max_active_instances" => puppetserver_jruby_max_active_instances }
-  params << { "puppet_enterprise::master::puppetserver::reserved_code_cache" => puppetserver_reserved_code_cache }
-  params << { "puppet_enterprise::profile::console::java_args" => console_java_args }
-  params << { "puppet_enterprise::profile::database::shared_buffers" => database_shared_buffers }
-  params << { "puppet_enterprise::profile::database::autovacuum_max_workers" => database_autovacuum_max_workers }
-  params << { "puppet_enterprise::profile::database::autovacuum_work_mem" => database_autovacuum_work_mem }
-  params << { "puppet_enterprise::profile::database::maintenance_work_mem" => database_maintenance_work_mem }
-  params << { "puppet_enterprise::profile::database::max_connections" => database_max_connections }
-  params << { "puppet_enterprise::profile::database::work_mem" => database_work_mem }
-  params << { "puppet_enterprise::profile::master::java_args" => master_java_args }
-  params << { "puppet_enterprise::profile::orchestrator::java_args" => orchestrator_java_args }
-  params << { "puppet_enterprise::profile::puppetdb::java_args" => puppetdb_java_args }
-  params << { "puppet_enterprise::puppetdb::command_processing_threads" => puppetdb_command_processing_threads }
+  params = {}
+  params["puppet_enterprise::master::puppetserver::jruby_max_active_instances"] = puppetserver_jruby_max_active_instances
+  params["puppet_enterprise::master::puppetserver::reserved_code_cache"] = puppetserver_reserved_code_cache
+  params["puppet_enterprise::profile::console::java_args"] = console_java_args
+  params["puppet_enterprise::profile::database::shared_buffers"] = database_shared_buffers
+  params["puppet_enterprise::profile::database::autovacuum_max_workers"] = database_autovacuum_max_workers
+  params["puppet_enterprise::profile::database::autovacuum_work_mem"] = database_autovacuum_work_mem
+  params["puppet_enterprise::profile::database::maintenance_work_mem"] = database_maintenance_work_mem
+  params["puppet_enterprise::profile::database::max_connections"] = database_max_connections
+  params["puppet_enterprise::profile::database::work_mem"] = database_work_mem
+  params["puppet_enterprise::profile::master::java_args"] = master_java_args
+  params["puppet_enterprise::profile::orchestrator::java_args"] = orchestrator_java_args
+  params["puppet_enterprise::profile::puppetdb::java_args"] = puppetdb_java_args
+  params["puppet_enterprise::puppetdb::command_processing_threads"] = puppetdb_command_processing_threads
 
-  json = JSON.pretty_generate params
+  settings_json = JSON.pretty_generate params
 
   # TODO: make this optional?
-  puts json
+  puts settings_json
 
-  json
+  # TODO: make the output location optional?
+  FileUtils.mkdir_p DEFAULT_WORKING_DIRECTORY
+  File.write("#{DEFAULT_WORKING_DIRECTORY}/#{DEFAULT_OUTPUT_FILE}", settings_json)
+
+  settings_json
 end
+
 # rubocop:enable Metrics/LineLength
 
 current_settings

@@ -653,6 +653,28 @@ module PerfHelper
     )
   end
 
+  def configure_code_manager
+    pe_master = classifier.get_node_group_by_name("PE Master")
+    profile_hash = { "classes" => { "puppet_enterprise::profile::master" => {
+      code_manager_auto_configure: true,
+      r10k_remote: get_r10k_config_from_env[:control_repo],
+      r10k_private_key: ""
+    } } }
+    classifier.update_node_group(pe_master["id"], profile_hash)
+  end
+
+  def cm_deploy_all_envs
+    administrator_role = classifier.get_role_by_name("Administrators")
+    local_user = classifier.generate_local_user
+    classifier.add_user_to_role(local_user, administrator_role)
+    @token = local_user.acquire_token_with_credentials("5d")
+    classifier.extend(Scooter::HttpDispatchers::CodeManager)
+    classifier.send_auth_token_as_query_param = true
+    classifier.token = @token
+    classifier.connection.ssl["verify"] = false
+    classifier.deploy_all_environments
+  end
+
   def setup_puppet_metrics_collector_for_foss
     custom_fact_content = 'pe_server_version=""'
     custom_fact_path = "/opt/puppetlabs/facter/facts.d/custom.txt"

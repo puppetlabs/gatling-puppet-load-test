@@ -19,7 +19,7 @@ PUPPET_DB_CONF = "/etc/puppetlabs/puppetdb/conf.d/config.ini"
 MIN_DEFAULT_JRUBIES = 1
 MAX_DEFAULT_JRUBIES = 4
 DEFAULT_EXCLUSION = ""
-DEFAULT_WORKING_DIRECTORY = "~/tmp"
+DEFAULT_WORKING_DIRECTORY = "/root/tmp"
 DEFAULT_OUTPUT_FILE = "current_tune_settings.json"
 
 # Returns the value for the 'max-active-instances' parameter if found, otherwise the default value

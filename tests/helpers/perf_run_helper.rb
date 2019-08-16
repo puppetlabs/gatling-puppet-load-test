@@ -226,12 +226,12 @@ module PerfRunHelper
   #
   # @author Bill Claytor
   #
-  # @param [String] perf_scale_dir The results directory for the scale run
+  # @param [String] scale_results_parent_dir The results directory for the scale run
   #
   # @return [void]
   #
   # @example
-  #   create_scale_results_csv_file(perf_scale_dir)
+  #   create_scale_results_csv_file(scale_results_parent_dir)
   #
   def create_scale_results_csv_file(scale_results_parent_dir)
     CSV.open("#{scale_results_parent_dir}/PERF_SCALE_#{@scale_timestamp}.csv", "wb") do |csv|
@@ -256,12 +256,12 @@ module PerfRunHelper
   #
   # @author Bill Claytor
   #
-  # @param [String] perf_scale_dir The results directory for the scale run
+  # @param [String] scale_results_parent_dir The results directory for the scale run
   #
   # @return [void]
   #
   # @example
-  #   create_scale_results_env_file(perf_scale_dir)
+  #   create_scale_results_env_file(scale_results_parent_dir)
   #
   def create_scale_results_env_file(scale_results_parent_dir)
     File.open("#{scale_results_parent_dir}/beaker_environment.txt", "w") do |f|
@@ -296,12 +296,12 @@ module PerfRunHelper
   #
   # @author Bill Claytor
   #
-  # @param [String] perf_scale_dir The results directory for the scale run
+  # @param [String] scale_results_parent_dir The results directory for the scale run
   #
   # @return [void]
   #
   # @example
-  #   create_pe_tune_file(perf_scale_dir)
+  #   create_pe_tune_file(scale_results_parent_dir)
   #
   def create_pe_tune_file(scale_results_parent_dir)
     output = puppet_infrastructure_tune_current
@@ -353,12 +353,12 @@ module PerfRunHelper
   #
   # @author Bill Claytor
   #
-  # @param [String] perf_scale_dir The results directory for the scale run
+  # @param [String] scale_results_parent_dir The results directory for the scale run
   #
   # @return [void]
   #
   # @example
-  #   copy_puppet_metrics_collector(perf_scale_dir)
+  #   copy_puppet_metrics_collector(scale_results_parent_dir)
   #
   def copy_puppet_metrics_collector(scale_results_parent_dir)
     puts "Copying puppet_metrics_collector..."
@@ -684,7 +684,7 @@ module PerfRunHelper
 
   private
 
-  def execute_gatling_scenario(gatling_scenario, simulation_id, gatlingassertions)
+  def execute_gatling_scenario(gatling_scenario, simulation_id, gatling_assertions)
     step "Execute gatling scenario" do
       # Should gatling run reports only?
       if ENV["PUPPET_GATLING_REPORTS_ONLY"] == "true"
@@ -697,14 +697,15 @@ module PerfRunHelper
 
       sim_runner_dir = "/root/gatling-puppet-load-test/simulation-runner/"
       base_url = "https://#{master.hostname}:8140"
-      sim_config = "config/scenarios/#{gatling_scenario} " + gatlingassertions
+      sim_config = "config/scenarios/#{gatling_scenario} "
       reports_target_path = "#{sim_runner_dir}/results/#{reports_target}"
       command = "cd #{sim_runner_dir} && " \
-          "PUPPET_GATLING_MASTER_BASE_URL=#{base_url} " \
-          "PUPPET_GATLING_SIMULATION_CONFIG=#{sim_config} " \
-          "PUPPET_GATLING_REPORTS_ONLY=#{reports_only} " \
-          "PUPPET_GATLING_REPORTS_TARGET=#{reports_target_path} " \
-          "PUPPET_GATLING_SIMULATION_ID=#{simulation_id} sbt run"
+                "PUPPET_GATLING_MASTER_BASE_URL=#{base_url} " \
+                "PUPPET_GATLING_SIMULATION_CONFIG=#{sim_config} " +
+                gatling_assertions +
+                "PUPPET_GATLING_REPORTS_ONLY=#{reports_only} " \
+                "PUPPET_GATLING_REPORTS_TARGET=#{reports_target_path} " \
+                "PUPPET_GATLING_SIMULATION_ID=#{simulation_id} sbt run"
 
       on(metric, command, accept_all_exit_codes: true) do |result|
         fail_test "Gatling execution failed with: #{result.formatted_output(20)}" if result.exit_code != 0
@@ -754,8 +755,6 @@ module PerfRunHelper
   end
 
   def copy_archive_files
-    # now = Time.now.getutc.to_i
-
     # truncate the job name so it only has the name-y part and no parameters
     job_name = if ENV["JOB_NAME"]
                  ENV["JOB_NAME"]
@@ -766,9 +765,6 @@ module PerfRunHelper
                end
 
     archive_name = "#{job_name}__#{ENV['BUILD_ID']}__#{@gplt_timestamp}__perf-files.tgz"
-
-    # perf results now have a home
-    # @archive_root = "results/perf/PERF_#{now}"
 
     # Archive the gatling result htmls from the metrics box and the atop results
     # from the master (which are already copied locally).

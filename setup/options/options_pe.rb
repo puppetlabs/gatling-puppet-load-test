@@ -9,11 +9,8 @@
     "setup/install_gatling/00_pre_install/30_r10k_git_setup.rb",
     # unique to pe
     "setup/install_gatling/10_pe_install/10_install_pe.rb",
-    # common between foss, pe
-    "setup/install_gatling/30_classification/10_r10k_deploy.rb",
     # unique to pe
-    "setup/install_gatling/30_classification/20_enable_file_sync.rb",
-    "setup/install_gatling/30_classification/30_sync_codedir.rb",
+    "setup/install_gatling/30_classification/00_configure_code_manager.rb",
     "setup/install_gatling/30_classification/40_classify_nodes_via_nc.rb",
     "setup/install_gatling/30_classification/45_classify_master_via_nc.rb",
     # common between foss, pe

@@ -8,6 +8,12 @@ class PerfRunHelperClass
   include Minitest::Assertions
 end
 
+TEST_TIME_NOW = Time.now
+TEST_TIMESTAMP = TEST_TIME_NOW.getutc.to_i
+TEST_DIR = "test/dir"
+TEST_ARCHIVE_ROOT = "#{TEST_DIR}/PERF_#{TEST_TIMESTAMP}"
+TEST_JSON = "{'parameter': 'value'}"
+
 describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
   let(:perf_result_processes) do # rubocop:disable Metrics/BlockLength
     # rubocop:disable Metrics/LineLength
@@ -127,6 +133,160 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
 
   let(:gatling_result) { double("GatlingResult") }
   let(:atop_result) { double("Beaker::DSL::BeakerBenchmark::Helpers::PerformanceResult") }
+
+  describe "#perf_setup" do
+    gatling_scenario = "test_gatling_scenario"
+    simulation_id = "test_simulation_id"
+    gatling_assertions = "SUCCESSFUL_REQUESTS=123 " + "MAX_RESPONSE_TIME_AGENT=12345 " + "TOTAL_REQUEST_COUNT=23456 "
+    test_timestamp = "34567"
+
+    context "when called with the expected args" do
+      let!(:master) { [] }
+
+      before do
+        allow(subject).to receive(:master).and_return(master)
+      end
+
+      it "starts atop monitoring and sets the timestamp instance variable" do
+        allow(subject).to receive(:create_perf_archive_root)
+        allow(subject).to receive(:capture_current_tune_settings)
+        allow(subject).to receive(:execute_gatling_scenario)
+
+        expect(subject).to receive(:start_monitoring).and_return(test_timestamp)
+        subject.perf_setup(gatling_scenario, simulation_id, gatling_assertions)
+
+        expect(subject.instance_variable_get(:@atop_session_timestamp)).to eq(test_timestamp)
+      end
+
+      # TODO: separate test per case or combine?
+      it "creates the perf archive root" do
+        allow(subject).to receive(:start_monitoring)
+        allow(subject).to receive(:capture_current_tune_settings)
+        allow(subject).to receive(:execute_gatling_scenario)
+
+        expect(subject).to receive(:create_perf_archive_root)
+        subject.perf_setup(gatling_scenario, simulation_id, gatling_assertions)
+      end
+
+      it "captures the current tune settings" do
+        allow(subject).to receive(:start_monitoring)
+        allow(subject).to receive(:create_perf_archive_root)
+        allow(subject).to receive(:execute_gatling_scenario)
+
+        expect(subject).to receive(:capture_current_tune_settings)
+        subject.perf_setup(gatling_scenario, simulation_id, gatling_assertions)
+      end
+
+      it "executes the gatling scenario" do
+        allow(subject).to receive(:start_monitoring)
+        allow(subject).to receive(:create_perf_archive_root)
+        allow(subject).to receive(:capture_current_tune_settings)
+
+        expect(subject).to receive(:execute_gatling_scenario)
+          .with(gatling_scenario, simulation_id, gatling_assertions)
+        subject.perf_setup(gatling_scenario, simulation_id, gatling_assertions)
+      end
+    end
+  end
+
+  describe "#perf_result" do
+    test_perf_result = "test result"
+
+    context "when @perf_result has been set" do
+      it "returns the value without updating it" do
+        subject.instance_variable_set(:@perf_result, test_perf_result)
+
+        expect(subject).not_to receive(:get_perf_result)
+        expect(subject.perf_result).to eq(test_perf_result)
+
+        expect(subject.instance_variable_get(:@perf_result)).to eq(test_perf_result)
+      end
+    end
+
+    context "when @perf_result has not been set" do
+      it "gets the perf result and sets the instance variable" do
+        expect(subject).to receive(:get_perf_result).and_return(test_perf_result)
+        expect(subject.perf_result).to eq(test_perf_result)
+        expect(subject.instance_variable_get(:@perf_result)).to eq(test_perf_result)
+      end
+    end
+  end
+
+  # TODO
+  describe "#perf_teardown" do
+    context "when called" do
+      it "" do
+      end
+    end
+  end
+
+  describe "#create_perf_archive_root" do
+    context "when called" do
+      before do
+        stub_const("PerfRunHelper::PERF_RESULTS_DIR", TEST_DIR)
+      end
+
+      it "sets @gplt_timestamp" do
+        allow(FileUtils).to receive(:mkdir_p)
+        expect(Time).to receive(:now).and_return(TEST_TIME_NOW)
+
+        subject.create_perf_archive_root
+        expect(subject.instance_variable_get(:@gplt_timestamp)).to eq(TEST_TIMESTAMP)
+      end
+
+      it "sets @archive_root with the @gplt_timestamp" do
+        subject.instance_variable_set("@gplt_timestamp", TEST_TIMESTAMP)
+
+        allow(FileUtils).to receive(:mkdir_p)
+        expect(Time).to receive(:now).and_return(TEST_TIME_NOW)
+
+        subject.create_perf_archive_root
+        expect(subject.instance_variable_get(:@archive_root)).to eq(TEST_ARCHIVE_ROOT)
+      end
+
+      it "creates the 'archive root' directory" do
+        subject.instance_variable_set("@gplt_timestamp", TEST_TIMESTAMP)
+
+        expect(Time).to receive(:now).and_return(TEST_TIME_NOW)
+        expect(FileUtils).to receive(:mkdir_p).with(TEST_ARCHIVE_ROOT)
+
+        subject.create_perf_archive_root
+      end
+    end
+  end
+
+  describe "#capture_current_tune_settings" do
+    context "when called" do
+      let!(:master) { [] }
+      let!(:result) { Class.new }
+
+      before do
+        subject.instance_variable_set("@archive_root", TEST_ARCHIVE_ROOT)
+        allow(subject).to receive(:puts)
+        allow(subject).to receive(:master).and_return(master)
+      end
+
+      it "captures the tune settings" do
+        allow(File).to receive(:write)
+
+        expect(subject).to receive(:run_script_on).and_return(result)
+        expect(result).to receive(:output).and_return(TEST_JSON)
+
+        subject.capture_current_tune_settings
+      end
+
+      it "writes the settings to the @archive_root" do
+        expected_path = "#{TEST_ARCHIVE_ROOT}/current_tune_settings.json"
+
+        allow(subject).to receive(:run_script_on).and_return(result)
+        allow(result).to receive(:output).and_return(TEST_JSON)
+
+        expect(File).to receive(:write).with(expected_path, TEST_JSON)
+
+        subject.capture_current_tune_settings
+      end
+    end
+  end
 
   describe ".assert_later" do
     context "when true" do

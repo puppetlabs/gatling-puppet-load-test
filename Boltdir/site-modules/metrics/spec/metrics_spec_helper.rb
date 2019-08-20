@@ -8,10 +8,8 @@ SimpleCov.start do
   add_group "metrics", "files"
 end
 
-puts "yo"
 # files
 Dir["./Boltdir/site-modules/metrics/files/*.rb"].each { |file| require file }
-Dir["./Boltdir/site-modules/metrics/files/*.rb"].each { |file| puts file }
 
 SimpleCov.at_exit do
   SimpleCov.result.format!

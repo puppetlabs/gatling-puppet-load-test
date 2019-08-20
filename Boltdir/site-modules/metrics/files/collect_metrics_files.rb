@@ -1,3 +1,4 @@
+#!/opt/puppetlabs/puppet/bin/ruby
 # frozen_string_literal: true
 
 require "optparse"
@@ -54,7 +55,7 @@ module Metrics
     #
     # rubocop:disable Metrics/ParameterLists
     def initialize(start_epoch, end_epoch, metrics_dir, output_dir, tar_file_name,
-                   poll_interval, archive_interval, verbose)
+                   poll_interval, archive_interval, verbose = false)
       @start_epoch = start_epoch
       @end_epoch = end_epoch
       @metrics_dir = metrics_dir
@@ -128,7 +129,7 @@ module Metrics
     #
     # @author Randell Pelak
     #
-    # @param [string] file_path json file_path
+    # @param [string] file_path path to json file
     #
     # @return [boolean] true if yes, false if no
     #
@@ -194,34 +195,50 @@ module Metrics
 
       # this is only here because without it the script doesn't output much and might appear to be hung
       puts "Checking #{filename} for relevant jsons"
-      zr = Zlib::GzipReader.new(File.open(file_path, "rb"))
-      mtr = Archive::Tar::Minitar::Reader.new(zr)
+      zip_reader = Zlib::GzipReader.new(File.open(file_path, "rb"))
+      mtr = Archive::Tar::Minitar::Reader.new(zip_reader)
       jsons_to_include = []
       mtr.each do |file|
         jsons_to_include << file.full_name if json_file_from_target_window?(file.full_name)
       end
       return if jsons_to_include.empty?
 
+      stage_jsons_from_tarfile(file_path, jsons_to_include, service)
+    end
+
+    # Stage the specific jsons from the tarfile to the staging area
+    #
+    # @author Randell Pelak
+    #
+    # @param [string] file_path absolute path to tar file
+    # @param [array]  jsons_to_stage json files to stage
+    # @param [string] service name of the service the file comes from
+    #
+    # @return void
+    #
+    # @example
+    #   stage_jsons_from_tarfile(file_path, jsons_to_stage, service)
+    def stage_jsons_from_tarfile(file_path, jsons_to_stage, service)
+      zip_reader = Zlib::GzipReader.new(File.open(file_path, "rb"))
       service_staging_dir = "#{@staging_dir}/#{service}"
       FileUtils.mkdir(service_staging_dir) unless File.directory?(service_staging_dir)
-      zr.rewind
-      Archive::Tar::Minitar.unpack(zr, service_staging_dir, jsons_to_include)
+      Archive::Tar::Minitar.unpack(zip_reader, service_staging_dir, jsons_to_stage)
     end
 
     # Determines if the tarfile may contain json files from the target window
     #
     # @author Randell Pelak
     #
-    # @param [string] filename The tar filename
+    # @param [string] file_path Path to tar file
     # @param [string] service name of the service the file comes from
     #
     # @return [boolean] true if yes, false if no
     #
     # @example
-    #   tarfile_from_target_window?(filename, service)
-    def tarfile_from_target_window?(filename, service)
-      time_str_with_extension = filename.gsub(/^#{service}-/, "")
-      time_str = time_str_with_extension.gsub(/.tar.gz$/, "")
+    #   tarfile_from_target_window?(file_path, service)
+    def tarfile_from_target_window?(file_path, service)
+      filename = File.basename(file_path, ".tar.gz")
+      time_str = filename.gsub(/^#{service}-/, "")
       time_obj = DateTime.strptime(time_str, "%Y.%m.%d.%H.%M.%S")
       epoch = time_obj.to_time.to_i
       return epoch > @start_epoch && (epoch - @archive_interval) < @end_epoch
@@ -245,129 +262,130 @@ module Metrics
   end
 end
 
-exit unless $PROGRAM_NAME == __FILE__
+if $PROGRAM_NAME == __FILE__
 
-END_EPOCH_DEFAULT = Time.now.to_i
-START_EPOCH_DEFAULT = END_EPOCH_DEFAULT - (8 * 60 * 60) # minus 8 hours
-# TODO: can we get this from the module, it is configurable
-METRICS_DIR_DEFAULT = "/opt/puppetlabs/puppet-metrics-collector"
-# TODO: can we get this from the module, it is configurable
-POLL_INTERVAL_DEFAULT = 60 * 5
-# archival runs at a random time between 12am and 3am.
-# But the random time should be static for a given service
-# TODO: can we get this from the module, it is configurable
-ARCHIVE_INTERVAL_DEFAULT = 60 * 60 * (24 + 0)
-OUTPUT_DIR_DEFAULT = "."
+  END_EPOCH_DEFAULT = Time.now.to_i
+  START_EPOCH_DEFAULT = END_EPOCH_DEFAULT - (8 * 60 * 60) # minus 8 hours
+  # TODO: can we get this from the module, it is configurable
+  METRICS_DIR_DEFAULT = "/opt/puppetlabs/puppet-metrics-collector"
+  # TODO: can we get this from the module, it is configurable
+  POLL_INTERVAL_DEFAULT = 60 * 5
+  # archival runs at a random time between 12am and 3am.
+  # But the random time should be static for a given service
+  # TODO: can we get this from the module, it is configurable
+  ARCHIVE_INTERVAL_DEFAULT = 60 * 60 * (24 + 0)
+  OUTPUT_DIR_DEFAULT = "."
 
-# Built the default tar file name from the start and end times
-#
-# @author Randell Pelak
-#
-# @param [string] start_epoch epoch time for the start of the window
-# @param [string] end_epoch epoch time for the end of the window
-#
-# @return [string] Filename
-#
-# @example
-#   filename = build_default_tar_filename(start_epoch, end_epoch)
-def build_default_tar_filename(start_epoch, end_epoch)
-  start_epoch_str = Time.at(start_epoch).strftime("%Y%m%dT%H%M%SZ")
-  end_epoch_str = Time.at(end_epoch).strftime("%Y%m%dT%H%M%SZ")
-  return "#{start_epoch_str}-#{end_epoch_str}.tar.gz"
+  # Built the default tar file name from the start and end times
+  #
+  # @author Randell Pelak
+  #
+  # @param [string] start_epoch epoch time for the start of the window
+  # @param [string] end_epoch epoch time for the end of the window
+  #
+  # @return [string] Filename
+  #
+  # @example
+  #   filename = build_default_tar_filename(start_epoch, end_epoch)
+  def build_default_tar_filename(start_epoch, end_epoch)
+    start_epoch_str = Time.at(start_epoch).strftime("%Y%m%dT%H%M%SZ")
+    end_epoch_str = Time.at(end_epoch).strftime("%Y%m%dT%H%M%SZ")
+    return "#{start_epoch_str}-#{end_epoch_str}.tar.gz"
+  end
+
+  TAR_FILE_NAME_DEFAULT = build_default_tar_filename(START_EPOCH_DEFAULT, END_EPOCH_DEFAULT)
+
+  DESCRIPTION = <<~DESCRIPTION
+    This script is designed to gather up the json files from the puppet_metrics_collector module
+    within a specified time frame.  Going as far as opening up the daily tar files and extracting
+    only the matching jsons.
+  DESCRIPTION
+
+  DEFAULTS = <<~DEFAULTS
+    The following defaults values are used if the options are not specified:
+      * start (-s, --start_epoch): Now minus 8 hours. Ex: #{START_EPOCH_DEFAULT}
+      * end (-e, --end_epoch): Now. Ex: #{END_EPOCH_DEFAULT}
+      * metrics_dir (-m, --metrics_dir): #{METRICS_DIR_DEFAULT}
+      * output_dir (-o, --output_dir): #{OUTPUT_DIR_DEFAULT}
+      * tar_file_name (-t, --tar_file_name): Built from start and end time. Ex: #{TAR_FILE_NAME_DEFAULT}
+      * poll_interval (-p, --poll_interval): #{POLL_INTERVAL_DEFAULT}
+      * archive_interval (-a, --archive_interval): #{ARCHIVE_INTERVAL_DEFAULT}
+      * verbose (-v, --verbose): False
+  DEFAULTS
+
+  options = {}
+
+  OptionParser.new do |opts|
+    opts.banner = "Usage: collect_metrics_files.rb [options]"
+
+    opts.on("-h", "--help", "Display the help text") do
+      puts DESCRIPTION
+      puts opts
+      puts DEFAULTS
+      exit
+    end
+
+    opts.on("-s", "--start_epoch seconds", Integer,
+            "Epoch time (seconds) that marks the start of the collection window") do |start_epoch|
+      options[:start_epoch] = start_epoch
+    end
+    opts.on("-e", "--end_epoch seconds", Integer,
+            "Epoch time (seconds) that marks the end of the collection window") do |end_epoch|
+      options[:end_epoch] = end_epoch
+    end
+    opts.on("-m", "--metrics_dir dir_path", String, "The puppet_metrics_collector output directory") do |metrics_dir|
+      options[:metrics_dir] = metrics_dir
+    end
+    opts.on("-o", "--output_dir dir_path", String, "Directory to write the tar file into") do |output_dir|
+      options[:output_dir] = output_dir
+    end
+    opts.on("-t", "--tar_file_name filename", String, "The name of the output tar file ") do |tar_file_name|
+      options[:tar_file_name] = tar_file_name
+    end
+    opts.on("-p", "--poll_interval seconds", Integer,
+            "The puppet_metrics_collector module polling interval") do |interval|
+      options[:poll_interval] = interval
+    end
+    opts.on("-a", "--archive_interval seconds", Integer,
+            "The puppet_metrics_collector module archiving interval") do |interval|
+      options[:archive_interval] = interval
+    end
+    opts.on("-v", "--verbose", String, "Enable Verbose output") { options[:verbose] = true }
+  end.parse!
+
+  start_epoch = options[:start_epoch] || START_EPOCH_DEFAULT
+  end_epoch = options[:end_epoch] || END_EPOCH_DEFAULT
+  metrics_dir = options[:metrics_dir] || METRICS_DIR_DEFAULT
+  output_dir = options[:output_dir] || OUTPUT_DIR_DEFAULT
+  poll_interval = options[:poll_interval] || POLL_INTERVAL_DEFAULT
+  archive_interval = options[:archive_interval] || ARCHIVE_INTERVAL_DEFAULT
+  tar_file_name = options[:tar_file_name] || build_default_tar_filename(start_epoch, end_epoch)
+  verbose = options[:verbose] || false
+
+  tar_file_name += ".tar.gz" unless tar_file_name =~ /.tar.gz$/
+
+  if verbose
+    OPTION_SETTINGS = <<~SETTINGS
+      The following are the resulting options settings:
+        * start: #{start_epoch}
+        * end: #{end_epoch}
+        * metrics_dir: #{metrics_dir}
+        * output_dir: #{output_dir}
+        * tar_file_name: #{tar_file_name}
+        * poll_interval: #{poll_interval}
+        * archive_interval: #{archive_interval}
+        * verbose: #{verbose}
+    SETTINGS
+    puts OPTION_SETTINGS
+  end
+
+  options_error = "Metrics directory doesn't exist: #{metrics_dir}"
+  raise options_error unless File.directory?(metrics_dir)
+
+  FileUtils.mkdir_p(output_dir) unless File.directory?(output_dir)
+
+  obj = Metrics::CollectMetricsFiles.new(start_epoch, end_epoch, metrics_dir, output_dir, tar_file_name,
+                                         poll_interval, archive_interval, verbose)
+  obj.inspect_metrics_dir_for_service_dirs
+  obj.tar_metrics_files
 end
-
-TAR_FILE_NAME_DEFAULT = build_default_tar_filename(START_EPOCH_DEFAULT, END_EPOCH_DEFAULT)
-
-DESCRIPTION = <<~DESCRIPTION
-  This script is designed to gather up the json files from the puppet_metrics_collector module
-  within a specified time frame.  Going as far as opening up the daily tar files and extracting
-  only the matching jsons.
-DESCRIPTION
-
-DEFAULTS = <<~DEFAULTS
-  The following defaults values are used if the options are not specified:
-    * start (-s, --start_epoch): Now minus 8 hours. Ex: #{START_EPOCH_DEFAULT}
-    * end (-e, --end_epoch): Now. Ex: #{END_EPOCH_DEFAULT}
-    * metrics_dir (-m, --metrics_dir): #{METRICS_DIR_DEFAULT}
-    * output_dir (-o, --output_dir): #{OUTPUT_DIR_DEFAULT}
-    * tar_file_name (-t, --tar_file_name): Built from start and end time. Ex: #{TAR_FILE_NAME_DEFAULT}
-    * poll_interval (-p, --poll_interval): #{POLL_INTERVAL_DEFAULT}
-    * archive_interval (-a, --archive_interval): #{ARCHIVE_INTERVAL_DEFAULT}
-    * verbose (-v, --verbose): False
-DEFAULTS
-
-options = {}
-
-OptionParser.new do |opts|
-  opts.banner = "Usage: collect_metrics_files.rb [options]"
-
-  opts.on("-h", "--help", "Display the help text") do
-    puts DESCRIPTION
-    puts opts
-    puts DEFAULTS
-    exit
-  end
-
-  opts.on("-s", "--start_epoch seconds", Integer,
-          "Epoch time (seconds) that marks the start of the collection window") do |start_epoch|
-    options[:start_epoch] = start_epoch
-  end
-  opts.on("-e", "--end_epoch seconds", Integer,
-          "Epoch time (seconds) that marks the end of the collection window") do |end_epoch|
-    options[:end_epoch] = end_epoch
-  end
-  opts.on("-m", "--metrics_dir dir_path", String, "The puppet_metrics_collector output directory") do |metrics_dir|
-    options[:metrics_dir] = metrics_dir
-  end
-  opts.on("-o", "--output_dir dir_path", String, "Directory to write the tar file into") do |output_dir|
-    options[:output_dir] = output_dir
-  end
-  opts.on("-t", "--tar_file_name filename", String, "The name of the output tar file ") do |tar_file_name|
-    options[:tar_file_name] = tar_file_name
-  end
-  opts.on("-p", "--poll_interval seconds", Integer,
-          "The puppet_metrics_collector module polling interval") do |interval|
-    options[:poll_interval] = interval
-  end
-  opts.on("-a", "--archive_interval seconds", Integer,
-          "The puppet_metrics_collector module archiving interval") do |interval|
-    options[:archive_interval] = interval
-  end
-  opts.on("-v", "--verbose", String, "Enable Verbose output") { options[:verbose] = true }
-end.parse!
-
-start_epoch = options[:start_epoch] || START_EPOCH_DEFAULT
-end_epoch = options[:end_epoch] || END_EPOCH_DEFAULT
-metrics_dir = options[:metrics_dir] || METRICS_DIR_DEFAULT
-output_dir = options[:output_dir] || OUTPUT_DIR_DEFAULT
-poll_interval = options[:poll_interval] || POLL_INTERVAL_DEFAULT
-archive_interval = options[:archive_interval] || ARCHIVE_INTERVAL_DEFAULT
-tar_file_name = options[:tar_file_name] || build_default_tar_filename(start_epoch, end_epoch)
-verbose = options[:verbose] || false
-
-tar_file_name += ".tar.gz" unless tar_file_name =~ /.tar.gz$/
-
-if verbose
-  OPTION_SETTINGS = <<~SETTINGS
-    The following are the resulting options settings:
-      * start: #{start_epoch}
-      * end: #{end_epoch}
-      * metrics_dir: #{metrics_dir}
-      * output_dir: #{output_dir}
-      * tar_file_name: #{tar_file_name}
-      * poll_interval: #{poll_interval}
-      * archive_interval: #{archive_interval}
-      * verbose: #{verbose}
-  SETTINGS
-  puts OPTION_SETTINGS
-end
-
-options_error = "Metrics directory doesn't exist: #{metrics_dir}"
-raise options_error unless File.directory?(metrics_dir)
-
-FileUtils.mkdir_p(output_dir) unless File.directory?(output_dir)
-
-obj = Metrics::CollectMetricsFiles.new(start_epoch, end_epoch, metrics_dir, output_dir, tar_file_name,
-                                       poll_interval, archive_interval, verbose)
-obj.inspect_metrics_dir_for_service_dirs
-obj.tar_metrics_files

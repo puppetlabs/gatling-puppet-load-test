@@ -477,8 +477,8 @@ namespace :test do
     require "rspec/core/rake_task"
     desc "Run unit tests"
     RSpec::Core::RakeTask.new do |t|
-      t.rspec_opts = ["--color", "-I ./Boltdir/site-modules/metrics/spec"]
-      t.pattern = 'spec/**/*_spec.rb,Boltdir/site-modules/metrics/spec/**/*_spec.rb'
+      t.rspec_opts = ["--color"]
+      t.pattern = 'spec/**/*_spec.rb'
     end
       # if rspec isn't available, we can still use this Rakefile
       # rubocop:disable Lint/HandleExceptions

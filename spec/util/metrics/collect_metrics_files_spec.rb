@@ -1,12 +1,12 @@
 # frozen_string_literal: false
 
-require "metrics_spec_helper"
+require "spec_helper"
 
 # rubocop:disable Metrics/BlockLength
 describe Metrics::CollectMetricsFiles do
   start_epoch = 1_564_948_800 # Sunday, August 4, 2019 8:00:00 PM
   end_epoch = 1_565_380_800 # Friday, August 9, 2019 8:00:00 PM
-  metrics_dir = "Boltdir/site-modules/metrics/spec/fixtures/puppet-metrics-collector"
+  metrics_dir = "spec/fixtures/puppet-metrics-collector"
   output_dir = "/myoutput/dirname"
   tar_file_name = "tarry.tar.gz"
   poll_interval = 300 # 5minutes
@@ -15,7 +15,7 @@ describe Metrics::CollectMetricsFiles do
   tmp_dir_name = "/mytemp/dirname"
   staging_dir = "#{tmp_dir_name}/puppet_metrics_collector"
 
-  let(:puppet_metrics_collector_fixture) { "Boltdir/site-modules/metrics/spec/fixtures/puppet-metrics-collector" }
+  let(:puppet_metrics_collector_fixture) { "spec/fixtures/puppet-metrics-collector" }
   let(:real_tarfile) { "#{puppet_metrics_collector_fixture}/puppetdb/puppetdb-2019.07.09.02.45.01.tar.gz" }
 
   # puppetdb-2019.07.17.02.45.01.tar.gz   20190718T092001Z.json
@@ -94,6 +94,9 @@ describe Metrics::CollectMetricsFiles do
   end
 
   describe "#json_file_from_target_window?" do
+    it "returns false for a json that dosn't use the naming convention" do
+      expect(CMF_obj.json_file_from_target_window?("/foo/bar/my.json")).to eq(false)
+    end
     it "returns false for a json from 30h before the window" do
       expect(CMF_obj.json_file_from_target_window?(json_name_30h_before_window)).to eq(false)
     end
@@ -216,6 +219,9 @@ describe Metrics::CollectMetricsFiles do
   describe "#tarfile_from_target_window?" do
     before do
       @service = "puppetdb"
+    end
+    it "returns false for a tarfile that doesn't match the time pattern" do
+      expect(CMF_obj.tarfile_from_target_window?("/foo/bar/my.tar.gz", @service)).to eq(false)
     end
     it "returns false for a tarfile from 30h before the window" do
       expect(CMF_obj.tarfile_from_target_window?(tar_name_30h_before_window, @service)).to eq(false)

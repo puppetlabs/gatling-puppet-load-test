@@ -7,6 +7,7 @@ SimpleCov.start do
   add_filter "/spec/"
   add_group "Setup helpers", "setup/helpers"
   add_group "Test helpers", "tests/helpers"
+  add_group "metrics", "util/metrics"
 end
 
 # setup helpers
@@ -14,6 +15,9 @@ Dir["./setup/helpers/*.rb"].each { |file| require file }
 
 # test helpers
 Dir["./tests/helpers/*.rb"].each { |file| require file }
+
+# metrics scripts
+Dir["./util/metrics/*.rb"].each { |file| require file }
 
 SimpleCov.at_exit do
   SimpleCov.result.format!

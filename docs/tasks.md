@@ -48,9 +48,3 @@ bolt task run \
   code_source_url="https://github.com/puppetlabs/puppetlabs-pe_perf_control_repo.git"
 ```
 
-## metrics module
-This module is not yet complete.  So far it only contains the script and some bogus spec tests.  Future
-PRs will wrap the script in a plan and then bring the results back to the testrunner.  Overall
-the idea is to have a plan that will take a host, start and end epoch, and a location in the results dir
-to put the resulting tarball.  This should be run after all gplt tests to gather the data specific to
-that test in it's results dir. 

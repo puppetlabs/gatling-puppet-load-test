@@ -472,3 +472,36 @@ Extracting puppetserver-2019.05.28.01.45.01.tar.gz
 ...
 
 ```
+
+### collect_metrics_files.rb
+This script is designed to gather up the json files from the puppet_metrics_collector module
+within a specified time frame.  Going as far as opening up the daily tar files and extracting
+only the matching jsons.
+By default the time window will be from now to 8 hours ago, and the tar file will be placed in the PWD.
+It must be run on a machine that has the puppet_metrics_collector module installed and running.  So normal
+use will be to copy the script to the master or compilers, and run it there, then copy the resulting tar
+file back to the test runner in the results dir.
+
+The most common way to run would be by only specifying a time window.
+```
+ruby ./util/metrics/collect_metrics_files.rb --start_epoch 1562629588 --end_epoch 1563450000
+```
+
+The grand plan is to have test runs drop a start and end file in the results dir with the epochs.  Then
+have a step at the end of the test will copy the script to the master and run with the timestamps from those
+files.  Followed by copying the resulting tarfile back to the results dir.
+
+Test run using spec test fixture from top of GPLT repo
+```
+ruby ./util/metrics/collect_metrics_files.rb --start_epoch 1562629588 --end_epoch 1563450000 --metrics_dir ./spec/fixtures/puppet-metrics-collector
+Checking puppetdb-2019.07.09.02.45.01.tar.gz for relevant jsons
+Checking puppetdb-2019.07.17.02.45.01.tar.gz for relevant jsons
+Checking puppetserver-2019.07.17.01.20.01.tar.gz for relevant jsons
+Checking puppetserver-2019.07.11.01.20.01.tar.gz for relevant jsons
+Checking orchestrator-2019.07.14.02.35.01.tar.gz for relevant jsons
+Checking orchestrator-2019.07.09.02.35.01.tar.gz for relevant jsons
+Created ./20190708T164628Z-20190718T044000Z.tar.gz
+```
+
+
+

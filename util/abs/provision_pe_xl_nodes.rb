@@ -97,7 +97,8 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-ROLES_CORE = %w[master
+ROLES_CORE = %w[metrics
+                master
                 puppet_db
                 compiler_a
                 compiler_b].freeze

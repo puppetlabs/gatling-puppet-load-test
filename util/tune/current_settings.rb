@@ -7,6 +7,11 @@
 # The list of settings can be found here:
 #   https://github.com/tkishel/pe_tune/blob/79d5db4ddc7bbf3b1c9aefcdfab7f1dc9b3c3f4e/lib/puppet_x/puppetlabs/tune.rb#L19
 #
+# The script can be run by either copying it to the master and running from there
+# or by using Bolt:
+#
+#   bolt script run util/tune/current_settings.rb --user root --nodes 10.227.1.146
+#
 # TODO: spec
 
 require "fileutils"

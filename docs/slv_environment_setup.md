@@ -114,8 +114,16 @@ Receiving objects: 100% (8408/8408), 5.08 MiB | 0 bytes/s, done.
 Resolving deltas: 100% (4306/4306), done.
 ➜  slv-demo ls
 backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow
-➜  slv-demo 
+➜  slv-demo
 ```
+
+Initialize gatling-puppet-load test submodules.  Additional submodules are used to pull in modules
+into the Boltdir scope in order to make their tasks and plans available to gatling-puppet-load-test
+helpers, tasks, plans, etc.  This is done by invoking the following rake task.
+```
+bundle exec rake git:submodules:init.
+```
+
 
 ##### backup
 Create a timestamped backup of the gatling-puppet-load-test directory.

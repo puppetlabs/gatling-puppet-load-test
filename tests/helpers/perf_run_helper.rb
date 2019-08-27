@@ -6,6 +6,10 @@ require "google/cloud/bigquery"
 require "master_manipulator"
 require "beaker-puppet"
 
+# experimental
+require "./tests/helpers/perf_results_helper.rb"
+include PerfResultsHelper # rubocop:disable Style/MixinUsage
+
 # Helper methods for performance testing
 module PerfRunHelper
   # rubocop: disable  Naming/AccessorMethodName
@@ -23,6 +27,9 @@ module PerfRunHelper
   PERF_RESULTS_DIR = "results/perf"
   SCALE_RESULTS_DIR = "results/scale"
 
+  METRIC_RESULTS_DIR = "/root/gatling-puppet-load-test/simulation-runner/results"
+  CURRENT_TUNE_SETTINGS = "current_tune_settings.json"
+
   # Performs the following steps:
   # - set timestamps
   # - create the results directory
@@ -39,6 +46,7 @@ module PerfRunHelper
   #   perf_setup(gatling_scenario, simulation_id, gatling_assertions)
   #
   def perf_setup(gatling_scenario, simulation_id, gatling_assertions)
+    @gatling_scenario = gatling_scenario
     @atop_session_timestamp = start_monitoring(master, gatling_scenario, true, 30)
     create_perf_archive_root
     capture_current_tune_settings
@@ -102,7 +110,7 @@ module PerfRunHelper
   def capture_current_tune_settings
     puts "Checking current tune settings..."
     settings_json = run_script_on(master, "./util/tune/current_settings.rb").output
-    output_path = "#{@archive_root}/current_tune_settings.json"
+    output_path = "#{@archive_root}/#{CURRENT_TUNE_SETTINGS}"
 
     puts "Writing file: #{output_path}"
     File.write(output_path, settings_json)
@@ -158,6 +166,7 @@ module PerfRunHelper
       puts "Iteration #{ct} of #{@scale_scenarios.length}"
       puts
 
+      # TODO: remove after SLV-430
       # purge the metrics collector output and restart the service
       purge_puppet_metrics_collector
 
@@ -338,6 +347,8 @@ module PerfRunHelper
   # @example
   #   purge_puppet_metrics_collector
   #
+  # TODO: remove after SLV-430
+  #
   def purge_puppet_metrics_collector
     puts "Purging puppet_metrics_collector..."
     puts
@@ -353,24 +364,28 @@ module PerfRunHelper
   #
   # @author Bill Claytor
   #
-  # @param [String] scale_results_parent_dir The results directory for the scale run
+  # @param [String] destination_dir The destination directory
   #
   # @return [void]
   #
   # @example
-  #   copy_puppet_metrics_collector(scale_results_parent_dir)
+  #   copy_puppet_metrics_collector(destination_dir)
   #
-  def copy_puppet_metrics_collector(scale_results_parent_dir)
-    puts "Copying puppet_metrics_collector..."
+  # TODO: update for SLV-430
+  #
+  def copy_puppet_metrics_collector(destination_dir)
+    puts "Copying 'puppet-metrics-collector' to #{destination_dir}"
     puts
+
+    dest_pmc_dir = "#{destination_dir}/puppet-metrics-collector"
+    FileUtils.mkdir_p dest_pmc_dir
 
     PUPPET_METRICS_COLLECTOR_SERVICES.each do |service|
       source_dir = "/opt/puppetlabs/puppet-metrics-collector/#{service}"
-      dest_parent = "#{scale_results_parent_dir}/puppet-metrics-collector"
-
-      FileUtils.mkdir_p dest_parent
-      scp_from(master, source_dir.to_s, dest_parent.to_s)
+      scp_from(master, source_dir.to_s, dest_pmc_dir.to_s)
     end
+
+    extract_puppet_metrics_collector_data(dest_pmc_dir)
   end
 
   # Generate a name for the scenario that includes the iteration and number of instances
@@ -526,10 +541,11 @@ module PerfRunHelper
     log_filename = "atop_log_#{scenario.downcase.gsub('.json', '_json')}"
 
     # copy only the logs for this iteration (the dir contains logs from all previous iterations)
-    # FileUtils.copy_entry master_results, "#{scale_result_dir}/master"
     FileUtils.mkdir_p "#{scale_result_dir}/master"
-    FileUtils.copy_file "#{master_results}/#{log_filename}.log", "#{scale_result_dir}/master/#{log_filename}.log"
-    FileUtils.copy_file "#{master_results}/#{log_filename}.csv", "#{scale_result_dir}/master/#{log_filename}.csv"
+    atop_files = Dir.glob("#{master_results}/#{log_filename}*")
+    atop_files.each do |file|
+      FileUtils.copy_file file, "#{scale_result_dir}/master/#{File.basename(file)}"
+    end
 
     # copy stats
     global_stats_path = "#{scale_result_dir}/metric/js/global_stats.json"
@@ -538,6 +554,11 @@ module PerfRunHelper
     FileUtils.mkdir_p json_dir
     FileUtils.copy_file global_stats_path, "#{json_dir}/#{scenario.gsub('.json', 'global_stats.json')}"
     FileUtils.copy_file stats_path, "#{json_dir}/#{scenario.gsub('.json', 'stats.json')}"
+
+    # copy current tune settings
+    FileUtils.copy_file "#{@archive_root}/#{CURRENT_TUNE_SETTINGS}", "#{scale_result_dir}/#{CURRENT_TUNE_SETTINGS}"
+
+    ### TODO: remove once this is handled for all test types
 
     # copy puppet-metrics-collector to iteration result dir
     copy_puppet_metrics_collector(scale_result_dir)
@@ -775,7 +796,7 @@ module PerfRunHelper
     return if @dir_name.nil?
 
     archive_file_from(metric,
-                      "/root/gatling-puppet-load-test/simulation-runner/results/#{@dir_name}",
+                      "#{METRIC_RESULTS_DIR}/#{@dir_name}",
                       {}, @archive_root, archive_name)
   end
 
@@ -786,8 +807,38 @@ module PerfRunHelper
       # Write summary results to log so it can be archived
       perf.log_csv
       copy_archive_files
+      process_atop_csv_file
+      process_gatling_json_file
     end
     [perf, GatlingResult.new(gatling_assertions, mean_response_time)]
+  end
+
+  # Splits the atop CSV file into separate files for the summary and detail sections
+  #
+  # @author Bill Claytor
+  #
+  # @return [void]
+  #
+  # @example
+  #   process_atop_csv_file
+  #
+  def process_atop_csv_file
+    atop_csv = "#{@archive_root}/#{master.hostname}/atop_log_#{@gatling_scenario.downcase.gsub('.', '_')}.csv"
+    split_atop_csv_results atop_csv
+  end
+
+  # Extracts the Gatling results data into a CSV file
+  #
+  # @author Bill Claytor
+  #
+  # @return [void]
+  #
+  # @example
+  #   process_gatling_json_file
+  #
+  def process_gatling_json_file
+    results_dir = "#{@archive_root}/#{metric.hostname}/#{METRIC_RESULTS_DIR}/#{@dir_name}"
+    gatling2csv(results_dir)
   end
 
   # Gatling result object
@@ -918,7 +969,7 @@ module PerfRunHelper
                    "of the baseline '#{value}'")
     end
   end
-  # rubocop: enable  Naming/AccessorMethodName
+  # rubocop: enable Naming/AccessorMethodName
 end
 
 Beaker::TestCase.send(:include, PerfRunHelper)

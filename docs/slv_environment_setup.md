@@ -26,7 +26,7 @@ The intent is to give new team members a step-by-step guide for using gatling-pu
 ## Environment setup
 
 ### Ruby version
-When running locally, use [rbenv](https://github.com/rbenv/rbenv) to set up a Ruby environment. 
+When running locally, use [rbenv](https://github.com/rbenv/rbenv) to set up a Ruby environment.
 We’re currently using version 2.3.0 on Jenkins and with rbenv in the [p9_instance_setup].
 
 ### Gem management
@@ -39,10 +39,10 @@ alias brt='bundle exec rake -T'
 ```
 
 ## Test runner
-It is best to use a dedicated Platform9 host as a test runner for gatling-puppet-load-test. 
+It is best to use a dedicated Platform9 host as a test runner for gatling-puppet-load-test.
 Test runs can take a minimum of several hours and any interruption will cause the test to abort.
 By using [tmux](https://en.wikipedia.org/wiki/Tmux) on a dedicated test runner, you can connect to a session, start a test run, and then disconnect while the test continues to run.
- 
+
 ### Specifications
 Set up a P9 instance per the [Platform9 User Guide in Confluence](https://confluence.puppetlabs.com/pages/viewpage.action?spaceKey=SRE&title=Platform9+User+Guide#Platform9UserGuide-HowdoIcreateanewinstance?).
 * Select the ‘centos_7_x86_64’ image.
@@ -71,7 +71,7 @@ Within that directory create separate parent directories for each instance with 
 /home/centos/gplt
 ➜  gplt ls
 00  321a  321b  321c  321d  321k  p9
-➜  gplt 
+➜  gplt
 ```
 
 ### Utility scripts
@@ -93,7 +93,7 @@ bkreplace  metrics  pres   replace  slog   sshow
 ➜  slv-demo ls
 backup     clone    plist  pshow    slist  sres
 bkreplace  metrics  pres   replace  slog   sshow
-➜  slv-demo 
+➜  slv-demo
 ```
 
 #### General
@@ -114,8 +114,16 @@ Receiving objects: 100% (8408/8408), 5.08 MiB | 0 bytes/s, done.
 Resolving deltas: 100% (4306/4306), done.
 ➜  slv-demo ls
 backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow
-➜  slv-demo 
+➜  slv-demo
 ```
+
+Initialize gatling-puppet-load test submodules.  Additional submodules are used to pull in modules
+into the Boltdir scope in order to make their tasks and plans available to gatling-puppet-load-test
+helpers, tasks, plans, etc.  This is done by invoking the following rake task.
+```
+bundle exec rake git:submodules:init.
+```
+
 
 ##### backup
 Create a timestamped backup of the gatling-puppet-load-test directory.
@@ -126,7 +134,7 @@ backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow 
 ➜  slv-demo ls
 backup     clone                     gplt.2019-05-01_07-10-27.tar.gz  plist  pshow    slist  sres
 bkreplace  gatling-puppet-load-test  metrics                          pres   replace  slog   sshow
-➜  slv-demo 
+➜  slv-demo
 ```
 
 ##### bkreplace
@@ -150,7 +158,7 @@ refresh complete; adding timestamp to gatling-puppet-load-test
 ➜  slv-demo ls
 backup     clone                     gplt.2019-05-01_07-12-04.tar.gz  plist  pshow    slist  sres
 bkreplace  gatling-puppet-load-test  metrics                          pres   replace  slog   sshow
-➜  slv-demo 
+➜  slv-demo
 ```
 
 ##### replace
@@ -172,7 +180,7 @@ Resolving deltas: 100% (4306/4306), done.
 refresh complete; adding timestamp to gatling-puppet-load-test
 ➜  slv-demo ls
 backup  bkreplace  clone  gatling-puppet-load-test  metrics  plist  pres  pshow  replace  slist  slog  sres  sshow
-➜  slv-demo 
+➜  slv-demo
 ```
 
 #### Performance
@@ -206,7 +214,7 @@ drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556646207
 drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556648072
 drwxrwxr-x.  4 centos centos   86 May  1 07:14 PERF_1556649975
 -rw-rw-r--.  1 centos centos   66 May  1 07:14 PERF_RESULTS.md
-➜  slv-demo 
+➜  slv-demo
 ```
 
 ##### pshow
@@ -218,16 +226,16 @@ drwxrwxr-x.  4 centos centos   86 May  1 07:14 .
 drwxrwxr-x. 22 centos centos 4096 May  1 07:14 ..
 drwxrwxr-x.  3 centos centos   17 May  1 07:14 ip-10-227-1-27.amz-dev.puppet.net
 drwxrwxr-x.  2 centos centos 4096 May  1 07:14 ip-10-227-2-91.amz-dev.puppet.net
-➜  slv-demo 
+➜  slv-demo
 ```
 
 ##### pres
 Copy the specified result folder to the specified nginx directory (the default is ‘slv’).
 ```
-➜  slv-demo ./pres PERF_1556649975                           
+➜  slv-demo ./pres PERF_1556649975
 ➜  slv-demo ls /usr/share/nginx/html/gplt/perf/slv
 ➜  2019.0.1  PERF_1556649975  PERF_1556649975.tar.gz
-➜  slv-demo 
+➜  slv-demo
 ```
 
 #### Scale
@@ -243,7 +251,7 @@ drwxrwxr-x.  7 centos centos 4096 May  1 07:14 PERF_SCALE_1556561621
 drwxrwxr-x. 15 centos centos 4096 May  1 07:14 PERF_SCALE_1556566242
 drwxrwxr-x. 13 centos centos 4096 May  1 07:14 PERF_SCALE_1556635175
 -rw-rw-r--.  1 centos centos   73 May  1 07:14 SCALE_RESULTS.md
-➜  slv-demo 
+➜  slv-demo
 ```
 
 ##### slog
@@ -281,16 +289,16 @@ drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_05_5000
 drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_06_5100
 drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_07_5200
 drwxrwxr-x.  5 centos centos   63 May  1 07:14 Scale_1556635175_08_5300
-➜  slv-demo 
+➜  slv-demo
 ```
 
 ##### sres
 Copy the specified result folder to the specified nginx directory (the default is ‘slv’).
 ```
 ➜  slv-demo ./sres PERF_SCALE_1556635175
-➜  slv-demo ls /usr/share/nginx/html/gplt/scale/slv               
+➜  slv-demo ls /usr/share/nginx/html/gplt/scale/slv
 PERF_SCALE_1556635175  PERF_SCALE_1556635175.tar.gz
-➜  slv-demo 
+➜  slv-demo
 ```
 
 ### Setting up a new instance
@@ -306,13 +314,13 @@ One the test runner:
 tmux new -s slv-demo
 ```
 
-Local alias: 
+Local alias:
 ```
 alias slv-demo='ssh {TEST_USER}@{P9_HOST_IP} -t tmux a -t slv-demo’
 
 ```
 
-* Clone the repo into the new parent directory using the `clone` script: 
+* Clone the repo into the new parent directory using the `clone` script:
 ```
 ./clone
 ```
@@ -327,22 +335,22 @@ cd gatling-puppet-load-test
 bundle install --path vendor/bundle
 ```
 
-Set the required environment variables with the provided environment setup file (or set them manually): 
+Set the required environment variables with the provided environment setup file (or set them manually):
 ```
 source config/env/env_setup_2019.0.1
 ```
 
 * Run the appropriate rake task for the desired test type:
-Performance: 
+Performance:
 ```
 be rake performance
 ```
-  
-Scale: 
+
+Scale:
 ```
 be rake autoscale
 ```
-  
+
 ## Test results
 
 ### Gatling results
@@ -361,11 +369,11 @@ In order to navigate the directory structure, add the autolist option to the top
 
 ```
 
-It is often useful to copy the desired result folders to the nginx directory rather than serving the files from the gplt directory or linking to them in place. 
-This way you can remove the working instance directory when you’re done testing and preserve the results. 
+It is often useful to copy the desired result folders to the nginx directory rather than serving the files from the gplt directory or linking to them in place.
+This way you can remove the working instance directory when you’re done testing and preserve the results.
 Several of the utility scripts described above help make this easier.
 
-It can be helpful to make a copy of the `sres` or `pres` script with a destination that matches the name of the parent directory. 
+It can be helpful to make a copy of the `sres` or `pres` script with a destination that matches the name of the parent directory.
 This makes it easy to navigate the directory structure and find the desired results.
 
 ### Puppet Metrics Collector / Viewer
@@ -390,7 +398,7 @@ The `metrics` script in the template folder makes this process easier:
 
 ## Troubleshooting
 ### Log files
-Log files for the latest run can be found via the log/latest link which points to the most recently created log directory in log/pe-perf-test.cfg. 
+Log files for the latest run can be found via the log/latest link which points to the most recently created log directory in log/pe-perf-test.cfg.
 The log directories are named with a timestamp (e.g. 2019-04-16_12_01_30)
 
 #### hosts_preserved.yml

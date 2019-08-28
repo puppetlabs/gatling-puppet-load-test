@@ -527,5 +527,37 @@ describe PerfHelperClass do
       end
     end
   end
+
+  describe "#configure_code_manager" do
+    ENV["PUPPET_GATLING_R10K_CONTROL_REPO"] = "foobar"
+    ENV["PUPPET_GATLING_R10K_BASEDIR"] = "foobar"
+    ENV["PUPPET_GATLING_R10K_ENVIRONMENTS"] = "foobar"
+    master_group_id = "pe_master_group_id"
+
+    it "calls update_node_group on classifier to setup code_manager on puppet_enterprise::profile::master class" do
+      class_opts = { "classes" =>
+                                  { "puppet_enterprise::profile::master" =>
+                                                                            { code_manager_auto_configure: true,
+                                                                              r10k_private_key: "",
+                                                                              r10k_remote: "foobar" } } }
+
+      classifier = double("classifier").as_null_object
+      allow(classifier).to receive(:get_node_group_by_name).and_return("id" => master_group_id)
+      subject.stub(:classifier) { classifier }
+
+      expect(classifier).to receive(:update_node_group).with(master_group_id, class_opts)
+      subject.configure_code_manager
+    end
+  end
+
+  describe "#cm_deploy_all_envs" do
+    it "calls deploy_all_environments on classifier" do
+      classifier = double("classifier").as_null_object
+      subject.stub(:classifier) { classifier }
+
+      expect(classifier).to receive(:deploy_all_environments)
+      subject.cm_deploy_all_envs
+    end
+  end
 end
 # rubocop:enable Metrics/BlockLength

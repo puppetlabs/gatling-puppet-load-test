@@ -8,6 +8,8 @@ require "json"
 require "./setup/helpers/abs_helper.rb"
 include AbsHelper # rubocop:disable Style/MixinUsage
 
+REF_ARCH_TYPES = { large: "l", extra_large: "xl" }.freeze
+DEFAULT_REF_ARCH = REF_ARCH_TYPES[:large]
 DEFAULT_HA = false
 DEFAULT_AWS_TAG_ID = "slv"
 DEFAULT_OUTPUT_DIR = "./"
@@ -23,8 +25,9 @@ DESCRIPTION = <<~DESCRIPTION
 
   EC2 hosts are provisioned for the following roles:
   * Core roles:
+   - metrics
    - master
-   - puppet_db
+   - puppet_db (for xl)
    - compiler_a
    - compiler_b
 
@@ -37,6 +40,7 @@ DESCRIPTION
 DEFAULTS = <<~DEFAULTS
 
   The following defaults values are used if the options are not specified:
+  * REF_ARCH (-a, --ref_arch): #{DEFAULT_REF_ARCH}
   * HA (--ha): #{DEFAULT_HA}
   * AWS_TAG_ID (-i, --id): #{DEFAULT_AWS_TAG_ID}
   * OUTPUT_DIR (-o, --output_dir): #{DEFAULT_OUTPUT_DIR}
@@ -95,24 +99,39 @@ OptionParser.new do |opts|
   opts.on("-s", "--size SIZE", Integer, "The AWS EC2 volume size to specify") do |size|
     options[:size] = size
   end
+
+  options[:ref_arch] = DEFAULT_REF_ARCH
+  opts.on("-a", "--ref_arch REF_ARCH", String, "The reference architecture type to provision (l, xl)") do |ref_arch|
+    allowable_ref_arch = REF_ARCH_TYPES.values
+    raise "ref_arch must be in #{allowable_ref_arch}" unless allowable_ref_arch.include? ref_arch
+
+    options[:ref_arch] = ref_arch
+  end
 end.parse!
+
+raise "Large ref_arch doesn't currently support HA" if options[:ref_arch] == REF_ARCH_TYPES[:large] && options[:ha]
 
 ROLES_CORE = %w[metrics
                 master
-                puppet_db
                 compiler_a
                 compiler_b].freeze
+
+ROLES_XL = %w[puppet_db].freeze
 
 ROLES_HA = %w[master_replica
               puppet_db_replica].freeze
 
+roles = ROLES_CORE
+roles = ROLES_CORE + ROLES_XL if options[:ref_arch] == REF_ARCH_TYPES[:extra_large]
+
 if options[:ha]
   HA = true
-  ROLES = ROLES_CORE + ROLES_HA
+  roles += ROLES_HA
 else
   HA = DEFAULT_HA
-  ROLES = ROLES_CORE
 end
+
+ROLES = roles.freeze
 
 NOOP = options[:noop] || false
 TEST = options[:test] || false
@@ -156,6 +175,7 @@ NODES_YAML
 PROVISION_MESSAGE = <<~PROVISION_MESSAGE
 
   #{PROVISIONING_TXT} pe_xl nodes with the following options:
+    REF_ARCH: #{options[:ref_arch]}
     HA: #{HA}
     Output directory for Bolt inventory and parameter files: #{OUTPUT_DIR}
     PE version: #{PE_VERSION}

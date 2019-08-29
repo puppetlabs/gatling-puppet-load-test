@@ -159,7 +159,6 @@ PARAMS_JSON = <<~PARAMS_JSON
     "install": true,
     "configure": true,
     "upgrade": false,
-    "ha": #{HA},
 
     "master_host": "$MASTER$",
     "puppetdb_database_host": "$PUPPET_DB$",

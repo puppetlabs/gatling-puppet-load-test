@@ -153,30 +153,6 @@ NODES_YAML = <<~NODES_YAML
           tty: true
 NODES_YAML
 
-# TODO: update to use variables / symbols for all parameter values?
-PARAMS_JSON = <<~PARAMS_JSON
-  {
-    "install": true,
-    "configure": true,
-    "upgrade": false,
-
-    "master_host": "$MASTER$",
-    "puppetdb_database_host": "$PUPPET_DB$",
-    "master_replica_host": "$MASTER_REPLICA$",
-    "puppetdb_database_replica_host": "$PUPPET_DB_REPLICA$",
-    "compiler_hosts": [
-      "$COMPILER_A$",
-      "$COMPILER_B$"
-    ],
-
-    "console_password": "puppetlabs",
-    "dns_alt_names": [ "puppet", "$MASTER$" ],
-    "compiler_pool_address": "$MASTER$",
-    "version": "#{PE_VERSION}"
-  }
-
-PARAMS_JSON
-
 PROVISION_MESSAGE = <<~PROVISION_MESSAGE
 
   #{PROVISIONING_TXT} pe_xl nodes with the following options:
@@ -337,22 +313,29 @@ end
 #   hosts = provision_hosts_for_roles(roles)
 #   create_params_json(hosts, output_dir)
 def create_params_json(hosts, output_dir)
-  params_json = PARAMS_JSON
+  master, = hosts.map { |host| host[:hostname] if host[:role] == "master" }.compact
+  pdb, = hosts.map { |host| host[:hostname] if host[:role] == "puppet_db" }.compact
+  master_replica, = hosts.map { |host| host[:hostname] if host[:role] == "master_replica" }.compact
+  pdb_replica, = hosts.map { |host| host[:hostname] if host[:role] == "puppet_db_replica" }.compact
+  compilers = hosts.map { |host| host[:hostname] if host[:role].include? "compiler" }.compact
+  pe_xl_params = {
+    install: true,
+    configure: true,
+    upgrade: false,
+    master_host: master,
+    puppetdb_database_host: pdb,
+    master_replica_host: master_replica,
+    puppetdb_database_replica_host: pdb_replica,
+    compiler_hosts: compilers,
+
+    console_password: "puppetlabs",
+    dns_alt_names: ["puppet", master],
+    compiler_pool_address: master,
+    version: PE_VERSION
+  }.delete_if { |_, value| value.to_s.strip == "" } # Replace delete_if with compact when ruby ~ 2.4.0
+
+  params_json = JSON.pretty_generate(pe_xl_params)
   output_path = "#{File.expand_path(output_dir)}/params.json"
-
-  puts "Replacing parameters in params.json: "
-
-  # replace parameters for each host
-  hosts.each do |host|
-    hostname = host[:hostname]
-    role = host[:role]
-    param = "$#{role.upcase}$"
-
-    puts " hostname: #{hostname}, role: #{role}, parameter: #{param}"
-
-    # replace parameters
-    params_json = params_json.gsub(param, hostname)
-  end
 
   puts
   puts "Writing #{output_path}"
@@ -396,4 +379,4 @@ def check_params_json(file)
   puts
 end
 
-provision_pe_xl_nodes
+provision_pe_xl_nodes if $PROGRAM_NAME == __FILE__

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "csv"
+require "csvlint"
 
 # Helper module for the generation of HTML reports from CSV data
 # TODO: add spec tests
@@ -26,7 +27,7 @@ module PerfResultsHelper
 
   # HTML template used in csv2html
   # TODO: use these (and other custom parameterized blocks) in the release report generation scripts?
-  CSV_HTML_START = <<~HEREDOC
+  CSV_HTML_START = <<~CSV_HTML_START
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -41,14 +42,14 @@ module PerfResultsHelper
 
     <div class="container">
 
-  HEREDOC
+  CSV_HTML_START
 
-  CSV_HTML_END = <<~HEREDOC
+  CSV_HTML_END = <<~CSV_HTML_END
     </div>
     </body>
     </html>
 
-  HEREDOC
+  CSV_HTML_END
 
   # Extract Gatling JSON data into a CSV file in the format used in our release test reports
   # and convert the CSV file to an HTML file for easy viewing
@@ -57,7 +58,7 @@ module PerfResultsHelper
   #
   # @param [String] results_dir The directory containing the Gatling results from the metrics node
   # @param [String] output_dir The directory where the output CSV and HTML fileS should be written
-
+  #
   # @return [void]
   #
   # @example
@@ -74,19 +75,7 @@ module PerfResultsHelper
 
     # transaction rows are in the 'contents' node
     group_node = gatling_json_stats_group_node(stats_path)
-    contents = group_node["contents"]
-
-    raise "The 'contents' element of the 'group' node must have at least one key" if contents.keys.empty?
-
-    # TODO: verify each key
-    # TODO: unit test to ensure data validity
-    puts "There are #{contents.keys.length} keys"
-    puts
-
-    (0..contents.keys.length - 1).each do |i|
-      name = contents[contents.keys[i]]["name"]
-      puts "key #{i}: #{name}"
-    end
+    contents = gatling_json_stats_group_node_contents(group_node)
 
     puts "Creating #{output_path}"
     puts
@@ -116,7 +105,23 @@ module PerfResultsHelper
     csv2html(output_path)
   end
 
+  # Parse the stats.json file and return the group node
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] stats_path The path to the stats.json file
+  #
+  # @raise [StandardError] If the specified file is not found
+  # @raise [StandardError] If the specified file does not contain the group node
+  #
+  # @return [JSON] The group node
+  #
+  # @example
+  #   group_node = gatling_json_stats_group_node(stats_path)
+  #
   def gatling_json_stats_group_node(stats_path)
+    raise "The specified file was not found: #{stats_path}" unless File.exist?(stats_path)
+
     puts "Examining Gatling data: #{stats_path}"
     puts
 
@@ -130,6 +135,38 @@ module PerfResultsHelper
     end
 
     group_node
+  end
+
+  # Retrieves the contents from the group node
+  #
+  # @author Bill Claytor
+  #
+  # @param [JSON] The group node
+  #
+  # @raise [StandardError] If the group node does not contain contents with more than one key
+  #
+  # @return [JSON] The contents
+  #
+  # @example
+  #   contents = gatling_json_stats_group_node_contents(group_node)
+  #
+  def gatling_json_stats_group_node_contents(group_node)
+    contents = group_node["contents"]
+
+    if contents.nil? || contents.empty? || contents.keys.empty?
+      raise "The 'contents' element of the 'group' node must have at least one key"
+    end
+
+    # TODO: verify each key
+    # TODO: unit test to ensure data validity
+    puts "There are #{contents.keys.length} keys"
+    puts
+
+    (0..contents.keys.length - 1).each do |i|
+      name = contents[contents.keys[i]]["name"]
+      puts "key #{i}: #{name}"
+    end
+    contents
   end
 
   # Find every CSV file in the specified directory (recursively) and convert each
@@ -170,7 +207,7 @@ module PerfResultsHelper
   #   csv2html(csv_path)
   #
   def csv2html(csv_path)
-    raise "File not found: #{csv_path}" unless File.exist?(csv_path)
+    validate_csv(csv_path)
 
     puts "  converting CSV file: #{csv_path}"
     csv_data = CSV.read(csv_path)
@@ -255,11 +292,13 @@ module PerfResultsHelper
   # TODO: error handling, spec test
   #
   def average_csv(data_csv_path, skip_first_column = false)
+    validate_csv(data_csv_path)
+
     puts "Reading CSV file: #{data_csv_path}"
     data_csv = CSV.read(data_csv_path)
     num_rows = data_csv.length - 1
 
-    raise "The specified CSV file contains no data" unless num_rows > 1
+    raise "The specified CSV file contains no data: #{data_csv_path}" unless num_rows > 1
 
     if skip_first_column
       puts "skipping column 0..."
@@ -308,6 +347,34 @@ module PerfResultsHelper
     end
   end
 
+  # Validate the specified CSV file using csvlint
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] csv_path The path to the CSV file
+  #
+  # @raise [StandardError] If the file is not found
+  # @raise [StandardError] If the validation fails
+  #
+  # @return [Boolean] true if the file is valid
+  #
+  # @example
+  #   validate_csv(csv_path)
+  #
+  def validate_csv(csv_path)
+    raise "File not found: #{csv_path}" unless File.exist?(csv_path)
+
+    validator = Csvlint::Validator.new(File.new(csv_path))
+
+    # invoke the validation
+    validator.validate
+
+    # check validation status
+    raise "Invalid CSV file: #{csv_path}" unless validator.valid?
+
+    validator.valid?
+  end
+
   # Extract the HTML table from the csv2html output
   # so it can be used in template-based release reports
   #
@@ -321,6 +388,8 @@ module PerfResultsHelper
   #   results_table = extract_table_from_csv2html_output(html_path)
   #
   def extract_table_from_csv2html_output(html_path)
+    raise "File not found: #{html_path}" unless File.exist?(html_path)
+
     puts "extracting table from #{html_path}"
     puts
 
@@ -335,6 +404,8 @@ module PerfResultsHelper
 
       break if line.include?("</table>")
     end
+
+    raise "HTML table not found in file: #{html_path}" if table_string.empty?
 
     table_string
   end
@@ -536,7 +607,8 @@ module PerfResultsHelper
   #   extract_puppet_metrics_collector_data(metrics_dir)
   #
   def extract_puppet_metrics_collector_data(metrics_dir)
-    puts
+    raise "Directory not found: #{metrics_dir}" unless File.directory?(metrics_dir)
+
     puts "Extracting metrics data from: #{metrics_dir}"
     puts
 
@@ -561,11 +633,16 @@ module PerfResultsHelper
   #
   # TODO: refactor to be generic
   def process_puppetserver_files(metrics_dir)
+    puppetserver_dir = "#{metrics_dir}/puppetserver"
+    raise "Directory not found: #{puppetserver_dir}" unless File.directory?(puppetserver_dir)
+
     puts
-    puts "Extracting puppetserver data from: #{metrics_dir}"
+    puts "Extracting puppetserver data from: #{metrics_dir}/puppetserver"
     puts
 
     puppetserver_files = Dir.glob "#{metrics_dir}/puppetserver/**/*.json"
+    raise "No JSON files found: #{puppetserver_dir}" if puppetserver_files.nil? || puppetserver_files.empty?
+
     csv_path = "#{metrics_dir}/../puppetserver.csv"
     CSV.open(csv_path, "wb") do |csv|
       csv << ["timestamp", "static compile (mean)", "average borrow time", "num free jrubies"]
@@ -594,12 +671,15 @@ module PerfResultsHelper
   #
   # rubocop:disable Metrics/LineLength
   def process_puppetserver_json(file)
+    raise "The specified file was not found: #{file}" unless File.exist?(file)
+
     puts "Processing file: #{file}"
     row = nil
 
+    contents = File.read(file)
+    json = JSON.parse(contents)
+
     begin
-      contents = File.read(file)
-      json = JSON.parse(contents)
       timestamp = json["timestamp"]
 
       # catalog
@@ -607,21 +687,32 @@ module PerfResultsHelper
 
       # ignore metrics without catalog metrics
       # TODO: if this is an issue, investigate alternatives to handling averages
-      if catalog_metrics.nil? || catalog_metrics.empty?
-        puts "JSON does not contain catalog metrics; ignoring..."
-      else
 
-        # catalog
-        static_compile_mean = catalog_metrics[0]["mean"]
+      # TODO: remove
+      # if catalog_metrics.nil? || catalog_metrics.empty?
+      #   puts "JSON does not contain catalog metrics; ignoring..."
+      # else
+      #
+      #   # catalog
+      #   static_compile_mean = catalog_metrics[0]["mean"]
+      #
+      #   # jruby
+      #   pe_jruby_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-jruby-metrics"]["status"]["experimental"]["metrics"]
+      #   average_borrow_time = pe_jruby_metrics["average-borrow-time"]
+      #   num_free_jrubies = pe_jruby_metrics["num-free-jrubies"]
+      #   row = [timestamp, static_compile_mean, average_borrow_time, num_free_jrubies]
+      # end
 
-        # jruby
-        pe_jruby_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-jruby-metrics"]["status"]["experimental"]["metrics"]
-        average_borrow_time = pe_jruby_metrics["average-borrow-time"]
-        num_free_jrubies = pe_jruby_metrics["num-free-jrubies"]
-        row = [timestamp, static_compile_mean, average_borrow_time, num_free_jrubies]
-      end
+      # catalog
+      static_compile_mean = catalog_metrics[0]["mean"]
+
+      # jruby
+      pe_jruby_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-jruby-metrics"]["status"]["experimental"]["metrics"]
+      average_borrow_time = pe_jruby_metrics["average-borrow-time"]
+      num_free_jrubies = pe_jruby_metrics["num-free-jrubies"]
+      row = [timestamp, static_compile_mean, average_borrow_time, num_free_jrubies]
     rescue StandardError
-      puts "Error parsing json, ignoring..."
+      puts "JSON does not contain catalog metrics; ignoring..."
       puts
     end
 

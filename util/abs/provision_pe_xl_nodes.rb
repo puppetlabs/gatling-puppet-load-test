@@ -159,19 +159,6 @@ TEST_HOSTS_NO_HA = [{ role: "puppet_db", hostname: "ip-10-227-3-22.test.puppet.n
                     { role: "master", hostname: "ip-10-227-3-127.test.puppet.net" },
                     { role: "compiler_a", hostname: "ip-10-227-3-242.test.puppet.net" }].freeze
 
-NODES_YAML = <<~NODES_YAML
-  ---
-  groups:
-    - name: pe_xl_nodes
-      config:
-        transport: ssh
-        ssh:
-          host-key-check: false
-          user: centos
-          run-as: root
-          tty: true
-NODES_YAML
-
 PROVISION_MESSAGE = <<~PROVISION_MESSAGE
 
   #{PROVISIONING_TXT} pe_xl nodes with the following options:
@@ -268,20 +255,22 @@ end
 #   hosts = provision_hosts_for_roles(roles)
 #   create_nodes_yaml(hosts, output_dir)
 def create_nodes_yaml(hosts, output_dir)
-  yaml = YAML.safe_load NODES_YAML
+  data = { "groups" => [
+    { "name"   => "pe_xl_nodes",
+      "config" => { "transport" => "ssh",
+                    "ssh"       => { "host-key-check" => false,
+                                     "user"           => "root" } } }
+  ] }
+
   output_path = "#{File.expand_path(output_dir)}/nodes.yaml"
-  nodes = []
 
-  hosts.each do |host|
-    nodes << host[:hostname]
-  end
-
-  yaml["groups"][0]["nodes"] = nodes
+  data["groups"][0]["nodes"] = hosts.map { |h| h[:hostname] }
+  data["groups"][0]["roles"] = hosts.map { |h| h[:role].ljust(15) + h[:hostname] }
 
   puts "Writing #{output_path}"
   puts
 
-  File.write(output_path, YAML.dump(yaml))
+  File.write(output_path, data.to_yaml)
 
   check_nodes_yaml(output_path) if TEST
 end
@@ -305,7 +294,7 @@ def check_nodes_yaml(file)
   puts "Parsing YAML..."
   puts
 
-  yaml = YAML.safe_load contents
+  yaml = YAML.safe_load(contents, [Symbol])
   puts yaml
   puts
 

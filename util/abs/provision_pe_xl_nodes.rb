@@ -5,6 +5,7 @@
 require "optparse"
 require "yaml"
 require "json"
+require "beaker-hostgenerator"
 require "./setup/helpers/abs_helper.rb"
 include AbsHelper # rubocop:disable Style/MixinUsage
 
@@ -240,6 +241,7 @@ end
 def create_pe_xl_bolt_files(hosts, output_dir)
   create_nodes_yaml(hosts, output_dir)
   create_params_json(hosts, output_dir)
+  create_beaker_config(hosts, output_dir)
 end
 
 # Creates the Bolt inventory file (nodes.yaml) for the specified hosts
@@ -386,6 +388,69 @@ def check_params_json(file)
 
   puts "Verified parameter 'install': #{install}"
   puts
+end
+
+def create_beaker_config(hosts, output_dir)
+  beaker_os = "redhat7-64"
+  # define beaker roles for each host
+  beaker_role_map = { "master"            => %w[master dashboard],
+                      "master_replica"    => "master",
+                      "puppet_db"         => "database",
+                      "puppet_db_replica" => "database",
+                      "compiler_a"        => "compile_master",
+                      "compiler_b"        => "compile_master",
+                      "metrics"           => "metric" }
+
+  beaker_roles = beaker_role_map.keys
+
+  # seed beaker roles
+  hosts.each do |h|
+    h[:beaker] = []
+  end
+
+  master = hosts.detect { |h| h[:role] == "master" }
+  m_index = hosts.index(master)
+
+  # Add beaker roles to host hashes in order to associate them with the correct
+  # host when constucting the beaker-host-generator string.
+  until beaker_roles.empty?
+    role_found = 0
+    role = beaker_roles.pop
+    hosts.each do |h|
+      if h[:role] == role
+        h[:beaker] << beaker_role_map[role]
+        role_found += 1
+      end
+    end
+    # assign unallocated database role to master
+    hosts[m_index][:beaker] << beaker_role_map[role] \
+      if role_found.zero? && %w[puppet_db puppet_db_replica].include?(role)
+  end
+
+  hosts.each do |h|
+    h[:beaker] = h[:beaker].flatten.uniq.join(",")
+  end
+
+  # Build beaker-hg string
+  bhg = BeakerHostGenerator::Generator.new
+  bhg_string = +""
+  hosts.each do |h|
+    options = ["hostname=#{h[:hostname]}"]
+    options << "ports=\[2003\,7777\,80\]" if h[:role] == "metrics"
+
+    bhg_string << beaker_os + h[:beaker] + ".{" + options.join("\,") + "}-"
+  end
+  bhg_string = bhg_string.chomp("-")
+  beaker_yaml = bhg.generate(bhg_string, hypervisor: "none").to_yaml
+  output_path = "#{File.expand_path(output_dir)}/beaker.cfg"
+
+  puts
+  puts "Writing #{output_path}"
+  puts
+
+  File.write(output_path, beaker_yaml)
+
+  check_params_json(output_path) if TEST
 end
 
 provision_pe_xl_nodes if $PROGRAM_NAME == __FILE__

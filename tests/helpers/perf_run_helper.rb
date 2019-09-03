@@ -807,38 +807,37 @@ module PerfRunHelper
       # Write summary results to log so it can be archived
       perf.log_csv
       copy_archive_files
-      process_atop_csv_file
-      process_gatling_json_file
+
+      # split the atop CSV file into separate files for the summary and detail sections
+      split_atop_csv_results(atop_csv)
+
+      # extract the Gatling results data into a CSV file
+      gatling2csv(gatling_json_results_dir)
     end
     [perf, GatlingResult.new(gatling_assertions, mean_response_time)]
   end
 
-  # Splits the atop CSV file into separate files for the summary and detail sections
+  # The atop CSV file
   #
   # @author Bill Claytor
   #
-  # @return [void]
+  # @return [String] The atop CSV file path in @archive_root
   #
   # @example
-  #   process_atop_csv_file
+  #   atop_csv
   #
-  def process_atop_csv_file
-    atop_csv = "#{@archive_root}/#{master.hostname}/atop_log_#{@gatling_scenario.downcase.gsub('.', '_')}.csv"
-    split_atop_csv_results atop_csv
+  def atop_csv
+    "#{@archive_root}/#{master.hostname}/atop_log_#{@gatling_scenario.downcase.gsub('.', '_')}.csv"
   end
 
-  # Extracts the Gatling results data into a CSV file
+  # The Gatling json results directory
   #
   # @author Bill Claytor
   #
-  # @return [void]
+  # @return [String] The Gatling json results directory in @archive_root
   #
-  # @example
-  #   process_gatling_json_file
-  #
-  def process_gatling_json_file
-    results_dir = "#{@archive_root}/#{metric.hostname}/#{METRIC_RESULTS_DIR}/#{@dir_name}"
-    gatling2csv(results_dir)
+  def gatling_json_results_dir
+    "#{@archive_root}/#{metric.hostname}/#{METRIC_RESULTS_DIR}/#{@dir_name}"
   end
 
   # Gatling result object

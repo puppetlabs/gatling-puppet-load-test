@@ -166,6 +166,7 @@ module PerfResultsHelper
       name = contents[contents.keys[i]]["name"]
       puts "key #{i}: #{name}"
     end
+
     contents
   end
 
@@ -335,12 +336,6 @@ module PerfResultsHelper
                   end
 
         averages_row << average.round(2)
-
-        # puts
-        # puts "total: #{total}"
-        # puts "num_rows: #{num_rows}"
-        # puts "average: #{average}"
-        # puts
       end
 
       average_csv << averages_row
@@ -613,7 +608,7 @@ module PerfResultsHelper
     puts
 
     # TODO: process other service files
-    process_puppetserver_files(metrics_dir)
+    extract_puppetserver_metrics(metrics_dir)
   end
 
   # Processes the files in the 'puppetserver' service directory:
@@ -629,10 +624,10 @@ module PerfResultsHelper
   # @return [void]
   #
   # @example
-  #   process_puppetserver_files(metrics_dir)
+  #   extract_puppetserver_metrics(metrics_dir)
   #
   # TODO: refactor to be generic
-  def process_puppetserver_files(metrics_dir)
+  def extract_puppetserver_metrics(metrics_dir)
     puppetserver_dir = "#{metrics_dir}/puppetserver"
     raise "Directory not found: #{puppetserver_dir}" unless File.directory?(puppetserver_dir)
 
@@ -648,7 +643,7 @@ module PerfResultsHelper
       csv << ["timestamp", "static compile (mean)", "average borrow time", "num free jrubies"]
 
       puppetserver_files.each do |file|
-        puppetserver_metrics = process_puppetserver_json(file)
+        puppetserver_metrics = extract_puppetserver_metrics_from_json(file)
         csv << puppetserver_metrics unless puppetserver_metrics.nil?
       end
     end
@@ -667,10 +662,10 @@ module PerfResultsHelper
   # @return [Array] The parameters array / csv row
   #
   # @example
-  #   process_puppetserver_json(file)
+  #   extract_puppetserver_metrics_from_json(file)
   #
   # rubocop:disable Metrics/LineLength
-  def process_puppetserver_json(file)
+  def extract_puppetserver_metrics_from_json(file)
     raise "The specified file was not found: #{file}" unless File.exist?(file)
 
     puts "Processing file: #{file}"
@@ -682,26 +677,10 @@ module PerfResultsHelper
     begin
       timestamp = json["timestamp"]
 
-      # catalog
-      catalog_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-puppet-profiler"]["status"]["experimental"]["catalog-metrics"]
-
-      # ignore metrics without catalog metrics
+      # catalog (ignore metrics without catalog metrics)
       # TODO: if this is an issue, investigate alternatives to handling averages
-
-      # TODO: remove
-      # if catalog_metrics.nil? || catalog_metrics.empty?
-      #   puts "JSON does not contain catalog metrics; ignoring..."
-      # else
-      #
-      #   # catalog
-      #   static_compile_mean = catalog_metrics[0]["mean"]
-      #
-      #   # jruby
-      #   pe_jruby_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-jruby-metrics"]["status"]["experimental"]["metrics"]
-      #   average_borrow_time = pe_jruby_metrics["average-borrow-time"]
-      #   num_free_jrubies = pe_jruby_metrics["num-free-jrubies"]
-      #   row = [timestamp, static_compile_mean, average_borrow_time, num_free_jrubies]
-      # end
+      # TODO: update to use dig, handle multiple puppetservers (https://tickets.puppetlabs.com/browse/SLV-569)
+      catalog_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-puppet-profiler"]["status"]["experimental"]["catalog-metrics"]
 
       # catalog
       static_compile_mean = catalog_metrics[0]["mean"]

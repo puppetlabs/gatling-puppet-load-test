@@ -11,6 +11,7 @@ PUPPET_METRICS_FIXTURES_DIR = "#{FIXTURES_DIR}/puppet-metrics-collector"
 TEST_METRICS_RESULTS_DIR = "#{PERF_RESULTS_FIXTURES_DIR}/scale/PERF_SCALE_12345/Scale_12345_1_1500/metric"
 TEST_METRICS_RESULTS_NAME = File.basename(TEST_METRICS_RESULTS_DIR)
 TEST_STATS_PATH = "#{TEST_METRICS_RESULTS_DIR}/js/stats.json"
+TEST_STATS_NUMBER_OF_KEYS = 6
 
 TEST_VALID_CSV_HEADINGS_PATH = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html/headings_row.csv"
 TEST_VALID_CSV_PATH = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html/01.csv"
@@ -179,6 +180,14 @@ describe PerfResultsHelper do
         group_node = subject.gatling_json_stats_group_node(TEST_STATS_PATH)
         contents = subject.gatling_json_stats_group_node_contents(group_node)
         expect(contents).to eq(group_node["contents"])
+      end
+
+      it "includes all of the keys" do
+        group_node = subject.gatling_json_stats_group_node(TEST_STATS_PATH)
+        expect(subject).to receive(:puts).with("There are #{TEST_STATS_NUMBER_OF_KEYS} keys")
+
+        expect(subject).to receive(:puts).with(/key/).exactly(TEST_STATS_NUMBER_OF_KEYS).times
+        subject.gatling_json_stats_group_node_contents(group_node)
       end
     end
   end
@@ -369,20 +378,20 @@ describe PerfResultsHelper do
 
     context "when the specified directory exists" do
       it "calls process_puppetserver_files" do
-        expect(subject).to receive(:process_puppetserver_files).with(PUPPET_METRICS_FIXTURES_DIR)
+        expect(subject).to receive(:extract_puppetserver_metrics).with(PUPPET_METRICS_FIXTURES_DIR)
         subject.extract_puppet_metrics_collector_data(PUPPET_METRICS_FIXTURES_DIR)
       end
     end
   end
 
   # TODO: complete
-  describe "#process_puppetserver_files" do
+  describe "#extract_puppetserver_metrics" do
     puppetserver_dir = "#{PUPPET_METRICS_FIXTURES_DIR}/puppetserver"
 
     context "when the puppetserver directory does not exist" do
       it "raises an error with a message indicating the invalid argument" do
         expect(File).to receive(:directory?).with(puppetserver_dir).and_return(false)
-        expect { subject.process_puppetserver_files(PUPPET_METRICS_FIXTURES_DIR) }
+        expect { subject.extract_puppetserver_metrics(PUPPET_METRICS_FIXTURES_DIR) }
           .to raise_error(RuntimeError, /#{Regexp.escape(puppetserver_dir)}/)
       end
     end
@@ -390,7 +399,7 @@ describe PerfResultsHelper do
     context "when the puppetserver directory contains no JSON files" do
       it "raises an error with a message indicating the invalid argument" do
         expect(Dir).to receive(:glob).and_return(nil)
-        expect { subject.process_puppetserver_files(PUPPET_METRICS_FIXTURES_DIR) }
+        expect { subject.extract_puppetserver_metrics(PUPPET_METRICS_FIXTURES_DIR) }
           .to raise_error(RuntimeError, /#{Regexp.escape(puppetserver_dir)}/)
       end
     end
@@ -420,7 +429,7 @@ describe PerfResultsHelper do
   end
 
   # TODO: complete
-  describe "#process_puppetserver_json" do
+  describe "#extract_puppetserver_metrics_from_json" do
     puppetserver_dir = "#{PUPPET_METRICS_FIXTURES_DIR}/puppetserver"
     puppetserver_json = "#{puppetserver_dir}/ip-10-227-1-138.amz-dev.puppet.net/20190718T081502Z.json"
 
@@ -428,7 +437,7 @@ describe PerfResultsHelper do
       it "raises an error" do
         expect(File).to receive(:exist?).with(puppetserver_json).and_return(false)
 
-        expect { subject.process_puppetserver_json(puppetserver_json) }
+        expect { subject.extract_puppetserver_metrics_from_json(puppetserver_json) }
           .to raise_error(RuntimeError, /#{Regexp.escape(puppetserver_json)}/)
       end
     end
@@ -438,7 +447,7 @@ describe PerfResultsHelper do
         invalid_json = "not JSON!"
         expect(File).to receive(:read).with(puppetserver_json).and_return(invalid_json)
 
-        expect { subject.process_puppetserver_json(puppetserver_json) }
+        expect { subject.extract_puppetserver_metrics_from_json(puppetserver_json) }
           .to raise_error(JSON::ParserError, /#{invalid_json}/)
       end
     end
@@ -449,7 +458,7 @@ describe PerfResultsHelper do
 
         expect(subject).to receive(:puts).with(/ignoring/)
 
-        subject.process_puppetserver_json(json)
+        subject.extract_puppetserver_metrics_from_json(json)
       end
     end
 

@@ -8,6 +8,8 @@ require "json"
 require "./setup/helpers/abs_helper.rb"
 include AbsHelper # rubocop:disable Style/MixinUsage
 
+REF_ARCH_TYPES = { large: "l", extra_large: "xl" }.freeze
+DEFAULT_REF_ARCH = REF_ARCH_TYPES[:large]
 DEFAULT_HA = false
 DEFAULT_AWS_TAG_ID = "slv"
 DEFAULT_OUTPUT_DIR = "./"
@@ -23,8 +25,9 @@ DESCRIPTION = <<~DESCRIPTION
 
   EC2 hosts are provisioned for the following roles:
   * Core roles:
+   - metrics
    - master
-   - puppet_db
+   - puppet_db (for xl)
    - compiler_a
    - compiler_b
 
@@ -37,6 +40,7 @@ DESCRIPTION
 DEFAULTS = <<~DEFAULTS
 
   The following defaults values are used if the options are not specified:
+  * REF_ARCH (-a, --ref_arch): #{DEFAULT_REF_ARCH}
   * HA (--ha): #{DEFAULT_HA}
   * AWS_TAG_ID (-i, --id): #{DEFAULT_AWS_TAG_ID}
   * OUTPUT_DIR (-o, --output_dir): #{DEFAULT_OUTPUT_DIR}
@@ -95,24 +99,39 @@ OptionParser.new do |opts|
   opts.on("-s", "--size SIZE", Integer, "The AWS EC2 volume size to specify") do |size|
     options[:size] = size
   end
+
+  options[:ref_arch] = DEFAULT_REF_ARCH
+  opts.on("-a", "--ref_arch REF_ARCH", String, "The reference architecture type to provision (l, xl)") do |ref_arch|
+    allowable_ref_arch = REF_ARCH_TYPES.values
+    raise "ref_arch must be in #{allowable_ref_arch}" unless allowable_ref_arch.include? ref_arch
+
+    options[:ref_arch] = ref_arch
+  end
 end.parse!
+
+raise "Large ref_arch doesn't currently support HA" if options[:ref_arch] == REF_ARCH_TYPES[:large] && options[:ha]
 
 ROLES_CORE = %w[metrics
                 master
-                puppet_db
                 compiler_a
                 compiler_b].freeze
+
+ROLES_XL = %w[puppet_db].freeze
 
 ROLES_HA = %w[master_replica
               puppet_db_replica].freeze
 
+roles = ROLES_CORE
+roles = ROLES_CORE + ROLES_XL if options[:ref_arch] == REF_ARCH_TYPES[:extra_large]
+
 if options[:ha]
   HA = true
-  ROLES = ROLES_CORE + ROLES_HA
+  roles += ROLES_HA
 else
   HA = DEFAULT_HA
-  ROLES = ROLES_CORE
 end
+
+ROLES = roles.freeze
 
 NOOP = options[:noop] || false
 TEST = options[:test] || false
@@ -140,47 +159,10 @@ TEST_HOSTS_NO_HA = [{ role: "puppet_db", hostname: "ip-10-227-3-22.test.puppet.n
                     { role: "master", hostname: "ip-10-227-3-127.test.puppet.net" },
                     { role: "compiler_a", hostname: "ip-10-227-3-242.test.puppet.net" }].freeze
 
-NODES_YAML = <<~NODES_YAML
-  ---
-  groups:
-    - name: pe_xl_nodes
-      config:
-        transport: ssh
-        ssh:
-          host-key-check: false
-          user: centos
-          run-as: root
-          tty: true
-NODES_YAML
-
-# TODO: update to use variables / symbols for all parameter values?
-PARAMS_JSON = <<~PARAMS_JSON
-  {
-    "install": true,
-    "configure": true,
-    "upgrade": false,
-    "ha": #{HA},
-
-    "master_host": "$MASTER$",
-    "puppetdb_database_host": "$PUPPET_DB$",
-    "master_replica_host": "$MASTER_REPLICA$",
-    "puppetdb_database_replica_host": "$PUPPET_DB_REPLICA$",
-    "compiler_hosts": [
-      "$COMPILER_A$",
-      "$COMPILER_B$"
-    ],
-
-    "console_password": "puppetlabs",
-    "dns_alt_names": [ "puppet", "$MASTER$" ],
-    "compiler_pool_address": "$MASTER$",
-    "version": "#{PE_VERSION}"
-  }
-
-PARAMS_JSON
-
 PROVISION_MESSAGE = <<~PROVISION_MESSAGE
 
   #{PROVISIONING_TXT} pe_xl nodes with the following options:
+    REF_ARCH: #{options[:ref_arch]}
     HA: #{HA}
     Output directory for Bolt inventory and parameter files: #{OUTPUT_DIR}
     PE version: #{PE_VERSION}
@@ -273,20 +255,22 @@ end
 #   hosts = provision_hosts_for_roles(roles)
 #   create_nodes_yaml(hosts, output_dir)
 def create_nodes_yaml(hosts, output_dir)
-  yaml = YAML.safe_load NODES_YAML
+  data = { "groups" => [
+    { "name"   => "pe_xl_nodes",
+      "config" => { "transport" => "ssh",
+                    "ssh"       => { "host-key-check" => false,
+                                     "user"           => "root" } } }
+  ] }
+
   output_path = "#{File.expand_path(output_dir)}/nodes.yaml"
-  nodes = []
 
-  hosts.each do |host|
-    nodes << host[:hostname]
-  end
-
-  yaml["groups"][0]["nodes"] = nodes
+  data["groups"][0]["nodes"] = hosts.map { |h| h[:hostname] }
+  data["groups"][0]["roles"] = hosts.map { |h| h[:role].ljust(15) + h[:hostname] }
 
   puts "Writing #{output_path}"
   puts
 
-  File.write(output_path, YAML.dump(yaml))
+  File.write(output_path, data.to_yaml)
 
   check_nodes_yaml(output_path) if TEST
 end
@@ -310,7 +294,7 @@ def check_nodes_yaml(file)
   puts "Parsing YAML..."
   puts
 
-  yaml = YAML.safe_load contents
+  yaml = YAML.safe_load(contents, [Symbol])
   puts yaml
   puts
 
@@ -338,22 +322,29 @@ end
 #   hosts = provision_hosts_for_roles(roles)
 #   create_params_json(hosts, output_dir)
 def create_params_json(hosts, output_dir)
-  params_json = PARAMS_JSON
+  master, = hosts.map { |host| host[:hostname] if host[:role] == "master" }.compact
+  pdb, = hosts.map { |host| host[:hostname] if host[:role] == "puppet_db" }.compact
+  master_replica, = hosts.map { |host| host[:hostname] if host[:role] == "master_replica" }.compact
+  pdb_replica, = hosts.map { |host| host[:hostname] if host[:role] == "puppet_db_replica" }.compact
+  compilers = hosts.map { |host| host[:hostname] if host[:role].include? "compiler" }.compact
+  pe_xl_params = {
+    install: true,
+    configure: true,
+    upgrade: false,
+    master_host: master,
+    puppetdb_database_host: pdb,
+    master_replica_host: master_replica,
+    puppetdb_database_replica_host: pdb_replica,
+    compiler_hosts: compilers,
+
+    console_password: "puppetlabs",
+    dns_alt_names: ["puppet", master],
+    compiler_pool_address: master,
+    version: PE_VERSION
+  }.delete_if { |_, value| value.to_s.strip == "" } # Replace delete_if with compact when ruby ~ 2.4.0
+
+  params_json = JSON.pretty_generate(pe_xl_params)
   output_path = "#{File.expand_path(output_dir)}/params.json"
-
-  puts "Replacing parameters in params.json: "
-
-  # replace parameters for each host
-  hosts.each do |host|
-    hostname = host[:hostname]
-    role = host[:role]
-    param = "$#{role.upcase}$"
-
-    puts " hostname: #{hostname}, role: #{role}, parameter: #{param}"
-
-    # replace parameters
-    params_json = params_json.gsub(param, hostname)
-  end
 
   puts
   puts "Writing #{output_path}"
@@ -397,4 +388,4 @@ def check_params_json(file)
   puts
 end
 
-provision_pe_xl_nodes
+provision_pe_xl_nodes if $PROGRAM_NAME == __FILE__

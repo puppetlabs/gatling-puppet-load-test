@@ -19,10 +19,13 @@ It provisions the nodes used by the module and generates the [Bolt](https://gith
 EC2 hosts are provisioned for the following roles:
 
 #### Core roles
+* metrics
 * master
-* puppet_db
 * compiler_a
 * compiler_b
+
+#### Extra Large Architecture roles
+* puppet_db
 
 #### HA roles
 * master_replica
@@ -35,6 +38,7 @@ The script accepts the following options which override the default values:
         --noop                       Run in no-op mode
         --test                       Use test data rather than provisioning hosts
         --ha                         Deploy HA environment
+    -a, --ref_arch REF_ARCH          Type of reference architecture to deploy (l, xl)
     -i, --id ID                      The value for the AWS 'id' tag
     -o, --output_dir DIR             The directory where the Bolt files should be written
     -v, --pe_version VERSION         The PE version to install
@@ -46,6 +50,7 @@ The script accepts the following options which override the default values:
 When run without specifying any options the script uses the following default values:
 
 * HA (--ha): false
+* REF_ARCH (-a, --ref_arch): l
 * AWS_TAG_ID (-i, --id): slv
 * OUTPUT_DIR (-o, --output_dir): ./
 * PE_VERSION (-v, --pe_version): 2019.1.0
@@ -65,7 +70,7 @@ bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb
 ##### Common usage scenarios
 
 ###### id
-The `id` parameter specifies the value for the AWS 'id' tag. 
+The `id` parameter specifies the value for the AWS 'id' tag.
 You will almost always want to specify a value to identify a set of hosts.
 Typically this will be a variation of the JIRA ticket number; for example:
 ```
@@ -73,9 +78,12 @@ bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb -i slv-504-no-ha
 ```
 
 ###### ha (and id)
-Deploy HA environment (false unless specified):
+Deploy HA environment (false unless specified).  The pe_xl module does not
+currently support deploying HA on a Large Architecture.  Therefore, the
+`--ref_arch` option must be set to `xl` for an Extra-Large Architecture for
+the `--ha` setting to be accepted.
 ```
-bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --ha -i slv-504-ha
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --ref_arch xl --ha -i slv-504-ha
 ```
 
 ###### pe_version
@@ -99,7 +107,13 @@ bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --test
 ###### all options
 Specify every option:
 ```
-test.user:~/gatling-puppet-load-test> bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --noop --ha -i example -o ~/tmp -v 2018.1.3 -t c5.4xlarge -s 120
+bundle exec ruby ./util/abs/provision_pe_xl_nodes.rb --noop \
+    -a xl --ha    \
+    -i example    \
+    -o ~/tmp      \
+    -v 2018.1.3   \
+    -t c5.4xlarge \
+    -s 120
 *** Running in no-op mode ***
 
 Would have provisioned pe_xl nodes with the following options:
@@ -112,7 +126,7 @@ Would have provisioned pe_xl nodes with the following options:
 
 Would have called:
 
-  hosts = provision_hosts_for_roles(["master", "puppet_db", "compiler_a", "compiler_b", "master_replica", "puppet_db_replica"],
+  hosts = provision_hosts_for_roles(["metrics", "master", "puppet_db", "compiler_a", "compiler_b", "master_replica", "puppet_db_replica"],
                                     example,
                                     c5.2xlarge,
                                     120)
@@ -121,7 +135,7 @@ to provision the hosts, then:
 
   create_pe_xl_bolt_files(hosts, /Users/test.user/tmp)
 
-to create the Bolt inventory and parameter files.                                  
+to create the Bolt inventory and parameter files.
 ```
 
 The `pe_xl` plan can then be run from the `gatling-puppet-load-test` directory using the generated files.
@@ -129,8 +143,7 @@ Using the example in the `pe_xl` [documentation](https://github.com/reidmv/reidm
 ```
  bolt plan run pe_xl \
    --inventory nodes.yaml \
-   --modulepath ~/modules \
    --params @params.json
 ```
-
-Note: this assumes the `pe_xl` module has been installed in the `~/modules` directory as specified in the documentation and that an alternate output directory was not specified.
+See [Large Architecture documentation](https://github.com/reidmv/reidmv-pe_xl/blob/master/documentation/large_deploy.md)
+for an explanation of what is setup for a Large Ref Arch.

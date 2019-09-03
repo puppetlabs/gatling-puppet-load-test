@@ -42,7 +42,9 @@ module PerfRunHelper
     @atop_session_timestamp = start_monitoring(master, gatling_scenario, true, 30)
     create_perf_archive_root
     capture_current_tune_settings
+    generate_timestamp_file("start_epoch")
     execute_gatling_scenario(gatling_scenario, simulation_id, gatling_assertions)
+    generate_timestamp_file("end_epoch")
   end
 
   # Handles the perf results
@@ -106,6 +108,22 @@ module PerfRunHelper
 
     puts "Writing file: #{output_path}"
     File.write(output_path, settings_json)
+  end
+
+  # Write out the epoch into a file for info and use when gathering metrics
+  #
+  # @author Randell Pelak
+  #
+  # @return [void]
+  #
+  # @example:
+  #   generate_timestamp_file("start_epoch")
+  #   generate_timestamp_file("end_epoch")
+  #
+  def generate_timestamp_file(filename)
+    now = Time.now.to_i
+    output_path = "#{@archive_root}/#{filename}"
+    File.write(output_path, now)
   end
 
   # Iteratively run perf_setup while automatically scaling the number of agents
@@ -787,6 +805,15 @@ module PerfRunHelper
       perf.log_csv
       copy_archive_files
     end
+    scp_to(master, "util/metrics/collect_metrics_files.rb", "/root/collect_metrics_files.rb")
+    start_epoch = File.read("#{@archive_root}/start_epoch")
+    end_epoch = File.read("#{@archive_root}/end_epoch")
+    cmf_output = on(master,
+                    "env PATH=\"#{master['privatebindir']}:${PATH}\" \
+                    ruby /root/collect_metrics_files.rb --start_epoch #{start_epoch} --end_epoch #{end_epoch}")
+                 .output
+    filename = cmf_output.match(/\w+-\w+.tar.gz/)[0].to_s
+    scp_from(master, "/root/#{filename}", "#{@archive_root}/")
     [perf, GatlingResult.new(gatling_assertions, mean_response_time)]
   end
 

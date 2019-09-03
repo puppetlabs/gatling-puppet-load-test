@@ -134,7 +134,7 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
   let(:gatling_result) { double("GatlingResult") }
   let(:atop_result) { double("Beaker::DSL::BeakerBenchmark::Helpers::PerformanceResult") }
 
-  describe "#perf_setup" do
+  describe "#perf_setup" do # rubocop:disable Metrics/BlockLength
     gatling_scenario = "test_gatling_scenario"
     simulation_id = "test_simulation_id"
     gatling_assertions = "SUCCESSFUL_REQUESTS=123 " + "MAX_RESPONSE_TIME_AGENT=12345 " + "TOTAL_REQUEST_COUNT=23456 "
@@ -151,6 +151,7 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
         allow(subject).to receive(:create_perf_archive_root)
         allow(subject).to receive(:capture_current_tune_settings)
         allow(subject).to receive(:execute_gatling_scenario)
+        allow(subject).to receive(:generate_timestamp_file)
 
         expect(subject).to receive(:start_monitoring).and_return(test_timestamp)
         subject.perf_setup(gatling_scenario, simulation_id, gatling_assertions)
@@ -163,6 +164,7 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
         allow(subject).to receive(:start_monitoring)
         allow(subject).to receive(:capture_current_tune_settings)
         allow(subject).to receive(:execute_gatling_scenario)
+        allow(subject).to receive(:generate_timestamp_file)
 
         expect(subject).to receive(:create_perf_archive_root)
         subject.perf_setup(gatling_scenario, simulation_id, gatling_assertions)
@@ -172,8 +174,19 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
         allow(subject).to receive(:start_monitoring)
         allow(subject).to receive(:create_perf_archive_root)
         allow(subject).to receive(:execute_gatling_scenario)
+        allow(subject).to receive(:generate_timestamp_file)
 
         expect(subject).to receive(:capture_current_tune_settings)
+        subject.perf_setup(gatling_scenario, simulation_id, gatling_assertions)
+      end
+
+      it "generates timestamps" do
+        allow(subject).to receive(:start_monitoring)
+        allow(subject).to receive(:capture_current_tune_settings)
+        allow(subject).to receive(:create_perf_archive_root)
+        allow(subject).to receive(:execute_gatling_scenario)
+
+        expect(subject).to receive(:generate_timestamp_file).twice
         subject.perf_setup(gatling_scenario, simulation_id, gatling_assertions)
       end
 
@@ -181,6 +194,7 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
         allow(subject).to receive(:start_monitoring)
         allow(subject).to receive(:create_perf_archive_root)
         allow(subject).to receive(:capture_current_tune_settings)
+        allow(subject).to receive(:generate_timestamp_file)
 
         expect(subject).to receive(:execute_gatling_scenario)
           .with(gatling_scenario, simulation_id, gatling_assertions)
@@ -284,6 +298,24 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
         expect(File).to receive(:write).with(expected_path, TEST_JSON)
 
         subject.capture_current_tune_settings
+      end
+    end
+  end
+
+  describe "#generate_timestamp_file" do
+    context "when called" do
+      before do
+        subject.instance_variable_set("@archive_root", TEST_ARCHIVE_ROOT)
+      end
+
+      it "writes the timestamp file to the @archive_root" do
+        filename = "foo"
+        expected_path = "#{TEST_ARCHIVE_ROOT}/#{filename}"
+
+        expect(Time).to receive(:now).and_return(TEST_TIMESTAMP)
+        expect(File).to receive(:write).with(expected_path, TEST_TIMESTAMP)
+
+        subject.generate_timestamp_file(filename)
       end
     end
   end

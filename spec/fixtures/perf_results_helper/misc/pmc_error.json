@@ -1,0 +1,15 @@
+{
+  "timestamp": "2019-08-26T23:14:01Z",
+  "servers": {
+    "ip-10-227-1-146-amz-dev-puppet-net": {
+      "puppetserver": {
+        "error": [
+          "Failed to open TCP connection to ip-10-227-1-146.amz-dev.puppet.net:8140 (Connection refused - connect(2) for \"ip-10-227-1-146.amz-dev.puppet.net\" port 8140)"
+        ],
+        "error_count": 1,
+        "api-query-start": "2019-08-26T23:14:01Z",
+        "api-query-duration": 0.016438905
+      }
+    }
+  }
+}

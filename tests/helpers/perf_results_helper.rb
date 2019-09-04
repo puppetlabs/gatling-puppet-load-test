@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "csv"
+require "csvlint"
 
 # Helper module for the generation of HTML reports from CSV data
 # TODO: add spec tests
@@ -26,11 +27,11 @@ module PerfResultsHelper
 
   # HTML template used in csv2html
   # TODO: use these (and other custom parameterized blocks) in the release report generation scripts?
-  HTML_START = <<~HEREDOC
+  CSV_HTML_START = <<~CSV_HTML_START
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <title>Scale Test Results</title>
+        <title>CSV2HTML</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
@@ -41,20 +42,22 @@ module PerfResultsHelper
 
     <div class="container">
 
-  HEREDOC
+  CSV_HTML_START
 
-  HTML_END = <<~HEREDOC
+  CSV_HTML_END = <<~CSV_HTML_END
     </div>
     </body>
     </html>
 
-  HEREDOC
+  CSV_HTML_END
 
   # Extract Gatling JSON data into a CSV file in the format used in our release test reports
+  # and convert the CSV file to an HTML file for easy viewing
   #
   # @author Bill Claytor
   #
   # @param [String] results_dir The directory containing the Gatling results from the metrics node
+  # @param [String] output_dir The directory where the output CSV and HTML fileS should be written
   #
   # @return [void]
   #
@@ -63,41 +66,23 @@ module PerfResultsHelper
   #
   # TODO: refactor into separate methods for extract and output
   # TODO: update scale results handling to use this code
-  def gatling2csv(results_dir)
-    results_name = File.basename(results_dir)
-    output_path = "#{results_dir}/#{results_name}.csv"
+  def gatling2csv(results_dir, output_dir = results_dir)
+    raise "Invalid results_dir: #{results_dir}" unless File.directory?(results_dir)
 
+    results_name = File.basename(results_dir)
+    output_path = "#{output_dir}/#{results_name}.csv"
     stats_path = "#{results_dir}/js/stats.json"
 
-    puts "Examining Gatling data: #{stats_path}"
-    puts
-
-    stats = JSON.parse(File.open(stats_path).read)
-
-    # the 'group' name will be something like 'group_nooptestwithout-9eb19'
-    group_keys = stats["contents"].keys.select { |key| key.to_s.match(/group/) }
-    raise "JSON parse of #{stats_path} should only result in one key matching 'group'" unless group_keys.length == 1
-
-    group_node = stats["contents"][group_keys[0]]
-
     # transaction rows are in the 'contents' node
-    contents = group_node["contents"]
-
-    # TODO: verify each key
-    # TODO: unit test to ensure data validity
-    puts "There are #{contents.keys.length} keys"
-    puts
-
-    (0..contents.keys.length - 1).each do |i|
-      name = contents[contents.keys[i]]["name"]
-      puts "key #{i}: #{name}"
-    end
+    group_node = gatling_json_stats_group_node(stats_path)
+    contents = gatling_json_stats_group_node_contents(group_node)
 
     puts "Creating #{output_path}"
     puts
 
     # TODO: determine and verify values prior to CSV output
     # TODO: unit test to ensure data validity
+    # TODO: extract to a separate method
     CSV.open(output_path, "wb") do |csv|
       # add headings
       csv << PERF_CSV_COLUMN_HEADINGS
@@ -120,21 +105,91 @@ module PerfResultsHelper
     csv2html(output_path)
   end
 
+  # Parse the stats.json file and return the group node
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] stats_path The path to the stats.json file
+  #
+  # @raise [StandardError] If the specified file is not found
+  # @raise [StandardError] If the specified file does not contain the group node
+  #
+  # @return [JSON] The group node
+  #
+  # @example
+  #   group_node = gatling_json_stats_group_node(stats_path)
+  #
+  def gatling_json_stats_group_node(stats_path)
+    raise "The specified file was not found: #{stats_path}" unless File.exist?(stats_path)
+
+    puts "Examining Gatling data: #{stats_path}"
+    puts
+
+    begin
+      # the 'group' name will be something like 'group_nooptestwithout-9eb19'
+      stats = JSON.parse(File.open(stats_path).read)
+      group_keys = stats["contents"].keys.select { |key| key.to_s.match(/group/) }
+      group_node = stats["contents"][group_keys[0]]
+    rescue StandardError
+      raise "JSON parse of #{stats_path} should result in one key matching 'group'"
+    end
+
+    group_node
+  end
+
+  # Retrieves the contents from the group node
+  #
+  # @author Bill Claytor
+  #
+  # @param [JSON] The group node
+  #
+  # @raise [StandardError] If the group node does not contain contents with more than one key
+  #
+  # @return [JSON] The contents
+  #
+  # @example
+  #   contents = gatling_json_stats_group_node_contents(group_node)
+  #
+  def gatling_json_stats_group_node_contents(group_node)
+    contents = group_node["contents"]
+
+    if contents.nil? || contents.empty? || contents.keys.empty?
+      raise "The 'contents' element of the 'group' node must have at least one key"
+    end
+
+    # TODO: verify each key
+    # TODO: unit test to ensure data validity
+    puts "There are #{contents.keys.length} keys"
+    puts
+
+    (0..contents.keys.length - 1).each do |i|
+      name = contents[contents.keys[i]]["name"]
+      puts "key #{i}: #{name}"
+    end
+
+    contents
+  end
+
   # Find every CSV file in the specified directory (recursively) and convert each
   # to an HTML file containing a table with the CSV data using a Bootstrap-based template
   #
   # @author Bill Claytor
   #
-  # @param [String] scale_results_dir The top-level scale results directory
+  # @param [String] dir The directory to process
   #
   # @return [void]
   #
   # @example
-  #   scale_results_csv2html(scale_results_dir)
+  #   csv2html_directory(dir)
   #
-  def scale_results_csv2html(scale_results_dir)
-    puts "Converting CSV files to HTML in: #{scale_results_dir}"
-    files = Dir.glob("#{scale_results_dir}/**/*.csv")
+  def csv2html_directory(dir)
+    raise "Invalid directory: #{dir}" unless File.directory?(dir)
+
+    puts "Converting CSV files to HTML in: #{dir}"
+
+    files = Dir.glob("#{dir}/**/*.csv")
+    raise "No CSV files found in directory: #{dir}" if files.empty?
+
     files.each do |file|
       csv2html(file)
     end
@@ -153,6 +208,8 @@ module PerfResultsHelper
   #   csv2html(csv_path)
   #
   def csv2html(csv_path)
+    validate_csv(csv_path)
+
     puts "  converting CSV file: #{csv_path}"
     csv_data = CSV.read(csv_path)
 
@@ -210,13 +267,107 @@ module PerfResultsHelper
 
     # create HTML doc
     heading = "  <h2>#{File.basename(csv_path)}</h2>" + nl
-    html = HTML_START + heading + table + HTML_END
+    html = CSV_HTML_START + heading + table + CSV_HTML_END
     html_path = "#{csv_path}.html"
 
     puts "  creating HTML file: #{html_path}"
     puts
 
     File.write(html_path, html)
+  end
+
+  # Average each column of the specified CSV file
+  # and create a new CSV file with the averages
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] data_csv_path The path to the CSV file
+  # @param [Boolean] skip_first_column Optionally skip the first column (timestamp, label, etc...)
+  #
+  # @return [void]
+  #
+  # @example
+  #   average_csv(data_csv_path)
+  #   average_csv(data_csv_path, true)
+  #
+  # TODO: error handling, spec test
+  #
+  def average_csv(data_csv_path, skip_first_column = false)
+    validate_csv(data_csv_path)
+
+    puts "Reading CSV file: #{data_csv_path}"
+    data_csv = CSV.read(data_csv_path)
+    num_rows = data_csv.length - 1
+
+    raise "The specified CSV file contains no data: #{data_csv_path}" unless num_rows > 1
+
+    if skip_first_column
+      puts "skipping column 0..."
+      start_column = 1
+      averages_row = ["N/A"]
+    else
+      start_column = 0
+      averages_row = []
+    end
+
+    average_csv_path = data_csv_path.gsub(".csv", ".average.csv")
+
+    CSV.open(average_csv_path.to_s, "wb") do |average_csv|
+      # headings
+      average_csv << data_csv[0]
+
+      # average each column
+      (start_column..(data_csv[0].length - 1)).each do |col_index|
+        puts "column: #{col_index}"
+
+        total = 0
+
+        # add each row
+        (1..data_csv.length - 1).each do |row_ct|
+          value = data_csv[row_ct][col_index].to_f
+          total += value
+        end
+
+        # only average if the total is > 0
+        average = if total.positive?
+                    total / num_rows
+                  else
+                    0
+                  end
+
+        averages_row << average.round(2)
+      end
+
+      average_csv << averages_row
+    end
+  end
+
+  # Validate the specified CSV file using csvlint
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] csv_path The path to the CSV file
+  #
+  # @raise [StandardError] If the file is not found
+  # @raise [StandardError] If the validation fails
+  #
+  # @return [Boolean] true if the file is valid
+  #
+  # @example
+  #   validate_csv(csv_path)
+  #
+  def validate_csv(csv_path)
+    raise "File not found: #{csv_path}" unless File.exist?(csv_path)
+
+    validator = Csvlint::Validator.new(File.new(csv_path))
+
+    # invoke the validation
+    validator.validate
+
+    # check validation status
+    raise "Invalid CSV file: #{csv_path}" unless validator.valid?
+
+    validator.valid?
   end
 
   # Extract the HTML table from the csv2html output
@@ -232,6 +383,8 @@ module PerfResultsHelper
   #   results_table = extract_table_from_csv2html_output(html_path)
   #
   def extract_table_from_csv2html_output(html_path)
+    raise "File not found: #{html_path}" unless File.exist?(html_path)
+
     puts "extracting table from #{html_path}"
     puts
 
@@ -246,6 +399,8 @@ module PerfResultsHelper
 
       break if line.include?("</table>")
     end
+
+    raise "HTML table not found in file: #{html_path}" if table_string.empty?
 
     table_string
   end
@@ -433,4 +588,114 @@ module PerfResultsHelper
   def percent_diff_string(result_a, result_b)
     "#{percent_diff(result_a, result_b)}%"
   end
+
+  # Extracts the following data from the specified 'puppet-metrics-collector' directory:
+  #   timestamp, static_compile_mean, average_borrow_time, num_free_jrubies
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] metrics_dir The 'puppet-metrics-collector' directory
+  #
+  # @return [void]
+  #
+  # @example
+  #   extract_puppet_metrics_collector_data(metrics_dir)
+  #
+  def extract_puppet_metrics_collector_data(metrics_dir)
+    raise "Directory not found: #{metrics_dir}" unless File.directory?(metrics_dir)
+
+    puts "Extracting metrics data from: #{metrics_dir}"
+    puts
+
+    # TODO: process other service files
+    extract_puppetserver_metrics(metrics_dir)
+  end
+
+  # Processes the files in the 'puppetserver' service directory:
+  # - extracts the JSON parameters
+  # - creates the output CSV file
+  # - creates the averages CSV file
+  # - converts the CSV files to HTML for use in reports
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] metrics_dir The 'puppet-metrics-collector' directory
+  #
+  # @return [void]
+  #
+  # @example
+  #   extract_puppetserver_metrics(metrics_dir)
+  #
+  # TODO: refactor to be generic
+  def extract_puppetserver_metrics(metrics_dir)
+    puppetserver_dir = "#{metrics_dir}/puppetserver"
+    raise "Directory not found: #{puppetserver_dir}" unless File.directory?(puppetserver_dir)
+
+    puts
+    puts "Extracting puppetserver data from: #{metrics_dir}/puppetserver"
+    puts
+
+    puppetserver_files = Dir.glob "#{metrics_dir}/puppetserver/**/*.json"
+    raise "No JSON files found: #{puppetserver_dir}" if puppetserver_files.nil? || puppetserver_files.empty?
+
+    csv_path = "#{metrics_dir}/../puppetserver.csv"
+    CSV.open(csv_path, "wb") do |csv|
+      csv << ["timestamp", "static compile (mean)", "average borrow time", "num free jrubies"]
+
+      puppetserver_files.each do |file|
+        puppetserver_metrics = extract_puppetserver_metrics_from_json(file)
+        csv << puppetserver_metrics unless puppetserver_metrics.nil?
+      end
+    end
+
+    average_csv(csv_path, true)
+    csv2html(csv_path)
+    csv2html(csv_path.gsub(".csv", ".average.csv"))
+  end
+
+  # Processes the specified JSON file in the 'puppetserver' service directory
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] file The JSON file to process
+  #
+  # @return [Array] The parameters array / csv row
+  #
+  # @example
+  #   extract_puppetserver_metrics_from_json(file)
+  #
+  # rubocop:disable Metrics/LineLength
+  def extract_puppetserver_metrics_from_json(file)
+    raise "The specified file was not found: #{file}" unless File.exist?(file)
+
+    puts "Processing file: #{file}"
+    row = nil
+
+    contents = File.read(file)
+    json = JSON.parse(contents)
+
+    begin
+      timestamp = json["timestamp"]
+
+      # catalog (ignore metrics without catalog metrics)
+      # TODO: if this is an issue, investigate alternatives to handling averages
+      # TODO: update to use dig, handle multiple puppetservers (https://tickets.puppetlabs.com/browse/SLV-569)
+      catalog_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-puppet-profiler"]["status"]["experimental"]["catalog-metrics"]
+
+      # catalog
+      static_compile_mean = catalog_metrics[0]["mean"]
+
+      # jruby
+      pe_jruby_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-jruby-metrics"]["status"]["experimental"]["metrics"]
+      average_borrow_time = pe_jruby_metrics["average-borrow-time"]
+      num_free_jrubies = pe_jruby_metrics["num-free-jrubies"]
+      row = [timestamp, static_compile_mean, average_borrow_time, num_free_jrubies]
+    rescue StandardError
+      puts "JSON does not contain catalog metrics; ignoring..."
+      puts
+    end
+
+    row
+  end
+  # rubocop:enable Metrics/LineLength
 end

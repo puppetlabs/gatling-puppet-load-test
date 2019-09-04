@@ -431,7 +431,7 @@ end
 desc 'Generate HTML table from results CSV files'
 task :autoscale_csv2html do
   scale_results_dir = File.realpath("results/scale/latest")
-  scale_results_csv2html(scale_results_dir)
+  csv2html_directory(scale_results_dir)
 end
 
 # TODO: determine optimal instance types and volume sizes

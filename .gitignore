@@ -33,3 +33,6 @@ results
 
 # simplecov
 coverage
+
+# Build artifacts
+build

@@ -539,3 +539,50 @@ namespace :git do
     end
   end
 end
+
+namespace :pe_xl do
+  # Set location for artifacts
+  BUILD_DIR = File.join(File.expand_path(File.dirname(__FILE__)), "build", "pe_xl")
+
+  desc "Delete pe_xl local file artifacts"
+  task :clean do
+    puts "Removing pe_xl file artifacts"
+    rm_rf BUILD_DIR
+  end
+
+  desc "Delete pe_xl_plan_result"
+  task :clean_plan_result do
+    puts "Removing pe_xl_plan_result file"
+    rm "#{BUILD_DIR}/pe_xl_plan_result"
+  end
+
+  file "#{BUILD_DIR}/params.json" do
+    puts "Provisioning nodes for pe_xl"
+    raise KeyError, 'key not found: "BEAKER_PE_VER"' unless ENV["BEAKER_PE_VER"].is_a? String
+    mkdir_p BUILD_DIR
+    system "bundle exec ruby util/abs/provision_pe_xl_nodes.rb --output_dir #{BUILD_DIR} --pe_version #{ENV['BEAKER_PE_VER']}"
+  end
+
+  desc "Provision pe_xl nodes"
+  task :provision =>  "#{BUILD_DIR}/params.json" do
+  end
+
+  file "#{BUILD_DIR}/pe_xl_plan_result" do
+    puts "Running bolt plan"
+    system "bolt plan run pe_xl --debug --inventory #{BUILD_DIR}/nodes.yaml --params @#{BUILD_DIR}/params.json"
+    File.write("#{BUILD_DIR}/pe_xl_plan_result", $?)
+  end
+
+  desc "Run pe_xl plan"
+  task :run_plan => ["git:submodules:init", :provision, "#{BUILD_DIR}/pe_xl_plan_result"]  do
+  end
+
+  desc "Re-run pe_xl plan"
+  task :rerun_plan => [:clean_plan_result, "#{BUILD_DIR}/pe_xl_plan_result"]  do
+  end
+
+  desc "Deploy pe_xl arch"
+  task :deploy => [:clean, :provision, :run_plan] do
+    puts "Deploying a pe_xl architecture"
+  end
+end

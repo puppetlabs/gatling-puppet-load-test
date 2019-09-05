@@ -626,7 +626,12 @@ module PerfHelper
       metric.mkdir_p "gatling-puppet-load-test/proxy-recorder"
       scp_to(metric, "proxy-recorder", "gatling-puppet-load-test")
 
+      # ensure puppet installed on metric
+      cmd = frictionless_agent_installer_cmd(metric, {}, "foobar")
+      on(metric, cmd, accept_all_exit_codes: true)
+
       classify_metrics_node_via_nc
+      on(metric, puppet("agent", "-t"), accept_all_exit_codes: true)
     end
   end
 

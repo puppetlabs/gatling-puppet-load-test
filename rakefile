@@ -7,19 +7,26 @@ include AbsHelper
 require './tests/helpers/perf_results_helper'
 include PerfResultsHelper
 
+REF_ARCH_STD, REF_ARCH_LARGE = ["S","L"]
+
 task :default => :performance
 
 desc 'Provision systems using ABS (or use already set ABS_RESOURCE_HOSTS) and then execute beaker performance setup and tests'
 rototiller_task :performance do
+  ENV['REF_ARCH'] ||= REF_ARCH_STD
   if ENV['PUPPET_GATLING_REPORTS_ONLY'] == 'true' && (!ENV['PUPPET_GATLING_REPORTS_TARGET'] || ENV['PUPPET_GATLING_REPORTS_TARGET'] == '')
     abort 'A valid result folder (i.e. PerfTestLarge-1524848074511) must be specified for PUPPET_GATLING_REPORTS_TARGET if PUPPET_GATLING_REPORTS_ONLY=true'
   end
 
-  Rake::Task["performance_provision_with_abs"].execute unless ENV['ABS_RESOURCE_HOSTS'] ||
+  if ENV['REF_ARCH'] == REF_ARCH_LARGE
+    Rake::Task["pe_xl:deploy"].invoke
+  else
+    Rake::Task["performance_provision_with_abs"].execute unless ENV['ABS_RESOURCE_HOSTS'] ||
       (ENV['BEAKER_HOSTS'] &&
           ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/pe-perf-test.cfg' &&
           ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/foss-perf-test.cfg' &&
           ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/opsworks-perf-test.cfg')
+  end
   Rake::Task["performance_without_provision"].execute
   Rake::Task["performance_deprovision_with_abs"].execute unless ENV['BEAKER_PRESERVE_HOSTS'] == 'always' ||
       ((@beaker_cmd.nil? || @beaker_cmd.result.exit_code != 0)&&
@@ -108,6 +115,17 @@ end
 
 desc 'Execute beaker performance setup and tests against existing hosts specified by ABS_RESOURCE_HOSTS env var, intended to be used in CI - use task "performance" for local/dev execution'
 rototiller_task :performance_without_provision do |t|
+  ENV['REF_ARCH'] ||= REF_ARCH_STD
+  if ENV['REF_ARCH'] == REF_ARCH_LARGE
+    generated_hosts = "build/pe_xl/beaker.cfg"
+    unless File.file? ENV['BEAKER_HOSTS'].to_s
+      raise "No valid BEAKER_HOSTS file available" unless File.file? generated_hosts
+      ENV['BEAKER_HOSTS'] = generated_hosts
+    end
+    ENV['BEAKER_INSTALL_TYPE'] = "pe"
+    ENV['BEAKER_OPTIONS_FILE'] = "setup/options/options_pe_xl.rb"
+  end
+
   t.add_env({:name => 'ABS_RESOURCE_HOSTS', :message => 'The string returned from the ABS service describing your hosts'}) if ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/pe-perf-test.cfg' ||
       ENV['BEAKER_HOSTS'] == 'config/beaker_hosts/foss-perf-test.cfg'
   t.add_env({:name => 'ENVIRONMENT_TYPE', :message => 'Either gatling or clamps', :default => 'gatling'})

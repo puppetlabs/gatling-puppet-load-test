@@ -441,6 +441,8 @@ module PerfResultsHelper
       line_ct += 1
 
       output_path = output_path_detail if line_ct > 3
+      line.rstrip!
+      next if line.empty?
 
       File.open(output_path, "a") do |f|
         f.puts line

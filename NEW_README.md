@@ -130,18 +130,19 @@ This is translated to the `termination_date` tag specified by ABS for the EC2 in
 The Terminator component of the Reaper runs periodically to ensure that all EC2 instances are terminated if they are past their `termination_date`.
 
 * In order to use an AWS account with access to
-puppetlabs network resources, you need to use
-[ABS](https://github.com/puppetlabs/always-be-scheduling).
-The `performance` task will automatically use ABS to provision two AWS
-instances ('master' and 'metrics') and then execute tests against those
-instances.
+  puppetlabs network resources, you need to use
+  [ABS](https://github.com/puppetlabs/always-be-scheduling).
+  The `performance` task will automatically use ABS to provision two AWS
+  instances ('master' and 'metrics') and then execute tests against those
+  instances.
 
 * ABS requires a token when making requests. See the
-[Token operations](https://github.com/puppetlabs/always-be-scheduling#token-operations)
-section of the ABS README file for instructions to generate a token.
-Once generated, either set the `ABS_TOKEN` environment variable with your token
-or add it to the .fog file in your home directory using the abs_token
-parameter. For example:
+  [Token operations](https://github.com/puppetlabs/always-be-scheduling#token-operations)
+  section of the
+  [ABS README](https://github.com/puppetlabs/always-be-scheduling/blob/master/README.md)
+  for instructions to generate a token.  Once generated, either set the
+  `ABS_TOKEN` environment variable with your token or add it to the .fog file in
+  your home directory using the abs_token parameter. For example:
 
 ```
 :default:

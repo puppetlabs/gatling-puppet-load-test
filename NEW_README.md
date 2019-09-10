@@ -78,6 +78,12 @@ the `BEAKER_PE_DIR`.
 `BEAKER_PE_DIR`
 : Path or URL where PE builds are stored for the `BEAKER_PE_VER`.
 
+`PACKAGE_BUILD_VERSION`
+: Puppet Server build version to install (FOSS only).
+
+`PUPPET_AGENT_VERSION`
+: Puppet Agent build version to install (FOSS only).
+
 
 It can be helpful to use an env file to manage these environment variables. The file
 [config/env/env_setup_2019.0.1](config/env/env_setup_2019.0.1) is provided as an example.

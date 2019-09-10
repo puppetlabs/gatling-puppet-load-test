@@ -219,7 +219,7 @@ gather the baseline data.  See
 : Provisions, installs, and runs apples to apples test.
 
 `performance_against_already_provisioned`
-: Run tests against an existing set of hosts This task is only intended to be
+: Run tests against an existing set of hosts.  This task is only intended to be
 run against the very latest set of provisioned hosts.
 
 `performance_deprovision_with_abs`
@@ -271,13 +271,18 @@ The soak performance test executes a long-running scenario under medium load:
 * 600 agents
 * `role::by_size::large`
 
-A set of 'soak' rake tasks are provided to handle setup and test execution, allowing nodes to be provisioned as part of the run or as a separate step.
-The pre-suite includes tuning of the master via 'puppet infrastructure tune'.
+A set of soak rake tasks are provided to handle setup and test execution,
+allowing nodes to be provisioned as part of the run or as a separate step.  The
+pre-suite includes tuning of the master via `puppet infrastructure tune`.
 
-Note that when using the soak rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete.
+When using the soak rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable
+is always set to `true`, so you will need to de-provision the test nodes with
+the `performance_deprovision_with_abs` when your testing is complete.
 
-To ensure AWS instances are not terminated before the test completes and post-test steps are performed the soak rake task sets the reap time to 30 days via the `ABS_AWS_REAP_DAYS` environment variable.
-This value can be overridden by specifying a different value for the environment variable.
+To ensure AWS instances are not terminated before the test completes and
+post-test steps are performed the soak rake task sets the reap time to 30 days
+via the `ABS_AWS_REAP_DAYS` environment variable.  This value can be overridden
+by specifying a different value for the environment variable.
 
 ### To provision and set up nodes as part of the run:
 
@@ -330,7 +335,7 @@ A set of 'autoscale' rake tasks are provided to handle setup and scale test exec
 The pre-suite has been updated to include tuning of the master via 'puppet infrastructure tune' for scale tests so this is no longer a manual step.
 As with the other test types, nodes can be provisioned as part of the run or as a separate step.
 
-Note that when using the autoscale rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete.
+When using the autoscale rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete.
 
 #### To provision nodes as part of the run:
 
@@ -423,7 +428,7 @@ If you want to push the metrics to BigQuery at the end of the test run set:
 
 By default this will be set to `false` when running locally and `true` when jobs run in CI.
 
-to the version of PE you want to compare against.
+To perform a comparison, set `BASELINE_PE_VER` to the version of PE you want to compare against.
 
 Things to note:
 
@@ -507,8 +512,10 @@ Assuming that you ran the performance task with no tests, you can follow the dir
 For the following steps, GatlingClassName is the value entered into the ClassName field during the recording step.
 From root of the gatling-puppet-load-test source dir on the Gatling driver (metrics):
 
-* First time only:
-    * edit /usr/share/sbt/conf/sbtopts and change '-mem' to 2048 (and uncomment)
+* First time only: edit /usr/share/sbt/conf/sbtopts ensure '-mem' set to 2048
+```
+sed -i 's/^#.*-mem.*$/-mem 2048/' /usr/share/sbt/conf/sbtopts
+```
 
 * For each new simulation:
     * `cd ~/gatling-puppet-load-test/simulation-runner`
@@ -527,7 +534,8 @@ From root of the gatling-puppet-load-test source dir on the Gatling driver (metr
 * Gatling results, including HTML visualizations show up in the directory: gatling-puppet-load-test/simulation-runner/results/\<GatlingClassName>-\<epoch_time>/
     * scp them locally and you can view them in your browser.
 
-* atop files containing cpu, mem, disk and network usage overall and broken down per process are available to view on the mom: atop -r /var/log/atop/atop\_\<date>
+* atop files containing cpu, mem, disk and network usage overall and broken down per process are available to view on the master
+    * `atop -r /var/log/atop/atop\_\<date>`
     * See the atop man file for interactive commands
 
 

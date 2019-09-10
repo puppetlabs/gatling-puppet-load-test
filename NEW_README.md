@@ -162,32 +162,81 @@ For more detailed information, please refer to the
 
 ## Apples to Apples performance tests
 
-By default, the `performance` rake task will set up a puppet master and a Gatling driver/metrics node.
-It will then kick off a Gatling scenario defined for apples to apples performance tests.
-At the end of the run, the Gatling results and atop results will be copied back to the test runner.
+By default, the `performance` rake task will set up a puppet master and a
+Gatling driver/metrics node.  It will then kick off a Gatling scenario defined
+for apples to apples performance tests.  At the end of the run, the Gatling
+results and atop results will be copied back to the test runner.
 
-* For apples to apples runs, you can use the checked-in hosts files: [pe-perf-test.cfg](config/beaker_hosts/pe-perf-test.cfg) or [foss-perf-test.cfg](config/beaker_hosts/foss-perf-test.cfg). These are the defaults for the performance rake task based on the specified `BEAKER_INSTALL_TYPE` (pe or foss).
 
-* To run additional tests against an existing set of hosts, run the `performance_against_already_provisioned` task. This task is only intended to be run against the very latest set of provisioned hosts.
+### Basic usage
+You can use the checked-in hosts files
+[pe-perf-test.cfg](config/beaker_hosts/pe-perf-test.cfg) or
+[foss-perf-test.cfg](config/beaker_hosts/foss-perf-test.cfg).  These are the
+defaults for the performance rake task based on the specified
+`BEAKER_INSTALL_TYPE` (pe or foss).
 
-* If the hosts are preserved via Beaker's `preserve_hosts` setting, then you will need to manually execute the `performance_deprovision_with_abs` rake task when you are done with the hosts.
 
-* For a run against a PE build set `BEAKER_INSTALL_TYPE=pe` and provide values for `BEAKER_PE_VER` and `BEAKER_PE_DIR` environment variables.
 
-* For a run against a FOSS build set `BEAKER_INSTALL_TYPE=foss` and provide values for `PACKAGE_BUILD_VERSION` and `PUPPET_AGENT_VERSION` environment variables
+#### PE
+When testing a PE build, set `BEAKER_INSTALL_TYPE=pe` and provide values for
+`BEAKER_PE_VER` and `BEAKER_PE_DIR` environment variables.
 
-* If you want to do something custom (which should not normally be necessary), create a beaker config file using one of the configs in [config/beaker_hosts](config/beaker_hosts) as a template.
-
-    *  export `BEAKER_HOSTS=\<your beaker_hosts file>`
-
-* In order to have a baseline comparison performed at the end of the test run
-  set `BASELINE_PE_VER` and `GOOGLE_APPLICATION_CREDENTIALS` in order to
-  gather the baseline data.  See
-  [BigQuery Data Comparisons](#bigquery-data-comparisons) for details.
-
-* Execute
+Example run
 ```
-    bundle exec rake performance_gatling    # (takes about 4 hours)
+export BEAKER_INSTALL_TYPE=pe
+export BEAKER_PE_VER=2019.1.0
+export BEAKER_PE_DIR=http://enterprise.delivery.puppetlabs.net/archives/releases/2019.1.0
+export BASELINE_PE_VER=2018.1.9
+export GOOGLE_APPLICATION_CREDENTIALS=mysecret.json  # location of your google json key file
+
+bundle exec rake performance    # (takes about 4 hours)
+```
+
+
+#### FOSS
+When testing a FOSS build, set `BEAKER_INSTALL_TYPE=foss` and provide values
+for `PACKAGE_BUILD_VERSION` and `PUPPET_AGENT_VERSION` environment variables.
+
+Example run
+```
+export BEAKER_INSTALL_TYPE=foss
+export PACKAGE_BUILD_VERSION=6.3.0
+export PUPPET_AGENT_VERSION=6.4.2
+
+bundle exec rake performance    # (takes about 4 hours)
+```
+
+### Baseline comparison
+In order to have a baseline comparison performed at the end of the test run
+set `BASELINE_PE_VER` and `GOOGLE_APPLICATION_CREDENTIALS` in order to
+gather the baseline data.  See
+[BigQuery Data Comparisons](#bigquery-data-comparisons) for details.
+
+
+### Rake tasks
+
+`performance`
+: Provisions, installs, and runs apples to apples test.
+
+`performance_against_already_provisioned`
+: Run tests against an existing set of hosts This task is only intended to be
+run against the very latest set of provisioned hosts.
+
+`performance_deprovision_with_abs`
+: Destroy ABS hosts.  If the hosts are preserved via Beaker's `preserve_hosts`
+setting, then you will need run this task when you are done with the hosts.
+
+
+### Custom Beaker Configuration
+If deployments provided for the **Standard Reference Architecture** and **Large
+Reference Architecture** do not meet your needs, create a beaker config file
+using one of the configs in [config/beaker_hosts](config/beaker_hosts) as a
+template.  Your custom beaker configuration will be used by the
+`performance_against_already_provisioned` task if it is available as an
+environment variable.
+
+```
+export BEAKER_HOSTS=<your beaker_hosts file>
 ```
 
 

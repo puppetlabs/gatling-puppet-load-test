@@ -58,6 +58,15 @@ outlined below.
 The following environment variables are largely common to the rake tasks shown
 below.  They are as follows.
 
+`REF_ARCH`
+_(S, L)_ : The desired architecture to be provisioned.  The default is `S`
+which designates a
+[Standard Reference Architecture](https://puppet.com/docs/pe/latest/choosing_an_architecture.html#monolithic-installation).
+Setting this variable to `L` will enable provisioning a
+[Large Reference Architecture](https://github.com/reidmv/reidmv-pe_xl/blob/master/documentation/large_deploy.md).
+The **Large Reference Architecture** is only supported for a PE installation
+and should not be used when deploying a FOSS installation.
+
 `BEAKER_INSTALL_TYPE`
 _(git, foss, pe)_ : Determines the underlying path structure of the
 puppet install.

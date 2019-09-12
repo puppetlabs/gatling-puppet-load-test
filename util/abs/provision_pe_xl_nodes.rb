@@ -266,8 +266,7 @@ def create_nodes_yaml(hosts, output_dir)
 
   output_path = "#{File.expand_path(output_dir)}/nodes.yaml"
 
-  data["groups"][0]["nodes"] = hosts.map { |h| h[:hostname] }
-  data["groups"][0]["roles"] = hosts.map { |h| h[:role].ljust(15) + h[:hostname] }
+  data["groups"][0]["nodes"] = hosts.map { |h| { "name" => h[:hostname], "alias" => h[:role] } }
 
   puts "Writing #{output_path}"
   puts

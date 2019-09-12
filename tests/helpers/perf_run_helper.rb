@@ -819,7 +819,11 @@ module PerfRunHelper
   end
 
   def get_perf_result
-    perf = stop_monitoring(master, "/opt/puppetlabs")
+    # This is a bit of a hack.  Because beaker benchmark isn't quoting the string passed in
+    # we can pass in the -E to which will get picked up by the grep command it is using.
+    # That makes the regular expression work.
+    # Also filed SLV-586 to fix beaker benchmark
+    perf = stop_monitoring(master, "-E '/opt/puppetlabs|puma.*/etc/puppetlabs'")
     if perf
       perf.log_summary
       # Write summary results to log so it can be archived
@@ -917,8 +921,14 @@ module PerfRunHelper
   def get_process_hash(perf_result_processes)
     process_hash = {}
     perf_result_processes.keys.each do |key|
-      # All of the puppet processes we care about are jars
-      process_match = perf_result_processes[key][:cmd].match(%r{.*/([a-z,\-]*)\.jar})
+      # Most of the puppet processes we care about are jars
+      # Some are puma servers
+      full_cmd = perf_result_processes[key][:cmd]
+      process_match = if full_cmd.match(/puma /)
+                        full_cmd.match(%r{.*cert=/etc/puppetlabs/([a-z,\-]*)/ssl})
+                      else
+                        full_cmd.match(%r{.*/([a-z,\-]*)\.jar})
+                      end
       next if process_match.nil?
 
       process_name = process_match[1]
@@ -935,6 +945,8 @@ module PerfRunHelper
     else
       # compare results created in this run with latest baseline run
       sql = "SELECT avg_cpu, avg_mem, avg_disk_write, avg_response_time, " \
+            "process_bolt_server_avg_cpu, process_bolt_server_avg_mem, " \
+            "process_ace_server_avg_cpu, process_ace_server_avg_mem, " \
             "process_puppetdb_avg_cpu, process_puppetdb_avg_mem, " \
             "process_console_services_release_avg_cpu, process_console_services_release_avg_mem, " \
             "process_orchestration_services_release_avg_cpu, process_orchestration_services_release_avg_mem, " \

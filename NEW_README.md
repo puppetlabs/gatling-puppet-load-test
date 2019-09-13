@@ -38,9 +38,9 @@ requirements installed.
 * [Bundler](https://bundler.io/)
 * [OpenJDK](https://openjdk.java.net/)
 
-**NOTE:** These tasks run for several hours. It is not recommended to run them
-directly from a workstation. You should use a dedicated VM instance to control
-these tasks.
+> **NOTE:** These tasks run for several hours. It is not recommended to run
+> them directly from a workstation. You should use a dedicated VM instance to
+> control these tasks.
 
 ### Environment setup
 
@@ -78,6 +78,12 @@ the `BEAKER_PE_DIR`.
 `BEAKER_PE_DIR`
 : Path or URL where PE builds are stored for the `BEAKER_PE_VER`.
 
+`PACKAGE_BUILD_VERSION`
+: Puppet Server build version to install (FOSS only).
+
+`PUPPET_AGENT_VERSION`
+: Puppet Agent build version to install (FOSS only).
+
 
 It can be helpful to use an env file to manage these environment variables. The file
 [config/env/env_setup_2019.0.1](config/env/env_setup_2019.0.1) is provided as an example.
@@ -105,11 +111,15 @@ your `$HOME/.fog` file.  Here is an example: _FIXME: Reference fog website._
 
 ##### ABS (Always Be Scheduling)
 
-**NOTE: This facility is not publicly available and can only be used by
-personnel employed by Puppet the company.**
+> **NOTE:** This facility is not publicly available and can only be used by
+>personnel employed by Puppet the company.
 
-**NOTE:** AWS instances provided by ABS are automatically destroyed after 24 hours by the [AWS EC2 Reaper](https://github.com/puppetlabs/aws_resource_reaper/tree/master/lambdas/ec2#aws-ec2-reaper).
-The lifetime of these instances can be set to an alternative value by setting the desired lifetime with the `ABS_AWS_REAP_TIME` environment variable in seconds.
+> **NOTE:** AWS instances provided by ABS are automatically destroyed after 24
+> hours by the
+> [AWS EC2 Reaper](https://github.com/puppetlabs/aws_resource_reaper/tree/master/lambdas/ec2#aws-ec2-reaper).
+> The lifetime of these instances can be set to an alternative value by setting
+> the desired lifetime with the `ABS_AWS_REAP_TIME` environment variable in
+> seconds.
 
 Alternatively, the lifetime can be specified in days via the `ABS_AWS_REAP_DAYS` environment variable.
 Setting this variable will override any value set for the `ABS_AWS_REAP_TIME` environment variable.
@@ -120,18 +130,19 @@ This is translated to the `termination_date` tag specified by ABS for the EC2 in
 The Terminator component of the Reaper runs periodically to ensure that all EC2 instances are terminated if they are past their `termination_date`.
 
 * In order to use an AWS account with access to
-puppetlabs network resources, you need to use
-[ABS](https://github.com/puppetlabs/always-be-scheduling).
-The `performance` task will automatically use ABS to provision two AWS
-instances ('master' and 'metrics') and then execute tests against those
-instances.
+  puppetlabs network resources, you need to use
+  [ABS](https://github.com/puppetlabs/always-be-scheduling).
+  The `performance` task will automatically use ABS to provision two AWS
+  instances ('master' and 'metrics') and then execute tests against those
+  instances.
 
 * ABS requires a token when making requests. See the
-[Token operations](https://github.com/puppetlabs/always-be-scheduling#token-operations)
-section of the ABS README file for instructions to generate a token.
-Once generated, either set the `ABS_TOKEN` environment variable with your token
-or add it to the .fog file in your home directory using the abs_token
-parameter. For example:
+  [Token operations](https://github.com/puppetlabs/always-be-scheduling#token-operations)
+  section of the
+  [ABS README](https://github.com/puppetlabs/always-be-scheduling/blob/master/README.md)
+  for instructions to generate a token.  Once generated, either set the
+  `ABS_TOKEN` environment variable with your token or add it to the .fog file in
+  your home directory using the abs_token parameter. For example:
 
 ```
 :default:
@@ -151,32 +162,81 @@ For more detailed information, please refer to the
 
 ## Apples to Apples performance tests
 
-By default, the `performance` rake task will set up a puppet master and a Gatling driver/metrics node.
-It will then kick off a Gatling scenario defined for apples to apples performance tests.
-At the end of the run, the Gatling results and atop results will be copied back to the test runner.
+By default, the `performance` rake task will set up a puppet master and a
+Gatling driver/metrics node.  It will then kick off a Gatling scenario defined
+for apples to apples performance tests.  At the end of the run, the Gatling
+results and atop results will be copied back to the test runner.
 
-* For apples to apples runs, you can use the checked-in hosts files: [pe-perf-test.cfg](config/beaker_hosts/pe-perf-test.cfg) or [foss-perf-test.cfg](config/beaker_hosts/foss-perf-test.cfg). These are the defaults for the performance rake task based on the specified `BEAKER_INSTALL_TYPE` (pe or foss).
 
-* To run additional tests against an existing set of hosts, run the `performance_against_already_provisioned` task. This task is only intended to be run against the very latest set of provisioned hosts.
+### Basic usage
+You can use the checked-in hosts files
+[pe-perf-test.cfg](config/beaker_hosts/pe-perf-test.cfg) or
+[foss-perf-test.cfg](config/beaker_hosts/foss-perf-test.cfg).  These are the
+defaults for the performance rake task based on the specified
+`BEAKER_INSTALL_TYPE` (pe or foss).
 
-* If the hosts are preserved via Beaker's `preserve_hosts` setting, then you will need to manually execute the `performance_deprovision_with_abs` rake task when you are done with the hosts.
 
-* For a run against a PE build set `BEAKER_INSTALL_TYPE=pe` and provide values for `BEAKER_PE_VER` and `BEAKER_PE_DIR` environment variables.
 
-* For a run against a FOSS build set `BEAKER_INSTALL_TYPE=foss` and provide values for `PACKAGE_BUILD_VERSION` and `PUPPET_AGENT_VERSION` environment variables
+#### PE
+When testing a PE build, set `BEAKER_INSTALL_TYPE=pe` and provide values for
+`BEAKER_PE_VER` and `BEAKER_PE_DIR` environment variables.
 
-* If you want to do something custom (which should not normally be necessary), create a beaker config file using one of the configs in [config/beaker_hosts](config/beaker_hosts) as a template.
-
-    *  export `BEAKER_HOSTS=\<your beaker_hosts file>`
-
-* In order to have a baseline comparison performed at the end of the test run
-  set `BASELINE_PE_VER` and `GOOGLE_APPLICATION_CREDENTIALS` in order to
-  gather the baseline data.  See
-  [BigQuery Data Comparisons](#bigquery-data-comparisons) for details.
-
-* Execute
+Example run
 ```
-    bundle exec rake performance_gatling    # (takes about 4 hours)
+export BEAKER_INSTALL_TYPE=pe
+export BEAKER_PE_VER=2019.1.0
+export BEAKER_PE_DIR=http://enterprise.delivery.puppetlabs.net/archives/releases/2019.1.0
+export BASELINE_PE_VER=2018.1.9
+export GOOGLE_APPLICATION_CREDENTIALS=mysecret.json  # location of your google json key file
+
+bundle exec rake performance    # (takes about 4 hours)
+```
+
+
+#### FOSS
+When testing a FOSS build, set `BEAKER_INSTALL_TYPE=foss` and provide values
+for `PACKAGE_BUILD_VERSION` and `PUPPET_AGENT_VERSION` environment variables.
+
+Example run
+```
+export BEAKER_INSTALL_TYPE=foss
+export PACKAGE_BUILD_VERSION=6.3.0
+export PUPPET_AGENT_VERSION=6.4.2
+
+bundle exec rake performance    # (takes about 4 hours)
+```
+
+### Baseline comparison
+In order to have a baseline comparison performed at the end of the test run
+set `BASELINE_PE_VER` and `GOOGLE_APPLICATION_CREDENTIALS` in order to
+gather the baseline data.  See
+[BigQuery Data Comparisons](#bigquery-data-comparisons) for details.
+
+
+### Rake tasks
+
+`performance`
+: Provisions, installs, and runs apples to apples test.
+
+`performance_against_already_provisioned`
+: Run tests against an existing set of hosts.  This task is only intended to be
+run against the very latest set of provisioned hosts.
+
+`performance_deprovision_with_abs`
+: Destroy ABS hosts.  If the hosts are preserved via Beaker's `preserve_hosts`
+setting, then you will need run this task when you are done with the hosts.
+
+
+### Custom Beaker Configuration
+If deployments provided for the **Standard Reference Architecture** and **Large
+Reference Architecture** do not meet your needs, create a beaker config file
+using one of the configs in [config/beaker_hosts](config/beaker_hosts) as a
+template.  Your custom beaker configuration will be used by the
+`performance_against_already_provisioned` task if it is available as an
+environment variable.
+
+```
+export BEAKER_HOSTS=<your beaker_hosts file>
 ```
 
 
@@ -211,13 +271,18 @@ The soak performance test executes a long-running scenario under medium load:
 * 600 agents
 * `role::by_size::large`
 
-A set of 'soak' rake tasks are provided to handle setup and test execution, allowing nodes to be provisioned as part of the run or as a separate step.
-The pre-suite includes tuning of the master via 'puppet infrastructure tune'.
+A set of soak rake tasks are provided to handle setup and test execution,
+allowing nodes to be provisioned as part of the run or as a separate step.  The
+pre-suite includes tuning of the master via `puppet infrastructure tune`.
 
-Note that when using the soak rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete.
+When using the soak rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable
+is always set to `true`, so you will need to de-provision the test nodes with
+the `performance_deprovision_with_abs` when your testing is complete.
 
-To ensure AWS instances are not terminated before the test completes and post-test steps are performed the soak rake task sets the reap time to 30 days via the `ABS_AWS_REAP_DAYS` environment variable.
-This value can be overridden by specifying a different value for the environment variable.
+To ensure AWS instances are not terminated before the test completes and
+post-test steps are performed the soak rake task sets the reap time to 30 days
+via the `ABS_AWS_REAP_DAYS` environment variable.  This value can be overridden
+by specifying a different value for the environment variable.
 
 ### To provision and set up nodes as part of the run:
 
@@ -270,7 +335,7 @@ A set of 'autoscale' rake tasks are provided to handle setup and scale test exec
 The pre-suite has been updated to include tuning of the master via 'puppet infrastructure tune' for scale tests so this is no longer a manual step.
 As with the other test types, nodes can be provisioned as part of the run or as a separate step.
 
-Note that when using the autoscale rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete.
+When using the autoscale rake tasks the `BEAKER_PRESERVE_HOSTS` environment variable is always set to 'true', so you will need to de-provision the test nodes with the `performance_deprovision_with_abs` when your testing is complete.
 
 #### To provision nodes as part of the run:
 
@@ -363,7 +428,7 @@ If you want to push the metrics to BigQuery at the end of the test run set:
 
 By default this will be set to `false` when running locally and `true` when jobs run in CI.
 
-to the version of PE you want to compare against.
+To perform a comparison, set `BASELINE_PE_VER` to the version of PE you want to compare against.
 
 Things to note:
 
@@ -447,8 +512,10 @@ Assuming that you ran the performance task with no tests, you can follow the dir
 For the following steps, GatlingClassName is the value entered into the ClassName field during the recording step.
 From root of the gatling-puppet-load-test source dir on the Gatling driver (metrics):
 
-* First time only:
-    * edit /usr/share/sbt/conf/sbtopts and change '-mem' to 2048 (and uncomment)
+* First time only: edit /usr/share/sbt/conf/sbtopts ensure '-mem' set to 2048
+```
+sed -i 's/^#.*-mem.*$/-mem 2048/' /usr/share/sbt/conf/sbtopts
+```
 
 * For each new simulation:
     * `cd ~/gatling-puppet-load-test/simulation-runner`
@@ -467,7 +534,8 @@ From root of the gatling-puppet-load-test source dir on the Gatling driver (metr
 * Gatling results, including HTML visualizations show up in the directory: gatling-puppet-load-test/simulation-runner/results/\<GatlingClassName>-\<epoch_time>/
     * scp them locally and you can view them in your browser.
 
-* atop files containing cpu, mem, disk and network usage overall and broken down per process are available to view on the mom: atop -r /var/log/atop/atop\_\<date>
+* atop files containing cpu, mem, disk and network usage overall and broken down per process are available to view on the master
+    * `atop -r /var/log/atop/atop\_\<date>`
     * See the atop man file for interactive commands
 
 

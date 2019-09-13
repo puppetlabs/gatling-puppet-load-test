@@ -27,6 +27,7 @@ DESCRIPTION = <<~DESCRIPTION
   EC2 hosts are provisioned for the following roles:
   * Core roles:
    - metrics
+   - loadbalancer
    - master
    - puppet_db (for xl)
    - compiler_a
@@ -113,6 +114,7 @@ end.parse!
 raise "Large ref_arch doesn't currently support HA" if options[:ref_arch] == REF_ARCH_TYPES[:large] && options[:ha]
 
 ROLES_CORE = %w[metrics
+                loadbalancer
                 master
                 compiler_a
                 compiler_b].freeze
@@ -398,6 +400,7 @@ def create_beaker_config(hosts, output_dir)
                       "puppet_db_replica" => "database",
                       "compiler_a"        => "compile_master",
                       "compiler_b"        => "compile_master",
+                      "loadbalancer"      => "loadbalancer",
                       "metrics"           => "metric" }
 
   beaker_roles = beaker_role_map.keys

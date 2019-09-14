@@ -228,9 +228,9 @@ describe PerfResultsHelper do
   describe "#csv2html" do
     context "when the specified file is a valid CSV file" do
       it "writes the file with the expected filename" do
-        pending "Csv fixture fails encoding validation"
         expected_html_path = "#{TEST_VALID_CSV_PATH}.html"
         expected_html = File.read(expected_html_path)
+        expect(subject).to receive(:validate_csv).with(TEST_VALID_CSV_PATH).and_return(true)
         expect(File).to receive(:write).with(expected_html_path, expected_html)
 
         subject.csv2html(TEST_VALID_CSV_PATH)
@@ -287,7 +287,8 @@ describe PerfResultsHelper do
 
     context "when the specified file is a valid CSV file" do
       it "returns true" do
-        pending "Csv fixture fails encoding validation"
+        pending "FIXME: Resolve csvlint / rspec issue"
+
         expect(subject.validate_csv(TEST_VALID_CSV_PATH)).to eq(true)
       end
     end
@@ -370,16 +371,30 @@ describe PerfResultsHelper do
   end
 
   describe "#extract_puppet_metrics_collector_data" do
-    context "when the specified directory does not exist" do
+    context "when the specified path is neither a tar file or directory" do
       it "raises an error with a message indicating the invalid argument" do
         expect(File).to receive(:directory?).with(PUPPET_METRICS_FIXTURES_DIR).and_return(false)
+        expect(File).to receive(:extname).with(PUPPET_METRICS_FIXTURES_DIR).and_return(".notgz")
+
         expect { subject.extract_puppet_metrics_collector_data(PUPPET_METRICS_FIXTURES_DIR) }
           .to raise_error(RuntimeError, /#{Regexp.escape(PUPPET_METRICS_FIXTURES_DIR)}/)
       end
     end
 
-    context "when the specified directory exists" do
-      it "calls process_puppetserver_files" do
+    context "when the specified path is a tar file" do
+      it "extracts the tar file and uses the extracted puppet_metrics_collector directory" do
+        tar_file = "#{PERF_RESULTS_FIXTURES_DIR}/puppet_metrics_collector.tar.gz"
+        command = "tar xfz #{tar_file}"
+        metrics_dir = "#{PERF_RESULTS_FIXTURES_DIR}/puppet_metrics_collector"
+
+        expect(subject).to receive(:`).with(command)
+        expect(subject).to receive(:extract_puppetserver_metrics).with(metrics_dir)
+        subject.extract_puppet_metrics_collector_data(tar_file)
+      end
+    end
+
+    context "when the specified path is a directory" do
+      it "uses the specified directory" do
         expect(subject).to receive(:extract_puppetserver_metrics).with(PUPPET_METRICS_FIXTURES_DIR)
         subject.extract_puppet_metrics_collector_data(PUPPET_METRICS_FIXTURES_DIR)
       end

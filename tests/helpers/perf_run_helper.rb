@@ -184,10 +184,6 @@ module PerfRunHelper
       puts "Iteration #{ct} of #{@scale_scenarios.length}"
       puts
 
-      # TODO: remove after SLV-430
-      # purge the metrics collector output and restart the service
-      purge_puppet_metrics_collector
-
       # don't restart puppetserver for warm-start scenarios
       if ENV["PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER"].eql?("false")
         puts "PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER is set to false..."
@@ -354,28 +350,6 @@ module PerfRunHelper
     puts
 
     output
-  end
-
-  # Purge the puppet-metrics-collector log files for each service
-  #
-  # @author Bill Claytor
-  #
-  # @return [void]
-  #
-  # @example
-  #   purge_puppet_metrics_collector
-  #
-  # TODO: remove after SLV-430
-  #
-  def purge_puppet_metrics_collector
-    puts "Purging puppet_metrics_collector..."
-    puts
-
-    PUPPET_METRICS_COLLECTOR_SERVICES.each do |service|
-      dir = "/opt/puppetlabs/puppet-metrics-collector/#{service}"
-      command = "find #{dir} -type f -delete"
-      on master, command
-    end
   end
 
   # Copy the puppet-metrics-collector log files for each service
@@ -575,14 +549,6 @@ module PerfRunHelper
 
     # copy current tune settings
     FileUtils.copy_file "#{@archive_root}/#{CURRENT_TUNE_SETTINGS}", "#{scale_result_dir}/#{CURRENT_TUNE_SETTINGS}"
-
-    ### TODO: remove once this is handled for all test types
-
-    # copy puppet-metrics-collector to iteration result dir
-    copy_puppet_metrics_collector(scale_result_dir)
-
-    # copy puppet-metrics-collector to parent results dir
-    copy_puppet_metrics_collector(scale_results_parent_dir)
   end
 
   # Process the scale results for the current iteration, update the CSV file, fail if KOs are found
@@ -832,6 +798,8 @@ module PerfRunHelper
       # extract the Gatling results data into a CSV file
       gatling2csv(gatling_json_results_dir)
     end
+
+    # grab puppet-metrics-collector data for the run
     scp_to(master, "util/metrics/collect_metrics_files.rb", "/root/collect_metrics_files.rb")
     start_epoch = File.read("#{@archive_root}/start_epoch")
     end_epoch = File.read("#{@archive_root}/end_epoch")
@@ -841,6 +809,10 @@ module PerfRunHelper
                  .output
     filename = cmf_output.match(/\w+-\w+.tar.gz/)[0].to_s
     scp_from(master, "/root/#{filename}", "#{@archive_root}/")
+
+    # extract metrics for comparison
+    extract_puppet_metrics_collector_data("#{@archive_root}/#{filename}")
+
     [perf, GatlingResult.new(gatling_assertions, mean_response_time)]
   end
 

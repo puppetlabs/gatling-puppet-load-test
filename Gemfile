@@ -9,9 +9,7 @@ gem "beaker-benchmark", "~>0.0"
 gem "beaker-pe", "~>2.0"
 gem "beaker-pe-large-environments", "~>0.3"
 gem "beaker-puppet", "~>1.0"
-
-# we need to update to ruby 2.4.4 to use 0.4.0
-gem "csvlint", "~> 0.3.3"
+gem "csvlint", "~> 0.4.0"
 gem "master_manipulator", "~>2.1"
 gem "parallel", "~>1.6"
 gem "rototiller", "~>1.0"

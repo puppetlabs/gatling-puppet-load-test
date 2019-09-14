@@ -2,6 +2,7 @@
 
 require "csv"
 require "csvlint"
+require "json"
 
 # Helper module for the generation of HTML reports from CSV data
 # TODO: add spec tests
@@ -50,6 +51,12 @@ module PerfResultsHelper
     </html>
 
   CSV_HTML_END
+
+  PMC_ROW_HEADINGS = ["file",
+                      "timestamp",
+                      "static compile (mean)",
+                      "average borrow time",
+                      "num free jrubies"].freeze
 
   # Extract Gatling JSON data into a CSV file in the format used in our release test reports
   # and convert the CSV file to an HTML file for easy viewing
@@ -191,7 +198,12 @@ module PerfResultsHelper
     raise "No CSV files found in directory: #{dir}" if files.empty?
 
     files.each do |file|
-      csv2html(file)
+      begin
+        csv2html(file)
+      rescue StandardError
+        puts "Invalid CSV file: #{file}"
+        puts
+      end
     end
   end
 
@@ -282,17 +294,17 @@ module PerfResultsHelper
   # @author Bill Claytor
   #
   # @param [String] data_csv_path The path to the CSV file
-  # @param [Boolean] skip_first_column Optionally skip the first column (timestamp, label, etc...)
+  # @param [Integer] start_column The column index to start computing averages
   #
   # @return [void]
   #
   # @example
   #   average_csv(data_csv_path)
-  #   average_csv(data_csv_path, true)
+  #   average_csv(data_csv_path, 1)
   #
   # TODO: error handling, spec test
   #
-  def average_csv(data_csv_path, skip_first_column = false)
+  def average_csv(data_csv_path, start_column = 0)
     validate_csv(data_csv_path)
 
     puts "Reading CSV file: #{data_csv_path}"
@@ -301,43 +313,37 @@ module PerfResultsHelper
 
     raise "The specified CSV file contains no data: #{data_csv_path}" unless num_rows > 1
 
-    if skip_first_column
-      puts "skipping column 0..."
-      start_column = 1
-      averages_row = ["N/A"]
-    else
-      start_column = 0
-      averages_row = []
-    end
-
+    headings_row = []
+    averages_row = []
     average_csv_path = data_csv_path.gsub(".csv", ".average.csv")
 
-    CSV.open(average_csv_path.to_s, "wb") do |average_csv|
-      # headings
-      average_csv << data_csv[0]
+    # headings
+    (start_column..(data_csv[0].length - 1)).each do |col_index|
+      headings_row << data_csv[0][col_index]
+    end
 
-      # average each column
-      (start_column..(data_csv[0].length - 1)).each do |col_index|
-        puts "column: #{col_index}"
+    # average each column
+    (start_column..(data_csv[0].length - 1)).each do |col_index|
+      total = 0
 
-        total = 0
-
-        # add each row
-        (1..data_csv.length - 1).each do |row_ct|
-          value = data_csv[row_ct][col_index].to_f
-          total += value
-        end
-
-        # only average if the total is > 0
-        average = if total.positive?
-                    total / num_rows
-                  else
-                    0
-                  end
-
-        averages_row << average.round(2)
+      # add each row
+      (1..data_csv.length - 1).each do |row_ct|
+        value = data_csv[row_ct][col_index].to_f
+        total += value
       end
 
+      # only average if the total is > 0 (TODO: ?)
+      average = if total.positive?
+                  total / num_rows
+                else
+                  0
+                end
+
+      averages_row << average.round(2)
+    end
+
+    CSV.open(average_csv_path.to_s, "wb") do |average_csv|
+      average_csv << headings_row
       average_csv << averages_row
     end
   end
@@ -603,8 +609,33 @@ module PerfResultsHelper
   # @example
   #   extract_puppet_metrics_collector_data(metrics_dir)
   #
-  def extract_puppet_metrics_collector_data(metrics_dir)
-    raise "Directory not found: #{metrics_dir}" unless File.directory?(metrics_dir)
+  def extract_puppet_metrics_collector_data(metrics_dir_or_tar_file)
+    if !File.directory?(metrics_dir_or_tar_file)
+
+      extension = File.extname(metrics_dir_or_tar_file)
+      error_msg = "Specified path must be either a directory or tar file: #{metrics_dir_or_tar_file}"
+      raise error_msg unless extension == ".gz"
+
+      # change to the directory
+      original_dir = Dir.pwd
+      tar_file_dir = File.dirname(metrics_dir_or_tar_file)
+      Dir.chdir tar_file_dir
+
+      # extract
+      puts "Extracting tar file: #{metrics_dir_or_tar_file}"
+      command = "tar xfz #{metrics_dir_or_tar_file}"
+      `#{command}`
+
+      # change back to the original working directory
+      Dir.chdir original_dir
+
+      # TODO: update to 'puppet-metrics-collector' when collect_metrics_files.rb has been updated
+      metrics_dir = "#{tar_file_dir}/puppet_metrics_collector"
+
+    else
+      metrics_dir = metrics_dir_or_tar_file
+
+    end
 
     puts "Extracting metrics data from: #{metrics_dir}"
     puts
@@ -637,20 +668,20 @@ module PerfResultsHelper
     puts "Extracting puppetserver data from: #{metrics_dir}/puppetserver"
     puts
 
-    puppetserver_files = Dir.glob "#{metrics_dir}/puppetserver/**/*.json"
+    puppetserver_files = Dir.glob("#{metrics_dir}/puppetserver/**/*.json")
     raise "No JSON files found: #{puppetserver_dir}" if puppetserver_files.nil? || puppetserver_files.empty?
 
     csv_path = "#{metrics_dir}/../puppetserver.csv"
     CSV.open(csv_path, "wb") do |csv|
-      csv << ["timestamp", "static compile (mean)", "average borrow time", "num free jrubies"]
+      csv << PMC_ROW_HEADINGS
 
-      puppetserver_files.each do |file|
+      puppetserver_files.sort.each do |file|
         puppetserver_metrics = extract_puppetserver_metrics_from_json(file)
         csv << puppetserver_metrics unless puppetserver_metrics.nil?
       end
     end
 
-    average_csv(csv_path, true)
+    average_csv(csv_path, 2)
     csv2html(csv_path)
     csv2html(csv_path.gsub(".csv", ".average.csv"))
   end
@@ -680,7 +711,7 @@ module PerfResultsHelper
       timestamp = json["timestamp"]
 
       # catalog (ignore metrics without catalog metrics)
-      # TODO: if this is an issue, investigate alternatives to handling averages
+      # TODO: investigate alternatives to handling averages
       # TODO: update to use dig, handle multiple puppetservers (https://tickets.puppetlabs.com/browse/SLV-569)
       catalog_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-puppet-profiler"]["status"]["experimental"]["catalog-metrics"]
 
@@ -691,7 +722,8 @@ module PerfResultsHelper
       pe_jruby_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-jruby-metrics"]["status"]["experimental"]["metrics"]
       average_borrow_time = pe_jruby_metrics["average-borrow-time"]
       num_free_jrubies = pe_jruby_metrics["num-free-jrubies"]
-      row = [timestamp, static_compile_mean, average_borrow_time, num_free_jrubies]
+
+      row = [File.basename(file), timestamp, static_compile_mean, average_borrow_time, num_free_jrubies]
     rescue StandardError
       puts "JSON does not contain catalog metrics; ignoring..."
       puts

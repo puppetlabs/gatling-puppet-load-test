@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+MAX_AGENT_RUNS = 5
+
 test_name "Run puppet infrastructure tune" do # rubocop:disable Metrics/BlockLength
   def puppet_infrastructure_tune
     base_tune_command = "puppet infrastructure tune"
@@ -43,11 +45,15 @@ test_name "Run puppet infrastructure tune" do # rubocop:disable Metrics/BlockLen
     ].join(" ")
     on master, commit
 
-    begin
-      on master, "puppet agent -t"
-    rescue StandardError
-      puts "Expected non-zero exit code, running again..."
-      on master, "puppet agent -t"
+    (1..MAX_AGENT_RUNS).each do |ct|
+      begin
+        on master, "puppet agent -t"
+        break
+      rescue StandardError
+        raise "Max number of agent re-runs exceeded" unless ct <= MAX_AGENT_RUNS
+
+        puts "Expected non-zero exit code, running again..."
+      end
     end
 
     # output current tune

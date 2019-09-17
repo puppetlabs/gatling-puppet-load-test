@@ -31,16 +31,6 @@ TEST_HTML_TABLE = <<-TEST_HTML_TABLE
       <td>2</td>
       <td>3</td>
     </tr>
-    <tr>
-      <td>4</td>
-      <td>5</td>
-      <td>6</td>
-    </tr>
-    <tr>
-      <td>7</td>
-      <td>8</td>
-      <td>9</td>
-    </tr>
   </table>
 TEST_HTML_TABLE
 
@@ -192,6 +182,7 @@ describe PerfResultsHelper do
     end
   end
 
+  # TODO: complete
   describe "#csv2html_directory" do
     context "when the specified directory does not exist" do
       it "raises an error with a message indicating the invalid argument" do
@@ -210,10 +201,12 @@ describe PerfResultsHelper do
     end
 
     context "when CSV files are found" do
-      it "calls csv2html for each file" do
+      it "calls csv2html for each CSV file" do
         test_dir = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html"
         files = %W[#{test_dir}/01.csv
                    #{test_dir}/02.csv
+                   #{test_dir}/invalid_columns.csv
+                   #{test_dir}/invalid_one_row.csv
                    #{test_dir}/test/03.csv]
 
         files.each do |file|
@@ -221,6 +214,10 @@ describe PerfResultsHelper do
         end
 
         subject.csv2html_directory(test_dir)
+      end
+
+      # TODO: implement
+      it "suppresses errors raised by csv2html" do
       end
     end
   end
@@ -272,13 +269,31 @@ describe PerfResultsHelper do
         expect(File).to receive(:exist?).with(TEST_VALID_CSV_PATH).and_return(false)
 
         expect { subject.validate_csv(TEST_VALID_CSV_PATH) }
-          .to raise_error(RuntimeError, /#{Regexp.escape(TEST_VALID_CSV_PATH)}/)
+          .to raise_error(RuntimeError, /File not found: #{Regexp.escape(TEST_VALID_CSV_PATH)}/)
       end
     end
 
-    context "when the specified file is not a valid CSV file" do
+    context "when the specified file is not a CSV file" do
       it "raises an error" do
-        invalid_csv = "#{FIXTURES_DIR}/csv2html/not_a_valid_csv.txt"
+        file = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html/not_a_csv.txt"
+
+        expect { subject.validate_csv(file) }
+          .to raise_error(RuntimeError, /Not a CSV file: #{Regexp.escape(file)}/)
+      end
+    end
+
+    context "when the specified file only contains one row" do
+      it "raises an error" do
+        invalid_csv = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html/invalid_one_row.csv"
+
+        expect { subject.validate_csv(invalid_csv) }
+          .to raise_error(RuntimeError, /#{Regexp.escape(invalid_csv)}/)
+      end
+    end
+
+    context "when the specified file contains a row with an invalid number of columns" do
+      it "raises an error" do
+        invalid_csv = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html/invalid_columns.csv"
 
         expect { subject.validate_csv(invalid_csv) }
           .to raise_error(RuntimeError, /#{Regexp.escape(invalid_csv)}/)
@@ -287,8 +302,6 @@ describe PerfResultsHelper do
 
     context "when the specified file is a valid CSV file" do
       it "returns true" do
-        pending "FIXME: Resolve csvlint / rspec issue"
-
         expect(subject.validate_csv(TEST_VALID_CSV_PATH)).to eq(true)
       end
     end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "csv"
-require "csvlint"
 require "json"
 
 # Helper module for the generation of HTML reports from CSV data
@@ -365,15 +364,23 @@ module PerfResultsHelper
   def validate_csv(csv_path)
     raise "File not found: #{csv_path}" unless File.exist?(csv_path)
 
-    validator = Csvlint::Validator.new(File.new(csv_path))
+    raise "Not a CSV file: #{csv_path}" unless File.extname(csv_path).eql?(".csv")
 
-    # invoke the validation
-    validator.validate
+    csv_data = CSV.read(csv_path)
+
+    # validate
+    valid = true
+    valid = false unless csv_data.length >= 2
+    num_headings = csv_data[0].length
+    (1..csv_data.length - 1).each do |ct|
+      num_columns = csv_data[ct].length
+      valid = false unless num_columns == num_headings
+    end
 
     # check validation status
-    raise "Invalid CSV file: #{csv_path}" unless validator.valid?
+    raise "Invalid CSV file: #{csv_path}" unless valid
 
-    validator.valid?
+    valid
   end
 
   # Extract the HTML table from the csv2html output

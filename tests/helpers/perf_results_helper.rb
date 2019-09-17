@@ -630,7 +630,7 @@ module PerfResultsHelper
 
       # extract
       puts "Extracting tar file: #{metrics_dir_or_tar_file}"
-      command = "tar xfz #{metrics_dir_or_tar_file}"
+      command = "tar xfz #{File.basename(metrics_dir_or_tar_file)}"
       `#{command}`
 
       # change back to the original working directory

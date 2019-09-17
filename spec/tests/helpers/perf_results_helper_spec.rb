@@ -396,13 +396,14 @@ describe PerfResultsHelper do
 
     context "when the specified path is a tar file" do
       it "extracts the tar file and uses the extracted puppet_metrics_collector directory" do
-        tar_file = "#{PERF_RESULTS_FIXTURES_DIR}/puppet_metrics_collector.tar.gz"
+        tar_file = "puppet_metrics_collector.tar.gz"
+        tar_path = "#{PERF_RESULTS_FIXTURES_DIR}/#{tar_file}"
         command = "tar xfz #{tar_file}"
         metrics_dir = "#{PERF_RESULTS_FIXTURES_DIR}/puppet_metrics_collector"
 
         expect(subject).to receive(:`).with(command)
         expect(subject).to receive(:extract_puppetserver_metrics).with(metrics_dir)
-        subject.extract_puppet_metrics_collector_data(tar_file)
+        subject.extract_puppet_metrics_collector_data(tar_path)
       end
     end
 

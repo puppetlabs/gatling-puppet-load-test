@@ -549,8 +549,9 @@ module PerfRunHelper
 
     # copy puppet-metrics-collector to scale results dir (this iteration) and parent dir (entire scale run)
     # TODO: rename dir to 'puppet-metrics-collector'
-    FileUtils.copy_entry "#{@archive_root}/puppet_metrics_collector", "#{scale_result_dir}/puppet_metrics_collector"
-    FileUtils.copy_entry "#{@archive_root}/puppet_metrics_collector", "#{scale_results_parent_dir}/puppet_metrics_collector"
+    src = "#{@archive_root}/puppet_metrics_collector"
+    FileUtils.copy_entry src, "#{scale_result_dir}/puppet_metrics_collector"
+    FileUtils.copy_entry src, "#{scale_results_parent_dir}/puppet_metrics_collector"
 
     # copy epoch files
     # TODO: update to include in the bulk copy below when these have an extension

@@ -547,8 +547,20 @@ module PerfRunHelper
     FileUtils.copy_file global_stats_path, "#{json_dir}/#{scenario.gsub('.json', 'global_stats.json')}"
     FileUtils.copy_file stats_path, "#{json_dir}/#{scenario.gsub('.json', 'stats.json')}"
 
-    # copy current tune settings
-    FileUtils.copy_file "#{@archive_root}/#{CURRENT_TUNE_SETTINGS}", "#{scale_result_dir}/#{CURRENT_TUNE_SETTINGS}"
+    # copy puppet-metrics-collector
+    # TODO: rename dir to 'puppet-metrics-collector'
+    FileUtils.copy_entry "#{@archive_root}/puppet_metrics_collector", "#{scale_result_dir}/puppet_metrics_collector"
+
+    # copy epoch files
+    # TODO: update to include in copy below when these have an extension
+    FileUtils.copy_file "#{@archive_root}/start_epoch", "#{scale_result_dir}/start_epoch"
+    FileUtils.copy_file "#{@archive_root}/end_epoch", "#{scale_result_dir}/end_epoch"
+
+    # copy any csv/html/json/tar.gz/txt files
+    res_files = Dir.glob("#{@archive_root}/*.{csv,html,json,tar.gz,txt}")
+    res_files.each do |file|
+      FileUtils.copy_file file, "#{scale_result_dir}/#{File.basename(file)}"
+    end
   end
 
   # Process the scale results for the current iteration, update the CSV file, fail if KOs are found

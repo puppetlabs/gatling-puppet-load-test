@@ -2,8 +2,6 @@
 
 require "spec_helper"
 
-TEST_TIME_NOW = Time.now
-
 FIXTURES_DIR = "spec/fixtures"
 PERF_RESULTS_FIXTURES_DIR = "#{FIXTURES_DIR}/perf_results_helper"
 PUPPET_METRICS_FIXTURES_DIR = "#{FIXTURES_DIR}/puppet-metrics-collector"
@@ -11,6 +9,8 @@ PUPPET_METRICS_FIXTURES_DIR = "#{FIXTURES_DIR}/puppet-metrics-collector"
 TEST_METRICS_RESULTS_DIR = "#{PERF_RESULTS_FIXTURES_DIR}/scale/PERF_SCALE_12345/Scale_12345_1_1500/metric"
 TEST_METRICS_RESULTS_NAME = File.basename(TEST_METRICS_RESULTS_DIR)
 TEST_STATS_PATH = "#{TEST_METRICS_RESULTS_DIR}/js/stats.json"
+TEST_INVALID_STATS_PATH = "#{TEST_METRICS_RESULTS_DIR}/js/invalid_stats.json"
+TEST_INVALID_STATS_MISSING_NAME = "node"
 TEST_STATS_NUMBER_OF_KEYS = 6
 
 TEST_VALID_CSV_HEADINGS_PATH = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html/headings_row.csv"
@@ -49,10 +49,6 @@ describe PerfResultsHelper do
 
   # TODO: complete
   describe "#gatling2csv" do
-    before do
-      allow(subject).to receive(:puts)
-    end
-
     context "when called specifying an invalid results_dir" do
       it "raises an error with a message indicating the invalid argument" do
         expect(File).to receive(:directory?).with(TEST_METRICS_RESULTS_DIR).and_return(false)
@@ -150,7 +146,6 @@ describe PerfResultsHelper do
     context "when the 'contents' element of the 'group' node is empty" do
       it "raises an error" do
         test_group_node = { "contents" => "" }
-
         expect { subject.gatling_json_stats_group_node_contents(test_group_node) }
           .to raise_error(RuntimeError)
       end
@@ -159,25 +154,24 @@ describe PerfResultsHelper do
     context "when the 'contents' element of the 'group' node has no keys" do
       it "raises an error" do
         test_group_node = { "contents" => {} }
-
         expect { subject.gatling_json_stats_group_node_contents(test_group_node) }
           .to raise_error(RuntimeError)
       end
     end
 
-    context "when the 'contents' element of the 'group' node has at least one key" do
-      it "returns the contents" do
+    context "when the 'contents' element of the 'group' node does not include the expected keys" do
+      it "raises an error" do
+        test_group_node = subject.gatling_json_stats_group_node(TEST_INVALID_STATS_PATH)
+        expect { subject.gatling_json_stats_group_node_contents(test_group_node) }
+          .to raise_error(RuntimeError, /#{TEST_INVALID_STATS_MISSING_NAME}/)
+      end
+    end
+
+    context "when the 'contents' element of the 'group' node has the expected keys" do
+      it "returns the expected contents" do
         group_node = subject.gatling_json_stats_group_node(TEST_STATS_PATH)
         contents = subject.gatling_json_stats_group_node_contents(group_node)
         expect(contents).to eq(group_node["contents"])
-      end
-
-      it "includes all of the keys" do
-        group_node = subject.gatling_json_stats_group_node(TEST_STATS_PATH)
-        expect(subject).to receive(:puts).with("There are #{TEST_STATS_NUMBER_OF_KEYS} keys")
-
-        expect(subject).to receive(:puts).with(/key/).exactly(TEST_STATS_NUMBER_OF_KEYS).times
-        subject.gatling_json_stats_group_node_contents(group_node)
       end
     end
   end

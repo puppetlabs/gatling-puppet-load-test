@@ -57,6 +57,13 @@ module PerfResultsHelper
                       "average borrow time",
                       "num free jrubies"].freeze
 
+  STATS_JSON_STAT_NAMES = ["node",
+                           "filemeta pluginfacts",
+                           "filemeta plugins",
+                           "locales",
+                           "catalog",
+                           "report"].freeze
+
   # Extract Gatling JSON data into a CSV file in the format used in our release test reports
   # and convert the CSV file to an HTML file for easy viewing
   #
@@ -147,7 +154,7 @@ module PerfResultsHelper
   #
   # @author Bill Claytor
   #
-  # @param [JSON] The group node
+  # @param [JSON] group_node The group node
   #
   # @raise [StandardError] If the group node does not contain contents with more than one key
   #
@@ -159,18 +166,19 @@ module PerfResultsHelper
   def gatling_json_stats_group_node_contents(group_node)
     contents = group_node["contents"]
 
-    if contents.nil? || contents.empty? || contents.keys.empty?
-      raise "The 'contents' element of the 'group' node must have at least one key"
+    if contents.nil? || contents.empty? || contents.keys.empty? || contents.keys.length < STATS_JSON_STAT_NAMES.length
+      raise "The 'contents' element of the 'group' node must have at least #{STATS_JSON_STAT_NAMES.length} keys"
     end
 
-    # TODO: verify each key
-    # TODO: unit test to ensure data validity
-    puts "There are #{contents.keys.length} keys"
-    puts
-
+    # build an array of the stat names to compare with the expected names
+    contents_stat_names = []
     (0..contents.keys.length - 1).each do |i|
-      name = contents[contents.keys[i]]["name"]
-      puts "key #{i}: #{name}"
+      contents_stat_names << contents[contents.keys[i]]["name"]
+    end
+
+    # check each expected stat name
+    STATS_JSON_STAT_NAMES.each do |name|
+      raise "Stat name '#{name}' not found" unless contents_stat_names.include?(name)
     end
 
     contents

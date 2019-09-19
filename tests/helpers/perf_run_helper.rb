@@ -804,13 +804,29 @@ module PerfRunHelper
       perf.log_summary
       # Write summary results to log so it can be archived
       perf.log_csv
-      copy_archive_files
 
-      # split the atop CSV file into separate files for the summary and detail sections
-      split_atop_csv_results(atop_csv)
+      # TODO: tar archive file before copying to avoid timeouts with soak results
+      begin
+        copy_archive_files
+      rescue StandardError => e
+        puts "Error encountered copying archive files:"
+        puts e.message
+        puts
+      end
 
-      # extract the Gatling results data into a CSV file
-      gatling2csv(gatling_json_results_dir)
+      # issues processing these files should not interrupt the run
+      begin
+        # split the atop CSV file into separate files for the summary and detail sections
+        split_atop_csv_results(atop_csv)
+
+        # extract the Gatling results data into a CSV file
+        gatling2csv(gatling_json_results_dir)
+      rescue StandardError => e
+        puts "Error encountered processing results files:"
+        puts e.message
+        puts
+      end
+
     end
 
     # grab puppet-metrics-collector data for the run

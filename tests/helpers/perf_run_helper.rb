@@ -594,66 +594,73 @@ module PerfRunHelper
     puts "Checking stats in: #{js_dir}"
     puts
 
-    # global stats
-    global_stats_path = "#{js_dir}/global_stats.json"
-    global_stats_file = File.read(global_stats_path)
-    global_stats_json = JSON.parse(global_stats_file)
+    # TODO: extract to perf_results_helper (possibly just use gatling2csv)
+    begin
+      # global stats
+      global_stats_path = "#{js_dir}/global_stats.json"
+      global_stats_file = File.read(global_stats_path)
+      global_stats_json = JSON.parse(global_stats_file)
 
-    # check the results for KOs (TODO: needed or just use assertion?)
-    num_total = global_stats_json["numberOfRequests"]["total"]
-    num_ok = global_stats_json["numberOfRequests"]["ok"]
-    num_ko = global_stats_json["numberOfRequests"]["ko"]
-    puts "Number of requests:"
-    puts "total: #{num_total}"
-    puts "ok: #{num_ok}"
-    puts "ko: #{num_ko}"
-    puts
+      # check the results for KOs (TODO: needed or just use assertion?)
+      num_total = global_stats_json["numberOfRequests"]["total"]
+      num_ok = global_stats_json["numberOfRequests"]["ok"]
+      num_ko = global_stats_json["numberOfRequests"]["ko"]
+      puts "Number of requests:"
+      puts "total: #{num_total}"
+      puts "ok: #{num_ok}"
+      puts "ko: #{num_ko}"
+      puts
 
-    # stats
-    stats_path = "#{js_dir}/stats.json"
-    stats_file = File.read(stats_path)
-    stats_json = JSON.parse(stats_file)
+      # stats
+      stats_path = "#{js_dir}/stats.json"
+      stats_file = File.read(stats_path)
+      stats_json = JSON.parse(stats_file)
 
-    # the 'group' name will be something like 'group_nooptestwithout-9eb19'
-    group_keys = stats_json["contents"].keys.select { |key| key.to_s.match(/group/) }
-    group_node = stats_json["contents"][group_keys[0]]
+      # the 'group' name will be something like 'group_nooptestwithout-9eb19'
+      group_keys = stats_json["contents"].keys.select { |key| key.to_s.match(/group/) }
+      group_node = stats_json["contents"][group_keys[0]]
 
-    # totals row is in the 'stats' node
-    totals = group_node["stats"]
+      # totals row is in the 'stats' node
+      totals = group_node["stats"]
 
-    # transaction rows are in the 'contents' node
-    contents = group_node["contents"]
+      # transaction rows are in the 'contents' node
+      contents = group_node["contents"]
 
-    # get each category
-    node = contents[contents.keys[0]]["stats"]
-    filemeta_pluginfacts = contents[contents.keys[1]]["stats"]
-    filemeta_plugins = contents[contents.keys[2]]["stats"]
-    locales = contents[contents.keys[3]]["stats"]
-    catalog = contents[contents.keys[4]]["stats"]
-    report = contents[contents.keys[5]]["stats"]
+      # get each category
+      node = contents[contents.keys[0]]["stats"]
+      filemeta_pluginfacts = contents[contents.keys[1]]["stats"]
+      filemeta_plugins = contents[contents.keys[2]]["stats"]
+      locales = contents[contents.keys[3]]["stats"]
+      catalog = contents[contents.keys[4]]["stats"]
+      report = contents[contents.keys[5]]["stats"]
 
-    # get atop results
-    # get_scale_atop_results
-    atop_csv_path = "#{perf_scale_iteration_dir}/master/atop_log_#{scenario.downcase.gsub('.json', '_json')}.csv"
-    atop_csv_data = CSV.read(atop_csv_path)
+      # get atop results
+      # get_scale_atop_results
+      atop_csv_path = "#{perf_scale_iteration_dir}/master/atop_log_#{scenario.downcase.gsub('.json', '_json')}.csv"
+      atop_csv_data = CSV.read(atop_csv_path)
 
-    # results for csv
-    results = []
-    results << scale_scenario_instances
-    results << totals["numberOfRequests"]["ok"]
-    results << totals["numberOfRequests"]["ko"]
-    results << totals["meanResponseTime"]["total"]
-    results << catalog["meanResponseTime"]["total"]
-    results << filemeta_plugins["meanResponseTime"]["total"]
-    results << filemeta_pluginfacts["meanResponseTime"]["total"]
-    results << locales["meanResponseTime"]["total"]
-    results << node["meanResponseTime"]["total"]
-    results << report["meanResponseTime"]["total"]
-    results << atop_csv_data[1][2] # average CPU TODO: verify from atop
-    results << atop_csv_data[1][3] # average memory TODO: verify from atop
+      # results for csv
+      results = []
+      results << scale_scenario_instances
+      results << totals["numberOfRequests"]["ok"]
+      results << totals["numberOfRequests"]["ko"]
+      results << totals["meanResponseTime"]["total"]
+      results << catalog["meanResponseTime"]["total"]
+      results << filemeta_plugins["meanResponseTime"]["total"]
+      results << filemeta_pluginfacts["meanResponseTime"]["total"]
+      results << locales["meanResponseTime"]["total"]
+      results << node["meanResponseTime"]["total"]
+      results << report["meanResponseTime"]["total"]
+      results << atop_csv_data[1][2] # average CPU TODO: verify from atop
+      results << atop_csv_data[1][3] # average memory TODO: verify from atop
 
-    # add this row to the csv
-    update_scale_results_csv(scale_results_parent_dir, results)
+      # add this row to the csv
+      update_scale_results_csv(scale_results_parent_dir, results)
+    rescue StandardError => e
+      puts "Error encountered processing results files:"
+      puts e.message
+      puts
+    end
 
     # allow no more than SCALE_MAX_ALLOWED_KO KOs per iteration; this needs to be last
     if num_ko > SCALE_MAX_ALLOWED_KO

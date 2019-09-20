@@ -847,8 +847,14 @@ module PerfRunHelper
     filename = cmf_output.match(/\w+-\w+.tar.gz/)[0].to_s
     scp_from(master, "/root/#{filename}", "#{@archive_root}/")
 
-    # extract metrics for comparison
-    extract_puppet_metrics_collector_data("#{@archive_root}/#{filename}")
+    # extract metrics for comparison (errors should not interrupt the run)
+    begin
+      extract_puppet_metrics_collector_data("#{@archive_root}/#{filename}")
+    rescue StandardError => e
+      puts "Error encountered processing puppet-metrics-collector files:"
+      puts e.message
+      puts
+    end
 
     [perf, GatlingResult.new(gatling_assertions, mean_response_time)]
   end

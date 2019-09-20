@@ -378,13 +378,19 @@ describe PerfResultsHelper do
   end
 
   describe "#extract_puppet_metrics_collector_data" do
+    context "when the specified file does not exist" do
+      it "raises an error" do
+        test_path = "/not/a/valid/path"
+        expect { subject.extract_puppet_metrics_collector_data(test_path) }
+          .to raise_error(RuntimeError, /File not found: #{Regexp.escape(test_path)}/)
+      end
+    end
+
     context "when the specified path is neither a tar file or directory" do
       it "raises an error with a message indicating the invalid argument" do
-        expect(File).to receive(:directory?).with(PUPPET_METRICS_FIXTURES_DIR).and_return(false)
-        expect(File).to receive(:extname).with(PUPPET_METRICS_FIXTURES_DIR).and_return(".notgz")
-
-        expect { subject.extract_puppet_metrics_collector_data(PUPPET_METRICS_FIXTURES_DIR) }
-          .to raise_error(RuntimeError, /#{Regexp.escape(PUPPET_METRICS_FIXTURES_DIR)}/)
+        test_path = "#{PERF_RESULTS_FIXTURES_DIR}/not_a_real_tar_file.txt.tar.gz"
+        expect { subject.extract_puppet_metrics_collector_data(test_path) }
+          .to raise_error(RuntimeError, /#{Regexp.escape(test_path)}/)
       end
     end
 
@@ -392,11 +398,11 @@ describe PerfResultsHelper do
       it "extracts the tar file and uses the extracted puppet_metrics_collector directory" do
         tar_file = "puppet_metrics_collector.tar.gz"
         tar_path = "#{PERF_RESULTS_FIXTURES_DIR}/#{tar_file}"
-        command = "tar xfz #{tar_file}"
-        metrics_dir = "#{PERF_RESULTS_FIXTURES_DIR}/puppet_metrics_collector"
+        puppet_metrics_dir_name = PerfResultsHelper::PUPPET_METRICS_COLLECTOR_DIR_NAME
+        puppet_metrics_dir = "#{PERF_RESULTS_FIXTURES_DIR}/#{puppet_metrics_dir_name}"
 
-        expect(subject).to receive(:`).with(command)
-        expect(subject).to receive(:extract_puppetserver_metrics).with(metrics_dir)
+        expect(subject).to receive(:extract_tarball).with(tar_path)
+        expect(subject).to receive(:extract_puppetserver_metrics).with(puppet_metrics_dir)
         subject.extract_puppet_metrics_collector_data(tar_path)
       end
     end
@@ -405,6 +411,15 @@ describe PerfResultsHelper do
       it "uses the specified directory" do
         expect(subject).to receive(:extract_puppetserver_metrics).with(PUPPET_METRICS_FIXTURES_DIR)
         subject.extract_puppet_metrics_collector_data(PUPPET_METRICS_FIXTURES_DIR)
+      end
+    end
+  end
+
+  # TODO: implement
+  describe "#extract_tarball" do
+    context "when ..." do
+      it "does ..." do
+        # expect(Archive::Tar::Minitar).to receive(:unpack).with(tar_path, PERF_RESULTS_FIXTURES_DIR)
       end
     end
   end

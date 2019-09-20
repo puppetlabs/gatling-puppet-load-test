@@ -45,16 +45,12 @@ test_name "Run puppet infrastructure tune" do # rubocop:disable Metrics/BlockLen
     ].join(" ")
     on master, commit
 
-    (1..MAX_AGENT_RUNS).each do |ct|
-      begin
-        on master, "puppet agent -t"
-        break
-      rescue StandardError
-        raise "Max number of agent re-runs exceeded" unless ct <= MAX_AGENT_RUNS
+    # re-run the agent up to MAX_AGENT_RUNS attempts
+    retry_params = { max_retries: MAX_AGENT_RUNS,
+                     retry_interval: 2,
+                     desired_exit_codes: [0] }
 
-        puts "Expected non-zero exit code, running again..."
-      end
-    end
+    retry_on(master, puppet("agent", "-t"), retry_params)
 
     # output current tune
     puts "Checking current tune:"

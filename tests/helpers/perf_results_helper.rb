@@ -2,6 +2,8 @@
 
 require "csv"
 require "json"
+require "minitar"
+require "zlib"
 
 # Helper module for the generation of HTML reports from CSV data
 # TODO: add spec tests
@@ -63,6 +65,9 @@ module PerfResultsHelper
                            "locales",
                            "catalog",
                            "report"].freeze
+
+  # TODO: update to 'puppet-metrics-collector' (SLV-589)
+  PUPPET_METRICS_COLLECTOR_DIR_NAME = "puppet_metrics_collector"
 
   # Extract Gatling JSON data into a CSV file in the format used in our release test reports
   # and convert the CSV file to an HTML file for easy viewing
@@ -617,46 +622,52 @@ module PerfResultsHelper
   #
   # @author Bill Claytor
   #
-  # @param [String] metrics_dir The 'puppet-metrics-collector' directory
+  # @param [String] metrics_dir_or_tar_file The 'puppet-metrics-collector' directory or tar file
   #
   # @return [void]
   #
   # @example
-  #   extract_puppet_metrics_collector_data(metrics_dir)
+  #   extract_puppet_metrics_collector_data(metrics_dir_or_tar_file)
   #
   def extract_puppet_metrics_collector_data(metrics_dir_or_tar_file)
-    if !File.directory?(metrics_dir_or_tar_file)
+    raise "File not found: #{metrics_dir_or_tar_file}" unless File.exist?(metrics_dir_or_tar_file)
 
-      extension = File.extname(metrics_dir_or_tar_file)
-      error_msg = "Specified path must be either a directory or tar file: #{metrics_dir_or_tar_file}"
-      raise error_msg unless extension == ".gz"
-
-      # change to the directory
-      original_dir = Dir.pwd
-      tar_file_dir = File.dirname(metrics_dir_or_tar_file)
-      Dir.chdir tar_file_dir
-
-      # extract
-      puts "Extracting tar file: #{metrics_dir_or_tar_file}"
-      command = "tar xfz #{File.basename(metrics_dir_or_tar_file)}"
-      `#{command}`
-
-      # change back to the original working directory
-      Dir.chdir original_dir
-
-      # TODO: update to 'puppet-metrics-collector' when collect_metrics_files.rb has been updated
-      metrics_dir = "#{tar_file_dir}/puppet_metrics_collector"
-
+    if File.directory?(metrics_dir_or_tar_file)
+      puppet_metrics_dir = metrics_dir_or_tar_file
     else
-      metrics_dir = metrics_dir_or_tar_file
-
+      puts "Specified path is not a directory; verifying file..."
+      parent_dir = File.dirname(metrics_dir_or_tar_file)
+      extract_tarball(metrics_dir_or_tar_file)
+      puppet_metrics_dir = "#{parent_dir}/#{PUPPET_METRICS_COLLECTOR_DIR_NAME}"
     end
 
-    puts "Extracting metrics data from: #{metrics_dir}"
+    puts "Extracting metrics data from: #{puppet_metrics_dir}"
     puts
 
     # TODO: process other service files
-    extract_puppetserver_metrics(metrics_dir)
+    extract_puppetserver_metrics(puppet_metrics_dir)
+  end
+
+  # Extracts the specified tarball to the specified directory
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] src The tarball path
+  # @param [String] dest The destination directory
+  #
+  # @return [void]
+  #
+  # @example
+  #   extract_tarball(src, dest)
+  #
+  def extract_tarball(src, dest = File.dirname(src))
+    options = ["file", "--brief", "--mime-type", src]
+    mime_type = IO.popen(options, in: :close, err: :close).read.chomp
+    error_msg = "Invalid mime type '#{mime_type}' for file: #{src}"
+    raise error_msg unless mime_type.include?("gzip")
+
+    tgz = Zlib::GzipReader.new(File.open(src, "rb"))
+    Archive::Tar::Minitar.unpack(tgz, dest)
   end
 
   # Processes the files in the 'puppetserver' service directory:

@@ -622,7 +622,8 @@ module PerfResultsHelper
   #
   # @author Bill Claytor
   #
-  # @param [String] metrics_dir_or_tar_file The 'puppet-metrics-collector' directory or tar file
+  # @param [String] metrics_dir_or_tar_file The 'puppet-metrics-collector' directory
+  #   or gzipped tar file
   #
   # @return [void]
   #
@@ -637,7 +638,7 @@ module PerfResultsHelper
     else
       puts "Specified path is not a directory; verifying file..."
       parent_dir = File.dirname(metrics_dir_or_tar_file)
-      extract_tarball(metrics_dir_or_tar_file)
+      extract_tgz(metrics_dir_or_tar_file)
       puppet_metrics_dir = "#{parent_dir}/#{PUPPET_METRICS_COLLECTOR_DIR_NAME}"
     end
 
@@ -648,19 +649,19 @@ module PerfResultsHelper
     extract_puppetserver_metrics(puppet_metrics_dir)
   end
 
-  # Extracts the specified tarball to the specified directory
+  # Extracts the specified gzipped tar file to the specified directory
   #
   # @author Bill Claytor
   #
-  # @param [String] src The tarball path
+  # @param [String] src The gzipped tar file path
   # @param [String] dest The destination directory
   #
   # @return [void]
   #
   # @example
-  #   extract_tarball(src, dest)
+  #   extract_tgz(src, dest)
   #
-  def extract_tarball(src, dest = File.dirname(src))
+  def extract_tgz(src, dest = File.dirname(src))
     options = ["file", "--brief", "--mime-type", src]
     mime_type = IO.popen(options, in: :close, err: :close).read.chomp
     error_msg = "Invalid mime type '#{mime_type}' for file: #{src}"

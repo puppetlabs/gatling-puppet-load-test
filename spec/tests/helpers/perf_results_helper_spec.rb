@@ -401,7 +401,7 @@ describe PerfResultsHelper do
         puppet_metrics_dir_name = PerfResultsHelper::PUPPET_METRICS_COLLECTOR_DIR_NAME
         puppet_metrics_dir = "#{PERF_RESULTS_FIXTURES_DIR}/#{puppet_metrics_dir_name}"
 
-        expect(subject).to receive(:extract_tarball).with(tar_path)
+        expect(subject).to receive(:extract_tgz).with(tar_path)
         expect(subject).to receive(:extract_puppetserver_metrics).with(puppet_metrics_dir)
         subject.extract_puppet_metrics_collector_data(tar_path)
       end

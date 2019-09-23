@@ -1,8 +1,8 @@
 # Saving and loading database content
 
-In real world use the databases of a puppet install would already have a lot of data in them.  So accurate performance testing should start with data as well.  But a fresh install doesn't have any old data in the databases.  This doc describes how data can be saved from one install and loaded into another.
+In real world use the databases of a Puppet installation would already have a lot of data in them, so accurate performance testing should start with data as well.  However, a fresh installation doesn't have any old data in the databases.  This document describes how data can be saved from one installation and loaded into another.
 
-There are some catches though.  If you load the data, it will overwrite existing data.  Like any nodes already setup with the install or any classifications.  So it is best to do this as early as possible.  Like if you do it immediately after the master install you can run `puppet infrastructure configure` and it will pick the master back up.  Possibly other infrastructure components as well, I didn't test it.  Otherwise you can run the puppet agent on nodes to get them back into the system.  As for classification, I think you could simply not load the classification db and that might save those.
+However, there are some catches. Loading the data will overwrite existing data, such as any nodes already setup with the install or any classifications, so it is best to do this as early as possible.  When loading the data immediately after the master install running `puppet infrastructure configure` will pick the master back up. Other infrastructure components may be included as well but this has not been tested. Otherwise you can run the puppet agent on nodes to get them back into the system.  As for classification, not loading the classification db might save those.
 
 Also, just loading the data isn't enough. You need to update the timestamps so that garbage collection doesn't just toss out all the data you loaded.  That is covered in the instructions below.
 
@@ -21,19 +21,44 @@ su - pe-postgres -s /bin/bash
 ## Loading DBs
 Logged in as root on the master of the target install
 ```
+#as root
 service pe-puppetdb stop
+service pe-console-services stop
+service pe-puppetserver stop
+service pe-nginx stop
+service pe-orchestration-services stop
+
 su - pe-postgres -s /bin/bash
 #create updatetime.sql with contents shown in next section
-/opt/puppetlabs/server/bin/pg_restore -cd pe-activity /tmp/saveddbs/pe-activity.backup
-/opt/puppetlabs/server/bin/pg_restore -cd pe-rbac /tmp/saveddbs/pe-rbac.backup
-/opt/puppetlabs/server/bin/pg_restore -cd pe-classifier /tmp/saveddbs/pe-classifier.backup
-/opt/puppetlabs/server/bin/pg_restore -cd pe-puppetdb /tmp/saveddbs/pe-puppetdb.backup
-/opt/puppetlabs/server/bin/pg_restore -cd pe-orchestrator /tmp/saveddbs/pe-orchestrator.backup
+/opt/puppetlabs/server/bin/pg_restore -U pe-postgres --if-exists -cCd template1 /tmp/saveddbs/pe-activity.backup
+/opt/puppetlabs/server/bin/pg_restore -U pe-postgres --if-exists -cCd template1 /tmp/saveddbs/pe-rbac.backup
+/opt/puppetlabs/server/bin/pg_restore -U pe-postgres --if-exists -cCd template1 /tmp/saveddbs/pe-classifier.backup
+/opt/puppetlabs/server/bin/pg_restore -U pe-postgres --if-exists -cCd template1 /tmp/saveddbs/pe-orchestrator.backup
+/opt/puppetlabs/server/bin/pg_restore -U pe-postgres --if-exists -cCd template1 /tmp/saveddbs/pe-puppetdb.backup
 
 /opt/puppetlabs/server/bin/psql -d pe-puppetdb -a -f updatetime.sql
 
 exit #to get back to being root
-service pe-puppetdb start # as root
+service pe-console-services start
+service pe-puppetserver start
+service pe-nginx start
+service pe-orchestration-services start
+service pe-puppetdb start
+
+puppet infrastructure configure #to fix master to be back in the database
+puppet agent -t #to ensure everything worked
+```
+
+Expect the pg_restore to generate this output per db
+```
+pg_restore: [archiver (db)] Error while PROCESSING TOC:
+pg_restore: [archiver (db)] Error from TOC entry 4; 2615 2200 SCHEMA public pe-postgres
+pg_restore: [archiver (db)] could not execute query: ERROR:  schema "public" already exists
+    Command was: CREATE SCHEMA public;
+
+
+
+WARNING: errors ignored on restore: 1
 ```
 
 updatetime.sql

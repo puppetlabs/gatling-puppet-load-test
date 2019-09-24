@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require "csv"
-require "csvlint"
+require "json"
+require "minitar"
+require "zlib"
 
 # Helper module for the generation of HTML reports from CSV data
 # TODO: add spec tests
@@ -50,6 +52,22 @@ module PerfResultsHelper
     </html>
 
   CSV_HTML_END
+
+  PMC_ROW_HEADINGS = ["file",
+                      "timestamp",
+                      "static compile (mean)",
+                      "average borrow time",
+                      "num free jrubies"].freeze
+
+  STATS_JSON_STAT_NAMES = ["node",
+                           "filemeta pluginfacts",
+                           "filemeta plugins",
+                           "locales",
+                           "catalog",
+                           "report"].freeze
+
+  # TODO: update to 'puppet-metrics-collector' (SLV-589)
+  PUPPET_METRICS_COLLECTOR_DIR_NAME = "puppet_metrics_collector"
 
   # Extract Gatling JSON data into a CSV file in the format used in our release test reports
   # and convert the CSV file to an HTML file for easy viewing
@@ -141,7 +159,7 @@ module PerfResultsHelper
   #
   # @author Bill Claytor
   #
-  # @param [JSON] The group node
+  # @param [JSON] group_node The group node
   #
   # @raise [StandardError] If the group node does not contain contents with more than one key
   #
@@ -153,18 +171,19 @@ module PerfResultsHelper
   def gatling_json_stats_group_node_contents(group_node)
     contents = group_node["contents"]
 
-    if contents.nil? || contents.empty? || contents.keys.empty?
-      raise "The 'contents' element of the 'group' node must have at least one key"
+    if contents.nil? || contents.empty? || contents.keys.empty? || contents.keys.length < STATS_JSON_STAT_NAMES.length
+      raise "The 'contents' element of the 'group' node must have at least #{STATS_JSON_STAT_NAMES.length} keys"
     end
 
-    # TODO: verify each key
-    # TODO: unit test to ensure data validity
-    puts "There are #{contents.keys.length} keys"
-    puts
-
+    # build an array of the stat names to compare with the expected names
+    contents_stat_names = []
     (0..contents.keys.length - 1).each do |i|
-      name = contents[contents.keys[i]]["name"]
-      puts "key #{i}: #{name}"
+      contents_stat_names << contents[contents.keys[i]]["name"]
+    end
+
+    # check each expected stat name
+    STATS_JSON_STAT_NAMES.each do |name|
+      raise "Stat name '#{name}' not found" unless contents_stat_names.include?(name)
     end
 
     contents
@@ -191,7 +210,12 @@ module PerfResultsHelper
     raise "No CSV files found in directory: #{dir}" if files.empty?
 
     files.each do |file|
-      csv2html(file)
+      begin
+        csv2html(file)
+      rescue StandardError
+        puts "Invalid CSV file: #{file}"
+        puts
+      end
     end
   end
 
@@ -282,17 +306,17 @@ module PerfResultsHelper
   # @author Bill Claytor
   #
   # @param [String] data_csv_path The path to the CSV file
-  # @param [Boolean] skip_first_column Optionally skip the first column (timestamp, label, etc...)
+  # @param [Integer] start_column The column index to start computing averages
   #
   # @return [void]
   #
   # @example
   #   average_csv(data_csv_path)
-  #   average_csv(data_csv_path, true)
+  #   average_csv(data_csv_path, 1)
   #
   # TODO: error handling, spec test
   #
-  def average_csv(data_csv_path, skip_first_column = false)
+  def average_csv(data_csv_path, start_column = 0)
     validate_csv(data_csv_path)
 
     puts "Reading CSV file: #{data_csv_path}"
@@ -301,43 +325,37 @@ module PerfResultsHelper
 
     raise "The specified CSV file contains no data: #{data_csv_path}" unless num_rows > 1
 
-    if skip_first_column
-      puts "skipping column 0..."
-      start_column = 1
-      averages_row = ["N/A"]
-    else
-      start_column = 0
-      averages_row = []
-    end
-
+    headings_row = []
+    averages_row = []
     average_csv_path = data_csv_path.gsub(".csv", ".average.csv")
 
-    CSV.open(average_csv_path.to_s, "wb") do |average_csv|
-      # headings
-      average_csv << data_csv[0]
+    # headings
+    (start_column..(data_csv[0].length - 1)).each do |col_index|
+      headings_row << data_csv[0][col_index]
+    end
 
-      # average each column
-      (start_column..(data_csv[0].length - 1)).each do |col_index|
-        puts "column: #{col_index}"
+    # average each column
+    (start_column..(data_csv[0].length - 1)).each do |col_index|
+      total = 0
 
-        total = 0
-
-        # add each row
-        (1..data_csv.length - 1).each do |row_ct|
-          value = data_csv[row_ct][col_index].to_f
-          total += value
-        end
-
-        # only average if the total is > 0
-        average = if total.positive?
-                    total / num_rows
-                  else
-                    0
-                  end
-
-        averages_row << average.round(2)
+      # add each row
+      (1..data_csv.length - 1).each do |row_ct|
+        value = data_csv[row_ct][col_index].to_f
+        total += value
       end
 
+      # only average if the total is > 0 (TODO: ?)
+      average = if total.positive?
+                  total / num_rows
+                else
+                  0
+                end
+
+      averages_row << average.round(2)
+    end
+
+    CSV.open(average_csv_path.to_s, "wb") do |average_csv|
+      average_csv << headings_row
       average_csv << averages_row
     end
   end
@@ -359,15 +377,23 @@ module PerfResultsHelper
   def validate_csv(csv_path)
     raise "File not found: #{csv_path}" unless File.exist?(csv_path)
 
-    validator = Csvlint::Validator.new(File.new(csv_path))
+    raise "Not a CSV file: #{csv_path}" unless File.extname(csv_path).eql?(".csv")
 
-    # invoke the validation
-    validator.validate
+    csv_data = CSV.read(csv_path)
+
+    # validate
+    valid = true
+    valid = false unless csv_data.length >= 2
+    num_headings = csv_data[0].length
+    (1..csv_data.length - 1).each do |ct|
+      num_columns = csv_data[ct].length
+      valid = false unless num_columns == num_headings
+    end
 
     # check validation status
-    raise "Invalid CSV file: #{csv_path}" unless validator.valid?
+    raise "Invalid CSV file: #{csv_path}" unless valid
 
-    validator.valid?
+    valid
   end
 
   # Extract the HTML table from the csv2html output
@@ -596,21 +622,53 @@ module PerfResultsHelper
   #
   # @author Bill Claytor
   #
-  # @param [String] metrics_dir The 'puppet-metrics-collector' directory
+  # @param [String] metrics_dir_or_tar_file The 'puppet-metrics-collector' directory
+  #   or gzipped tar file
   #
   # @return [void]
   #
   # @example
-  #   extract_puppet_metrics_collector_data(metrics_dir)
+  #   extract_puppet_metrics_collector_data(metrics_dir_or_tar_file)
   #
-  def extract_puppet_metrics_collector_data(metrics_dir)
-    raise "Directory not found: #{metrics_dir}" unless File.directory?(metrics_dir)
+  def extract_puppet_metrics_collector_data(metrics_dir_or_tar_file)
+    raise "File not found: #{metrics_dir_or_tar_file}" unless File.exist?(metrics_dir_or_tar_file)
 
-    puts "Extracting metrics data from: #{metrics_dir}"
+    if File.directory?(metrics_dir_or_tar_file)
+      puppet_metrics_dir = metrics_dir_or_tar_file
+    else
+      puts "Specified path is not a directory; verifying file..."
+      parent_dir = File.dirname(metrics_dir_or_tar_file)
+      extract_tgz(metrics_dir_or_tar_file)
+      puppet_metrics_dir = "#{parent_dir}/#{PUPPET_METRICS_COLLECTOR_DIR_NAME}"
+    end
+
+    puts "Extracting metrics data from: #{puppet_metrics_dir}"
     puts
 
     # TODO: process other service files
-    extract_puppetserver_metrics(metrics_dir)
+    extract_puppetserver_metrics(puppet_metrics_dir)
+  end
+
+  # Extracts the specified gzipped tar file to the specified directory
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] src The gzipped tar file path
+  # @param [String] dest The destination directory
+  #
+  # @return [void]
+  #
+  # @example
+  #   extract_tgz(src, dest)
+  #
+  def extract_tgz(src, dest = File.dirname(src))
+    options = ["file", "--brief", "--mime-type", src]
+    mime_type = IO.popen(options, in: :close, err: :close).read.chomp
+    error_msg = "Invalid mime type '#{mime_type}' for file: #{src}"
+    raise error_msg unless mime_type.include?("gzip")
+
+    tgz = Zlib::GzipReader.new(File.open(src, "rb"))
+    Archive::Tar::Minitar.unpack(tgz, dest)
   end
 
   # Processes the files in the 'puppetserver' service directory:
@@ -637,20 +695,20 @@ module PerfResultsHelper
     puts "Extracting puppetserver data from: #{metrics_dir}/puppetserver"
     puts
 
-    puppetserver_files = Dir.glob "#{metrics_dir}/puppetserver/**/*.json"
+    puppetserver_files = Dir.glob("#{metrics_dir}/puppetserver/**/*.json")
     raise "No JSON files found: #{puppetserver_dir}" if puppetserver_files.nil? || puppetserver_files.empty?
 
     csv_path = "#{metrics_dir}/../puppetserver.csv"
     CSV.open(csv_path, "wb") do |csv|
-      csv << ["timestamp", "static compile (mean)", "average borrow time", "num free jrubies"]
+      csv << PMC_ROW_HEADINGS
 
-      puppetserver_files.each do |file|
+      puppetserver_files.sort.each do |file|
         puppetserver_metrics = extract_puppetserver_metrics_from_json(file)
         csv << puppetserver_metrics unless puppetserver_metrics.nil?
       end
     end
 
-    average_csv(csv_path, true)
+    average_csv(csv_path, 2)
     csv2html(csv_path)
     csv2html(csv_path.gsub(".csv", ".average.csv"))
   end
@@ -680,7 +738,7 @@ module PerfResultsHelper
       timestamp = json["timestamp"]
 
       # catalog (ignore metrics without catalog metrics)
-      # TODO: if this is an issue, investigate alternatives to handling averages
+      # TODO: investigate alternatives to handling averages
       # TODO: update to use dig, handle multiple puppetservers (https://tickets.puppetlabs.com/browse/SLV-569)
       catalog_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-puppet-profiler"]["status"]["experimental"]["catalog-metrics"]
 
@@ -691,7 +749,8 @@ module PerfResultsHelper
       pe_jruby_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-jruby-metrics"]["status"]["experimental"]["metrics"]
       average_borrow_time = pe_jruby_metrics["average-borrow-time"]
       num_free_jrubies = pe_jruby_metrics["num-free-jrubies"]
-      row = [timestamp, static_compile_mean, average_borrow_time, num_free_jrubies]
+
+      row = [File.basename(file), timestamp, static_compile_mean, average_borrow_time, num_free_jrubies]
     rescue StandardError
       puts "JSON does not contain catalog metrics; ignoring..."
       puts

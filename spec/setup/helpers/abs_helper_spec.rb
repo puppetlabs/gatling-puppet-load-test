@@ -179,7 +179,7 @@ describe AbsHelperClass do
 
       context "when environment variables are not specified" do
         it "sets the properties to the default values and returns true" do
-          pending "resolve stubbed constant issue"
+          pending "FIXME: Resolve stubbed constant issue"
 
           ENV["ABS_BASE_URL"] = nil
           ENV["ABS_AWS_PLATFORM"] = nil
@@ -463,9 +463,9 @@ describe AbsHelperClass do
         end
       end
 
+      # TODO: implement
       context "when a mix of valid and invalid responses are returned" do
         it "submits requests to return the hosts, reports the errors, returns the hosts" do
-          skip
         end
       end
     end

@@ -495,7 +495,8 @@ namespace :test do
     require "rspec/core/rake_task"
     desc "Run unit tests"
     RSpec::Core::RakeTask.new do |t|
-      t.rspec_opts = ["--color"]
+      # TODO: remove '--deprecation-out ...' when SLV-588 has been resolved
+      t.rspec_opts = ["--color --deprecation-out rspec_deprecation_warnings.log"]
       t.pattern = 'spec/**/*_spec.rb'
     end
       # if rspec isn't available, we can still use this Rakefile

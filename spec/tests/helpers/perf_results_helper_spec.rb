@@ -2,8 +2,6 @@
 
 require "spec_helper"
 
-TEST_TIME_NOW = Time.now
-
 FIXTURES_DIR = "spec/fixtures"
 PERF_RESULTS_FIXTURES_DIR = "#{FIXTURES_DIR}/perf_results_helper"
 PUPPET_METRICS_FIXTURES_DIR = "#{FIXTURES_DIR}/puppet-metrics-collector"
@@ -11,6 +9,8 @@ PUPPET_METRICS_FIXTURES_DIR = "#{FIXTURES_DIR}/puppet-metrics-collector"
 TEST_METRICS_RESULTS_DIR = "#{PERF_RESULTS_FIXTURES_DIR}/scale/PERF_SCALE_12345/Scale_12345_1_1500/metric"
 TEST_METRICS_RESULTS_NAME = File.basename(TEST_METRICS_RESULTS_DIR)
 TEST_STATS_PATH = "#{TEST_METRICS_RESULTS_DIR}/js/stats.json"
+TEST_INVALID_STATS_PATH = "#{TEST_METRICS_RESULTS_DIR}/js/invalid_stats.json"
+TEST_INVALID_STATS_MISSING_NAME = "node"
 TEST_STATS_NUMBER_OF_KEYS = 6
 
 TEST_VALID_CSV_HEADINGS_PATH = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html/headings_row.csv"
@@ -31,16 +31,6 @@ TEST_HTML_TABLE = <<-TEST_HTML_TABLE
       <td>2</td>
       <td>3</td>
     </tr>
-    <tr>
-      <td>4</td>
-      <td>5</td>
-      <td>6</td>
-    </tr>
-    <tr>
-      <td>7</td>
-      <td>8</td>
-      <td>9</td>
-    </tr>
   </table>
 TEST_HTML_TABLE
 
@@ -59,10 +49,6 @@ describe PerfResultsHelper do
 
   # TODO: complete
   describe "#gatling2csv" do
-    before do
-      allow(subject).to receive(:puts)
-    end
-
     context "when called specifying an invalid results_dir" do
       it "raises an error with a message indicating the invalid argument" do
         expect(File).to receive(:directory?).with(TEST_METRICS_RESULTS_DIR).and_return(false)
@@ -160,7 +146,6 @@ describe PerfResultsHelper do
     context "when the 'contents' element of the 'group' node is empty" do
       it "raises an error" do
         test_group_node = { "contents" => "" }
-
         expect { subject.gatling_json_stats_group_node_contents(test_group_node) }
           .to raise_error(RuntimeError)
       end
@@ -169,29 +154,29 @@ describe PerfResultsHelper do
     context "when the 'contents' element of the 'group' node has no keys" do
       it "raises an error" do
         test_group_node = { "contents" => {} }
-
         expect { subject.gatling_json_stats_group_node_contents(test_group_node) }
           .to raise_error(RuntimeError)
       end
     end
 
-    context "when the 'contents' element of the 'group' node has at least one key" do
-      it "returns the contents" do
+    context "when the 'contents' element of the 'group' node does not include the expected keys" do
+      it "raises an error" do
+        test_group_node = subject.gatling_json_stats_group_node(TEST_INVALID_STATS_PATH)
+        expect { subject.gatling_json_stats_group_node_contents(test_group_node) }
+          .to raise_error(RuntimeError, /#{TEST_INVALID_STATS_MISSING_NAME}/)
+      end
+    end
+
+    context "when the 'contents' element of the 'group' node has the expected keys" do
+      it "returns the expected contents" do
         group_node = subject.gatling_json_stats_group_node(TEST_STATS_PATH)
         contents = subject.gatling_json_stats_group_node_contents(group_node)
         expect(contents).to eq(group_node["contents"])
       end
-
-      it "includes all of the keys" do
-        group_node = subject.gatling_json_stats_group_node(TEST_STATS_PATH)
-        expect(subject).to receive(:puts).with("There are #{TEST_STATS_NUMBER_OF_KEYS} keys")
-
-        expect(subject).to receive(:puts).with(/key/).exactly(TEST_STATS_NUMBER_OF_KEYS).times
-        subject.gatling_json_stats_group_node_contents(group_node)
-      end
     end
   end
 
+  # TODO: complete
   describe "#csv2html_directory" do
     context "when the specified directory does not exist" do
       it "raises an error with a message indicating the invalid argument" do
@@ -210,10 +195,12 @@ describe PerfResultsHelper do
     end
 
     context "when CSV files are found" do
-      it "calls csv2html for each file" do
+      it "calls csv2html for each CSV file" do
         test_dir = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html"
         files = %W[#{test_dir}/01.csv
                    #{test_dir}/02.csv
+                   #{test_dir}/invalid_columns.csv
+                   #{test_dir}/invalid_one_row.csv
                    #{test_dir}/test/03.csv]
 
         files.each do |file|
@@ -222,15 +209,19 @@ describe PerfResultsHelper do
 
         subject.csv2html_directory(test_dir)
       end
+
+      # TODO: implement
+      it "suppresses errors raised by csv2html" do
+      end
     end
   end
 
   describe "#csv2html" do
     context "when the specified file is a valid CSV file" do
       it "writes the file with the expected filename" do
-        pending "Csv fixture fails encoding validation"
         expected_html_path = "#{TEST_VALID_CSV_PATH}.html"
         expected_html = File.read(expected_html_path)
+        expect(subject).to receive(:validate_csv).with(TEST_VALID_CSV_PATH).and_return(true)
         expect(File).to receive(:write).with(expected_html_path, expected_html)
 
         subject.csv2html(TEST_VALID_CSV_PATH)
@@ -272,13 +263,31 @@ describe PerfResultsHelper do
         expect(File).to receive(:exist?).with(TEST_VALID_CSV_PATH).and_return(false)
 
         expect { subject.validate_csv(TEST_VALID_CSV_PATH) }
-          .to raise_error(RuntimeError, /#{Regexp.escape(TEST_VALID_CSV_PATH)}/)
+          .to raise_error(RuntimeError, /File not found: #{Regexp.escape(TEST_VALID_CSV_PATH)}/)
       end
     end
 
-    context "when the specified file is not a valid CSV file" do
+    context "when the specified file is not a CSV file" do
       it "raises an error" do
-        invalid_csv = "#{FIXTURES_DIR}/csv2html/not_a_valid_csv.txt"
+        file = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html/not_a_csv.txt"
+
+        expect { subject.validate_csv(file) }
+          .to raise_error(RuntimeError, /Not a CSV file: #{Regexp.escape(file)}/)
+      end
+    end
+
+    context "when the specified file only contains one row" do
+      it "raises an error" do
+        invalid_csv = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html/invalid_one_row.csv"
+
+        expect { subject.validate_csv(invalid_csv) }
+          .to raise_error(RuntimeError, /#{Regexp.escape(invalid_csv)}/)
+      end
+    end
+
+    context "when the specified file contains a row with an invalid number of columns" do
+      it "raises an error" do
+        invalid_csv = "#{PERF_RESULTS_FIXTURES_DIR}/csv2html/invalid_columns.csv"
 
         expect { subject.validate_csv(invalid_csv) }
           .to raise_error(RuntimeError, /#{Regexp.escape(invalid_csv)}/)
@@ -287,7 +296,6 @@ describe PerfResultsHelper do
 
     context "when the specified file is a valid CSV file" do
       it "returns true" do
-        pending "Csv fixture fails encoding validation"
         expect(subject.validate_csv(TEST_VALID_CSV_PATH)).to eq(true)
       end
     end
@@ -370,18 +378,48 @@ describe PerfResultsHelper do
   end
 
   describe "#extract_puppet_metrics_collector_data" do
-    context "when the specified directory does not exist" do
-      it "raises an error with a message indicating the invalid argument" do
-        expect(File).to receive(:directory?).with(PUPPET_METRICS_FIXTURES_DIR).and_return(false)
-        expect { subject.extract_puppet_metrics_collector_data(PUPPET_METRICS_FIXTURES_DIR) }
-          .to raise_error(RuntimeError, /#{Regexp.escape(PUPPET_METRICS_FIXTURES_DIR)}/)
+    context "when the specified file does not exist" do
+      it "raises an error" do
+        test_path = "/not/a/valid/path"
+        expect { subject.extract_puppet_metrics_collector_data(test_path) }
+          .to raise_error(RuntimeError, /File not found: #{Regexp.escape(test_path)}/)
       end
     end
 
-    context "when the specified directory exists" do
-      it "calls process_puppetserver_files" do
+    context "when the specified path is neither a tar file or directory" do
+      it "raises an error with a message indicating the invalid argument" do
+        test_path = "#{PERF_RESULTS_FIXTURES_DIR}/not_a_real_tar_file.txt.tar.gz"
+        expect { subject.extract_puppet_metrics_collector_data(test_path) }
+          .to raise_error(RuntimeError, /#{Regexp.escape(test_path)}/)
+      end
+    end
+
+    context "when the specified path is a tar file" do
+      it "extracts the tar file and uses the extracted puppet_metrics_collector directory" do
+        tar_file = "puppet_metrics_collector.tar.gz"
+        tar_path = "#{PERF_RESULTS_FIXTURES_DIR}/#{tar_file}"
+        puppet_metrics_dir_name = PerfResultsHelper::PUPPET_METRICS_COLLECTOR_DIR_NAME
+        puppet_metrics_dir = "#{PERF_RESULTS_FIXTURES_DIR}/#{puppet_metrics_dir_name}"
+
+        expect(subject).to receive(:extract_tgz).with(tar_path)
+        expect(subject).to receive(:extract_puppetserver_metrics).with(puppet_metrics_dir)
+        subject.extract_puppet_metrics_collector_data(tar_path)
+      end
+    end
+
+    context "when the specified path is a directory" do
+      it "uses the specified directory" do
         expect(subject).to receive(:extract_puppetserver_metrics).with(PUPPET_METRICS_FIXTURES_DIR)
         subject.extract_puppet_metrics_collector_data(PUPPET_METRICS_FIXTURES_DIR)
+      end
+    end
+  end
+
+  # TODO: implement
+  describe "#extract_tarball" do
+    context "when ..." do
+      it "does ..." do
+        # expect(Archive::Tar::Minitar).to receive(:unpack).with(tar_path, PERF_RESULTS_FIXTURES_DIR)
       end
     end
   end

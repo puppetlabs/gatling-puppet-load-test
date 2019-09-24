@@ -184,10 +184,6 @@ module PerfRunHelper
       puts "Iteration #{ct} of #{@scale_scenarios.length}"
       puts
 
-      # TODO: remove after SLV-430
-      # purge the metrics collector output and restart the service
-      purge_puppet_metrics_collector
-
       # don't restart puppetserver for warm-start scenarios
       if ENV["PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER"].eql?("false")
         puts "PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER is set to false..."
@@ -354,28 +350,6 @@ module PerfRunHelper
     puts
 
     output
-  end
-
-  # Purge the puppet-metrics-collector log files for each service
-  #
-  # @author Bill Claytor
-  #
-  # @return [void]
-  #
-  # @example
-  #   purge_puppet_metrics_collector
-  #
-  # TODO: remove after SLV-430
-  #
-  def purge_puppet_metrics_collector
-    puts "Purging puppet_metrics_collector..."
-    puts
-
-    PUPPET_METRICS_COLLECTOR_SERVICES.each do |service|
-      dir = "/opt/puppetlabs/puppet-metrics-collector/#{service}"
-      command = "find #{dir} -type f -delete"
-      on master, command
-    end
   end
 
   # Copy the puppet-metrics-collector log files for each service
@@ -573,16 +547,22 @@ module PerfRunHelper
     FileUtils.copy_file global_stats_path, "#{json_dir}/#{scenario.gsub('.json', 'global_stats.json')}"
     FileUtils.copy_file stats_path, "#{json_dir}/#{scenario.gsub('.json', 'stats.json')}"
 
-    # copy current tune settings
-    FileUtils.copy_file "#{@archive_root}/#{CURRENT_TUNE_SETTINGS}", "#{scale_result_dir}/#{CURRENT_TUNE_SETTINGS}"
+    # copy puppet-metrics-collector to scale results dir (this iteration) and parent dir (entire scale run)
+    # TODO: rename dir to 'puppet-metrics-collector'
+    src = "#{@archive_root}/puppet_metrics_collector"
+    FileUtils.copy_entry src, "#{scale_result_dir}/puppet_metrics_collector"
+    FileUtils.copy_entry src, "#{scale_results_parent_dir}/puppet_metrics_collector"
 
-    ### TODO: remove once this is handled for all test types
+    # copy epoch files
+    # TODO: update to include in the bulk copy below when these have an extension
+    FileUtils.copy_file "#{@archive_root}/start_epoch", "#{scale_result_dir}/start_epoch"
+    FileUtils.copy_file "#{@archive_root}/end_epoch", "#{scale_result_dir}/end_epoch"
 
-    # copy puppet-metrics-collector to iteration result dir
-    copy_puppet_metrics_collector(scale_result_dir)
-
-    # copy puppet-metrics-collector to parent results dir
-    copy_puppet_metrics_collector(scale_results_parent_dir)
+    # copy any csv/html/json/tar.gz/txt files
+    res_files = Dir.glob("#{@archive_root}/*.{csv,html,json,tar.gz,txt}")
+    res_files.each do |file|
+      FileUtils.copy_file file, "#{scale_result_dir}/#{File.basename(file)}"
+    end
   end
 
   # Process the scale results for the current iteration, update the CSV file, fail if KOs are found
@@ -614,66 +594,73 @@ module PerfRunHelper
     puts "Checking stats in: #{js_dir}"
     puts
 
-    # global stats
-    global_stats_path = "#{js_dir}/global_stats.json"
-    global_stats_file = File.read(global_stats_path)
-    global_stats_json = JSON.parse(global_stats_file)
+    # TODO: extract to perf_results_helper (possibly just use gatling2csv)
+    begin
+      # global stats
+      global_stats_path = "#{js_dir}/global_stats.json"
+      global_stats_file = File.read(global_stats_path)
+      global_stats_json = JSON.parse(global_stats_file)
 
-    # check the results for KOs (TODO: needed or just use assertion?)
-    num_total = global_stats_json["numberOfRequests"]["total"]
-    num_ok = global_stats_json["numberOfRequests"]["ok"]
-    num_ko = global_stats_json["numberOfRequests"]["ko"]
-    puts "Number of requests:"
-    puts "total: #{num_total}"
-    puts "ok: #{num_ok}"
-    puts "ko: #{num_ko}"
-    puts
+      # check the results for KOs (TODO: needed or just use assertion?)
+      num_total = global_stats_json["numberOfRequests"]["total"]
+      num_ok = global_stats_json["numberOfRequests"]["ok"]
+      num_ko = global_stats_json["numberOfRequests"]["ko"]
+      puts "Number of requests:"
+      puts "total: #{num_total}"
+      puts "ok: #{num_ok}"
+      puts "ko: #{num_ko}"
+      puts
 
-    # stats
-    stats_path = "#{js_dir}/stats.json"
-    stats_file = File.read(stats_path)
-    stats_json = JSON.parse(stats_file)
+      # stats
+      stats_path = "#{js_dir}/stats.json"
+      stats_file = File.read(stats_path)
+      stats_json = JSON.parse(stats_file)
 
-    # the 'group' name will be something like 'group_nooptestwithout-9eb19'
-    group_keys = stats_json["contents"].keys.select { |key| key.to_s.match(/group/) }
-    group_node = stats_json["contents"][group_keys[0]]
+      # the 'group' name will be something like 'group_nooptestwithout-9eb19'
+      group_keys = stats_json["contents"].keys.select { |key| key.to_s.match(/group/) }
+      group_node = stats_json["contents"][group_keys[0]]
 
-    # totals row is in the 'stats' node
-    totals = group_node["stats"]
+      # totals row is in the 'stats' node
+      totals = group_node["stats"]
 
-    # transaction rows are in the 'contents' node
-    contents = group_node["contents"]
+      # transaction rows are in the 'contents' node
+      contents = group_node["contents"]
 
-    # get each category
-    node = contents[contents.keys[0]]["stats"]
-    filemeta_pluginfacts = contents[contents.keys[1]]["stats"]
-    filemeta_plugins = contents[contents.keys[2]]["stats"]
-    locales = contents[contents.keys[3]]["stats"]
-    catalog = contents[contents.keys[4]]["stats"]
-    report = contents[contents.keys[5]]["stats"]
+      # get each category
+      node = contents[contents.keys[0]]["stats"]
+      filemeta_pluginfacts = contents[contents.keys[1]]["stats"]
+      filemeta_plugins = contents[contents.keys[2]]["stats"]
+      locales = contents[contents.keys[3]]["stats"]
+      catalog = contents[contents.keys[4]]["stats"]
+      report = contents[contents.keys[5]]["stats"]
 
-    # get atop results
-    # get_scale_atop_results
-    atop_csv_path = "#{perf_scale_iteration_dir}/master/atop_log_#{scenario.downcase.gsub('.json', '_json')}.csv"
-    atop_csv_data = CSV.read(atop_csv_path)
+      # get atop results
+      # get_scale_atop_results
+      atop_csv_path = "#{perf_scale_iteration_dir}/master/atop_log_#{scenario.downcase.gsub('.json', '_json')}.csv"
+      atop_csv_data = CSV.read(atop_csv_path)
 
-    # results for csv
-    results = []
-    results << scale_scenario_instances
-    results << totals["numberOfRequests"]["ok"]
-    results << totals["numberOfRequests"]["ko"]
-    results << totals["meanResponseTime"]["total"]
-    results << catalog["meanResponseTime"]["total"]
-    results << filemeta_plugins["meanResponseTime"]["total"]
-    results << filemeta_pluginfacts["meanResponseTime"]["total"]
-    results << locales["meanResponseTime"]["total"]
-    results << node["meanResponseTime"]["total"]
-    results << report["meanResponseTime"]["total"]
-    results << atop_csv_data[1][2] # average CPU TODO: verify from atop
-    results << atop_csv_data[1][3] # average memory TODO: verify from atop
+      # results for csv
+      results = []
+      results << scale_scenario_instances
+      results << totals["numberOfRequests"]["ok"]
+      results << totals["numberOfRequests"]["ko"]
+      results << totals["meanResponseTime"]["total"]
+      results << catalog["meanResponseTime"]["total"]
+      results << filemeta_plugins["meanResponseTime"]["total"]
+      results << filemeta_pluginfacts["meanResponseTime"]["total"]
+      results << locales["meanResponseTime"]["total"]
+      results << node["meanResponseTime"]["total"]
+      results << report["meanResponseTime"]["total"]
+      results << atop_csv_data[1][2] # average CPU TODO: verify from atop
+      results << atop_csv_data[1][3] # average memory TODO: verify from atop
 
-    # add this row to the csv
-    update_scale_results_csv(scale_results_parent_dir, results)
+      # add this row to the csv
+      update_scale_results_csv(scale_results_parent_dir, results)
+    rescue StandardError => e
+      puts "Error encountered processing results files:"
+      puts e.message
+      puts
+    end
 
     # allow no more than SCALE_MAX_ALLOWED_KO KOs per iteration; this needs to be last
     if num_ko > SCALE_MAX_ALLOWED_KO
@@ -828,14 +815,32 @@ module PerfRunHelper
       perf.log_summary
       # Write summary results to log so it can be archived
       perf.log_csv
-      copy_archive_files
 
-      # split the atop CSV file into separate files for the summary and detail sections
-      split_atop_csv_results(atop_csv)
+      # TODO: tar archive file before copying to avoid timeouts with soak results
+      begin
+        copy_archive_files
+      rescue StandardError => e
+        puts "Error encountered copying archive files:"
+        puts e.message
+        puts
+      end
 
-      # extract the Gatling results data into a CSV file
-      gatling2csv(gatling_json_results_dir)
+      # issues processing these files should not interrupt the run
+      begin
+        # split the atop CSV file into separate files for the summary and detail sections
+        split_atop_csv_results(atop_csv)
+
+        # extract the Gatling results data into a CSV file
+        gatling2csv(gatling_json_results_dir)
+      rescue StandardError => e
+        puts "Error encountered processing results files:"
+        puts e.message
+        puts
+      end
+
     end
+
+    # grab puppet-metrics-collector data for the run
     scp_to(master, "util/metrics/collect_metrics_files.rb", "/root/collect_metrics_files.rb")
     start_epoch = File.read("#{@archive_root}/start_epoch")
     end_epoch = File.read("#{@archive_root}/end_epoch")
@@ -845,6 +850,16 @@ module PerfRunHelper
                  .output
     filename = cmf_output.match(/\w+-\w+.tar.gz/)[0].to_s
     scp_from(master, "/root/#{filename}", "#{@archive_root}/")
+
+    # extract metrics for comparison (errors should not interrupt the run)
+    begin
+      extract_puppet_metrics_collector_data("#{@archive_root}/#{filename}")
+    rescue StandardError => e
+      puts "Error encountered processing puppet-metrics-collector files:"
+      puts e.message
+      puts
+    end
+
     [perf, GatlingResult.new(gatling_assertions, mean_response_time)]
   end
 

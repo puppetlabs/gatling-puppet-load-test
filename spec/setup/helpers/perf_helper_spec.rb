@@ -559,5 +559,41 @@ describe PerfHelperClass do
       subject.cm_deploy_all_envs
     end
   end
+
+  describe "#add_loadbalancer_groups" do
+    pe_infra_uuid = 42
+    loadbalancer = "foo"
+    compile_master = "bar"
+
+    it "creates Loadbalancer groups" do
+      expected_lb_group = {
+        "name"    => "HAProxy Loadbalancer",
+        "rule"    => ["or", ["=", "name", loadbalancer]],
+        "parent"  => pe_infra_uuid,
+        "classes" => {
+          "profile::loadbalancer" => {}
+        }
+      }
+
+      expected_lb_exports_group = {
+        "name"    => "Loadbalancer Exports(Compile Masters)",
+        "rule"    => ["or", ["=", "name", compile_master]],
+        "parent"  => pe_infra_uuid,
+        "classes" => {
+          "profile::loadbalancer_exports" => {}
+        }
+      }
+
+      classifier = double("classifier",
+                          get_node_group_by_name: { "id" => pe_infra_uuid },
+                          find_or_create_node_group_model: true)
+      subject.stub(:classifier) { classifier }
+
+      expect(classifier).to receive(:find_or_create_node_group_model).with(expected_lb_group)
+      expect(classifier).to receive(:find_or_create_node_group_model).with(expected_lb_exports_group)
+
+      subject.add_loadbalancer_groups(loadbalancer, compile_master)
+    end
+  end
 end
 # rubocop:enable Metrics/BlockLength

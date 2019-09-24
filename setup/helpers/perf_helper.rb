@@ -686,5 +686,36 @@ module PerfHelper
     create_remote_file(master, custom_fact_path, custom_fact_content)
     on(master, 'puppet apply -e "include puppet_metrics_collector"', acceptable_exit_codes: [0, 2])
   end
+
+  # Stolen from
+  # https://github.com/puppetlabs/pe_acceptance_tests/blob/2018.1.x/setup/high_availability/install.rb#L379
+  def add_loadbalancer_groups(loadbalancer, compile_master)
+    pe_infra_uuid = classifier.get_node_group_by_name("PE Infrastructure Agent")["id"]
+    loadbalancer_group = {
+      "name"    => "HAProxy Loadbalancer",
+      "rule"    => ["or", ["=", "name", loadbalancer]], # pinned node
+      "parent"  => pe_infra_uuid,
+      "classes" => {
+        "profile::loadbalancer" => {}
+      }
+    }
+
+    classifier.find_or_create_node_group_model(loadbalancer_group)
+
+    lb_export_rules = ["or"]
+    lb_export_rules += [compile_master].flatten.map do |server|
+      ["=", "name", server]
+    end
+
+    loadbalancer_exports_group = {
+      "name"    => "Loadbalancer Exports(Compile Masters)",
+      "rule"    => lb_export_rules, # pinned node(s)
+      "parent"  => pe_infra_uuid,
+      "classes" => {
+        "profile::loadbalancer_exports" => {}
+      }
+    }
+    classifier.find_or_create_node_group_model(loadbalancer_exports_group)
+  end
 end
 # rubocop:enable Style/SpecialGlobalVars

@@ -10,6 +10,7 @@
     "setup/install_gatling/30_classification/00_configure_code_manager.rb",
     "setup/install_gatling/30_classification/40_classify_nodes_via_nc.rb",
     "setup/install_gatling/30_classification/45_classify_master_via_nc.rb",
+    "setup/install_gatling/30_classification/60_classify_use_loadbalancer.rb",
     "setup/install_gatling/40_post_install/30_final_puppet_run.rb",
     "setup/install_gatling/40_post_install/40_configure_gatling_auth.rb",
     "setup/install_gatling/40_post_install/50_configure_permissive_server_auth.rb",

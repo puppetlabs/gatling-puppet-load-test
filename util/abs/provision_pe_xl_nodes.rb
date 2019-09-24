@@ -27,6 +27,7 @@ DESCRIPTION = <<~DESCRIPTION
   EC2 hosts are provisioned for the following roles:
   * Core roles:
    - metrics
+   - loadbalancer
    - master
    - puppet_db (for xl)
    - compiler_a
@@ -113,6 +114,7 @@ end.parse!
 raise "Large ref_arch doesn't currently support HA" if options[:ref_arch] == REF_ARCH_TYPES[:large] && options[:ha]
 
 ROLES_CORE = %w[metrics
+                loadbalancer
                 master
                 compiler_a
                 compiler_b].freeze
@@ -328,6 +330,11 @@ def create_params_json(hosts, output_dir)
   master_replica, = hosts.map { |host| host[:hostname] if host[:role] == "master_replica" }.compact
   pdb_replica, = hosts.map { |host| host[:hostname] if host[:role] == "puppet_db_replica" }.compact
   compilers = hosts.map { |host| host[:hostname] if host[:role].include? "compiler" }.compact
+  loadbalancer, = hosts.map { |host| host[:hostname] if host[:role] == "loadbalancer" }.compact
+
+  dns_alt_names = ["puppet", master, loadbalancer]
+  pool_address = loadbalancer || master
+
   pe_xl_params = {
     install: true,
     configure: true,
@@ -339,10 +346,10 @@ def create_params_json(hosts, output_dir)
     compiler_hosts: compilers,
 
     console_password: "puppetlabs",
-    dns_alt_names: ["puppet", master],
-    compiler_pool_address: master,
+    dns_alt_names: dns_alt_names,
+    compiler_pool_address: pool_address,
     version: PE_VERSION
-  }.delete_if { |_, value| value.to_s.strip == "" } # Replace delete_if with compact when ruby ~ 2.4.0
+  }.compact
 
   params_json = JSON.pretty_generate(pe_xl_params)
   output_path = "#{File.expand_path(output_dir)}/params.json"
@@ -398,6 +405,7 @@ def create_beaker_config(hosts, output_dir)
                       "puppet_db_replica" => "database",
                       "compiler_a"        => "compile_master",
                       "compiler_b"        => "compile_master",
+                      "loadbalancer"      => "loadbalancer",
                       "metrics"           => "metric" }
 
   beaker_roles = beaker_role_map.keys
@@ -449,7 +457,7 @@ def create_beaker_config(hosts, output_dir)
 
   File.write(output_path, beaker_yaml)
 
-  check_params_json(output_path) if TEST
+  puts beaker_yaml if TEST
 end
 
 provision_pe_xl_nodes if $PROGRAM_NAME == __FILE__

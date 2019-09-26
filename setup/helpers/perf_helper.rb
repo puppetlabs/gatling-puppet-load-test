@@ -456,33 +456,31 @@ module PerfHelper
     FileUtils.rm_rf(ssldir)
     FileUtils.mkdir_p(ssldir)
 
-    # Copy over master's cert
-    mastercert = puppet_config(master, "hostcert")
-    scp_from(master, mastercert, ssldir)
-    FileUtils.mv(File.join(ssldir, File.basename(mastercert)),
-                 File.join(ssldir, "mastercert.pem"))
-
-    # Copy over master's private key
-    masterkey = puppet_config(master, "hostprivkey")
-    scp_from(master, masterkey, ssldir)
-    FileUtils.mv(File.join(ssldir, File.basename(masterkey)),
-                 File.join(ssldir, "masterkey.pem"))
-
-    # Copy over CA's cert
-    cacert = puppet_config(master, "localcacert")
-    scp_from(master, cacert, ssldir)
-    FileUtils.mv(File.join(ssldir, File.basename(cacert)),
-                 File.join(ssldir, "cacert.pem"))
+    # Copy over master's cert files
+    # hash with 'puppet config print' queries as keys, filenames as values
+    cert_hash = { "hostcert"    => "mastercert.pem",
+                  "hostprivkey" => "masterkey.pem",
+                  "localcacert" => "cacert.pem" }
+    cert_hash.each do |conf, filename|
+      cert = puppet_config(master, conf)
+      scp_from(master, cert, ssldir)
+      FileUtils.mv(File.join(ssldir, File.basename(cert)),
+                   File.join(ssldir, filename))
+    end
 
     # Generate keystore
     # Keystore is created on the test runner and requires that the following
     # executables be available:
     #   openssl
     #   keytool
+
+    # Dump master cert and private key into pem file to be converted to PKCS12
     master_certname = puppet_config(master, "certname")
     `cat #{ssldir}/mastercert.pem \
          #{ssldir}/masterkey.pem > #{ssldir}/keystore.pem`
     fail_test("Failed to create keystore.pem") unless $?.success?
+
+    # Convert master cert/private key pem file to password protected PKCS12 file for KeyStore
     `echo "puppet" | openssl pkcs12 \
                              -export \
                              -in #{ssldir}/keystore.pem \
@@ -490,6 +488,8 @@ module PerfHelper
                              -name #{master_certname} \
                              -passout fd:0`
     fail_test("Failed to create keystore.p12") unless $?.success?
+
+    # Generate KeyStore from PKCS12 file (alias must match name in keystore above)
     `keytool -importkeystore \
              -destkeystore #{ssldir}/gatling-keystore.jks \
              -srckeystore #{ssldir}/keystore.p12 \
@@ -499,7 +499,7 @@ module PerfHelper
              -srcstorepass "puppet"`
     fail_test("Failed to create jks keystore") unless $?.success?
 
-    # Generate truststore
+    # Generate TrustStore from master CA cert
     `keytool -import \
              -alias "CA" \
              -keystore #{ssldir}/gatling-truststore.jks \

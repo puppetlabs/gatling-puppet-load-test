@@ -722,7 +722,8 @@ module PerfRunHelper
       end
 
       sim_runner_dir = "/root/gatling-puppet-load-test/simulation-runner/"
-      base_url = "https://#{master.hostname}:8140"
+      pup = any_hosts_as?("loadbalancer") ? loadbalancer : master
+      base_url = "https://#{pup}:8140"
       sim_config = "config/scenarios/#{gatling_scenario} "
       reports_target_path = "#{sim_runner_dir}/results/#{reports_target}"
       command = "cd #{sim_runner_dir} && " \

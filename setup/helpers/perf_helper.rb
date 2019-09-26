@@ -510,9 +510,9 @@ module PerfHelper
   end
 
   def configure_permissive_server_auth
-    step "Configure permissive auth.conf on master" do
+    step "Configure permissive auth.conf on master(s)" do
       auth_conf = "/etc/puppetlabs/puppetserver/conf.d/auth.conf"
-      create_remote_file(master, auth_conf, <<~AUTHCONF)
+      content = <<~AUTHCONF
         authorization: {
           version: 1
           rules: [
@@ -528,6 +528,12 @@ module PerfHelper
           ]
         }
       AUTHCONF
+      create_remote_file(master, auth_conf, content)
+      on(master, "puppetserver reload")
+      if any_hosts_as?("compile_master")
+        create_remote_file(compile_master, auth_conf, content)
+        on(compile_master, "puppetserver reload")
+      end
     end
   end
 

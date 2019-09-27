@@ -722,7 +722,8 @@ module PerfRunHelper
       end
 
       sim_runner_dir = "/root/gatling-puppet-load-test/simulation-runner/"
-      base_url = "https://#{master.hostname}:8140"
+      pup = any_hosts_as?("loadbalancer") ? loadbalancer : master
+      base_url = "https://#{pup}:8140"
       sim_config = "config/scenarios/#{gatling_scenario} "
       reports_target_path = "#{sim_runner_dir}/results/#{reports_target}"
       command = "cd #{sim_runner_dir} && " \
@@ -844,6 +845,13 @@ module PerfRunHelper
     scp_to(master, "util/metrics/collect_metrics_files.rb", "/root/collect_metrics_files.rb")
     start_epoch = File.read("#{@archive_root}/start_epoch")
     end_epoch = File.read("#{@archive_root}/end_epoch")
+
+    # privatebindir is not available if beaker did not install puppet.
+    # So, we introspect it from the host based on the installed puppet.
+    unless master["privatebindir"]
+      res = on(master, "readlink -f $(which puppet)")
+      master["privatebindir"] = File.dirname(res.stdout.chomp)
+    end
     cmf_output = on(master,
                     "env PATH=\"#{master['privatebindir']}:${PATH}\" \
                     ruby /root/collect_metrics_files.rb --start_epoch #{start_epoch} --end_epoch #{end_epoch}")

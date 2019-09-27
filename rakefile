@@ -588,8 +588,16 @@ namespace :pe_xl do
 
   file "#{BUILD_DIR}/pe_xl_plan_result" do
     puts "Running bolt plan"
-    system "bolt plan run pe_xl --debug --inventory #{BUILD_DIR}/nodes.yaml --params @#{BUILD_DIR}/params.json"
-    File.write("#{BUILD_DIR}/pe_xl_plan_result", $?)
+    cmd = %W[
+      bolt plan run pe_xl
+      --debug
+      --inventory #{BUILD_DIR}/nodes.yaml
+      --params @#{BUILD_DIR}/params.json
+    ].join(" ")
+    res = system cmd
+    res_str = "#{$?.to_i}\n#{res}\n"
+    File.write("#{BUILD_DIR}/pe_xl_plan_result", res_str)
+    raise "Plan for pe_xl failed: #{res_str}" if $?.to_i != 0
   end
 
   desc "Run pe_xl plan"

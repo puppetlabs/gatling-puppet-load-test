@@ -13,7 +13,7 @@ import io.gatling.http.Predef._
 class OpsWorksSmall extends SimulationWithScenario {
 
 // 	val httpProtocol = http
-// 		.baseURL("https://aws-mom.us-west-2.compute.internal:8140")
+// 		.baseURL("https://aws-master.us-west-2.compute.internal:8140")
 
 	val reportBody = ElFileBody("OpsWorksSmall_0005_request.txt")
 
@@ -29,7 +29,7 @@ class OpsWorksSmall extends SimulationWithScenario {
 		"X-Puppet-Version" -> "4.10.4",
 		"Connection" -> "close")
 //
-// val uri1 = "https://aws-mom.us-west-2.compute.internal:8140/puppet/v3"
+// val uri1 = "https://aws-master.us-west-2.compute.internal:8140/puppet/v3"
 
 	val scn = scenario("OpsWorksSmall")
 		.exec(http("node")

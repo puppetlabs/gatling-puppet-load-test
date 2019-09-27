@@ -26,8 +26,8 @@ module AbsHelper
   SECONDS_PER_DAY = 86_400
   AWS_REAP_TIME = SECONDS_PER_DAY.to_s.freeze
 
-  # TODO: update mom and metrics config
-  MOM_VOLUME_SIZE = AWS_VOLUME_SIZE.freeze
+  # TODO: update master and metrics config
+  MASTER_VOLUME_SIZE = AWS_VOLUME_SIZE.freeze
   METRICS_VOLUME_SIZE = AWS_VOLUME_SIZE.freeze
 
   # used in pe_xl provisioning
@@ -62,8 +62,8 @@ module AbsHelper
         @aws_reap_time = ENV["ABS_AWS_REAP_TIME"] || AWS_REAP_TIME
       end
 
-      @mom_size = ENV["ABS_AWS_MOM_SIZE"]
-      @mom_volume_size = ENV["ABS_AWS_MOM_VOLUME_SIZE"] || MOM_VOLUME_SIZE
+      @master_size = ENV["ABS_AWS_MASTER_SIZE"]
+      @master_volume_size = ENV["ABS_AWS_MASTER_VOLUME_SIZE"] || MASTER_VOLUME_SIZE
       @metrics_size = ENV["ABS_AWS_METRICS_SIZE"]
       @metrics_volume_size = ENV["ABS_METRICS_VOLUME_SIZE"] || METRICS_VOLUME_SIZE
       @abs_beaker_pe_version = ENV["BEAKER_PE_VER"] || nil
@@ -76,24 +76,24 @@ module AbsHelper
   #
   # @author Bill Claytor
   #
-  # @return [Hash] The ApplesToApples hosts (mom and metrics)
+  # @return [Hash] The ApplesToApples hosts (master and metrics)
   #
   # @example
   #   hosts = abs_get_a2a_hosts
   #
   def get_a2a_hosts
     abs_initialize
-    mom =
-      { 'role': "mom",
-        'size': @mom_size,
-        'volume_size': @mom_volume_size }
+    master =
+      { 'role': "master",
+        'size': @master_size,
+        'volume_size': @master_volume_size }
 
     metrics =
       { 'role': "metrics",
         'size': @metrics_size,
         'volume_size': @metrics_volume_size }
 
-    hosts = [mom, metrics]
+    hosts = [master, metrics]
 
     hosts
   end
@@ -124,7 +124,7 @@ module AbsHelper
   # Attempts to provision the specified hosts via ABS
   #
   # hosts will likely come from abs_get_a2a_hosts:
-  #  {"mom": @abs_aws_mom_size, "metrics": @abs_aws_metrics_size}
+  #  {"master": @abs_aws_master_size, "metrics": @abs_aws_metrics_size}
   #
   # otherwise specify hosts in the following format
   #  {"role1": "size1", "role2": "size2", ... }

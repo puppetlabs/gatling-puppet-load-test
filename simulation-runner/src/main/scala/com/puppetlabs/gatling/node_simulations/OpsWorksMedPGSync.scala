@@ -13,7 +13,7 @@ import io.gatling.http.Predef._
 class OpsWorksMedPGSync extends SimulationWithScenario {
 
 // 	val httpProtocol = http
-// 		.baseURL("https://aws-med-mom.us-west-2.compute.internal:8140")
+// 		.baseURL("https://aws-med-master.us-west-2.compute.internal:8140")
 
 	val reportBody = ElFileBody("OpsWorksMedPGSync_0601_request.txt")
 
@@ -34,7 +34,7 @@ class OpsWorksMedPGSync extends SimulationWithScenario {
 		"X-Puppet-Version" -> "4.10.4",
 		"Connection" -> "close")
 //
-// val uri1 = "https://aws-med-mom.us-west-2.compute.internal:8140/puppet/v3"
+// val uri1 = "https://aws-med-master.us-west-2.compute.internal:8140/puppet/v3"
 
 	val chain_0 = exec(http("node")
 			.get("/puppet/v3/node/${node}?environment=production&transaction_uuid=b9e36ad7-dbd1-43d8-a5da-89b024900b94&fail_on_404=true")
@@ -1274,7 +1274,7 @@ val chain_6 = exec(http("")
 			.headers(headers_601)
 			.body(reportBody))
 
-					
+
 	val scn = scenario("OpsWorksMedPGSync").exec(
 		chain_0, chain_1, chain_2, chain_3, chain_4, chain_5, chain_6)
 // setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)

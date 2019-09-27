@@ -24,10 +24,10 @@ describe AbsHelperClass do
   TEST_REGION = "test-us-west-2".freeze
   TEST_REAP_TIME = "12345".freeze
 
-  # TODO: update to use different values for mom and metrics
-  TEST_MOM_ROLE = "mom".freeze
-  TEST_MOM_SIZE = TEST_SIZE
-  TEST_MOM_VOLUME_SIZE = TEST_VOLUME_SIZE
+  # TODO: update to use different values for master and metrics
+  TEST_MASTER_ROLE = "master".freeze
+  TEST_MASTER_SIZE = TEST_SIZE
+  TEST_MASTER_VOLUME_SIZE = TEST_VOLUME_SIZE
   TEST_METRICS_ROLE = "metrics".freeze
   TEST_METRICS_SIZE = TEST_SIZE
   TEST_METRICS_VOLUME_SIZE = TEST_VOLUME_SIZE
@@ -38,7 +38,7 @@ describe AbsHelperClass do
   TEST_AWSDIRECTRETURN_URI = URI(TEST_AWSDIRECTRETURN_URL).freeze
 
   TEST_HOSTNAME = "testing.puppet.net".freeze
-  TEST_HOSTNAME_MOM = "mom.puppet.net".freeze
+  TEST_HOSTNAME_MASTER = "master.puppet.net".freeze
   TEST_HOSTNAME_METRICS = "metrics.puppet.net".freeze
 
   TEST_ABS_TYPE = "el-7-x86_64".freeze
@@ -60,14 +60,14 @@ describe AbsHelperClass do
           { 'role': TEST_ROLE, 'pe_version': TEST_BEAKER_PE_VERSION },
       'volume_size': TEST_VOLUME_SIZE }.to_json.freeze
 
-  TEST_AWSDIRECT_MOM_REQUEST_BODY =
+  TEST_AWSDIRECT_MASTER_REQUEST_BODY =
     { 'platform': TEST_PLATFORM,
       'image_id': TEST_IMAGE_ID,
-      'size': TEST_MOM_SIZE,
+      'size': TEST_MASTER_SIZE,
       'region': TEST_REGION,
       'reap_time': TEST_REAP_TIME,
       'tags':
-          { 'role': "mom", 'pe_version': "value2" },
+          { 'role': "master", 'pe_version': "value2" },
       'volume_size': TEST_VOLUME_SIZE }.to_json.freeze
 
   TEST_AWSDIRECT_METRICS_REQUEST_BODY =
@@ -102,8 +102,8 @@ describe AbsHelperClass do
   TEST_VALID_RESPONSE_CODE = "200".freeze
   TEST_INVALID_RESPONSE_CODE = "777".freeze
 
-  TEST_A2A_MOM =
-    { 'role': "mom",
+  TEST_A2A_MASTER =
+    { 'role': "master",
       'size': TEST_SIZE,
       'volume_size': TEST_VOLUME_SIZE }.freeze
 
@@ -112,9 +112,9 @@ describe AbsHelperClass do
       'size': TEST_SIZE,
       'volume_size': TEST_VOLUME_SIZE }.freeze
 
-  TEST_A2A_HOSTS = [TEST_A2A_MOM, TEST_A2A_METRICS].freeze
+  TEST_A2A_HOSTS = [TEST_A2A_MASTER, TEST_A2A_METRICS].freeze
 
-  # TODO: update to use mom and metrics
+  # TODO: update to use master and metrics
   TEST_ABS_HOSTS = [TEST_HOST, TEST_HOST].freeze
 
   # the final result is converted back to json
@@ -157,7 +157,7 @@ describe AbsHelperClass do
           ENV["ABS_AWS_VOLUME_SIZE"] = TEST_VOLUME_SIZE
           ENV["ABS_AWS_REGION"] = TEST_REGION
           ENV["ABS_AWS_REAP_TIME"] = TEST_REAP_TIME
-          ENV["ABS_AWS_MOM_SIZE"] = TEST_MOM_SIZE
+          ENV["ABS_AWS_MASTER_SIZE"] = TEST_MASTER_SIZE
           ENV["ABS_AWS_METRICS_SIZE"] = TEST_METRICS_SIZE
           ENV["BEAKER_PE_VER"] = TEST_BEAKER_PE_VERSION
 
@@ -169,7 +169,7 @@ describe AbsHelperClass do
           expect(subject.instance_variable_get(:@aws_image_id)).to eq(TEST_IMAGE_ID)
           expect(subject.instance_variable_get(:@aws_region)).to eq(TEST_REGION)
           expect(subject.instance_variable_get(:@aws_reap_time)).to eq(TEST_REAP_TIME)
-          expect(subject.instance_variable_get(:@mom_size)).to eq(TEST_MOM_SIZE)
+          expect(subject.instance_variable_get(:@master_size)).to eq(TEST_MASTER_SIZE)
           expect(subject.instance_variable_get(:@metrics_size))
             .to eq(TEST_METRICS_SIZE)
           expect(subject.instance_variable_get(:@abs_beaker_pe_version))
@@ -186,13 +186,13 @@ describe AbsHelperClass do
           ENV["ABS_AWS_IMAGE_ID"] = nil
           ENV["ABS_AWS_REGION"] = nil
           ENV["ABS_AWS_REAP_TIME"] = nil
-          ENV["ABS_AWS_MOM_SIZE"] = nil
+          ENV["ABS_AWS_MASTER_SIZE"] = nil
           ENV["ABS_AWS_METRICS_SIZE"] = nil
 
           stub_const("ABS_BASE_URL", TEST_ABS_BASE_URL)
           stub_const("ABS_AWS_PLATFORM", TEST_PLATFORM)
           stub_const("ABS_AWS_IMAGE_ID", TEST_IMAGE_ID)
-          stub_const("ABS_AWS_MOM_SIZE", TEST_MOM_SIZE)
+          stub_const("ABS_AWS_MASTER_SIZE", TEST_MASTER_SIZE)
           stub_const("ABS_AWS_METRICS_SIZE", TEST_METRICS_SIZE)
           stub_const("ABS_AWS_REGION", TEST_REGION)
           stub_const("ABS_AWS_REAP_TIME", TEST_REAP_TIME)
@@ -205,7 +205,7 @@ describe AbsHelperClass do
           expect(subject.instance_variable_get(:@aws_image_id)).to eq(TEST_IMAGE_ID)
           expect(subject.instance_variable_get(:@aws_region)).to eq(TEST_REGION)
           expect(subject.instance_variable_get(:@aws_reap_time)).to eq(TEST_REAP_TIME)
-          expect(subject.instance_variable_get(:@mom_size)).to eq(TEST_MOM_SIZE)
+          expect(subject.instance_variable_get(:@master_size)).to eq(TEST_MASTER_SIZE)
           expect(subject.instance_variable_get(:@metrics_size))
             .to eq(TEST_METRICS_SIZE)
 
@@ -226,8 +226,8 @@ describe AbsHelperClass do
 
   describe "#get_a2a_hosts" do
     before do
-      subject.instance_variable_set("@mom_size", TEST_MOM_SIZE)
-      subject.instance_variable_set("@mom_volume_size", TEST_MOM_VOLUME_SIZE)
+      subject.instance_variable_set("@master_size", TEST_MASTER_SIZE)
+      subject.instance_variable_set("@master_volume_size", TEST_MASTER_VOLUME_SIZE)
       subject.instance_variable_set("@metrics_size", TEST_METRICS_SIZE)
       subject.instance_variable_set("@metrics_volume_size", TEST_METRICS_VOLUME_SIZE)
     end
@@ -241,8 +241,8 @@ describe AbsHelperClass do
   end
 
   describe "#get_host_to_provision" do
-    role = "mom"
-    host_array = [TEST_A2A_MOM]
+    role = "master"
+    host_array = [TEST_A2A_MASTER]
     context "when the required arguments are specified" do
       it "returns the expected host array" do
         expect(subject.get_host_to_provision(role, TEST_SIZE, TEST_VOLUME_SIZE)).to eq(host_array)
@@ -263,7 +263,7 @@ describe AbsHelperClass do
           allow(TEST_ABS_RESOURCE_HOSTS).to receive(:each)
 
           expect(subject).to receive(:get_abs_resource_host)
-            .with(TEST_A2A_MOM).and_return(TEST_HOST)
+            .with(TEST_A2A_MASTER).and_return(TEST_HOST)
 
           expect(subject).to receive(:get_abs_resource_host)
             .with(TEST_A2A_METRICS).and_return(TEST_HOST)
@@ -288,7 +288,7 @@ describe AbsHelperClass do
         context "when there have been no valid responses" do
           it "does not attempt to return hosts, reports the error and returns nil" do
             ENV["ABS_TOKEN"] = TEST_ABS_TOKEN
-            error_message = "Unable to provision host for role: #{TEST_A2A_MOM[:role]}"
+            error_message = "Unable to provision host for role: #{TEST_A2A_MASTER[:role]}"
 
             expect(subject).to receive(:abs_initialize).and_return(true)
             expect(subject).to receive(:puts)
@@ -297,7 +297,7 @@ describe AbsHelperClass do
             allow(TEST_ABS_RESOURCE_HOSTS).to receive(:each)
 
             expect(subject).to receive(:get_abs_resource_host)
-              .with(TEST_A2A_MOM).and_raise(RuntimeError, error_message)
+              .with(TEST_A2A_MASTER).and_raise(RuntimeError, error_message)
 
             expect(subject).to receive(:puts).with("No ABS hosts were provisioned")
 
@@ -326,7 +326,7 @@ describe AbsHelperClass do
 
             # valid
             expect(subject).to receive(:get_abs_resource_host)
-              .with(TEST_A2A_MOM).and_return(TEST_HOST)
+              .with(TEST_A2A_MASTER).and_return(TEST_HOST)
 
             # invalid
             expect(subject).to receive(:get_abs_resource_host)
@@ -373,10 +373,10 @@ describe AbsHelperClass do
   describe "#get_abs_resource_host" do
     context "when the response is valid" do
       it "parses the response and returns the host" do
-        expect(subject).to receive(:puts).with("Host_to_request: #{TEST_A2A_MOM}")
+        expect(subject).to receive(:puts).with("Host_to_request: #{TEST_A2A_MASTER}")
 
         expect(subject).to receive(:get_awsdirect_request_body)
-          .with(TEST_A2A_MOM).and_return(TEST_AWSDIRECT_REQUEST_BODY)
+          .with(TEST_A2A_MASTER).and_return(TEST_AWSDIRECT_REQUEST_BODY)
 
         expect(subject).to receive(:perform_awsdirect_request).and_return(test_http_response)
 
@@ -387,18 +387,18 @@ describe AbsHelperClass do
         expect(subject).to receive(:parse_awsdirect_response_body)
           .with(TEST_AWSDIRECT_RESPONSE_BODY).and_return(TEST_HOST)
 
-        expect(subject.get_abs_resource_host(TEST_A2A_MOM)).to eq(TEST_HOST)
+        expect(subject.get_abs_resource_host(TEST_A2A_MASTER)).to eq(TEST_HOST)
       end
     end
 
     context "when the response is not valid" do
       it "does not parse the response and raises an error" do
-        error_message = "Unable to provision host for role: #{TEST_A2A_MOM[:role]}"
+        error_message = "Unable to provision host for role: #{TEST_A2A_MASTER[:role]}"
 
-        expect(subject).to receive(:puts).with("Host_to_request: #{TEST_A2A_MOM}")
+        expect(subject).to receive(:puts).with("Host_to_request: #{TEST_A2A_MASTER}")
 
         expect(subject).to receive(:get_awsdirect_request_body)
-          .with(TEST_A2A_MOM).and_return(TEST_AWSDIRECT_REQUEST_BODY)
+          .with(TEST_A2A_MASTER).and_return(TEST_AWSDIRECT_REQUEST_BODY)
 
         expect(subject).to receive(:perform_awsdirect_request).and_return(test_http_response)
 
@@ -408,7 +408,7 @@ describe AbsHelperClass do
         expect(subject).to receive(:valid_abs_response?)
           .with(test_http_response).and_return(false)
 
-        expect { subject.get_abs_resource_host(TEST_A2A_MOM) }
+        expect { subject.get_abs_resource_host(TEST_A2A_MASTER) }
           .to raise_error(RuntimeError, error_message)
       end
     end
@@ -592,14 +592,14 @@ describe AbsHelperClass do
         test_expected_request_body =
           { 'platform': TEST_PLATFORM,
             'image_id': TEST_IMAGE_ID,
-            'size': TEST_A2A_MOM[:size],
+            'size': TEST_A2A_MASTER[:size],
             'region': TEST_REGION,
             'reap_time': TEST_REAP_TIME,
             'tags':
-                { 'role': TEST_A2A_MOM[:role], 'pe_version': TEST_BEAKER_PE_VERSION },
-            'volume_size': TEST_A2A_MOM[:volume_size] }.to_json
+                { 'role': TEST_A2A_MASTER[:role], 'pe_version': TEST_BEAKER_PE_VERSION },
+            'volume_size': TEST_A2A_MASTER[:volume_size] }.to_json
 
-        expect(subject.get_awsdirect_request_body(TEST_A2A_MOM))
+        expect(subject.get_awsdirect_request_body(TEST_A2A_MASTER))
           .to eq(test_expected_request_body)
       end
     end
@@ -1213,8 +1213,8 @@ describe AbsHelperClass do
       allow(subject).to receive(:puts)
     end
 
-    host_to_provision = [TEST_A2A_MOM]
-    role = "mom"
+    host_to_provision = [TEST_A2A_MASTER]
+    role = "master"
     hostname = TEST_HOSTNAME
     message = "Successfully provisioned host - role: #{role}, hostname: #{hostname}"
 
@@ -1259,9 +1259,9 @@ describe AbsHelperClass do
       allow(subject).to receive(:puts)
     end
 
-    roles = %w[mom metrics]
+    roles = %w[master metrics]
     abs_id = "testing"
-    expected_hosts = [{ role: "mom", hostname: TEST_HOSTNAME_MOM },
+    expected_hosts = [{ role: "master", hostname: TEST_HOSTNAME_MASTER },
                       { role: "metrics", hostname: TEST_HOSTNAME_METRICS }].freeze
 
     context "when only required args are specified" do
@@ -1272,8 +1272,8 @@ describe AbsHelperClass do
 
       it "uses the default values and returns the hosts array" do
         skip "FIXME: The roles array can be built in any order, the test should be fixed to accomodate"
-        expect(subject).to receive(:provision_host_for_role).with("mom", TEST_SIZE, TEST_VOLUME_SIZE)
-                                                            .and_return(TEST_HOSTNAME_MOM)
+        expect(subject).to receive(:provision_host_for_role).with("master", TEST_SIZE, TEST_VOLUME_SIZE)
+                                                            .and_return(TEST_HOSTNAME_MASTER)
         expect(subject).to receive(:provision_host_for_role).with("metrics", TEST_SIZE, TEST_VOLUME_SIZE)
                                                             .and_return(TEST_HOSTNAME_METRICS)
         expect(subject.provision_hosts_for_roles(roles)).to eq(expected_hosts)
@@ -1283,8 +1283,8 @@ describe AbsHelperClass do
     context "when all args are specified" do
       it "provisions hosts with the specified roles using specified values and returns the hosts array" do
         skip "FIXME: The roles array can be built in any order, the test should be fixed to accomodate"
-        expect(subject).to receive(:provision_host_for_role).with("mom", TEST_SIZE, TEST_VOLUME_SIZE)
-                                                            .and_return(TEST_HOSTNAME_MOM)
+        expect(subject).to receive(:provision_host_for_role).with("master", TEST_SIZE, TEST_VOLUME_SIZE)
+                                                            .and_return(TEST_HOSTNAME_MASTER)
         expect(subject).to receive(:provision_host_for_role).with("metrics", TEST_SIZE, TEST_VOLUME_SIZE)
                                                             .and_return(TEST_HOSTNAME_METRICS)
         expect(subject.provision_hosts_for_roles(roles, abs_id, TEST_SIZE, TEST_VOLUME_SIZE)).to eq(expected_hosts)

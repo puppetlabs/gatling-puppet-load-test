@@ -53,7 +53,7 @@ source config/env/env_setup_2019.0.1
 ```
 
 ## Provision GPLT hosts
-Execute a 'performance' run to provision the 'mom' and 'metrics' hosts via ABS and run the Beaker pre-suite.
+Execute a 'performance' run to provision the 'master' and 'metrics' hosts via ABS and run the Beaker pre-suite.
 For a standard performance test environment run the `performance_setup` rake task.
 For a scale test environment run the `autoscale_setup` rake task.
 
@@ -117,7 +117,7 @@ The Auto DevOps pipeline has been enabled and will be used if no alternative CI 
 * Click the 'Save changes' button.
 
 ## Apply tuning
-If the master was previously tuned the configuration will be lost when the imported control repo is deployed. 
+If the master was previously tuned the configuration will be lost when the imported control repo is deployed.
 It must be added to the control repo to be applied upon deployment.
 * SSH to the 'master' node
 * Run the following command:
@@ -132,9 +132,9 @@ If a custom tune was previously applied it will be shown in the output. For exam
 
 Warning: /etc/puppetlabs/puppet/hiera.yaml: Use of 'hiera.yaml' version 3 is deprecated. It should be converted to version 5
    (file: /etc/puppetlabs/puppet/hiera.yaml)
-Warning: Undefined variable 'is_vagrant'; 
+Warning: Undefined variable 'is_vagrant';
    (file & line not available)
-Warning: Undefined variable 'lsbdistcodename'; 
+Warning: Undefined variable 'lsbdistcodename';
    (file & line not available)
 ## Found custom settings for Primary Master ip-10-227-0-128.amz-dev.puppet.net
 
@@ -177,7 +177,7 @@ CD4PE is designed to use the master branch as the default with additional branch
 # PE
 
 ## Code Manager
-We'll be using [Code Manager](https://puppet.com/docs/pe/2019.0/code_mgr.html) to deploy the [cd4pe module](https://forge.puppet.com/puppetlabs/cd4pe), so we'll set it up next. 
+We'll be using [Code Manager](https://puppet.com/docs/pe/2019.0/code_mgr.html) to deploy the [cd4pe module](https://forge.puppet.com/puppetlabs/cd4pe), so we'll set it up next.
 The following steps are based on the documentation found here:
 https://puppet.com/docs/pe/2019.0/code_mgr_config.html#enable-code-manager-after-installation
 
@@ -200,7 +200,7 @@ Host gplt-gitlab
   User git
   IdentityFile /etc/puppetlabs/puppetserver/ssh/id-control_repo.rsa
   PreferredAuthentications publickey
-  UserKnownHostsFile=/dev/null  
+  UserKnownHostsFile=/dev/null
 ```
 
 * Create the 'ssh' directory and assign ownership to 'pe-puppet':
@@ -210,7 +210,7 @@ cd /etc/puppetlabs/puppetserver && mkdir ssh && chown pe-puppet:pe-puppet ssh
 
 * Generate the 'id-control_repo' key:
 ```
-ssh-keygen -t rsa -b 2048 -C "gplt@puppet.com" -f /etc/puppetlabs/puppetserver/ssh/id-control_repo.rsa -q -N "" 
+ssh-keygen -t rsa -b 2048 -C "gplt@puppet.com" -f /etc/puppetlabs/puppetserver/ssh/id-control_repo.rsa -q -N ""
 
 ```
 
@@ -287,7 +287,7 @@ puppet agent -t
 ```
 
 ### Update the environment timeout
-Code Manager sets the `environment_timeout` value in `/etc/puppetlabs/puppet/puppet.conf` to `unlimited` which means that Puppet Server will hold the results of parsing puppet manifests in memory and re-use them until the next deploy instead of re-reading and re-parsing the files for each catalog request.   
+Code Manager sets the `environment_timeout` value in `/etc/puppetlabs/puppet/puppet.conf` to `unlimited` which means that Puppet Server will hold the results of parsing puppet manifests in memory and re-use them until the next deploy instead of re-reading and re-parsing the files for each catalog request.
 * Edit `/etc/puppetlabs/puppet/puppet.conf` to specify `environment_timeout = 0`
 * Restart pe-puppetserver
 ```
@@ -297,7 +297,7 @@ service pe-puppetserver restart
 The master is now ready to install CD4PE using the module-based approach.
 
 # CD4PE
- 
+
 ## Install the CD4PE module
 The Puppetfile below can be used with the instructions at the following link to install CD4PE:
 https://puppet.com/docs/continuous-delivery/2.x/install_module.html

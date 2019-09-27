@@ -18,7 +18,7 @@ id=slv
 date=$(date +"%Y-%m-%d")
 source=${PWD}/gatling-puppet-load-test/results/${type}
 results=${source}/"$@"
-dest=/usr/share/nginx/html/gplt/${type}/${id}/${BEAKER_PE_VER}/${ABS_AWS_MOM_SIZE}
+dest=/usr/share/nginx/html/gplt/${type}/${id}/${BEAKER_PE_VER}/${ABS_AWS_MASTER_SIZE}
 
 sudo mkdir -p ${dest}
 sudo cp -r -L ${results} ${dest}

@@ -6,6 +6,9 @@ test_name "check configuration" do
   end
 
   step "fail on presence of scale: logic: setting" do
-    fail_test "The 'logic' setting in the 'scale' configuration section is obsolete. Please use 'static_files' and 'dynamic_files' instead." if options[:scale] && options[:scale][:logic] # rubocop:disable Metrics/LineLength
+    if options[:scale] && options[:scale][:logic]
+      fail_test "The 'logic' setting in the 'scale' configuration section is obsolete." \
+        "Please use 'static_files' and 'dynamic_files' instead."
+    end
   end
 end

@@ -23,6 +23,7 @@ module PerfRunHelper
                                       else
                                         ["puppetserver"]
                                       end
+  PUPPET_METRICS_COLLECTOR_DIR_NAME = "puppet-metrics-collector"
 
   PERF_RESULTS_DIR = "results/perf"
   SCALE_RESULTS_DIR = "results/scale"
@@ -352,34 +353,6 @@ module PerfRunHelper
     output
   end
 
-  # Copy the puppet-metrics-collector log files for each service
-  #
-  # @author Bill Claytor
-  #
-  # @param [String] destination_dir The destination directory
-  #
-  # @return [void]
-  #
-  # @example
-  #   copy_puppet_metrics_collector(destination_dir)
-  #
-  # TODO: update for SLV-430
-  #
-  def copy_puppet_metrics_collector(destination_dir)
-    puts "Copying 'puppet-metrics-collector' to #{destination_dir}"
-    puts
-
-    dest_pmc_dir = "#{destination_dir}/puppet-metrics-collector"
-    FileUtils.mkdir_p dest_pmc_dir
-
-    PUPPET_METRICS_COLLECTOR_SERVICES.each do |service|
-      source_dir = "/opt/puppetlabs/puppet-metrics-collector/#{service}"
-      scp_from(master, source_dir.to_s, dest_pmc_dir.to_s)
-    end
-
-    extract_puppet_metrics_collector_data(dest_pmc_dir)
-  end
-
   # Generate a name for the scenario that includes the iteration and number of instances
   #
   # @author Bill Claytor
@@ -549,9 +522,9 @@ module PerfRunHelper
 
     # copy puppet-metrics-collector to scale results dir (this iteration) and parent dir (entire scale run)
     # TODO: rename dir to 'puppet-metrics-collector'
-    src = "#{@archive_root}/puppet_metrics_collector"
-    FileUtils.copy_entry src, "#{scale_result_dir}/puppet_metrics_collector"
-    FileUtils.copy_entry src, "#{scale_results_parent_dir}/puppet_metrics_collector"
+    src = "#{@archive_root}/#{PUPPET_METRICS_COLLECTOR_DIR_NAME}"
+    FileUtils.copy_entry src, "#{scale_result_dir}/#{PUPPET_METRICS_COLLECTOR_DIR_NAME}"
+    FileUtils.copy_entry src, "#{scale_results_parent_dir}/#{PUPPET_METRICS_COLLECTOR_DIR_NAME}"
 
     # copy epoch files
     # TODO: update to include in the bulk copy below when these have an extension
@@ -1033,4 +1006,4 @@ module PerfRunHelper
   # rubocop: enable Naming/AccessorMethodName
 end
 
-Beaker::TestCase.send(:include, PerfRunHelper)
+Beaker::TestCase.include PerfRunHelper

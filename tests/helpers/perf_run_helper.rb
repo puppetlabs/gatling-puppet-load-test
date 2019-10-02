@@ -23,7 +23,6 @@ module PerfRunHelper
                                       else
                                         ["puppetserver"]
                                       end
-  PUPPET_METRICS_COLLECTOR_DIR_NAME = "puppet-metrics-collector"
 
   PERF_RESULTS_DIR = "results/perf"
   SCALE_RESULTS_DIR = "results/scale"
@@ -492,10 +491,6 @@ module PerfRunHelper
     scale_result_dir = "#{scale_results_parent_dir}/#{scenario.gsub('.json', '')}"
     FileUtils.mkdir_p scale_result_dir
 
-    # copy entire results to scale results dir (TODO: remove this?)
-    # perf_result_dir = File.basename(@archive_root)
-    # FileUtils.copy_entry @archive_root, "#{scale_result_dir}/#{perf_result_dir}"
-
     # copy metric
     remote_result_dir = "root/gatling-puppet-load-test/simulation-runner/results"
     metric_results = "#{@archive_root}/#{metric.hostname}/#{remote_result_dir}/#{@dir_name}"
@@ -521,8 +516,7 @@ module PerfRunHelper
     FileUtils.copy_file stats_path, "#{json_dir}/#{scenario.gsub('.json', 'stats.json')}"
 
     # copy puppet-metrics-collector to scale results dir (this iteration) and parent dir (entire scale run)
-    # TODO: rename dir to 'puppet-metrics-collector'
-    src = "#{@archive_root}/#{PUPPET_METRICS_COLLECTOR_DIR_NAME}"
+    src = File.join(@archive_root, PUPPET_METRICS_COLLECTOR_DIR_NAME)
     FileUtils.copy_entry src, "#{scale_result_dir}/#{PUPPET_METRICS_COLLECTOR_DIR_NAME}"
     FileUtils.copy_entry src, "#{scale_results_parent_dir}/#{PUPPET_METRICS_COLLECTOR_DIR_NAME}"
 

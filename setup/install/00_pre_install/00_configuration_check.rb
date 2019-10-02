@@ -6,9 +6,10 @@ test_name "check configuration" do
   end
 
   step "fail on presence of scale: logic: setting" do
-    if options[:scale] && options[:scale][:logic]
-      fail_test "The 'logic' setting in the 'scale' configuration section is obsolete." \
-        "Please use 'static_files' and 'dynamic_files' instead."
-    end
+    fail_msg = %w[
+      The logic setting in the scale configuration section is obsolete.
+      Please use static_files and dynamic_files instead.
+    ].join(" ")
+    fail_test fail_msg if options.dig(:scale, :logic)
   end
 end

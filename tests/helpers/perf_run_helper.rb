@@ -517,8 +517,8 @@ module PerfRunHelper
 
     # copy puppet-metrics-collector to scale results dir (this iteration) and parent dir (entire scale run)
     src = File.join(@archive_root, PUPPET_METRICS_COLLECTOR_DIR_NAME)
-    FileUtils.copy_entry src, "#{scale_result_dir}/#{PUPPET_METRICS_COLLECTOR_DIR_NAME}"
-    FileUtils.copy_entry src, "#{scale_results_parent_dir}/#{PUPPET_METRICS_COLLECTOR_DIR_NAME}"
+    FileUtils.copy_entry src, File.join(scale_result_dir, PUPPET_METRICS_COLLECTOR_DIR_NAME)
+    FileUtils.copy_entry src, File.join(scale_results_parent_dir, PUPPET_METRICS_COLLECTOR_DIR_NAME)
 
     # copy epoch files
     # TODO: update to include in the bulk copy below when these have an extension
@@ -528,7 +528,7 @@ module PerfRunHelper
     # copy any csv/html/json/tar.gz/txt files
     res_files = Dir.glob("#{@archive_root}/*.{csv,html,json,tar.gz,txt}")
     res_files.each do |file|
-      FileUtils.copy_file file, "#{scale_result_dir}/#{File.basename(file)}"
+      FileUtils.copy_file file, File.join(scale_result_dir, File.basename(file))
     end
   end
 

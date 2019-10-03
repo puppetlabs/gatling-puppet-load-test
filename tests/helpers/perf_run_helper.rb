@@ -352,34 +352,6 @@ module PerfRunHelper
     output
   end
 
-  # Copy the puppet-metrics-collector log files for each service
-  #
-  # @author Bill Claytor
-  #
-  # @param [String] destination_dir The destination directory
-  #
-  # @return [void]
-  #
-  # @example
-  #   copy_puppet_metrics_collector(destination_dir)
-  #
-  # TODO: update for SLV-430
-  #
-  def copy_puppet_metrics_collector(destination_dir)
-    puts "Copying 'puppet-metrics-collector' to #{destination_dir}"
-    puts
-
-    dest_pmc_dir = "#{destination_dir}/puppet-metrics-collector"
-    FileUtils.mkdir_p dest_pmc_dir
-
-    PUPPET_METRICS_COLLECTOR_SERVICES.each do |service|
-      source_dir = "/opt/puppetlabs/puppet-metrics-collector/#{service}"
-      scp_from(master, source_dir.to_s, dest_pmc_dir.to_s)
-    end
-
-    extract_puppet_metrics_collector_data(dest_pmc_dir)
-  end
-
   # Generate a name for the scenario that includes the iteration and number of instances
   #
   # @author Bill Claytor
@@ -519,10 +491,6 @@ module PerfRunHelper
     scale_result_dir = "#{scale_results_parent_dir}/#{scenario.gsub('.json', '')}"
     FileUtils.mkdir_p scale_result_dir
 
-    # copy entire results to scale results dir (TODO: remove this?)
-    # perf_result_dir = File.basename(@archive_root)
-    # FileUtils.copy_entry @archive_root, "#{scale_result_dir}/#{perf_result_dir}"
-
     # copy metric
     remote_result_dir = "root/gatling-puppet-load-test/simulation-runner/results"
     metric_results = "#{@archive_root}/#{metric.hostname}/#{remote_result_dir}/#{@dir_name}"
@@ -548,10 +516,9 @@ module PerfRunHelper
     FileUtils.copy_file stats_path, "#{json_dir}/#{scenario.gsub('.json', 'stats.json')}"
 
     # copy puppet-metrics-collector to scale results dir (this iteration) and parent dir (entire scale run)
-    # TODO: rename dir to 'puppet-metrics-collector'
-    src = "#{@archive_root}/puppet_metrics_collector"
-    FileUtils.copy_entry src, "#{scale_result_dir}/puppet_metrics_collector"
-    FileUtils.copy_entry src, "#{scale_results_parent_dir}/puppet_metrics_collector"
+    src = File.join(@archive_root, PUPPET_METRICS_COLLECTOR_DIR_NAME)
+    FileUtils.copy_entry src, File.join(scale_result_dir, PUPPET_METRICS_COLLECTOR_DIR_NAME)
+    FileUtils.copy_entry src, File.join(scale_results_parent_dir, PUPPET_METRICS_COLLECTOR_DIR_NAME)
 
     # copy epoch files
     # TODO: update to include in the bulk copy below when these have an extension
@@ -561,7 +528,7 @@ module PerfRunHelper
     # copy any csv/html/json/tar.gz/txt files
     res_files = Dir.glob("#{@archive_root}/*.{csv,html,json,tar.gz,txt}")
     res_files.each do |file|
-      FileUtils.copy_file file, "#{scale_result_dir}/#{File.basename(file)}"
+      FileUtils.copy_file file, File.join(scale_result_dir, File.basename(file))
     end
   end
 
@@ -1033,4 +1000,4 @@ module PerfRunHelper
   # rubocop: enable Naming/AccessorMethodName
 end
 
-Beaker::TestCase.send(:include, PerfRunHelper)
+Beaker::TestCase.include PerfRunHelper

@@ -62,7 +62,7 @@ module Metrics
       @verbose = verbose
 
       @parent_staging_dir = Dir.mktmpdir
-      @staging_dir = @parent_staging_dir + "/puppet_metrics_collector"
+      @staging_dir = @parent_staging_dir + "/puppet-metrics-collector"
       FileUtils.mkdir_p(@staging_dir)
       puts "staging dir is #{@staging_dir}" if @verbose
     end

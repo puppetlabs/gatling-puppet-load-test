@@ -66,8 +66,7 @@ module PerfResultsHelper
                            "catalog",
                            "report"].freeze
 
-  # TODO: update to 'puppet-metrics-collector' (SLV-589)
-  PUPPET_METRICS_COLLECTOR_DIR_NAME = "puppet_metrics_collector"
+  PUPPET_METRICS_COLLECTOR_DIR_NAME = "puppet-metrics-collector"
 
   # Extract Gatling JSON data into a CSV file in the format used in our release test reports
   # and convert the CSV file to an HTML file for easy viewing

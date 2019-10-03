@@ -246,11 +246,11 @@ In order to execute the tests successfully with the `opsworks_performance` rake 
 
 * `BEAKER_TESTS=tests/OpsWorks.rb`
 
-* `ABS_AWS_MOM_SIZE` to one of the following:
-    * `ABS_AWS_MOM_SIZE=m5.large`
-    * `ABS_AWS_MOM_SIZE=c4.xlarge`
-    * `ABS_AWS_MOM_SIZE=c4.2xlarge`
-    * `ABS_AWS_MOM_SIZE=""`
+* `ABS_AWS_MASTER_SIZE` to one of the following:
+    * `ABS_AWS_MASTER_SIZE=m5.large`
+    * `ABS_AWS_MASTER_SIZE=c4.xlarge`
+    * `ABS_AWS_MASTER_SIZE=c4.2xlarge`
+    * `ABS_AWS_MASTER_SIZE=""`
 
 * `PUPPET_SCALE_CLASS` to one of the following:
     * `PUPPET_SCALE_CLASS=role::by_size::small`
@@ -488,7 +488,7 @@ Assuming that you ran the performance task with no tests, you can follow the dir
 
 * SSH into the agent node and:  (Ignore instructions from the script)
     * Paste in the command
-    * Replace value for --server with the FQDN of the MOM
+    * Replace value for --server with the FQDN of the Master
     * Replace value for --http_proxy_host with the IP address of the Gatling driver node
     * Change the value for --http_proxy_port to 7000
     * Execute the command
@@ -520,7 +520,7 @@ sed -i 's/^#.*-mem.*$/-mem 2048/' /usr/share/sbt/conf/sbtopts
 * For each new simulation:
     * `cd ~/gatling-puppet-load-test/simulation-runner`
     * `export GEM_SOURCE=http://rubygems.delivery.puppetlabs.net`
-    * `export SUT_HOST=<MOM_OR_LB_HOSTNAME>.us-west-2.compute.internal`
+    * `export SUT_HOST=<MASTER_OR_LB_HOSTNAME>.us-west-2.compute.internal`
     * Create a json file containing your settings at config/scenarios/\<GatlingClassName>.json, example here: Gist **FIXME: Broken gist link**
 
         * Change node_config to \<GatlingClassName>.json (this file should exist in simulation-runner/config/nodes)

@@ -308,7 +308,7 @@ module PerfRunHelper
 
       # abs
       f << "ABS_AWS_METRICS_SIZE: #{ENV['ABS_AWS_METRICS_SIZE']}\n"
-      f << "ABS_AWS_MOM_SIZE: #{ENV['ABS_AWS_MOM_SIZE']}\n"
+      f << "ABS_AWS_MASTER_SIZE: #{ENV['ABS_AWS_MASTER_SIZE']}\n"
 
       # TODO: rename AWS_VOLUME_SIZE for consistency?
       f << "AWS_VOLUME_SIZE: #{ENV['AWS_VOLUME_SIZE']}\n"

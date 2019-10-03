@@ -103,7 +103,7 @@ PUPPET_GATLING_SCALE_BASE_INSTANCES=$PUPPET_GATLING_SCALE_BASE_INSTANCES
 PUPPET_GATLING_SCALE_ITERATIONS=$PUPPET_GATLING_SCALE_ITERATIONS
 PUPPET_GATLING_SCALE_INCREMENT=$PUPPET_GATLING_SCALE_INCREMENT
 PUPPET_GATLING_SCALE_SCENARIO=$PUPPET_GATLING_SCALE_SCENARIO
-ABS_AWS_MOM_SIZE=$ABS_AWS_MOM_SIZE
+ABS_AWS_MASTER_SIZE=$ABS_AWS_MASTER_SIZE
 ============================================"
 }
 
@@ -229,7 +229,7 @@ echo "Testing Standard Ref Arch: For Trial Use"
         else
             export PUPPET_GATLING_SCALE_BASE_INSTANCES=$TRIAL_L_COLD_TUNED_BASE_INSTANCES
         fi
-        export ABS_AWS_MOM_SIZE="$ec2"
+        export ABS_AWS_MASTER_SIZE="$ec2"
         test="$PREFIX-trial-$ec2-tune-$TUNE"
         cmd="bundle exec rake autoscale_$run_type > \"$test-$run_type-$i.log\""
         if [ -z $NOOP ]; then
@@ -280,7 +280,7 @@ echo "Testing Standard Ref Arch: Standard Deployment"
             else
                 export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_DEFAULT_BASE_INSTANCES
             fi
-            export ABS_AWS_MOM_SIZE="$ec2"
+            export ABS_AWS_MASTER_SIZE="$ec2"
             test="$PREFIX-std-$ec2-tune-$TUNE"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
             if [ -z $NOOP ]; then
@@ -319,7 +319,7 @@ echo "Testing Standard Ref Arch: Standard Deployment"
             else
                 export PUPPET_GATLING_SCALE_BASE_INSTANCES=$STD_DEFAULT_BASE_INSTANCES
             fi
-            export ABS_AWS_MOM_SIZE="$ec2"
+            export ABS_AWS_MASTER_SIZE="$ec2"
             test="$PREFIX-std-$ec2-tune-$TUNE"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
             if [ -z $NOOP ]; then

@@ -532,7 +532,7 @@ describe PerfResultsHelper do
 
     context "when the GOOGLE_APPLICATION_CREDENTIALS environment variable is empty" do
       it "raises an error" do
-        ENV["GOOGLE_APPLICATION_CREDENTIALS"] = nil
+        ENV["GOOGLE_APPLICATION_CREDENTIALS"] = ""
         expect { subject.query_bigquery(TEST_BIGQUERY_SQL) }
           .to raise_error(/GOOGLE_APPLICATION_CREDENTIALS/)
       end
@@ -561,11 +561,11 @@ describe PerfResultsHelper do
     end
   end
 
-  describe "#baseline_versions" do
+  describe "#baseline_pe_versions" do
     context "when the query execution returns empty data" do
       it "raises an error" do
         expect(subject).to receive(:query_bigquery).and_return([])
-        expect { subject.baseline_versions }
+        expect { subject.baseline_pe_versions }
           .to raise_error(/Error/)
       end
     end
@@ -576,29 +576,28 @@ describe PerfResultsHelper do
         test_expected_versions = ["2142.2.1"]
 
         expect(subject).to receive(:query_bigquery).and_return(test_result)
-        expect(subject.baseline_versions).to eq(test_expected_versions)
+        expect(subject.baseline_pe_versions).to eq(test_expected_versions)
       end
     end
   end
 
-  # TODO: implement
-  describe "#verify_baseline_version" do
+  describe "#verify_baseline_pe_version" do
     test_baseline_versions = ["2142.2.1"]
 
     context "when the specified version is found" do
       it "returns true" do
         test_version = "2142.2.1"
 
-        expect(subject).to receive(:baseline_versions).and_return(test_baseline_versions)
-        expect(subject.verify_baseline_version(test_version)).to eq(true)
+        expect(subject).to receive(:baseline_pe_versions).and_return(test_baseline_versions)
+        expect(subject.verify_baseline_pe_version(test_version)).to eq(true)
       end
     end
 
     context "when the specified version is not found" do
       it "raises an error" do
         test_version = "1942.2.1"
-        expect(subject).to receive(:baseline_versions).and_return(test_baseline_versions)
-        expect { subject.verify_baseline_version(test_version) }
+        expect(subject).to receive(:baseline_pe_versions).and_return(test_baseline_versions)
+        expect { subject.verify_baseline_pe_version(test_version) }
           .to raise_error(/#{test_version}/)
       end
     end

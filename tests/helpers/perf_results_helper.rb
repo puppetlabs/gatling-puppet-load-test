@@ -778,7 +778,7 @@ module PerfResultsHelper
 
     bigquery = Google::Cloud::Bigquery.new project: BIGQUERY_PROJECT
     data = bigquery.query sql
-    logger.error("Cannot find result that matches query: #{sql}") if data.empty?
+    logger.error("Cannot find result in BigQuery project '#{BIGQUERY_PROJECT}' matching query: #{sql}") if data.empty?
     data
   end
 
@@ -791,14 +791,15 @@ module PerfResultsHelper
   # @return [Array] The array of versions
   #
   # @example
-  #   versions_array = baseline_versions
+  #   versions_array = baseline_pe_versions
   #
-  def baseline_versions
+  def baseline_pe_versions
     sql = "SELECT DISTINCT pe_build_number FROM `perf-metrics.perf_metrics.atop_metrics` " \
           "WHERE pe_build_number IS NOT NULL " \
           "ORDER BY pe_build_number"
     data = query_bigquery(sql)
-    raise "Error: cannot find result that matches query: #{sql}" if data.empty?
+    error = "Error: cannot find baseline PE versions in BigQuery project '#{BIGQUERY_PROJECT}' with query: #{sql}"
+    raise error if data.empty?
 
     versions = []
     data.each do |row|
@@ -819,11 +820,11 @@ module PerfResultsHelper
   # @return [Boolean] true if the specified baseline PE version is found
   #
   # @example
-  #   is_verified = verify_baseline_version(baseline_pe_ver)
+  #   is_verified = verify_baseline_pe_version(baseline_pe_ver)
   #
-  def verify_baseline_version(baseline_pe_ver)
-    versions = baseline_versions
-    raise "Invalid baseline version: #{baseline_pe_ver}" unless versions.include?(baseline_pe_ver)
+  def verify_baseline_pe_version(baseline_pe_ver)
+    versions = baseline_pe_versions
+    raise "Invalid baseline PE version: #{baseline_pe_ver}" unless versions.include?(baseline_pe_ver)
 
     true
   end

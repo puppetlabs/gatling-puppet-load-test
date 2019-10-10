@@ -12,7 +12,7 @@ REF_ARCH_STD, REF_ARCH_LARGE = ["S","L"]
 task :default => :performance
 
 desc 'Provision systems using ABS (or use already set ABS_RESOURCE_HOSTS) and then execute beaker performance setup and tests'
-rototiller_task :performance do
+rototiller_task :performance => "validate:performance_env_vars" do
   ENV['REF_ARCH'] ||= REF_ARCH_STD
   if ENV['PUPPET_GATLING_REPORTS_ONLY'] == 'true' && (!ENV['PUPPET_GATLING_REPORTS_TARGET'] || ENV['PUPPET_GATLING_REPORTS_TARGET'] == '')
     abort 'A valid result folder (i.e. PerfTestLarge-1524848074511) must be specified for PUPPET_GATLING_REPORTS_TARGET if PUPPET_GATLING_REPORTS_ONLY=true'
@@ -21,13 +21,13 @@ rototiller_task :performance do
   if ENV['REF_ARCH'] == REF_ARCH_LARGE
     Rake::Task["pe_xl:deploy"].invoke
   else
-    Rake::Task["performance_provision_with_abs"].execute unless ENV['ABS_RESOURCE_HOSTS'] ||
+    Rake::Task["performance_provision_with_abs"].invoke unless ENV['ABS_RESOURCE_HOSTS'] ||
       (ENV['BEAKER_HOSTS'] &&
           ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/pe-perf-test.cfg' &&
           ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/foss-perf-test.cfg' &&
           ENV['BEAKER_HOSTS'] != 'config/beaker_hosts/opsworks-perf-test.cfg')
   end
-  Rake::Task["performance_without_provision"].execute
+  Rake::Task["performance_without_provision"].invoke
   Rake::Task["performance_deprovision_with_abs"].execute unless ENV['BEAKER_PRESERVE_HOSTS'] == 'always' ||
       ((@beaker_cmd.nil? || @beaker_cmd.result.exit_code != 0)&&
           ENV['BEAKER_PRESERVE_HOSTS'] == 'onfail')
@@ -43,7 +43,7 @@ rototiller_task :opsworks_performance do
   raise "The test must be Opsworks.rb, or '' if you plan to execute tests later" unless
     ["", "tests/OpsWorks.rb"].include? ENV["BEAKER_TESTS"]
   configure_opsworks
-  Rake::Task["performance"].execute
+  Rake::Task["performance"].invoke
 end
 
 def configure_opsworks
@@ -74,9 +74,8 @@ def configure_opsworks
 end
 
 desc 'Provision systems for the performance task with ABS - included in the performance task'
-rototiller_task :performance_provision_with_abs do |t|
-  raise "The BEAKER_INSTALL_TYPE env var must be set to either 'pe' or 'foss' to continue" unless
-      ENV['BEAKER_INSTALL_TYPE'] == 'pe' || ENV['BEAKER_INSTALL_TYPE'] == 'foss'
+# validate the BEAKER_INSTALL_TYPE (and dependent env vars) to prevent provisioning if incorrectly specified
+rototiller_task :performance_provision_with_abs  => "validate:beaker_install_type" do |t|
   t.add_env({:name => 'BEAKER_PE_DIR', :message => 'The PE download directory, example: http://enterprise.delivery.puppetlabs.net/archives/releases/2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'BEAKER_PE_VER', :message => 'The PE version to install on hosts, example: 2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'ABS_OS', :default => 'centos-7-x86-64-west', :message => 'The OS to provision with ABS: centos-7-x86-64-west (for AWS), or centos-7-x86_64 (for vmpooler)'})
@@ -102,7 +101,7 @@ rototiller_task :setup_recording_agent do
   ENV['ABS_RESOURCE_HOSTS'] = File.open("last_abs_resource_hosts.log").readlines[0] if File.exist? "last_abs_resource_hosts.log"
   ENV['BEAKER_PRE_SUITE'] = "setup/install_gatling/00_pre_install/05_initialize_helpers.rb,setup/install_gatling/setup_metrics_as_agent.rb"
   ENV['BEAKER_TESTS'] = ""
-  Rake::Task["performance_without_provision"].execute
+  Rake::Task["performance_without_provision"].invoke
 end
 
 desc 'Run Performance tests using previously provisioned hosts'
@@ -110,11 +109,11 @@ rototiller_task :performance_against_already_provisioned do
   ENV['BEAKER_HOSTS'] ||= "log/latest/hosts_preserved.yml"
   ENV['ABS_RESOURCE_HOSTS'] = File.open("last_abs_resource_hosts.log").readlines[0] if File.exist? "last_abs_resource_hosts.log"
   ENV['BEAKER_PRE_SUITE'] = ""
-  Rake::Task["performance_without_provision"].execute
+  Rake::Task["performance_without_provision"].invoke
 end
 
 desc 'Execute beaker performance setup and tests against existing hosts specified by ABS_RESOURCE_HOSTS env var, intended to be used in CI - use task "performance" for local/dev execution'
-rototiller_task :performance_without_provision do |t|
+rototiller_task :performance_without_provision => "validate:performance_env_vars" do |t|
   ENV['REF_ARCH'] ||= REF_ARCH_STD
   if ENV['REF_ARCH'] == REF_ARCH_LARGE
     generated_hosts = "build/pe_xl/beaker.cfg"
@@ -272,13 +271,13 @@ end
 desc 'Run Performance setup for clamps'
 rototiller_task :performance_clamps do |t|
   ENV['ENVIRONMENT_TYPE'] = 'clamps'
-  Rake::Task["performance"].execute
+  Rake::Task["performance"].invoke
 end
 
 desc 'Run Performance setup for gatling'
 rototiller_task :performance_gatling do |t|
   ENV['ENVIRONMENT_TYPE'] = 'gatling'
-  Rake::Task["performance"].execute
+  Rake::Task["performance"].invoke
 end
 
 desc 'Run Performance setup and a very short iteration of gatling tests'
@@ -290,14 +289,14 @@ rototiller_task :acceptance do |t|
   ENV['BEAKER_POST_SUITE'] = ''
   # Need to change this from an AWS OS image to a vmpooler OS image
   ENV['ABS_OS'] ||= 'centos-7-x86_64'
-  Rake::Task["performance"].execute
+  Rake::Task["performance"].invoke
 end
 
 desc 'Run Performance setup for gatling'
 rototiller_task :performance_setup do
   ENV['ENVIRONMENT_TYPE'] = 'gatling'
   ENV['BEAKER_TESTS'] = ''
-  Rake::Task["performance"].execute
+  Rake::Task["performance"].invoke
 end
 
 desc 'Run Soak setup and test for gatling'
@@ -308,13 +307,13 @@ rototiller_task :soak do
   ENV['PUPPET_SCALE_CLASS'] = ENV['PUPPET_SCALE_CLASS'] || 'role::by_size::large'
   ENV['PUPPET_GATLING_SCALE_TUNE'] = ENV['PUPPET_GATLING_SCALE_TUNE'] || 'true'
   ENV['ABS_AWS_REAP_DAYS'] = ENV['ABS_AWS_REAP_DAYS'] || '30'
-  Rake::Task["performance"].execute
+  Rake::Task["performance"].invoke
 end
 
 desc 'Run Soak setup for gatling'
 rototiller_task :soak_setup do
   ENV['BEAKER_TESTS'] = ''
-  Rake::Task["soak"].execute
+  Rake::Task["soak"].invoke
 end
 
 desc 'Run Soak test for gatling on previously provisioned hosts'
@@ -323,7 +322,7 @@ rototiller_task :soak_provisioned do
   ENV['BEAKER_TESTS'] = ENV['BEAKER_TESTS'] || 'tests/Soak.rb'
   ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
   ENV['PUPPET_SCALE_CLASS'] = ENV['PUPPET_SCALE_CLASS'] || 'role::by_size::large'
-  Rake::Task["performance_against_already_provisioned"].execute
+  Rake::Task["performance_against_already_provisioned"].invoke
 end
 
 desc 'Run Scale setup and test for gatling'
@@ -333,26 +332,26 @@ rototiller_task :autoscale do
   ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
   ENV['PUPPET_SCALE_CLASS'] = ENV['PUPPET_SCALE_CLASS'] || 'role::by_size::small'
   ENV['PUPPET_GATLING_SCALE_TUNE'] = ENV['PUPPET_GATLING_SCALE_TUNE'] || 'true'
-  Rake::Task["performance"].execute
-  Rake::Task["autoscale_handle_latest_results"].execute unless ENV['BEAKER_TESTS'] == ''
+  Rake::Task["performance"].invoke
+  Rake::Task["autoscale_handle_latest_results"].invoke unless ENV['BEAKER_TESTS'] == ''
 end
 
 desc 'Run Scale setup and test for gatling restarting pe-puppetserver with each iteration'
 rototiller_task :autoscale_cold do
   ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'true'
-  Rake::Task["autoscale"].execute
+  Rake::Task["autoscale"].invoke
 end
 
 desc 'Run Scale setup for gatling without restarting pe-puppetserver'
 rototiller_task :autoscale_warm do
   ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'false'
-  Rake::Task["autoscale"].execute
+  Rake::Task["autoscale"].invoke
 end
 
 desc 'Run Scale setup for gatling'
 rototiller_task :autoscale_setup do
   ENV['BEAKER_TESTS'] = ''
-  Rake::Task["autoscale"].execute
+  Rake::Task["autoscale"].invoke
 end
 
 desc 'Run puppet infrastructure tune setup for gatling on a previously provisioned master'
@@ -361,7 +360,7 @@ rototiller_task :autoscale_tune do
   ENV['BEAKER_TESTS'] = 'setup/install_gatling/50_tune/10_puppet_infrastructure_tune.rb'
   ENV['BEAKER_PRESERVE_HOSTS'] = 'always'
   ENV['PUPPET_GATLING_SCALE_TUNE'] = 'true'
-  Rake::Task["performance_against_already_provisioned"].execute
+  Rake::Task["performance_against_already_provisioned"].invoke
 end
 
 desc 'Run Scale test for gatling on previously provisioned hosts'
@@ -370,20 +369,20 @@ rototiller_task :autoscale_provisioned do
   ENV['BEAKER_TESTS'] = ENV['BEAKER_TESTS'] || 'tests/Scale.rb'
   ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
   ENV['PUPPET_SCALE_CLASS'] = ENV['PUPPET_SCALE_CLASS'] || 'role::by_size::small'
-  Rake::Task["performance_against_already_provisioned"].execute
-  Rake::Task["autoscale_handle_latest_results"].execute
+  Rake::Task["performance_against_already_provisioned"].invoke
+  Rake::Task["autoscale_handle_latest_results"].invoke
 end
 
 desc 'Run Scale setup for gatling'
 rototiller_task :autoscale_provisioned_cold do
   ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'true'
-  Rake::Task["autoscale_provisioned"].execute
+  Rake::Task["autoscale_provisioned"].invoke
 end
 
 desc 'Run Scale setup for gatling'
 rototiller_task :autoscale_provisioned_warm do
   ENV['PUPPET_GATLING_SCALE_RESTART_PUPPETSERVER'] = 'false'
-  Rake::Task["autoscale_provisioned"].execute
+  Rake::Task["autoscale_provisioned"].invoke
 end
 
 desc 'Run perf simulation for CD4PE testing on previously provisioned hosts'
@@ -404,7 +403,7 @@ rototiller_task :autoscale_provisioned_cd4pe do
   ENV['PUPPET_GATLING_SCALE_SCENARIO'] = 'cd4pe.json'
 
   # use the autoscale test type using previously provisioned hosts with no restart
-  Rake::Task["autoscale_provisioned_warm"].execute
+  Rake::Task["autoscale_provisioned_warm"].invoke
 end
 
 desc 'Run tiny Scale test for gatling on previously provisioned hosts'
@@ -412,7 +411,7 @@ rototiller_task :autoscale_provisioned_tiny do
   ENV['PUPPET_GATLING_SCALE_ITERATIONS'] = '3'
   ENV['PUPPET_GATLING_SCALE_INCREMENT'] = '1'
   ENV['PUPPET_GATLING_SCALE_SCENARIO'] = 'Scale_tiny.json'
-  Rake::Task["autoscale_provisioned"].execute
+  Rake::Task["autoscale_provisioned"].invoke
 end
 
 desc 'Run small Scale test for gatling on previously provisioned hosts'
@@ -420,7 +419,7 @@ rototiller_task :autoscale_provisioned_sm do
   ENV['PUPPET_GATLING_SCALE_ITERATIONS'] = '10'
   ENV['PUPPET_GATLING_SCALE_INCREMENT'] = '10'
   ENV['PUPPET_GATLING_SCALE_SCENARIO'] = 'Scale_sm.json'
-  Rake::Task["autoscale_provisioned"].execute
+  Rake::Task["autoscale_provisioned"].invoke
 end
 
 desc 'Run medium Scale test for gatling on previously provisioned hosts'
@@ -428,13 +427,13 @@ rototiller_task :autoscale_provisioned_med do |t|
   ENV['PUPPET_GATLING_SCALE_ITERATIONS'] = '10'
   ENV['PUPPET_GATLING_SCALE_INCREMENT'] = '100'
   ENV['PUPPET_GATLING_SCALE_SCENARIO'] = 'Scale_med.json'
-  Rake::Task["autoscale_provisioned"].execute
+  Rake::Task["autoscale_provisioned"].invoke
 end
 
 desc 'Handle the latest scale results after the run has completed'
 task :autoscale_handle_latest_results do
-  Rake::Task["autoscale_copy_log"].execute
-  Rake::Task["autoscale_csv2html"].execute
+  Rake::Task["autoscale_copy_log"].invoke
+  Rake::Task["autoscale_csv2html"].invoke
 end
 
 desc 'Copy latest log to latest scale results after the run has completed'
@@ -510,7 +509,7 @@ namespace :lint do
 end
 
 namespace :pr do
-  desc "Run the lint, and test tasks for pull requests"
+  desc "Run the lint and test tasks for pull requests"
   task :check do
     puts "Running GPLT PR checks"
     tasks = ["lint:rubocop", "test:spec"]
@@ -612,4 +611,45 @@ namespace :pe_xl do
   task :deploy => [:clean, :provision, :run_plan] do
     puts "Deploying a pe_xl architecture"
   end
+
+end
+
+namespace :validate do
+  desc "Validate the environment variables for the 'performance' rake tasks"
+  task :performance_env_vars do
+    Rake::Task["validate:baseline_pe_version"].invoke if ENV["BASELINE_PE_VER"]
+  end
+
+  desc "Verifies that the BEAKER_INSTALL_TYPE environment variable and dependencies have been specified"
+  task :beaker_install_type do
+    # TODO: extract to a helper and spec test
+    # TODO: validate the specified values
+    raise "The BEAKER_INSTALL_TYPE env var must be set to either 'pe' or 'foss' to continue" unless
+        ENV['BEAKER_INSTALL_TYPE'] == 'pe' || ENV['BEAKER_INSTALL_TYPE'] == 'foss'
+
+    if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
+      raise "The BEAKER_PE_VER and BEAKER_PE_DIR environment variables must be specified when BEAKER_INSTALL_TYPE == 'pe'" if
+          ENV['BEAKER_PE_VER'].nil? || ENV['BEAKER_PE_DIR'].nil?
+    else
+      raise "The PACKAGE_BUILD_VERSION and PUPPET_AGENT_VERSION environment variables must be specified when BEAKER_INSTALL_TYPE == 'foss'" if
+          ENV['PACKAGE_BUILD_VERSION'].nil? || ENV['PUPPET_AGENT_VERSION'].nil?
+    end
+  end
+
+  desc "Verify that the specified baseline PE version exists in BigQuery"
+  task :baseline_pe_version do
+    # if BASELINE_PE_VER is specified verify that it exists before proceeding
+    verify_baseline_pe_version ENV["BASELINE_PE_VER"]
+  end
+
+end
+
+namespace :bigquery do
+  desc "List the baseline PE versions in BigQuery"
+  task :list_baseline_pe_versions do
+    versions = baseline_pe_versions
+    puts "Baseline versions:"
+    puts versions
+  end
+
 end

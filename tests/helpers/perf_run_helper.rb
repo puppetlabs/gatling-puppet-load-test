@@ -2,7 +2,6 @@
 
 require "beaker"
 require "beaker-benchmark"
-require "google/cloud/bigquery"
 require "master_manipulator"
 require "beaker-puppet"
 
@@ -948,8 +947,7 @@ module PerfRunHelper
         "WHERE pe_build_number = '#{BASELINE_PE_VER}' AND test_scenario = '#{current_test_name}' " \
            "GROUP BY pe_build_number, test_scenario)"
 
-      bigquery = Google::Cloud::Bigquery.new project: "perf-metrics"
-      data = bigquery.query sql
+      data = query_bigquery sql
       if !data.empty?
         logger.info("Baseline result returned from BigQuery: #{data}")
       else

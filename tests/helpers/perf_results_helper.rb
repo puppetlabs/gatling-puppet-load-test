@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "csv"
+require "google/cloud/bigquery"
 require "json"
 require "minitar"
 require "zlib"
@@ -67,6 +68,8 @@ module PerfResultsHelper
                            "report"].freeze
 
   PUPPET_METRICS_COLLECTOR_DIR_NAME = "puppet-metrics-collector"
+
+  BIGQUERY_PROJECT = "perf-metrics"
 
   # Extract Gatling JSON data into a CSV file in the format used in our release test reports
   # and convert the CSV file to an HTML file for easy viewing
@@ -757,5 +760,74 @@ module PerfResultsHelper
 
     row
   end
+
+  # Execute the specified SQL query via BigQuery
+  #
+  # @author Bill Claytor
+  #
+  # @raise [StandardError] If the GOOGLE_APPLICATION_CREDENTIALS environment variable is not set
+  #
+  # @return [Array] The array of versions
+  #
+  # @example
+  #   versions_array = baseline_versions
+  #
+  def query_bigquery(sql)
+    error = "The GOOGLE_APPLICATION_CREDENTIALS environment variable must be set with the location of the JSON key file"
+    raise error if ENV["GOOGLE_APPLICATION_CREDENTIALS"].nil? || ENV["GOOGLE_APPLICATION_CREDENTIALS"].empty?
+
+    bigquery = Google::Cloud::Bigquery.new project: BIGQUERY_PROJECT
+    data = bigquery.query sql
+    logger.error("Cannot find result in BigQuery project '#{BIGQUERY_PROJECT}' matching query: #{sql}") if data.empty?
+    data
+  end
+
+  # Retrieve the list of baseline PE versions from BigQuery
+  #
+  # @author Bill Claytor
+  #
+  # @raise [StandardError] If the query returns no data
+  #
+  # @return [Array] The array of versions
+  #
+  # @example
+  #   versions_array = baseline_pe_versions
+  #
+  def baseline_pe_versions
+    sql = "SELECT DISTINCT pe_build_number FROM `perf-metrics.perf_metrics.atop_metrics` " \
+          "WHERE pe_build_number IS NOT NULL " \
+          "ORDER BY pe_build_number"
+    data = query_bigquery(sql)
+    error = "Error: cannot find baseline PE versions in BigQuery project '#{BIGQUERY_PROJECT}' with query: #{sql}"
+    raise error if data.empty?
+
+    versions = []
+    data.each do |row|
+      versions << row[:pe_build_number]
+    end
+
+    versions
+  end
+
+  # Verify that the specified baseline PE version exists in BigQuery
+  #
+  # @author Bill Claytor
+  #
+  # @param [String] baseline_pe_ver The baseline PE version to verify
+  #
+  # @raise [StandardError] If the specified baseline PE version is not found
+  #
+  # @return [Boolean] true if the specified baseline PE version is found
+  #
+  # @example
+  #   is_verified = verify_baseline_pe_version(baseline_pe_ver)
+  #
+  def verify_baseline_pe_version(baseline_pe_ver)
+    versions = baseline_pe_versions
+    raise "Invalid baseline PE version: #{baseline_pe_ver}" unless versions.include?(baseline_pe_ver)
+
+    true
+  end
+
   # rubocop:enable Metrics/LineLength
 end

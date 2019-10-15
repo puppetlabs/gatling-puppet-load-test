@@ -1,49 +1,84 @@
 # Saving and loading database content
 
-In real world use the databases of a Puppet installation would already have a lot of data in them, so accurate performance testing should start with data as well.  However, a fresh installation doesn't have any old data in the databases.  This document describes how data can be saved from one installation and loaded into another.
+In real world use, the databases of a Puppet installation would already have a lot of data in them, so accurate performance testing should start with data as well.  However, a fresh installation doesn't have any old data in the databases.  This document describes how data can be saved from one installation and loaded into another.
 
-However, there are some catches. Loading the data will overwrite existing data, such as any nodes already setup with the install or any classifications, so it is best to do this as early as possible.  When loading the data immediately after the master install running `puppet infrastructure configure` will pick the master back up. Other infrastructure components may be included as well but this has not been tested. Otherwise you can run the puppet agent on nodes to get them back into the system.  As for classification, not loading the classification db might save those.
+However, there are some catches.  Loading the data will overwrite existing data, such as any nodes already setup with the install or any classifications, so it is best to do this as early as possible.  When loading the data immediately after the master install running `puppet infrastructure configure` will pick the master back up.  Other infrastructure components may be included as well but this has not been tested.  Otherwise you can run the puppet agent on nodes to get them back into the system.  As for classification, not loading the classification db might save those.
 
-Also, just loading the data isn't enough. You need to update the timestamps so that garbage collection doesn't just toss out all the data you loaded.  That is covered in the instructions below.
+Also, just loading the data isn't enough.  You need to update the timestamps so that garbage collection doesn't just toss out all the data you loaded.  That is covered in the instructions below.
+
 
 ## Saving DBs
+
 Logged in as root on the master of the source install
 ```
+BACKUP_NAME=db_backup.$(date "+%Y.%m.%d")
+mkdir /tmp/$BACKUP_NAME
+
+DBS=(
+"pe-activity"
+"pe-rbac"
+"pe-classifier"
+"pe-puppetdb"
+"pe-orchestrator"
+)
+
 su - pe-postgres -s /bin/bash
-/opt/puppetlabs/server/bin/pg_dump -Fc pe-activity -f /tmp/pe-activity.backup
-/opt/puppetlabs/server/bin/pg_dump -Fc pe-rbac -f /tmp/pe-rbac.backup
-/opt/puppetlabs/server/bin/pg_dump -Fc pe-classifier -f /tmp/pe-classifier.backup
-/opt/puppetlabs/server/bin/pg_dump -Fc pe-puppetdb -f /tmp/pe-puppetdb.backup
-/opt/puppetlabs/server/bin/pg_dump -Fc pe-orchestrator -f /tmp/pe-orchestrator.backup
+for DB in "${DBS[@]}"
+do
+/opt/puppetlabs/server/bin/pg_dump -Fc $DB -f /tmp/$BACKUP_NAME/$DB.backup
+done
+
+tar -czf $BACKUP_NAME.tar.gz /tmp/$BACKUP_NAME
 ```
 
 
 ## Loading DBs
+
 Logged in as root on the master of the target install
 ```
-#as root
-service pe-puppetdb stop
-service pe-console-services stop
-service pe-puppetserver stop
-service pe-nginx stop
-service pe-orchestration-services stop
+# as root
+
+# Extract backups from tar file
+BACKUP_NAME=<basename of backup tar file>
+tar -xzf $BACKUP_NAME.tar.gz --directory /tmp
+
+SERVICES=(
+"pe-puppetdb"
+"pe-console-services"
+"pe-puppetserver"
+"pe-nginx"
+"pe-orchestration-services"
+)
+
+for SERVICE in "${SERVICES[@]}"
+do
+service $SERVICE stop
+done
 
 su - pe-postgres -s /bin/bash
 #create updatetime.sql with contents shown in next section
-/opt/puppetlabs/server/bin/pg_restore -U pe-postgres --if-exists -cCd template1 /tmp/saveddbs/pe-activity.backup
-/opt/puppetlabs/server/bin/pg_restore -U pe-postgres --if-exists -cCd template1 /tmp/saveddbs/pe-rbac.backup
-/opt/puppetlabs/server/bin/pg_restore -U pe-postgres --if-exists -cCd template1 /tmp/saveddbs/pe-classifier.backup
-/opt/puppetlabs/server/bin/pg_restore -U pe-postgres --if-exists -cCd template1 /tmp/saveddbs/pe-orchestrator.backup
-/opt/puppetlabs/server/bin/pg_restore -U pe-postgres --if-exists -cCd template1 /tmp/saveddbs/pe-puppetdb.backup
+BACKUP_NAME=<basename of backup tar file>
+DBS=(
+"pe-activity"
+"pe-rbac"
+"pe-classifier"
+"pe-puppetdb"
+"pe-orchestrator"
+)
+
+for DB in "${DBS[@]}"
+do
+/opt/puppetlabs/server/bin/pg_restore -U pe-postgres --if-exists -cCd template1 /tmp/$BACKUP_NAME/$DB.backup
+done
 
 /opt/puppetlabs/server/bin/psql -d pe-puppetdb -a -f updatetime.sql
 
 exit #to get back to being root
-service pe-console-services start
-service pe-puppetserver start
-service pe-nginx start
-service pe-orchestration-services start
-service pe-puppetdb start
+
+for SERVICE in "${SERVICES[@]}"
+do
+service $SERVICE start
+done
 
 puppet infrastructure configure #to fix master to be back in the database
 puppet agent -t #to ensure everything worked
@@ -60,6 +95,12 @@ pg_restore: [archiver (db)] could not execute query: ERROR:  schema "public" alr
 
 WARNING: errors ignored on restore: 1
 ```
+
+
+## Source for updatetime.sql
+
+This is used to prevent having the loaded data deleted by the retention rules.
+Usage of this file is noted in the previous section.
 
 updatetime.sql
 ```

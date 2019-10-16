@@ -595,5 +595,22 @@ describe PerfHelperClass do
       subject.add_loadbalancer_groups(loadbalancer, compile_master)
     end
   end
+  describe "#run_agent_until_no_change" do
+    it "calls retry_on on puppet for given host" do
+      expect(subject).to receive(:puppet).with("agent", "-t")
+      expect(subject).to receive(:retry_on).with(hosts[0], any_args)
+      expect(subject.run_agent_until_no_change(hosts)).to eq(hosts)
+    end
+    it "updates retry params based on given parameters" do
+      retries = 42
+      interval = 7
+      expected_retry_params = { max_retries: retries,
+                                retry_interval: interval,
+                                desired_exit_codes: [0] }
+      expect(subject).to receive(:puppet).with("agent", "-t")
+      expect(subject).to receive(:retry_on).with(hosts[0], nil, expected_retry_params)
+      subject.run_agent_until_no_change(hosts, retries, interval)
+    end
+  end
 end
 # rubocop:enable Metrics/BlockLength

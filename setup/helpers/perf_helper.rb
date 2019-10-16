@@ -723,5 +723,15 @@ module PerfHelper
     }
     classifier.find_or_create_node_group_model(loadbalancer_exports_group)
   end
+
+  def run_agent_until_no_change(hosts, max_retries = 5, retry_interval = 2)
+    hosts = Array(hosts)
+    retry_params = { max_retries: max_retries,
+                     retry_interval: retry_interval,
+                     desired_exit_codes: [0] }
+    hosts.each do |host|
+      retry_on(host, puppet("agent", "-t"), retry_params)
+    end
+  end
 end
 # rubocop:enable Style/SpecialGlobalVars

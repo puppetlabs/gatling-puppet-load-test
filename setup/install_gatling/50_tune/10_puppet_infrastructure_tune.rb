@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-MAX_AGENT_RUNS = 5
-
-test_name "Run puppet infrastructure tune" do # rubocop:disable Metrics/BlockLength
+test_name "Run puppet infrastructure tune" do
   def puppet_infrastructure_tune
     base_tune_command = "puppet infrastructure tune"
     common_yaml_path = "/etc/puppetlabs/code-staging/environments/production/data/common.yaml"
@@ -45,12 +43,7 @@ test_name "Run puppet infrastructure tune" do # rubocop:disable Metrics/BlockLen
     ].join(" ")
     on master, commit
 
-    # re-run the agent up to MAX_AGENT_RUNS attempts
-    retry_params = { max_retries: MAX_AGENT_RUNS,
-                     retry_interval: 2,
-                     desired_exit_codes: [0] }
-
-    retry_on(master, puppet("agent", "-t"), retry_params)
+    run_agent_until_no_change(master)
 
     # output current tune
     puts "Checking current tune:"

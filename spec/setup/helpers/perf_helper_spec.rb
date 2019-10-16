@@ -609,7 +609,7 @@ describe PerfHelperClass do
                                 desired_exit_codes: [0] }
       expect(subject).to receive(:puppet).with("agent", "-t")
       expect(subject).to receive(:retry_on).with(hosts[0], nil, expected_retry_params)
-      expect(subject.run_agent_until_no_change(hosts, retries, interval)).to eq(hosts)
+      subject.run_agent_until_no_change(hosts, retries, interval)
     end
   end
 end

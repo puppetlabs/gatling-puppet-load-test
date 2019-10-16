@@ -725,6 +725,7 @@ module PerfHelper
   end
 
   def run_agent_until_no_change(hosts, max_retries = 5, retry_interval = 2)
+    hosts = Array(hosts)
     retry_params = { max_retries: max_retries,
                      retry_interval: retry_interval,
                      desired_exit_codes: [0] }

@@ -674,6 +674,21 @@ module PerfRunHelper
     flunk("One or more assertions failed") unless assertion_exceptions.empty?
   end
 
+  def copy_system_logs(host)
+    job_name = if ENV["JOB_NAME"]
+                 ENV["JOB_NAME"]
+                   .sub(/[A-Z0-9_]+=.*$/, "")
+                   .gsub(%r{[/,.]}, "_")[0..200]
+               else
+                 "unknown_or_dev_job"
+               end
+
+    archive_name = "#{job_name}__#{ENV['BUILD_ID']}__#{@gplt_timestamp}__system_logs.tgz"
+    puppet_logdir = File.dirname on(host, puppet("config", "print", "logdir")).stdout.strip
+    archive_file_from(host, puppet_logdir,
+                      {}, @archive_root, archive_name)
+  end
+
   private
 
   def execute_gatling_scenario(gatling_scenario, simulation_id, gatling_assertions)
@@ -786,6 +801,9 @@ module PerfRunHelper
       # TODO: tar archive file before copying to avoid timeouts with soak results
       begin
         copy_archive_files
+        hosts.each do |host|
+          copy_system_logs(host)
+        end
       rescue StandardError => e
         puts "Error encountered copying archive files:"
         puts e.message

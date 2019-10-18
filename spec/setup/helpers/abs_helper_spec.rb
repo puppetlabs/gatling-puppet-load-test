@@ -143,6 +143,8 @@ describe AbsHelperClass do
     ENV["BEAKER_PE_VER"] = TEST_BEAKER_PE_VERSION
     subject.instance_variable_set(:@abs_base_url, TEST_ABS_BASE_URL)
     subject.instance_variable_set(:@abs_beaker_pe_version, TEST_BEAKER_PE_VERSION)
+
+    allow(subject).to receive(:puts)
   end
 
   describe "#abs_initialize" do
@@ -370,6 +372,7 @@ describe AbsHelperClass do
     end
   end
 
+  # TODO: complete initial invalid, subsequent valid response example
   describe "#get_abs_resource_host" do
     context "when the response is valid" do
       it "parses the response and returns the host" do
@@ -392,24 +395,40 @@ describe AbsHelperClass do
     end
 
     context "when the response is not valid" do
-      it "does not parse the response and raises an error" do
-        error_message = "Unable to provision host for role: #{TEST_A2A_MASTER[:role]}"
+      it "retries the request up to the max number of attempts before raising an error" do
+        max_attempts = AbsHelper::ABS_MAX_REQUEST_ATTEMPTS
+        unable_message = "Unable to provision host for role: #{TEST_A2A_MASTER[:role]}"
+        error_message = "#{unable_message} after #{max_attempts} attempts"
 
         expect(subject).to receive(:puts).with("Host_to_request: #{TEST_A2A_MASTER}")
 
         expect(subject).to receive(:get_awsdirect_request_body)
           .with(TEST_A2A_MASTER).and_return(TEST_AWSDIRECT_REQUEST_BODY)
 
-        expect(subject).to receive(:perform_awsdirect_request).and_return(test_http_response)
+        expect(subject).to receive(:perform_awsdirect_request)
+          .exactly(max_attempts).times.and_return(test_http_response)
+
+        expect(subject).to receive(:valid_abs_response?)
+          .with(test_http_response).exactly(max_attempts).times.and_return(false)
+
+        (1..max_attempts - 1).each do |ct|
+          retry_message = "#{unable_message} with request #{ct} of #{max_attempts}"
+          expect(subject).to receive(:puts).with(retry_message)
+        end
+
+        expect(subject).to receive(:puts).with(/Retry/).exactly(max_attempts - 1).times
 
         expect(test_http_response).not_to receive(:body)
         expect(subject).not_to receive(:parse_awsdirect_response_body)
 
-        expect(subject).to receive(:valid_abs_response?)
-          .with(test_http_response).and_return(false)
-
         expect { subject.get_abs_resource_host(TEST_A2A_MASTER) }
           .to raise_error(RuntimeError, error_message)
+      end
+
+      # TODO: implement once retry behavior is approved
+      context "when a valid response is returned on a subsequent attempt" do
+        it "returns the response and does not raise an error" do
+        end
       end
     end
   end

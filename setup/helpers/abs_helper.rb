@@ -34,6 +34,8 @@ module AbsHelper
   MAX_THREADS = 8
   ABS_ID = "slv"
 
+  ABS_MAX_REQUEST_ATTEMPTS = 3
+
   # Checks whether the user has a valid token and if so initializes the instance variables
   #
   # @author Bill Claytor
@@ -202,14 +204,32 @@ module AbsHelper
   #
   def get_abs_resource_host(host_to_request)
     uri = URI("#{@abs_base_url}/awsdirect")
+    role = host_to_request[:role]
+
     puts "Host_to_request: #{host_to_request}"
+    puts
 
     request_body = get_awsdirect_request_body(host_to_request)
-    response = perform_awsdirect_request(uri, request_body)
+    result = nil
 
-    raise "Unable to provision host for role: #{host_to_request[:role]}" unless valid_abs_response?(response)
+    (1..ABS_MAX_REQUEST_ATTEMPTS).each do |ct|
+      response = perform_awsdirect_request(uri, request_body)
+      if valid_abs_response?(response)
+        result = parse_awsdirect_response_body(response.body)
+        break
+      end
 
-    parse_awsdirect_response_body(response.body)
+      next unless ct < ABS_MAX_REQUEST_ATTEMPTS
+
+      puts "Unable to provision host for role: #{role} with request #{ct} of #{ABS_MAX_REQUEST_ATTEMPTS}"
+      puts "Retrying request..."
+      puts
+    end
+
+    error_msg = "Unable to provision host for role: #{role} after #{ABS_MAX_REQUEST_ATTEMPTS} attempts"
+    raise error_msg if result.nil?
+
+    result
   end
 
   # Returns the specified ABS hosts via ABS

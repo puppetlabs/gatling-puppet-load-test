@@ -221,12 +221,12 @@ module AbsHelper
 
       next unless ct < ABS_MAX_REQUEST_ATTEMPTS
 
-      puts "Unable to provision host for role: #{role} with request #{ct} of #{ABS_MAX_REQUEST_ATTEMPTS}"
+      puts "Unable to provision host for role '#{role}' with request #{ct} of #{ABS_MAX_REQUEST_ATTEMPTS}"
       puts "Retrying request..."
       puts
     end
 
-    error_msg = "Unable to provision host for role: #{role} after #{ABS_MAX_REQUEST_ATTEMPTS} attempts"
+    error_msg = "Unable to provision host for role '#{role}' after #{ABS_MAX_REQUEST_ATTEMPTS} attempts"
     raise error_msg if result.nil?
 
     result

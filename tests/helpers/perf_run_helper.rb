@@ -798,7 +798,6 @@ module PerfRunHelper
       # Write summary results to log so it can be archived
       perf.log_csv
 
-      # TODO: tar archive file before copying to avoid timeouts with soak results
       begin
         copy_archive_files
         hosts.each do |host|

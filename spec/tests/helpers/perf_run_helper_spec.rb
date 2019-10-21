@@ -438,4 +438,33 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
       end
     end
   end
+  describe "#copy_system_logs" do
+    let!(:hosts) do
+      [Beaker::Host.create("master",
+                           { platform: Beaker::Platform.new("centos-6.5-x86_64"),
+                             role: "master" }, logger: @logger)]
+    end
+    it "calls archive_file_from with given host and parent dir of puppet_logdir" do
+      # test variables
+      build_id = gplt_timestamp = nil
+      puppet_logdir = "/foo/bar/baz"
+      archive_root = "/test/archive"
+      job_name = "foobar"
+      archive_name = "#{job_name}__#{build_id}__#{gplt_timestamp}__system_logs.tgz"
+      ENV["JOB_NAME"] = job_name
+      myhost = hosts.first
+      # mock out @archive_root instance variable
+      subject.instance_variable_set(:@archive_root, archive_root)
+      # mock out beaker result
+      result = Beaker::Result.new(myhost, "foo")
+      result.stdout = puppet_logdir
+
+      allow(subject).to receive(:on).with(myhost, any_args).and_return(result)
+      expect(subject).to receive(:puppet).with("config", "print", "logdir")
+      expect(subject).to receive(:archive_file_from).with(myhost,
+                                                          File.dirname(puppet_logdir),
+                                                          {}, archive_root, archive_name)
+      subject.copy_system_logs(myhost)
+    end
+  end
 end

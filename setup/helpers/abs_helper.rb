@@ -35,6 +35,7 @@ module AbsHelper
   ABS_ID = "slv"
 
   ABS_MAX_REQUEST_ATTEMPTS = 3
+  ABS_RETRY_DELAY = 30
 
   # Checks whether the user has a valid token and if so initializes the instance variables
   #
@@ -222,6 +223,9 @@ module AbsHelper
       next unless ct < ABS_MAX_REQUEST_ATTEMPTS
 
       puts "Unable to provision host for role '#{role}' with request #{ct} of #{ABS_MAX_REQUEST_ATTEMPTS}"
+      puts "Waiting for #{ABS_RETRY_DELAY} seconds before retrying request..."
+      sleep ABS_RETRY_DELAY
+
       puts "Retrying request..."
       puts
     end

@@ -395,7 +395,7 @@ describe AbsHelperClass do
     end
 
     context "when the response is not valid" do
-      it "retries the request up to the max number of attempts before raising an error" do
+      it "retries the request up to the max number of attempts (with a delay between each) before raising an error" do
         max_attempts = AbsHelper::ABS_MAX_REQUEST_ATTEMPTS
         unable_message = "Unable to provision host for role '#{TEST_A2A_MASTER[:role]}'"
         error_message = "#{unable_message} after #{max_attempts} attempts"
@@ -416,6 +416,8 @@ describe AbsHelperClass do
           expect(subject).to receive(:puts).with(retry_message)
         end
 
+        expect(subject).to receive(:puts).with(/Waiting/).exactly(max_attempts - 1).times
+        expect(subject).to receive(:sleep).with(AbsHelper::ABS_RETRY_DELAY).exactly(max_attempts - 1).times
         expect(subject).to receive(:puts).with(/Retry/).exactly(max_attempts - 1).times
 
         expect(test_http_response).not_to receive(:body)

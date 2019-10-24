@@ -524,6 +524,9 @@ module PerfRunHelper
     FileUtils.copy_file "#{@archive_root}/start_epoch", "#{scale_result_dir}/start_epoch"
     FileUtils.copy_file "#{@archive_root}/end_epoch", "#{scale_result_dir}/end_epoch"
 
+    # copy the pe_xl build directory to the results if it exists
+    FileUtils.cp_r "build", "#{scale_results_parent_dir}/build" if Dir.exist?("build")
+
     # copy any csv/html/json/tar.gz/txt files
     res_files = Dir.glob("#{@archive_root}/*.{csv,html,json,tar.gz,txt}")
     res_files.each do |file|
@@ -823,6 +826,9 @@ module PerfRunHelper
       end
 
     end
+
+    # copy the pe_xl build directory to the results if it exists
+    FileUtils.cp_r "build", @archive_root.to_s if Dir.exist?("build")
 
     # grab puppet-metrics-collector data for the run
     scp_to(master, "util/metrics/collect_metrics_files.rb", "/root/collect_metrics_files.rb")

@@ -103,14 +103,26 @@ describe AbsHelperClass do
   TEST_INVALID_RESPONSE_CODE = "777".freeze
 
   TEST_A2A_MASTER =
-    { 'role': "master",
+    { 'role': TEST_MASTER_ROLE,
       'size': TEST_SIZE,
       'volume_size': TEST_VOLUME_SIZE }.freeze
 
+  TEST_A2A_MASTER_RESULT =
+    { 'hostname': TEST_HOSTNAME,
+      'role': TEST_MASTER_ROLE,
+      'type': TEST_BEAKER_TYPE,
+      'engine': TEST_ENGINE }.freeze
+
   TEST_A2A_METRICS =
-    { 'role': "metrics",
+    { 'role': TEST_METRICS_ROLE,
       'size': TEST_SIZE,
       'volume_size': TEST_VOLUME_SIZE }.freeze
+
+  TEST_A2A_METRICS_RESULT =
+    { 'hostname': TEST_HOSTNAME,
+      'role': TEST_METRICS_ROLE,
+      'type': TEST_BEAKER_TYPE,
+      'engine': TEST_ENGINE }.freeze
 
   TEST_A2A_HOSTS = [TEST_A2A_MASTER, TEST_A2A_METRICS].freeze
 
@@ -1235,9 +1247,11 @@ describe AbsHelperClass do
     end
 
     host_to_provision = [TEST_A2A_MASTER]
-    role = "master"
+    role = TEST_MASTER_ROLE
     hostname = TEST_HOSTNAME
     message = "Successfully provisioned host - role: #{role}, hostname: #{hostname}"
+
+    expected_host = TEST_A2A_MASTER_RESULT
 
     context "when only required args are specified" do
       before do
@@ -1245,12 +1259,12 @@ describe AbsHelperClass do
         stub_const("AbsHelper::AWS_VOLUME_SIZE", TEST_VOLUME_SIZE)
       end
 
-      it "provisions the host with the specified role using default values and returns the hostname" do
+      it "provisions the host with the specified role using default values and returns the host" do
         expect(subject).to receive(:get_abs_resource_hosts)
           .with(host_to_provision).and_return(TEST_ABS_RESOURCE_HOSTS_SINGLE)
         expect(subject).to receive(:puts).with(message)
         allow(subject).to receive(:puts)
-        expect(subject.provision_host_for_role(role)).to eq(hostname)
+        expect(subject.provision_host_for_role(role)).to eq(expected_host)
       end
     end
 
@@ -1260,7 +1274,7 @@ describe AbsHelperClass do
           .with(host_to_provision).and_return(TEST_ABS_RESOURCE_HOSTS_SINGLE)
         expect(subject).to receive(:puts).with(message)
         allow(subject).to receive(:puts)
-        expect(subject.provision_host_for_role(role, TEST_SIZE, TEST_VOLUME_SIZE)).to eq(hostname)
+        expect(subject.provision_host_for_role(role, TEST_SIZE, TEST_VOLUME_SIZE)).to eq(expected_host)
       end
     end
 
@@ -1282,8 +1296,6 @@ describe AbsHelperClass do
 
     roles = %w[master metrics]
     abs_id = "testing"
-    expected_hosts = [{ role: "master", hostname: TEST_HOSTNAME_MASTER },
-                      { role: "metrics", hostname: TEST_HOSTNAME_METRICS }].freeze
 
     context "when only required args are specified" do
       before do
@@ -1292,23 +1304,41 @@ describe AbsHelperClass do
       end
 
       it "uses the default values and returns the hosts array" do
-        skip "FIXME: The roles array can be built in any order, the test should be fixed to accomodate"
         expect(subject).to receive(:provision_host_for_role).with("master", TEST_SIZE, TEST_VOLUME_SIZE)
-                                                            .and_return(TEST_HOSTNAME_MASTER)
+                                                            .and_return(TEST_A2A_MASTER_RESULT)
         expect(subject).to receive(:provision_host_for_role).with("metrics", TEST_SIZE, TEST_VOLUME_SIZE)
-                                                            .and_return(TEST_HOSTNAME_METRICS)
-        expect(subject.provision_hosts_for_roles(roles)).to eq(expected_hosts)
+                                                            .and_return(TEST_A2A_METRICS_RESULT)
+
+        result = subject.provision_hosts_for_roles(roles)
+        expect(result).to include(TEST_A2A_MASTER_RESULT)
+        expect(result).to include(TEST_A2A_METRICS_RESULT)
       end
     end
 
     context "when all args are specified" do
       it "provisions hosts with the specified roles using specified values and returns the hosts array" do
-        skip "FIXME: The roles array can be built in any order, the test should be fixed to accomodate"
-        expect(subject).to receive(:provision_host_for_role).with("master", TEST_SIZE, TEST_VOLUME_SIZE)
-                                                            .and_return(TEST_HOSTNAME_MASTER)
-        expect(subject).to receive(:provision_host_for_role).with("metrics", TEST_SIZE, TEST_VOLUME_SIZE)
-                                                            .and_return(TEST_HOSTNAME_METRICS)
-        expect(subject.provision_hosts_for_roles(roles, abs_id, TEST_SIZE, TEST_VOLUME_SIZE)).to eq(expected_hosts)
+        expect(subject).to receive(:provision_host_for_role)
+          .with("master", TEST_SIZE, TEST_VOLUME_SIZE).and_return(TEST_A2A_MASTER_RESULT)
+        expect(subject).to receive(:provision_host_for_role)
+          .with("metrics", TEST_SIZE, TEST_VOLUME_SIZE).and_return(TEST_A2A_METRICS_RESULT)
+
+        result = subject.provision_hosts_for_roles(roles, abs_id, TEST_SIZE, TEST_VOLUME_SIZE)
+        expect(result).to include(TEST_A2A_MASTER_RESULT)
+        expect(result).to include(TEST_A2A_METRICS_RESULT)
+      end
+    end
+
+    context "when hosts are successfully provisioned" do
+      it "writes the hosts to the last_abs_resource_hosts.log file" do
+        expect(subject).to receive(:provision_host_for_role)
+          .with("master", TEST_SIZE, TEST_VOLUME_SIZE).and_return(TEST_A2A_MASTER_RESULT)
+        expect(subject).to receive(:provision_host_for_role)
+          .with("metrics", TEST_SIZE, TEST_VOLUME_SIZE).and_return(TEST_A2A_METRICS_RESULT)
+
+        # TODO: update to specify hosts.to_json without specifying order
+        expect(subject).to receive(:update_last_abs_resource_hosts)
+
+        subject.provision_hosts_for_roles(roles, abs_id, TEST_SIZE, TEST_VOLUME_SIZE)
       end
     end
   end

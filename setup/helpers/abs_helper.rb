@@ -8,7 +8,7 @@ require "json"
 require "yaml"
 require "parallel"
 
-# Provides functionality to provision and deprovision hosts via ABS
+# Provides functionality to provision and de-provision hosts via ABS
 # rubocop:disable Naming/AccessorMethodName
 module AbsHelper
   ABS_BASE_URL = "https://cinext-abs.delivery.puppetlabs.net/api/v2"
@@ -754,26 +754,32 @@ module AbsHelper
   #
   # @raise [RuntimeError] If provisioning is not successful
   #
-  # @return [String] The hostname of the provisioned host
+  # @return [Hash] The provisioned host
   #
   # @example
-  #   hostname = provision_host_for_role(role)
+  #   host = provision_host_for_role(role)
   #     or
-  #   hostname = provision_host_for_role(role, "c5.xlarge", "40")
+  #   host = provision_host_for_role(role, "c5.xlarge", "40")
   #
-  # TODO: spec test(s)
   def provision_host_for_role(role, size = AWS_SIZE, volume_size = AWS_VOLUME_SIZE)
     host_to_provision = get_host_to_provision(role, size, volume_size)
     abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
     raise "Unable to provision host via ABS" unless abs_resource_hosts
 
+    # parse the JSON
     hosts = parse_abs_resource_hosts(abs_resource_hosts)
-    hostname = hosts[0]["hostname"]
 
-    puts "Successfully provisioned host - role: #{role}, hostname: #{hostname}"
+    # convert keys from strings to symbols (provision_pe_xl_nodes.rb expects symbols)
+    # TODO: remove once SLV-676 (standardize on symbols) has been implemented
+    host = Hash[hosts[0].map { |key, value| [key.to_sym, value] }]
+
+    # add the role so the host can be identified by role
+    host[:role] = role
+
+    puts "Successfully provisioned host - role: #{host[:role]}, hostname: #{host[:hostname]}"
     puts
 
-    hostname
+    host
   end
 
   # Provisions a set of hosts for the specified roles
@@ -807,13 +813,15 @@ module AbsHelper
 
     # uses in_threads to allow variable modification
     Parallel.map(roles.each, in_threads: num_threads) do |role|
-      hostname = provision_host_for_role(role, size, volume_size)
-      hosts << { role: role, hostname: hostname }
+      host = provision_host_for_role(role, size, volume_size)
+      hosts << host
     end
 
     puts "The following hosts were successfully provisioned:"
     puts hosts
     puts
+
+    update_last_abs_resource_hosts(hosts.to_json)
 
     hosts
   end

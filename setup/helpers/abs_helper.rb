@@ -770,6 +770,7 @@ module AbsHelper
     hosts = parse_abs_resource_hosts(abs_resource_hosts)
 
     # convert keys from strings to symbols (provision_pe_xl_nodes.rb expects symbols)
+    # TODO: remove once SLV-676 (standardize on symbols) has been implemented
     host = Hash[hosts[0].map { |key, value| [key.to_sym, value] }]
 
     # add the role so the host can be identified by role

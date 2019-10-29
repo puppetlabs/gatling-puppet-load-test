@@ -8,7 +8,7 @@ require "json"
 require "yaml"
 require "parallel"
 
-# Provides functionality to provision and deprovision hosts via ABS
+# Provides functionality to provision and de-provision hosts via ABS
 # rubocop:disable Naming/AccessorMethodName
 module AbsHelper
   ABS_BASE_URL = "https://cinext-abs.delivery.puppetlabs.net/api/v2"

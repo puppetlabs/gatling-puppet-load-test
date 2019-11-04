@@ -27,7 +27,8 @@
     "setup/install_gatling/40_post_install/80_install_deps.rb",
     "setup/install_gatling/40_post_install/99_setup_gatling_proxy.rb",
     # unique to pe
-    "setup/install_gatling/50_tune/10_puppet_infrastructure_tune.rb"
+    "setup/install_gatling/50_tune/10_puppet_infrastructure_tune.rb",
+    "setup/install_gatling/99_final/99_final_puppet_run.rb"
   ],
   "is_puppetserver"      => true,
   "use-service"          => true, # use service scripts to start/stop stuff

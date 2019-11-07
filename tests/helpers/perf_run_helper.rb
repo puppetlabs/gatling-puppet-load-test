@@ -11,6 +11,12 @@ include PerfResultsHelper # rubocop:disable Style/MixinUsage
 
 # Helper methods for performance testing
 module PerfRunHelper
+  extend Beaker::DSL::BeakerBenchmark::Helpers
+
+  MAX_BASELINE_VARIANCE = 0.10 # 10%
+  MAX_BASELINE_VARIANCE_ORCH_REL_MEM = 0.15 # 15%
+  PROC_ORCH_REL_MEM = "process_orchestration_services_release_avg_mem"
+
   # rubocop: disable  Naming/AccessorMethodName
   BEAKER_PE_VER = ENV["BEAKER_PE_VER"]
   BASELINE_PE_VER = ENV["BASELINE_PE_VER"]
@@ -28,6 +34,14 @@ module PerfRunHelper
 
   METRIC_RESULTS_DIR = "/root/gatling-puppet-load-test/simulation-runner/results"
   CURRENT_TUNE_SETTINGS_FILENAME = "current_tune_settings.json"
+
+  def logger
+    @logger ||= Beaker::Logger.new
+  end
+
+  def current_test_name
+    @test_type ||= self.metadata[:case][:name]
+  end
 
   # Performs the following steps:
   # - set timestamps
@@ -737,8 +751,6 @@ module PerfRunHelper
     scp_from(host, archive, dest)
   end
 
-  private
-
   def execute_gatling_scenario(gatling_scenario, simulation_id, gatling_assertions)
     step "Execute gatling scenario" do
       # Should gatling run reports only?
@@ -780,14 +792,7 @@ module PerfRunHelper
 
   def get_mean_response_time
     dir = "#{@archive_root}/#{metric.hostname}/root/gatling-puppet-load-test/simulation-runner/results/#{@dir_name}"
-    file = "/js/global_stats.json"
-    logger.info("Getting mean response time from #{dir}#{file}")
-    raise System.StandardError "The file does not exist" unless File.exist?("#{dir}#{file}")
-
-    json_from_file = File.read("#{dir}#{file}")
-    logger.info("global_stats.json: #{json_from_file}")
-    json = JSON.parse(json_from_file)
-    json.fetch("meanResponseTime").fetch("total")
+    mean_response_time_from_dir(dir)
   end
 
   def mean_response_time
@@ -800,14 +805,7 @@ module PerfRunHelper
 
   def get_gatling_assertions
     dir = "#{@archive_root}/#{metric}/root/gatling-puppet-load-test/simulation-runner/results/#{@dir_name}"
-    json_from_file = File.read("#{dir}/js/assertions.json")
-    json = JSON.parse(json_from_file)
-    gatling_assertions = []
-    json["assertions"].each do |assertion|
-      gatling_assertions << { "expected_values" => assertion["expectedValues"], "message" => assertion["message"],
-                             "actual_value" => assertion["actualValue"], "target" => assertion["target"] }
-    end
-    gatling_assertions
+    gatling_assertions_from_dir(dir)
   end
 
   def copy_archive_files
@@ -992,75 +990,241 @@ module PerfRunHelper
     process_hash
   end
 
-  def get_baseline_result
-    if BASELINE_PE_VER.nil?
-      logger.warn("Not comparing results with baseline as BASELINE_PE_VER was not set.")
-      nil
-    else
-      # compare results created in this run with latest baseline run
-      sql = "SELECT avg_cpu, avg_mem, avg_disk_write, avg_response_time, " \
-            "process_bolt_server_avg_cpu, process_bolt_server_avg_mem, " \
-            "process_ace_server_avg_cpu, process_ace_server_avg_mem, " \
-            "process_puppetdb_avg_cpu, process_puppetdb_avg_mem, " \
-            "process_console_services_release_avg_cpu, process_console_services_release_avg_mem, " \
-            "process_orchestration_services_release_avg_cpu, process_orchestration_services_release_avg_mem, " \
-            "process_puppet_server_release_avg_cpu, process_puppet_server_release_avg_mem " \
-            "FROM `perf-metrics.perf_metrics.atop_metrics` " \
-            "WHERE time_stamp = (" \
-          "SELECT MAX(time_stamp) " \
-        "FROM `perf-metrics.perf_metrics.atop_metrics` " \
-        "WHERE pe_build_number = '#{BASELINE_PE_VER}' AND test_scenario = '#{current_test_name}' " \
-           "GROUP BY pe_build_number, test_scenario)"
-
-      data = query_bigquery sql
-      if !data.empty?
-        logger.info("Baseline result returned from BigQuery: #{data}")
-      else
-        logger.error("Cannot find result that matches query: #{sql}")
-      end
-      data[0]
+  # Gets the performance result data for the given baseline version
+  #
+  # @param [String] Baseline PE version to lookup results for
+  #
+  # @return [Hash{Symbol=>String]  A hash of performance results for baseline
+  def get_baseline_result(baseline_ver=nil)
+    baseline_ver ||= BASELINE_PE_VER
+    if baseline_ver.nil?
+      logger.warn("No baseline provided - Not comparing results with baseline")
+      return nil
     end
+
+    # compare results created in this run with latest baseline run
+    sql = <<~SQL
+      SELECT avg_cpu, avg_mem, avg_disk_write, avg_response_time,
+        process_bolt_server_avg_cpu, process_bolt_server_avg_mem,
+        process_ace_server_avg_cpu, process_ace_server_avg_mem,
+        process_puppetdb_avg_cpu, process_puppetdb_avg_mem,
+        process_console_services_release_avg_cpu, process_console_services_release_avg_mem,
+        process_orchestration_services_release_avg_cpu, process_orchestration_services_release_avg_mem,
+        process_puppet_server_release_avg_cpu, process_puppet_server_release_avg_mem
+      FROM `perf-metrics.perf_metrics.atop_metrics`
+      WHERE time_stamp = (SELECT MAX(time_stamp)
+        FROM `perf-metrics.perf_metrics.atop_metrics`
+        WHERE pe_build_number = '#{baseline_ver}' AND test_scenario = '#{current_test_name}'
+        GROUP BY pe_build_number, test_scenario)
+    SQL
+    sql.strip.gsub(/\s+/, " ")
+    data = query_bigquery sql
+    if !data.empty?
+      logger.info("Baseline result returned from BigQuery: #{data}")
+      result = data[0]
+    else
+      logger.error("Cannot find result that matches query: #{sql}")
+      result = {}
+    end
+    return result
   end
 
   def baseline_assert(atop_result, gatling_result)
-    process_results = get_process_hash(atop_result.processes)
-
-    # Handle 3 different things: avg_response_time which comes from gatling result,
-    # global atop results and per process atop results
     baseline = get_baseline_result
-    baseline&.each do |key, value|
-      # orchestration has a jump in memory usage in 2019.2 due to plan executor
-      # https://tickets.puppetlabs.com/browse/BOLT-986
-      # Currently we don't have a way to whitelist that... so just turning off the check
-      # Ticket to make a way https://tickets.puppetlabs.com/browse/SLV-515
-      next if key.to_s == "process_orchestration_services_release_avg_mem" && BEAKER_PE_VER =~ /^2019.2*/
+    delta_data = baseline_to_results_delta(baseline, atop_result, gatling_result)
+    assert_later(validate_baseline_delta(delta_data), "Things are really fucked up now")
+  end
 
-      assert_value = if key.to_s == "avg_response_time"
-                       gatling_result.avg_response_time.to_f
-                     elsif key.to_s.start_with? "process"
-                       process_results[key.to_s].to_f
-                     else
-                       atop_result.send(key).to_f
-                     end
+  # rubocop: enable Naming/AccessorMethodName
 
-      puts "Value for #{key} is baseline: #{value} Actual: #{assert_value}"
-      next if key.to_s.start_with?("process") && key.to_s.end_with?("cpu")
+  # Calculate the variances on the data set provided and return a hash of the
+  # failing elements with the variance calculation appended to each key.
+  #
+  # @param  [Hash] data  Data to validate { key: [v0, v2], ... }
+  #
+  # @return [Hash]  Hash of failing performance keys associated with there values and variance
+  def find_failing_variances(data)
+    deltas = data.transform_values { |v| v[1].to_f / v[0] }
+    failures = deltas.select { |_k, v| (1 - v).abs > MAX_BASELINE_VARIANCE }
+    # exception for PROC_ORCH_REL_MEM
+    if failures.include? PROC_ORCH_REL_MEM
+      failures.delete(PROC_ORCH_REL_MEM) if (1 - failures[PROC_ORCH_REL_MEM]).abs < MAX_BASELINE_VARIANCE_ORCH_REL_MEM
+    end
+    failures.each_with_object({}) { |(k, v), hash| hash[k] = data[k] + [v] }
+  end
 
-      max_baseline_variance = \
-        if key.to_s == "process_orchestration_services_release_avg_mem"
-          15
-        else
-          10
-        end
-      next unless value.is_a? Integer
+  # Determine if the provided results data set contains any failures.
+  #
+  # @param  [Hash] data  Data to validate { key: [v0, v2], ... }
+  #
+  # @return [Boolean]
+  def validate_baseline_delta(data)
+    failures = find_failing_variances(data)
+    return true if failures.empty?
 
-      assert_later((assert_value - value) / value * 100 <= max_baseline_variance,
-                   "The value of #{key} '#{assert_value}' " \
-                   "was not within #{max_baseline_variance}% " \
-                   "of the baseline '#{value}'")
+    failures.each do |k, v|
+      logger.error("Result '#{k}' is not within tolerances: baseline: #{v.first}; result: #{v[1]}; variance: #{((v.last-1)*100).round(2)}%")
+    end
+    return false
+  end
+
+  # @param  [String] dir  Path where atop log is stored
+  # @param  [String] runtype  Test type used to generate results
+  #
+  # @return [String]  Path to atop log file
+  def find_atop_log_from_dir(dir, runtype)
+    find_file(dir, "atop_log_#{runtype}*.csv")
+  end
+
+  # @param  [String] dir  Path where results are stored
+  # @param  [String] runtype  Test type used to generate results
+  #
+  # @return [PerformanceResult]
+  def atop_results_from_dir(dir, runtype)
+    # This is a dirty, dirty reconstitution of the data from a CSV file
+    # created by [beaker-benchmark(https://github.com/puppetlabs/beaker-benchmark/blob/master/lib/beaker-benchmark/helpers.rb#L219-L231).
+    file = find_atop_log_from_dir(dir, runtype)
+    txt = read_file(file)
+    tmp = txt.split("\n\n")
+    # Tease out global results
+    gbl_tbl = CSV.parse(tmp[0], headers: true)
+    gbl_h = gbl_tbl.first.to_h
+    # Tease out process results
+    process_tbl = CSV.parse(tmp[1], headers: true)
+    process_h = {}
+    process_tbl.each do |r|
+      h = r.to_h
+      d = { cmd: h["command"],
+            avg_cpu: h["Avg CPU"].to_i,
+            avg_mem: h["Avg MEM"].to_i,
+            avg_disk_read: h["Avg DSK read"].to_i,
+            avg_disk_write: h["Avg DSK Write"].to_i }
+      process_h[h["Process pid"]] = d
+    end
+
+    # Create PerformanceResult object
+    perf_results_args = {
+      cpu: [],
+      mem: [],
+      disk_read: [],
+      disk_write: [],
+      action: gbl_h["Action"],
+      duration: gbl_h["Duration"].to_f.round(2),
+      processes: {},
+      logger: nil,
+      hostname: Pathname(file).parent.split[1].to_s
+    }
+    atop_res = Beaker::DSL::BeakerBenchmark::Helpers::PerformanceResult.new(perf_results_args)
+    atop_res.avg_cpu = gbl_h["Avg CPU"].to_i
+    atop_res.avg_mem = gbl_h["Avg MEM"].to_i
+    atop_res.avg_disk_read = gbl_h["Avg DSK read"].to_i
+    atop_res.avg_disk_write = gbl_h["Avg DSK Write"].to_i
+    atop_res.processes = process_h
+    atop_res
+  end
+
+  # @param  [String] dir  Path to look for file in
+  # @param  [String] pat  Regular expression pattern to find file with
+  #
+  # @return [String]  Path to file
+  def find_file(dir, pat)
+    file = `find #{dir} -name "#{pat}" -print`.chomp
+    raise System.StandardError "The file does not exist" unless File.exist?(file)
+    file
+  end
+
+  # @param  [String] dir  Path where gating assertions are stored
+  #
+  # @return [String]  Path to assertions file
+  def find_gatling_assertions_from_dir(dir)
+    find_file(dir, "assertions.json")
+  end
+
+  # @param  [String] file  File to read from
+  #
+  # @return [String]  Contents of file
+  def read_file(file)
+    File.read(file)
+  end
+
+  # @param  [String] dir  Path where results are stored
+  #
+  # @return [Array<Hash>]  Array of gatling assertions hashes
+  def gatling_assertions_from_dir(dir)
+    file = find_gatling_assertions_from_dir(dir)
+    json = JSON.parse(read_file(file))
+    gatling_assertions = []
+    json["assertions"].each do |assertion|
+      gatling_assertions << { "expected_values" => assertion["expectedValues"], "message" => assertion["message"],
+                             "actual_value" => assertion["actualValue"], "target" => assertion["target"] }
+    end
+    gatling_assertions
+  end
+
+  # @param  [String] dir  Path where results are stored
+  #
+  # @return [GatlingResult]
+  def gatling_result_from_dir(dir)
+    gatling_assertions = gatling_assertions_from_dir(dir)
+    mean_response_time = mean_response_time_from_dir(dir)
+    GatlingResult.new(gatling_assertions, mean_response_time)
+  end
+
+  def find_gatling_stats_from_dir(dir)
+    find_file(dir, "global_stats.json")
+  end
+
+  # @param  [String] dir  Path where results are stored
+  #
+  # @return [String]  Value of meanResponseTime
+  def mean_response_time_from_dir(dir)
+    file = find_gatling_stats_from_dir(dir)
+
+    logger.debug("Getting mean response time from #{file}")
+
+    json = JSON.parse(read_file(file))
+    json.fetch("meanResponseTime").fetch("total")
+  end
+
+  # @param  [Hash{Symbol=>String}] baseline  A hash of performance results for basline
+  # @param  [Object] results  Results data
+  #
+  # @return [Hash{Symbol=>Array}]  Merged results performance data in arrays associated with keys
+  def baseline_to_results_delta(baseline, *results)
+    logger.debug("Results supplied #{results}")
+    # make results look like baseline
+    merged_results = {}
+    results.each do |r|
+      if r.is_a?(Beaker::DSL::BeakerBenchmark::Helpers::PerformanceResult)
+        pr = Hash[get_process_hash(r.processes).map { |(k, v)| [k.to_sym, v] }]
+      end
+      if r.is_a?(GatlingResult) || r.is_a?(Beaker::DSL::BeakerBenchmark::Helpers::PerformanceResult)
+        r = Hash[r.instance_variables.map { |var| [var.to_s[1..-1].to_sym, r.instance_variable_get(var)] }]
+      end
+      merged_results = merged_results.merge(r) if r.is_a? Hash
+      merged_results = merged_results.merge(pr) if pr.is_a? Hash
+    end
+    logger.debug("Merged results  #{merged_results}")
+    baseline.each_with_object({}) do |(k, v), memo|
+      memo[k] = [v, merged_results[k]] if v.is_a?(Numeric) && merged_results[k].is_a?(Numeric)
     end
   end
-  # rubocop: enable Naming/AccessorMethodName
-end
 
+  # Determine if results from a provided directory pass variance thresholds
+  # when compared with baseline data for the given version and test type.
+  #
+  # @param  [String] perf_results_dir  Path where results are stored
+  # @param  [String] baseline_pe_ver  PE version associated with baseline data
+  # @param  [String] test_type  Test scenario associated with baseline data
+  #
+  # @return [Boolean]
+  def validate_results_to_baseline(perf_results_dir, baseline_pe_ver, test_type)
+    @test_type = test_type
+    atop_result = atop_results_from_dir(perf_results_dir, @test_type.delete(" "))
+    gatling_result = gatling_result_from_dir(perf_results_dir)
+    baseline = get_baseline_result(baseline_pe_ver)
+    delta_data = baseline_to_results_delta(baseline, atop_result, gatling_result)
+    validate_baseline_delta(delta_data)
+  end
+end
 Beaker::TestCase.include PerfRunHelper

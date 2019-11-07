@@ -417,7 +417,7 @@ current_tune_settings.json"
     end
   end
 
-  describe ".assert_later" do
+  describe "#assert_later" do
     context "when true" do
       it "does not raise, or store exception" do
         expect(subject).to receive(:assertion_exceptions).and_return([])
@@ -439,7 +439,7 @@ current_tune_settings.json"
     end
   end
 
-  describe ".assert_all" do
+  describe "#assert_all" do
     let(:logger) { double }
     before { allow(subject).to receive(:logger).and_return(logger) }
 
@@ -484,7 +484,7 @@ current_tune_settings.json"
     end
   end
 
-  describe ".get_process_hash" do
+  describe "#get_process_hash" do
     context "when it has everything needed" do
       it "succeeds" do
         process_hash = subject.send(:get_process_hash, perf_result_processes)
@@ -493,7 +493,7 @@ current_tune_settings.json"
     end
   end
 
-  describe ".baseline_assert" do
+  describe "#baseline_assert" do
     # rubocop:disable Metrics/LineLength
     let(:gatling_assertions) do
       [{ "expected_values" => [100.0],

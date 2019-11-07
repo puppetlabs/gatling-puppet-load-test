@@ -3,7 +3,12 @@
 require "thor"
 require "./tests/helpers/perf_run_helper"
 
-require "pry"
+# Add pry support when available
+begin
+  require "pry"
+rescue LoadError # rubocop: disable Lint/HandleExceptions
+  # do nothing
+end
 
 module GPLT
   class Error < StandardError; end

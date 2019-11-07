@@ -40,7 +40,7 @@ module PerfRunHelper
   end
 
   def current_test_name
-    @test_type ||= self.metadata[:case][:name]
+    @test_type ||= metadata[:case][:name] # rubocop: disable Naming/MemoizedInstanceVariableName
   end
 
   # Performs the following steps:
@@ -995,7 +995,7 @@ module PerfRunHelper
   # @param [String] Baseline PE version to lookup results for
   #
   # @return [Hash{Symbol=>String]  A hash of performance results for baseline
-  def get_baseline_result(baseline_ver=nil)
+  def get_baseline_result(baseline_ver = nil)
     baseline_ver ||= BASELINE_PE_VER
     if baseline_ver.nil?
       logger.warn("No baseline provided - Not comparing results with baseline")
@@ -1063,7 +1063,8 @@ module PerfRunHelper
     return true if failures.empty?
 
     failures.each do |k, v|
-      logger.error("Result '#{k}' is not within tolerances: baseline: #{v.first}; result: #{v[1]}; variance: #{((v.last-1)*100).round(2)}%")
+      variance = ((v.last - 1) * 100).round(2)
+      logger.error("Result '#{k}' is outside tolerances: baseline: #{v.first}; result: #{v[1]}; variance: #{variance}%")
     end
     return false
   end
@@ -1130,6 +1131,7 @@ module PerfRunHelper
   def find_file(dir, pat)
     file = `find #{dir} -name "#{pat}" -print`.chomp
     raise System.StandardError "The file does not exist" unless File.exist?(file)
+
     file
   end
 

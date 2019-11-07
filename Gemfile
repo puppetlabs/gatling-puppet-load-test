@@ -15,9 +15,14 @@ gem "rototiller", "~>1.0"
 gem "rspec", "~>3.0"
 gem "rubocop", "~> 0.67"
 gem "scooter", "~>4.3"
+gem "thor", "~>0.20"
 
 group :test do
   gem "simplecov", "~> 0.17.0", require: false
+end
+
+group :development do
+  gem "pry"
 end
 
 eval(File.read("#{__FILE__}.local"), binding) if File.exist? "#{__FILE__}.local" # rubocop:disable Security/Eval

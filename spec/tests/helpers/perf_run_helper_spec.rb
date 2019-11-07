@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# vim: set foldmethod=marker
+
 require "spec_helper"
 require "minitest/assertions"
 
@@ -14,7 +16,8 @@ TEST_DIR = "test/dir"
 TEST_ARCHIVE_ROOT = "#{TEST_DIR}/PERF_#{TEST_TIMESTAMP}"
 TEST_JSON = "{'parameter': 'value'}"
 
-describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
+# rubocop:disable Metrics/BlockLength
+describe PerfRunHelperClass do
   let(:hosts) do
     [Beaker::Host.create("ip_master",
                          { platform: Beaker::Platform.new("centos-6.5-x86_64"),
@@ -35,7 +38,7 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
                          { platform: Beaker::Platform.new("centos-6.5-x86_64"),
                            role: "loadbalancer" }, logger: @logger)]
   end
-  let(:perf_result_processes) do # rubocop:disable Metrics/BlockLength
+  let(:perf_result_processes) do
     # rubocop:disable Metrics/LineLength
     {
       "1" => { cmd: "/opt/puppetlabs/puppet/bin/pxp-agent", avg_cpu: 1, avg_mem: 10_000 },
@@ -133,25 +136,24 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
   end
   let(:baseline_result) do
     {
-      "pe_build_number"                                => "2018.1.4",
-      "test_scenario"                                  => "apples to apples",
-      "time_stamp"                                     => "2018-09-27 16:03:21 -0700",
-      "avg_cpu"                                        => 25,
-      "avg_mem"                                        => 200_000,
-      "avg_disk_write"                                 => 30_000,
-      "avg_response_time"                              => 1000,
-      "process_puppetdb_avg_cpu"                       => 7,
-      "process_puppetdb_avg_mem"                       => 708_717,
-      "process_console_services_release_avg_cpu"       => 2,
-      "process_console_services_release_avg_mem"       => 696_791,
-      "process_orchestration_services_release_avg_cpu" => 4,
-      "process_orchestration_services_release_avg_mem" => 535_163,
-      "process_puppet_server_release_avg_cpu"          => 5,
-      "process_puppet_server_release_avg_mem"          => 3_744_520
+      pe_build_number: "2018.1.4",
+      test_scenario: "apples to apples",
+      time_stamp: "2018-09-27 16:03:21 -0700",
+      avg_cpu: 25,
+      avg_mem: 200_000,
+      avg_disk_write: 30_000,
+      avg_response_time: 1000,
+      process_puppetdb_avg_cpu: 7,
+      process_puppetdb_avg_mem: 708_717,
+      process_console_services_release_avg_cpu: 2,
+      process_console_services_release_avg_mem: 696_791,
+      process_orchestration_services_release_avg_cpu: 4,
+      process_orchestration_services_release_avg_mem: 535_163,
+      process_puppet_server_release_avg_cpu: 5,
+      process_puppet_server_release_avg_mem: 3_744_520
     }
   end
 
-  let(:gatling_result) { double("GatlingResult") }
   let(:atop_result) { double("Beaker::DSL::BeakerBenchmark::Helpers::PerformanceResult") }
 
   describe "#perf_setup" do # rubocop:disable Metrics/BlockLength
@@ -492,44 +494,55 @@ current_tune_settings.json"
   end
 
   describe ".baseline_assert" do
+    # rubocop:disable Metrics/LineLength
+    let(:gatling_assertions) do
+      [{ "expected_values" => [100.0],
+         "message"         => "Global: percentage of successful requests is greater than or equal to 100.0",
+         "actual_value"    => [100.0],
+         "target"          => "percentage of successful requests" },
+       {                           "expected_values" => [20_000.0],
+                                   "message"         => "PerfTestLarge: 99th percentile of response time is less than or equal to 20000.0",
+                                   "actual_value"    => [3258.0],
+                                   "target"          => "99th percentile of response time" },
+       {                           "expected_values" => [28_800.0],
+                                   "message"         => "Global: count of all requests is 28800.0",
+                                   "actual_value"    => [28_800.0],
+                                   "target"          => "count of all requests" }]
+    end
+    # rubocop:enable Metrics/LineLength
+    let(:gatling_result) { PerfRunHelper::GatlingResult.new(gatling_assertions, 42) }
+
+    let(:atop_result) do
+      Beaker::DSL::BeakerBenchmark::Helpers::PerformanceResult.new(
+        cpu: [],
+        mem: [],
+        disk_read: [],
+        disk_write: [],
+        action: "foo",
+        duration: "99.99",
+        processes: {},
+        logger: nil,
+        hostname: "foobar"
+      )
+    end
+
     before do
       allow(subject).to receive(:puts)
     end
 
     context "when assertion succeeds" do
       it "succeeds with no exceptions" do
-        expect(subject).to receive(:get_process_hash).with(any_args).and_return(valid_process_hash)
         expect(subject).to receive(:get_baseline_result).and_return(baseline_result)
-        allow(atop_result).to receive(:processes)
-        allow(gatling_result).to receive(:avg_response_time).and_return(baseline_result[:avg_response_time])
-        baseline_result.keys.each do |key|
-          allow(atop_result).to receive(key.to_sym).and_return(baseline_result[key])
-        end
-        # TODO: change back when per process cpu asserts are turned back on
-        # changed to 8 while per process cpu asserts are disabled.
-        # expect(subject).to receive(:assert).with(any_args).exactly(12).times.and_return(nil)
-        expect(subject).to receive(:assert).with(any_args).exactly(8).times.and_return(nil)
+        expect(subject).to receive(:assert).with(any_args).exactly(1).times.and_return(nil)
         subject.send(:baseline_assert, atop_result, gatling_result)
       end
     end
 
     context "when assertions fail" do
       it "raises exception" do
-        expect(subject).to receive(:get_process_hash).with(any_args).and_return(valid_process_hash)
         expect(subject).to receive(:get_baseline_result).and_return(baseline_result)
-        allow(atop_result).to receive(:processes)
-        allow(gatling_result).to receive(:avg_response_time).and_return(baseline_result[:avg_response_time])
-        baseline_result.keys.each do |key|
-          allow(atop_result).to receive(key.to_sym).and_return(baseline_result[key])
-        end
-        # TODO: change back when per process cpu asserts are turned back on
-        # changed to 8 while per process cpu asserts are disabled.
-        # expect(subject).to receive(:assert).with(any_args).exactly(12).times.and_raise(Minitest::Assertion)
-        # subject.send(:baseline_assert, atop_result, gatling_result)
-        # expect(subject.assertion_exceptions.count()).to eql(12)
-        expect(subject).to receive(:assert).with(any_args).exactly(8).times.and_raise(Minitest::Assertion)
+        expect(subject).to receive(:assert).with(any_args).exactly(1).times.and_raise(Minitest::Assertion)
         subject.send(:baseline_assert, atop_result, gatling_result)
-        expect(subject.assertion_exceptions.count).to eql(8)
       end
     end
   end
@@ -618,4 +631,135 @@ current_tune_settings.json"
       end
     end
   end
+  describe "#validate_results_to_baseline" do
+    let(:gatling_assertion_content) do # {{{
+      <<~ASSERTIONS
+        {
+          "simulation": "com.puppetlabs.gatling.runner.ConfigDrivenSimulation",
+          "simulationId": "PerfTestLarge",
+          "start": 1571758226846,
+          "description": "'role::by_size_large' role from perf control repo, 600 agents, 8 iterations",
+          "scenarios": ["PerfTestLarge"],
+          "assertions": [
+        {
+          "path": "Global",
+          "target": "percentage of successful requests",
+          "actualValue": [100.0]
+        },
+        {
+          "path": "PerfTestLarge",
+          "target": "99th percentile of response time",
+          "actualValue": [3258.0]
+        },
+        {
+          "path": "Global",
+          "target": "count of all requests",
+          "actualValue": [28800.0]
+        }
+          ]
+        }
+      ASSERTIONS
+    end
+    # }}}
+    context "when validation passes" do
+      # rubocop:disable Metrics/LineLength
+      let(:atop_file_content) do
+        "Action,Duration,Avg CPU,Avg MEM,Avg DSK read,Avg DSK Write
+        ApplesToApples.json,14416.49,#{baseline_result[:avg_cpu]},#{baseline_result[:avg_mem]},43,#{baseline_result[:avg_disk_write]}
+
+        Process pid,command,Avg CPU,Avg MEM,Avg DSK read,Avg DSK Write
+        17610,'/path/puppetdb.jar',#{baseline_result[:process_puppetdb_avg_cpu]},#{baseline_result[:process_puppetdb_avg_mem]},0,1169
+        18194,'/path/orchestration-services-release.jar',#{baseline_result[:process_orchestration_services_release_avg_cpu]},#{baseline_result[:process_orchestration_services_release_avg_mem]},0,15
+        18805,'/path/console-services-release.jar',#{baseline_result[:process_console_services_release_avg_cpu]},#{baseline_result[:process_console_services_release_avg_mem]},0,26
+        23970,'/path/puppet-server-release.jar',#{baseline_result[:process_puppet_server_release_avg_cpu]},#{baseline_result[:process_puppet_server_release_avg_mem]},0,309"
+      end
+      # rubocop:enable Metrics/LineLength
+      # }}}
+      let(:gatling_stats_content) do # {{{
+        <<~STATS
+          {
+              "name": "Global Information",
+              "meanResponseTime": {
+                  "total": #{baseline_result[:avg_response_time]},
+                  "ok": #{baseline_result[:avg_response_time]},
+                  "ko": 0
+              }
+          }
+        STATS
+      end
+      # }}}
+      it "returns true" do
+        allow(subject).to receive(:find_atop_log_from_dir).with("foo", "applestoapples").and_return("atop_file")
+        allow(subject).to receive(:find_gatling_assertions_from_dir).with("foo").and_return("assertion_file")
+        allow(subject).to receive(:find_gatling_stats_from_dir).with("foo").and_return("stats_file")
+        allow(subject).to receive(:read_file).with("atop_file").and_return(atop_file_content)
+        allow(subject).to receive(:read_file).with("assertion_file").and_return(gatling_assertion_content)
+        allow(subject).to receive(:read_file).with("stats_file").and_return(gatling_stats_content)
+        allow(subject).to receive(:get_baseline_result).with("bar").and_return(baseline_result)
+        expect(subject.validate_results_to_baseline("foo", "bar", "apples to apples")).to eq(true)
+      end
+    end
+    context "when validation fails" do
+      bad_cpu = bad_mem = bad_disk_write = bad_time = "999999"
+      let(:atop_file_content) do # {{{
+        "Action,Duration,Avg CPU,Avg MEM,Avg DSK read,Avg DSK Write
+        ApplesToApples.json,14416.49,#{bad_cpu},#{bad_mem},43,#{bad_disk_write}
+
+        Process pid,command,Avg CPU,Avg MEM,Avg DSK read,Avg DSK Write
+        17610,'/path/puppetdb.jar',#{bad_cpu},#{bad_mem},0,1169
+        18194,'/path/orchestration-services-release.jar',#{bad_cpu},#{bad_mem},0,15
+        18805,'/path/console-services-release.jar',#{bad_cpu},#{bad_mem},0,26
+        23970,'/path/puppet-server-release.jar',#{bad_cpu},#{bad_mem},0,309"
+      end
+      # }}}
+      let(:gatling_stats_content) do # {{{
+        <<~STATS
+          {
+              "name": "Global Information",
+              "meanResponseTime": {
+                  "total": #{bad_time},
+                  "ok": #{bad_time},
+                  "ko": 0
+              }
+          }
+        STATS
+      end
+      # }}}
+      it "returns false" do
+        allow(subject).to receive(:find_atop_log_from_dir).with("foo", "applestoapples").and_return("atop_file")
+        allow(subject).to receive(:find_gatling_assertions_from_dir).with("foo").and_return("assertion_file")
+        allow(subject).to receive(:find_gatling_stats_from_dir).with("foo").and_return("stats_file")
+        allow(subject).to receive(:read_file).with("atop_file").and_return(atop_file_content)
+        allow(subject).to receive(:read_file).with("assertion_file").and_return(gatling_assertion_content)
+        allow(subject).to receive(:read_file).with("stats_file").and_return(gatling_stats_content)
+        allow(subject).to receive(:get_baseline_result).with("bar").and_return(baseline_result)
+        expect(subject.validate_results_to_baseline("foo", "bar", "apples to apples")).to eq(false)
+      end
+    end
+  end
+  describe "#validate_baseline_delta" do
+    context "when all deltas are < MAX_BASELINE_VARIANCE" do
+      it "returns true" do
+        expect(subject.validate_baseline_delta("pass_thing1" => [1.00, 0.98],
+                                               "pass_thing2" => [100, 102])).to eq(true)
+      end
+    end
+    context "when any delta is > MAX_BASELINE_VARIANCE" do
+      it "returns false" do
+        expect(subject.validate_baseline_delta("fail_thing"  => [1, 2],
+                                               "pass_thing2" => [100, 102])).to eq(false)
+      end
+    end
+    context "when MAX_BASELINE_VARIANCE < 'orchestration_service memory delta' > MAX_BASELINE_VARIANCE_ORCH_REL_MEM" do
+      it "returns true" do
+        expect(
+          subject.validate_baseline_delta(
+            "pass_thing1"                                    => [1.00, 0.98],
+            "process_orchestration_services_release_avg_mem" => [100, 112]
+          )
+        ).to eq(true)
+      end
+    end
+  end
 end
+# rubocop:enable Metrics/BlockLength

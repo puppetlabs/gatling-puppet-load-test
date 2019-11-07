@@ -533,7 +533,7 @@ current_tune_settings.json"
     context "when assertion succeeds" do
       it "succeeds with no exceptions" do
         expect(subject).to receive(:get_baseline_result).and_return(baseline_result)
-        expect(subject).to receive(:assert).with(any_args).exactly(1).times.and_return(nil)
+        expect(subject).to receive(:assert).with(any_args).and_return(nil)
         subject.send(:baseline_assert, atop_result, gatling_result)
       end
     end
@@ -541,7 +541,7 @@ current_tune_settings.json"
     context "when assertions fail" do
       it "raises exception" do
         expect(subject).to receive(:get_baseline_result).and_return(baseline_result)
-        expect(subject).to receive(:assert).with(any_args).exactly(1).times.and_raise(Minitest::Assertion)
+        expect(subject).to receive(:assert).with(any_args).and_raise(Minitest::Assertion)
         subject.send(:baseline_assert, atop_result, gatling_result)
       end
     end

@@ -35,10 +35,14 @@ module PerfRunHelper
   METRIC_RESULTS_DIR = "/root/gatling-puppet-load-test/simulation-runner/results"
   CURRENT_TUNE_SETTINGS_FILENAME = "current_tune_settings.json"
 
+  # Stub out logger if module is used without beaker.
   def logger
     @logger ||= Beaker::Logger.new
   end
 
+  # Stub out current_test_name if module is used without beaker.
+  # Unfortunately, this method overrides the built in beaker method, so the
+  # logic of the method is duplicated here.
   def current_test_name
     @test_type ||= metadata[:case][:name] # rubocop: disable Naming/MemoizedInstanceVariableName
   end
@@ -1083,7 +1087,7 @@ module PerfRunHelper
   # @return [PerformanceResult]
   def atop_results_from_dir(dir, runtype)
     # This is a dirty, dirty reconstitution of the data from a CSV file
-    # created by [beaker-benchmark(https://github.com/puppetlabs/beaker-benchmark/blob/master/lib/beaker-benchmark/helpers.rb#L219-L231).
+    # created by [beaker-benchmark](https://github.com/puppetlabs/beaker-benchmark/blob/master/lib/beaker-benchmark/helpers.rb#L219-L231).
     file = find_atop_log_from_dir(dir, runtype)
     txt = read_file(file)
     tmp = txt.split("\n\n")
@@ -1157,8 +1161,10 @@ module PerfRunHelper
     json = JSON.parse(read_file(file))
     gatling_assertions = []
     json["assertions"].each do |assertion|
-      gatling_assertions << { "expected_values" => assertion["expectedValues"], "message" => assertion["message"],
-                             "actual_value" => assertion["actualValue"], "target" => assertion["target"] }
+      gatling_assertions << { "expected_values" => assertion["expectedValues"],
+                              "message"         => assertion["message"],
+                              "actual_value"    => assertion["actualValue"],
+                              "target"          => assertion["target"] }
     end
     gatling_assertions
   end

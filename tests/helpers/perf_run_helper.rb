@@ -41,10 +41,9 @@ module PerfRunHelper
   end
 
   # Stub out current_test_name if module is used without beaker.
-  # Unfortunately, this method overrides the built in beaker method, so the
-  # logic of the method is duplicated here.
+  # This assumes that the test_type instance variable is set when run without beaker.
   def current_test_name
-    @test_type ||= metadata[:case][:name] # rubocop: disable Naming/MemoizedInstanceVariableName
+    @test_type ||= super # rubocop: disable Naming/MemoizedInstanceVariableName
   end
 
   # Performs the following steps:

@@ -687,6 +687,10 @@ module PerfRunHelper
     puppet_logdir = File.dirname on(host, puppet("config", "print", "logdir")).stdout.strip
     archive_file_from(host, puppet_logdir,
                       {}, @archive_root, archive_name)
+
+    # the archive_file_from leaves the unpacked tree in place and we need to clean it up
+    logdir_root = puppet_logdir.split(File::SEPARATOR).select { |s| s.length >= 1 }.shift
+    FileUtils.rm_rf(File.join(@archive_root, host, logdir_root), secure: true)
   end
 
   private

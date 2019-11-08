@@ -1081,16 +1081,11 @@ module PerfRunHelper
     find_file(dir, "atop_log_#{runtype}*.csv")
   end
 
-  # @param  [String] dir  Path where results are stored
-  # @param  [String] runtype  Test type used to generate results
+  # @param  [String] csv_string  CSV string from atop file created by BeakerBenchmark PerformanceResult.log_csv.
   #
-  # @return [PerformanceResult]
-  def atop_results_from_dir(dir, runtype)
-    # This is a dirty, dirty reconstitution of the data from a CSV file
-    # created by [beaker-benchmark](https://github.com/puppetlabs/beaker-benchmark/blob/master/lib/beaker-benchmark/helpers.rb#L219-L231).
-    file = find_atop_log_from_dir(dir, runtype)
-    txt = read_file(file)
-    tmp = txt.split("\n\n")
+  # @return [Hash{global=>Hash,processes=>Hash}]  Hash of atop hashes
+  def result_hashes_from_atop_csv(csv_string)
+    tmp = csv_string.split("\n\n")
     # Tease out global results
     gbl_tbl = CSV.parse(tmp[0], headers: true)
     gbl_h = gbl_tbl.first.to_h
@@ -1106,6 +1101,19 @@ module PerfRunHelper
             avg_disk_write: h["Avg DSK Write"].to_i }
       process_h[h["Process pid"]] = d
     end
+    { global: gbl_h, processes: process_h }
+  end
+
+  # @param  [String] dir  Path where results are stored
+  # @param  [String] runtype  Test type used to generate results
+  #
+  # @return [PerformanceResult]
+  def atop_results_from_dir(dir, runtype)
+    # This is a dirty, dirty reconstitution of the data from a CSV file
+    # created by [beaker-benchmark](https://github.com/puppetlabs/beaker-benchmark/blob/master/lib/beaker-benchmark/helpers.rb#L219-L231).
+    file = find_atop_log_from_dir(dir, runtype)
+    csv_string = read_file(file)
+    atop_hashes = result_hashes_from_atop_csv(csv_string)
 
     # Create PerformanceResult object
     perf_results_args = {
@@ -1113,18 +1121,18 @@ module PerfRunHelper
       mem: [],
       disk_read: [],
       disk_write: [],
-      action: gbl_h["Action"],
-      duration: gbl_h["Duration"].to_f.round(2),
+      action: atop_hashes[:global]["Action"],
+      duration: atop_hashes[:global]["Duration"].to_f.round(2),
       processes: {},
       logger: nil,
       hostname: Pathname(file).parent.split[1].to_s
     }
     atop_res = Beaker::DSL::BeakerBenchmark::Helpers::PerformanceResult.new(perf_results_args)
-    atop_res.avg_cpu = gbl_h["Avg CPU"].to_i
-    atop_res.avg_mem = gbl_h["Avg MEM"].to_i
-    atop_res.avg_disk_read = gbl_h["Avg DSK read"].to_i
-    atop_res.avg_disk_write = gbl_h["Avg DSK Write"].to_i
-    atop_res.processes = process_h
+    atop_res.avg_cpu = atop_hashes[:global]["Avg CPU"].to_i
+    atop_res.avg_mem = atop_hashes[:global]["Avg MEM"].to_i
+    atop_res.avg_disk_read = atop_hashes[:global]["Avg DSK read"].to_i
+    atop_res.avg_disk_write = atop_hashes[:global]["Avg DSK Write"].to_i
+    atop_res.processes = atop_hashes[:processes]
     atop_res
   end
 

@@ -444,15 +444,14 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
                            { platform: Beaker::Platform.new("centos-6.5-x86_64"),
                              role: "master" }, logger: @logger)]
     end
-    it "calls archive_file_from with given host and parent dir of puppet_logdir" do
+    it "calls scp_from to copy puppet logdir to archive root" do
       # test variables
-      build_id = gplt_timestamp = nil
-      puppet_logdir = "/foo/bar/baz"
-      archive_root = "/test/archive"
-      job_name = "foobar"
-      archive_name = "#{job_name}__#{build_id}__#{gplt_timestamp}__system_logs.tgz"
-      ENV["JOB_NAME"] = job_name
+      logdir_root = "foo"
+      puppet_logdir = File.join(logdir_root, "bar", "baz")
+      archive_root = "/tmp/test/archive"
       myhost = hosts.first
+      expected_dest = File.join(archive_root, myhost, logdir_root)
+
       # mock out @archive_root instance variable
       subject.instance_variable_set(:@archive_root, archive_root)
       # mock out beaker result
@@ -461,9 +460,9 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
 
       allow(subject).to receive(:on).with(myhost, any_args).and_return(result)
       expect(subject).to receive(:puppet).with("config", "print", "logdir")
-      expect(subject).to receive(:archive_file_from).with(myhost,
-                                                          File.dirname(puppet_logdir),
-                                                          {}, archive_root, archive_name)
+      expect(subject).to receive(:scp_from).with(myhost,
+                                                 File.dirname(puppet_logdir),
+                                                 expected_dest)
       subject.copy_system_logs(myhost)
     end
   end

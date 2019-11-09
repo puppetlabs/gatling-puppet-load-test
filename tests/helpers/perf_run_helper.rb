@@ -675,22 +675,17 @@ module PerfRunHelper
   end
 
   def copy_system_logs(host)
-    job_name = if ENV["JOB_NAME"]
-                 ENV["JOB_NAME"]
-                   .sub(/[A-Z0-9_]+=.*$/, "")
-                   .gsub(%r{[/,.]}, "_")[0..200]
-               else
-                 "unknown_or_dev_job"
-               end
-
-    archive_name = "#{job_name}__#{ENV['BUILD_ID']}__#{@gplt_timestamp}__system_logs.tgz"
     puppet_logdir = File.dirname on(host, puppet("config", "print", "logdir")).stdout.strip
-    archive_file_from(host, puppet_logdir,
-                      {}, @archive_root, archive_name)
-
-    # the archive_file_from leaves the unpacked tree in place and we need to clean it up
     logdir_root = puppet_logdir.split(File::SEPARATOR).select { |s| s.length >= 1 }.shift
-    FileUtils.rm_rf(File.join(@archive_root, host, logdir_root), secure: true)
+
+    dest = File.join(@archive_root, host, File.dirname(puppet_logdir))
+    tar_root = File.join(@archive_root, host, logdir_root)
+
+    FileUtils.mkdir_p(dest)
+    scp_from(host, puppet_logdir, dest)
+    tgz = Zlib::GzipWriter.new(File.open("#{tar_root}.tgz", "wb"))
+    Minitar.pack(dest, tgz)
+    FileUtils.rm_rf(tar_root, secure: true)
   end
 
   private

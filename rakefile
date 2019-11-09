@@ -294,6 +294,7 @@ end
 
 desc 'Run Performance setup for gatling'
 rototiller_task :performance_setup do
+  ENV['BEAKER_PRESERVE_HOSTS'] = ENV['BEAKER_PRESERVE_HOSTS'] || 'always'
   ENV['ENVIRONMENT_TYPE'] = 'gatling'
   ENV['BEAKER_TESTS'] = ''
   Rake::Task["performance"].invoke

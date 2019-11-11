@@ -1040,12 +1040,20 @@ module PerfRunHelper
 
   # rubocop: enable Naming/AccessorMethodName
 
-  # Calculate the variances on the data set provided and return a hash of the
-  # failing elements with the variance calculation appended to each key.
+  # Calculate the deltas on the data set provided and return a hash of the
+  # failing elements with the delta calculation appended to each key.
   #
-  # @param  [Hash] data  Data to validate { key: [v0, v2], ... }
+  # The data set it expected to be comprised of perfomance result key with the
+  # values being a two element array comprised of the baseline value and the
+  # current results value for that key.
   #
-  # @return [Hash]  Hash of failing performance keys associated with there values and variance
+  # The failure set will include any key in which the delta between its values
+  # exceeds (in either direction) the defined maximum basline variance for that key.
+  #
+  # @param  [Hash{Symbol=>Array}] data  Data to validate { result_key: [baseline_value, result_value], ... }
+  #
+  # @return [Hash]  Hash of failing performance keys associated with there
+  #                 values and variance.  Example { foo: [100, 133, 1.33] }
   def find_failing_variances(data)
     deltas = data.transform_values { |v| v[1].to_f / v[0] }
     failures = deltas.select { |_k, v| (1 - v).abs > MAX_BASELINE_VARIANCE }
@@ -1058,7 +1066,7 @@ module PerfRunHelper
 
   # Determine if the provided results data set contains any failures.
   #
-  # @param  [Hash] data  Data to validate { key: [v0, v2], ... }
+  # @param  [Hash{Symbol=>Array}] data  Data to validate { result_key: [baseline_value, result_value], ... }
   #
   # @return [Boolean]
   def validate_baseline_data(data)
@@ -1201,10 +1209,14 @@ module PerfRunHelper
     json.fetch("meanResponseTime").fetch("total")
   end
 
+  # Create data set for given results comprised of the baseline and results
+  # values for each key in the merged set.
+  #
   # @param  [Hash{Symbol=>String}] baseline  A hash of performance results for basline
   # @param  [Object] results  Results data
   #
-  # @return [Hash{Symbol=>Array}]  Merged results performance data in arrays associated with keys
+  # @return [Hash{Symbol=>Array}] data  Merged results performance data in arrays associated with keys
+  #                                     { result_key: [baseline_value, result_value], ... }
   def baseline_to_results_data(baseline, *results)
     logger.debug("Results supplied #{results}")
     # make results look like baseline

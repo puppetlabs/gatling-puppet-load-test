@@ -1119,7 +1119,7 @@ module PerfRunHelper
     # This is a dirty, dirty reconstitution of the data from a CSV file
     # created by [beaker-benchmark](https://github.com/puppetlabs/beaker-benchmark/blob/master/lib/beaker-benchmark/helpers.rb#L219-L231).
     file = find_atop_log_from_dir(dir, runtype)
-    csv_string = read_file(file)
+    csv_string = File.read(file)
     atop_hashes = result_hashes_from_atop_csv(csv_string)
 
     # Create PerformanceResult object
@@ -1161,19 +1161,12 @@ module PerfRunHelper
     find_file(dir, "assertions.json")
   end
 
-  # @param  [String] file  File to read from
-  #
-  # @return [String]  Contents of file
-  def read_file(file)
-    File.read(file)
-  end
-
   # @param  [String] dir  Path where results are stored
   #
   # @return [Array<Hash>]  Array of gatling assertions hashes
   def gatling_assertions_from_dir(dir)
     file = find_gatling_assertions_from_dir(dir)
-    json = JSON.parse(read_file(file))
+    json = JSON.parse(File.read(file))
     gatling_assertions = []
     json["assertions"].each do |assertion|
       gatling_assertions << { "expected_values" => assertion["expectedValues"],
@@ -1205,7 +1198,7 @@ module PerfRunHelper
 
     logger.debug("Getting mean response time from #{file}")
 
-    json = JSON.parse(read_file(file))
+    json = JSON.parse(File.read(file))
     json.fetch("meanResponseTime").fetch("total")
   end
 

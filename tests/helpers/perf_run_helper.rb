@@ -1034,8 +1034,8 @@ module PerfRunHelper
 
   def baseline_assert(atop_result, gatling_result)
     baseline = get_baseline_result
-    delta_data = baseline_to_results_delta(baseline, atop_result, gatling_result)
-    assert_later(validate_baseline_delta(delta_data), "Things are really fucked up now")
+    delta_data = baseline_to_results_data(baseline, atop_result, gatling_result)
+    assert_later(validate_baseline_data(delta_data), "Things are really fucked up now")
   end
 
   # rubocop: enable Naming/AccessorMethodName
@@ -1061,7 +1061,7 @@ module PerfRunHelper
   # @param  [Hash] data  Data to validate { key: [v0, v2], ... }
   #
   # @return [Boolean]
-  def validate_baseline_delta(data)
+  def validate_baseline_data(data)
     failures = find_failing_variances(data)
     return true if failures.empty?
 
@@ -1205,7 +1205,7 @@ module PerfRunHelper
   # @param  [Object] results  Results data
   #
   # @return [Hash{Symbol=>Array}]  Merged results performance data in arrays associated with keys
-  def baseline_to_results_delta(baseline, *results)
+  def baseline_to_results_data(baseline, *results)
     logger.debug("Results supplied #{results}")
     # make results look like baseline
     merged_results = {}
@@ -1238,8 +1238,8 @@ module PerfRunHelper
     atop_result = atop_results_from_dir(perf_results_dir, @test_type.delete(" "))
     gatling_result = gatling_result_from_dir(perf_results_dir)
     baseline = get_baseline_result(baseline_pe_ver)
-    delta_data = baseline_to_results_delta(baseline, atop_result, gatling_result)
-    validate_baseline_delta(delta_data)
+    results_data = baseline_to_results_data(baseline, atop_result, gatling_result)
+    validate_baseline_data(results_data)
   end
 end
 Beaker::TestCase.include PerfRunHelper

@@ -740,20 +740,20 @@ current_tune_settings.json"
   describe "#validate_baseline_delta" do
     context "when all deltas are < MAX_BASELINE_VARIANCE" do
       it "returns true" do
-        expect(subject.validate_baseline_delta("pass_thing1" => [1.00, 0.98],
-                                               "pass_thing2" => [100, 102])).to eq(true)
+        expect(subject.validate_baseline_data("pass_thing1" => [1.00, 0.98],
+                                              "pass_thing2" => [100, 102])).to eq(true)
       end
     end
     context "when any delta is > MAX_BASELINE_VARIANCE" do
       it "returns false" do
-        expect(subject.validate_baseline_delta("fail_thing"  => [1, 2],
-                                               "pass_thing2" => [100, 102])).to eq(false)
+        expect(subject.validate_baseline_data("fail_thing"  => [1, 2],
+                                              "pass_thing2" => [100, 102])).to eq(false)
       end
     end
     context "when MAX_BASELINE_VARIANCE < 'orchestration_service memory delta' > MAX_BASELINE_VARIANCE_ORCH_REL_MEM" do
       it "returns true" do
         expect(
-          subject.validate_baseline_delta(
+          subject.validate_baseline_data(
             "pass_thing1"                                    => [1.00, 0.98],
             "process_orchestration_services_release_avg_mem" => [100, 112]
           )

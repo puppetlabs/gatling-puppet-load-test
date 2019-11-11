@@ -1075,7 +1075,7 @@ module PerfRunHelper
 
     failures.each do |k, v|
       variance = ((v.last - 1) * 100).round(2)
-      logger.error("Result '#{k}' is outside tolerances: baseline: #{v.first}; result: #{v[1]}; variance: #{variance}%")
+      logger.error("Result '#{k}' is outside tolerances: baseline: #{v[0]}; result: #{v[1]}; variance: #{variance}%")
     end
     return false
   end

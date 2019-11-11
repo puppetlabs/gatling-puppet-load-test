@@ -676,14 +676,16 @@ module PerfRunHelper
 
   def copy_system_logs(host)
     puppet_logdir = File.dirname on(host, puppet("config", "print", "logdir")).stdout.strip
+    # Get the first path segment from puppet_logdir
     logdir_root = puppet_logdir.split(File::SEPARATOR).select { |s| s.length >= 1 }.shift
 
     dest = File.join(@archive_root, host, File.dirname(puppet_logdir))
     tar_root = File.join(@archive_root, host, logdir_root)
+    archive_name = File.join(@archive_root, host, "puppet_logdir.tgz")
 
     FileUtils.mkdir_p(dest)
     scp_from(host, puppet_logdir, dest)
-    tgz = Zlib::GzipWriter.new(File.open("#{tar_root}.tgz", "wb"))
+    tgz = Zlib::GzipWriter.new(File.open(archive_name, "wb"))
     Minitar.pack(dest, tgz)
     FileUtils.rm_rf(tar_root, secure: true)
   end

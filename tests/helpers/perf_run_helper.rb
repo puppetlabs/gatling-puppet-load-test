@@ -27,7 +27,7 @@ module PerfRunHelper
   SCALE_RESULTS_DIR = "results/scale"
 
   METRIC_RESULTS_DIR = "/root/gatling-puppet-load-test/simulation-runner/results"
-  CURRENT_TUNE_SETTINGS = "current_tune_settings.json"
+  CURRENT_TUNE_SETTINGS_FILENAME = "current_tune_settings.json"
 
   # Performs the following steps:
   # - set timestamps
@@ -85,6 +85,7 @@ module PerfRunHelper
   end
 
   # Sets the results timestamp and creates the 'archive root' directory
+  # as well as host subdirs
   #
   # @author Bill Claytor
   #
@@ -96,10 +97,40 @@ module PerfRunHelper
   def create_perf_archive_root
     @gplt_timestamp = Time.now.getutc.to_i
     @archive_root = "#{PERF_RESULTS_DIR}/PERF_#{@gplt_timestamp}"
+    # Separate mkdir's for spec test clarity
     FileUtils.mkdir_p @archive_root
+    FileUtils.mkdir_p "#{@archive_root}/hosts"
+    hosts.each do |host|
+      role = get_most_relevant_role(host)
+      role_dir = "#{@archive_root}/hosts/#{role}"
+      FileUtils.mkdir_p("#{role_dir}/#{host.hostname}")
+    end
+  end
+
+  # Pics out the most relevant role from the hosts roles
+  #
+  # @author Randell Pelak
+  #
+  # @param [Object] host The beaker host object
+  #
+  # @return [string] role
+  #
+  # @example:
+  #   get_most_relevant_role(host)
+  #
+  def get_most_relevant_role(host)
+    roles = host[:roles]
+    return "master" if roles.include?("master")
+    return "metric" if roles.include?("metric")
+    return "compiler" if roles.include?("compile_master")
+    return "database" if roles.include?("database")
+    return "loadbalancer" if roles.include?("loadbalancer")
+
+    return "unknown"
   end
 
   # Get the current values for the settings that can be tuned with pe_tune
+  # places them in a file in each hosts subdir in archive root
   #
   # @author Bill Claytor
   #
@@ -109,12 +140,13 @@ module PerfRunHelper
   #   capture_current_tune_settings
   #
   def capture_current_tune_settings
-    puts "Checking current tune settings..."
-    settings_json = run_script_on(master, "./util/tune/current_settings.rb").output
-    output_path = "#{@archive_root}/#{CURRENT_TUNE_SETTINGS}"
-
-    puts "Writing file: #{output_path}"
-    File.write(output_path, settings_json)
+    puts "Generating current tune settings files for each host..."
+    hosts.each do |host|
+      settings_json = run_script_on(host, "./util/tune/current_settings.rb").output
+      role = get_most_relevant_role(host)
+      output_path = "#{@archive_root}/hosts/#{role}/#{host.hostname}/#{CURRENT_TUNE_SETTINGS_FILENAME}"
+      File.write(output_path, settings_json)
+    end
   end
 
   # Write out the epoch into a file for info and use when gathering metrics

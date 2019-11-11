@@ -15,6 +15,26 @@ TEST_ARCHIVE_ROOT = "#{TEST_DIR}/PERF_#{TEST_TIMESTAMP}"
 TEST_JSON = "{'parameter': 'value'}"
 
 describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
+  let(:hosts) do
+    [Beaker::Host.create("ip_master",
+                         { platform: Beaker::Platform.new("centos-6.5-x86_64"),
+                           role: "master" }, logger: @logger),
+     Beaker::Host.create("ip_metric",
+                         { platform: Beaker::Platform.new("centos-6.5-x86_64"),
+                           role: "metric" }, logger: @logger),
+     Beaker::Host.create("ip_compile_master_A",
+                         { platform: Beaker::Platform.new("centos-6.5-x86_64"),
+                           role: "compile_master" }, logger: @logger),
+     Beaker::Host.create("ip_compile_master_B",
+                         { platform: Beaker::Platform.new("centos-6.5-x86_64"),
+                           role: "compile_master" }, logger: @logger),
+     Beaker::Host.create("ip_database",
+                         { platform: Beaker::Platform.new("centos-6.5-x86_64"),
+                           role: "database" }, logger: @logger),
+     Beaker::Host.create("ip_loadbalancer",
+                         { platform: Beaker::Platform.new("centos-6.5-x86_64"),
+                           role: "loadbalancer" }, logger: @logger)]
+  end
   let(:perf_result_processes) do # rubocop:disable Metrics/BlockLength
     # rubocop:disable Metrics/LineLength
     {
@@ -243,6 +263,8 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
       it "sets @gplt_timestamp" do
         allow(FileUtils).to receive(:mkdir_p)
         expect(Time).to receive(:now).and_return(TEST_TIME_NOW)
+        expect(subject).to receive(:hosts).and_return(hosts)
+        allow(subject).to receive(:get_most_relevant_role).and_return("master")
 
         subject.create_perf_archive_root
         expect(subject.instance_variable_get(:@gplt_timestamp)).to eq(TEST_TIMESTAMP)
@@ -253,6 +275,8 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
 
         allow(FileUtils).to receive(:mkdir_p)
         expect(Time).to receive(:now).and_return(TEST_TIME_NOW)
+        expect(subject).to receive(:hosts).and_return(hosts)
+        allow(subject).to receive(:get_most_relevant_role).and_return("master")
 
         subject.create_perf_archive_root
         expect(subject.instance_variable_get(:@archive_root)).to eq(TEST_ARCHIVE_ROOT)
@@ -262,9 +286,76 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
         subject.instance_variable_set("@gplt_timestamp", TEST_TIMESTAMP)
 
         expect(Time).to receive(:now).and_return(TEST_TIME_NOW)
+        expect(subject).to receive(:hosts).and_return(hosts)
+        allow(subject).to receive(:get_most_relevant_role).and_return("master")
         expect(FileUtils).to receive(:mkdir_p).with(TEST_ARCHIVE_ROOT)
+        allow(FileUtils).to receive(:mkdir_p)
 
         subject.create_perf_archive_root
+      end
+
+      it "creates the host specific directories" do
+        subject.instance_variable_set("@gplt_timestamp", TEST_TIMESTAMP)
+
+        expect(Time).to receive(:now).and_return(TEST_TIME_NOW)
+        expect(subject).to receive(:hosts).and_return(hosts)
+        allow(subject).to receive(:get_most_relevant_role).and_return("master")
+        expect(FileUtils).to receive(:mkdir_p).with(TEST_ARCHIVE_ROOT)
+        expect(FileUtils).to receive(:mkdir_p).with("#{TEST_ARCHIVE_ROOT}/hosts")
+        hosts.each do |host|
+          expected_path = "#{TEST_ARCHIVE_ROOT}/hosts/master/#{host.hostname}"
+          expect(FileUtils).to receive(:mkdir_p).with(expected_path)
+        end
+
+        subject.create_perf_archive_root
+      end
+    end
+  end
+
+  describe "#get_most_relevant_role" do
+    context "when called with a host that has one role" do
+      context "that role is a primary role" do
+        let!(:test_host) { { roles: ["master"] } }
+        it "returns the primary role" do
+          expect(subject.get_most_relevant_role(test_host)).to eq("master")
+        end
+      end
+
+      context "that role is NOT a primary role" do
+        let!(:test_host) { { roles: ["joker"] } }
+        it "returns unknown" do
+          expect(subject.get_most_relevant_role(test_host)).to eq("unknown")
+        end
+      end
+    end
+
+    context "when called with a host that has more than one role" do
+      context "those roles have only one primary role" do
+        let!(:test_host) { { roles: %w[master joker] } }
+        it "returns the primary role" do
+          expect(subject.get_most_relevant_role(test_host)).to eq("master")
+        end
+      end
+
+      context "those roles have two primary roles" do
+        let!(:test_host) { { roles: %w[master database] } }
+        it "returns only one role" do
+          expect(subject.get_most_relevant_role(test_host)).to eq("master")
+        end
+      end
+
+      context "those roles have no primary roles" do
+        let!(:test_host) { { roles: %w[joker stoker] } }
+        it "returns unknown" do
+          expect(subject.get_most_relevant_role(test_host)).to eq("unknown")
+        end
+      end
+    end
+
+    context "when called with a host that has the primary role of compile master" do
+      let!(:test_host) { { roles: %w[compile_master] } }
+      it "returns compiler" do
+        expect(subject.get_most_relevant_role(test_host)).to eq("compiler")
       end
     end
   end
@@ -282,20 +373,24 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
 
       it "captures the tune settings" do
         allow(File).to receive(:write)
-
-        expect(subject).to receive(:run_script_on).and_return(result)
-        expect(result).to receive(:output).and_return(TEST_JSON)
+        expect(subject).to receive(:run_script_on).exactly(hosts.count).times.and_return(result)
+        expect(result).to receive(:output).exactly(hosts.count).times.and_return(TEST_JSON)
+        expect(subject).to receive(:hosts).and_return(hosts)
+        allow(subject).to receive(:get_most_relevant_role).and_return("foo")
 
         subject.capture_current_tune_settings
       end
 
       it "writes the settings to the @archive_root" do
-        expected_path = "#{TEST_ARCHIVE_ROOT}/current_tune_settings.json"
-
         allow(subject).to receive(:run_script_on).and_return(result)
         allow(result).to receive(:output).and_return(TEST_JSON)
-
-        expect(File).to receive(:write).with(expected_path, TEST_JSON)
+        expect(subject).to receive(:hosts).and_return(hosts)
+        allow(subject).to receive(:get_most_relevant_role).and_return("master")
+        hosts.each do |host|
+          expected_path = "#{TEST_ARCHIVE_ROOT}/hosts/master/#{host.hostname}/\
+current_tune_settings.json"
+          expect(File).to receive(:write).with(expected_path, TEST_JSON)
+        end
 
         subject.capture_current_tune_settings
       end

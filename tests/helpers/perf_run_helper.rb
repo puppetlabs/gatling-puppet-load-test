@@ -1034,20 +1034,20 @@ module PerfRunHelper
 
   def baseline_assert(atop_result, gatling_result)
     baseline = get_baseline_result
-    delta_data = baseline_to_results_data(baseline, atop_result, gatling_result)
-    assert_later(validate_baseline_data(delta_data), "Things are really fucked up now")
+    data = baseline_to_results_data(baseline, atop_result, gatling_result)
+    assert_later(validate_baseline_data(data), "Things are really fucked up now")
   end
 
   # rubocop: enable Naming/AccessorMethodName
 
-  # Calculate the deltas on the data set provided and return a hash of the
-  # failing elements with the delta calculation appended to each key.
+  # Calculate the ratios on the data set provided and return a hash of the
+  # failing elements with the ratio calculation appended to each key.
   #
   # The data set it expected to be comprised of perfomance result key with the
   # values being a two element array comprised of the baseline value and the
   # current results value for that key.
   #
-  # The failure set will include any key in which the delta between its values
+  # The failure set will include any key in which the ratio between its values
   # exceeds (in either direction) the defined maximum basline variance for that key.
   #
   # @param  [Hash{Symbol=>Array}] data  Data to validate { result_key: [baseline_value, result_value], ... }
@@ -1055,8 +1055,10 @@ module PerfRunHelper
   # @return [Hash]  Hash of failing performance keys associated with there
   #                 values and variance.  Example { foo: [100, 133, 1.33] }
   def find_failing_variances(data)
-    deltas = data.transform_values { |v| v[1].to_f / v[0] }
-    failures = deltas.select { |_k, v| (1 - v).abs > MAX_BASELINE_VARIANCE }
+    ratios = data.transform_values { |v| v[1].to_f / v[0] }
+    # meta program MAX_VARIANCE_OVERRIDE_*
+
+    failures = ratios.select { |_k, v| (1 - v).abs > MAX_BASELINE_VARIANCE }
     # exception for PROC_ORCH_REL_MEM
     if failures.include? PROC_ORCH_REL_MEM
       failures.delete(PROC_ORCH_REL_MEM) if (1 - failures[PROC_ORCH_REL_MEM]).abs < MAX_BASELINE_VARIANCE_ORCH_REL_MEM

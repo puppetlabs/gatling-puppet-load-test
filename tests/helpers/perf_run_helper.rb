@@ -14,8 +14,10 @@ module PerfRunHelper
   extend Beaker::DSL::BeakerBenchmark::Helpers
 
   MAX_BASELINE_VARIANCE = 0.10 # 10%
-  MAX_BASELINE_VARIANCE_ORCH_REL_MEM = 0.15 # 15%
-  PROC_ORCH_REL_MEM = "process_orchestration_services_release_avg_mem"
+
+  # Variance overrides go here.  They must be named as follows to be processed:
+  #   "MAX_VARIANCE_OVERRIDE_#{results_key}"
+  MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM = 0.15 # 15%
 
   # rubocop: disable  Naming/AccessorMethodName
   BEAKER_PE_VER = ENV["BEAKER_PE_VER"]
@@ -1057,11 +1059,10 @@ module PerfRunHelper
   def find_failing_variances(data)
     ratios = data.transform_values { |v| v[1].to_f / v[0] }
     # meta program MAX_VARIANCE_OVERRIDE_*
-
-    failures = ratios.select { |_k, v| (1 - v).abs > MAX_BASELINE_VARIANCE }
-    # exception for PROC_ORCH_REL_MEM
-    if failures.include? PROC_ORCH_REL_MEM
-      failures.delete(PROC_ORCH_REL_MEM) if (1 - failures[PROC_ORCH_REL_MEM]).abs < MAX_BASELINE_VARIANCE_ORCH_REL_MEM
+    failures = ratios.select do |k, v|
+      override = PerfRunHelper.constants.find { |i| i.to_s.match(/^MAX_VARIANCE_OVERRIDE_#{k.to_s.upcase}$/) }
+      max = override ? PerfRunHelper.const_get(override) : MAX_BASELINE_VARIANCE
+      (1 - v).abs > max
     end
     failures.each_with_object({}) { |(k, v), hash| hash[k] = data[k] + [v] }
   end

@@ -37,11 +37,12 @@ This document currently covers the Standard reference architecture.
 [SLV-698](https://tickets.puppetlabs.com/browse/SLV-698) has been created to update it for the Large reference architecture.
 
 # Performance
-Performance tests consist of a single iteration of a scenario such as the [Apples2Apples](https://github.com/puppetlabs/gatling-puppet-load-test#apples-to-apples-performance-tests) and [Soak](https://github.com/puppetlabs/gatling-puppet-load-test#soak-performance-tests) tests. 
-The results for Performance test runs can be found in the [`results/perf`](https://github.com/puppetlabs/gatling-puppet-load-test/tree/master/results/perf) directory.
+Performance tests consist of a single iteration of a scenario such as the [Apples2Apples](../README.md#apples-to-apples-performance-tests) and [Soak](../README.md#soak-performance-tests) tests. 
+The results for Performance test runs can be found in the [`results/perf`](../results/perf) directory.
 
 The results for each Performance test run are contained within a separate timestamped sub-directory of the `results/perf` directory.
 The name of each result directory consists of the label `PERF_` to indicate a Performance run followed by a timestamp generated at the start of the run.
+
 For example:
 ```
 results/perf
@@ -49,6 +50,7 @@ results/perf
 ```
 
 Performance result directories contain multiple files and sub-directories, each of which will be explained below.
+
 For example:
   
 ```
@@ -68,13 +70,15 @@ results/perf/PERF_1572446968
 
 ## Host directories
 The results directory contains sub-directories for each PE infrastructure host.
-In the Standard reference architecture example above this would be the PE 'master'.
-A sub-directory for the 'metric' node (where the Gatling simulation is run) is also included.
 The name of each sub-directory corresponds to the hostname of the node.
+
+In the Standard reference architecture example above this would be the PE 'master' (`ip-10-227-0-214.amz-dev.puppet.net` in the example above).
+A sub-directory for the 'metric' node (where the Gatling simulation is run) is also included (`ip-10-227-0-248.amz-dev.puppet.net` in the example above).
 
 ### Master
 #### atop measurements
 The 'master' node directory contains the atop measurements provided by [beaker-benchmark](https://github.com/puppetlabs/beaker-benchmark) and additional CSV and HTML files generated from these files.
+
 For example:
 ```
 results/perf/PERF_1572446968/ip-10-227-0-214.amz-dev.puppet.net
@@ -89,18 +93,21 @@ results/perf/PERF_1572446968/ip-10-227-0-214.amz-dev.puppet.net
 └── atop_log_warmupjit_json.log.tar.gz
 ```
 
+Due to potentially large log file sizes beaker-benchmark compresses these files before copying them to the test runner.
+These files are identified by the `tar.gz` extension (`atop_log_warmupjit_json.log.tar.gz` and `atop_log_applestoapples_json.log.tar.gz`).
+The files are then extracted for further processing. 
+All files in the 'master' node result directory are included in the Performance results, so both the compressed and extracted files are included.
+
 In the above example the `atop_log_warmupjit_json.log` and `atop_log_applestoapples_json.log` files are the full atop logs produced by beaker-benchmark.
 The 'warmupjit' log is created during the 'warm-up' portion of the test run; the 'applestoapples' log is created during the main portion of the test run.
-Due to potentially large log file sizes beaker-benchmark compresses these files before copying to the test runner; these are the corresponding `tar.gz` files.
 
-The `atop_log_applestoapples_json.csv` file is a CSV file containing data extracted from the corresponding log file.
-It contains a summary of the measurements along with per-process measurements.
-However, the formatting of this file is technically invalid due to a mismatched number of columns per row between these two sections.
+The `atop_log_applestoapples_json.csv` file is a CSV file created by beaker-benchmark containing two sets of data extracted from the corresponding log file: 
+the system measurements and the per-process measurements.
+However, combining these two sets of data into a single file is technically invalid due to a mismatched number of columns per row between these two sections.
 
 As a workaround for this formatting issue the file is split into two separate CVS files: `atop_log_applestoapples_json.summary.csv` and `atop_log_applestoapples_json.detail.csv`.
 This allows each section to be processed separately, including conversion to HTML documents via the [`csv2html`](https://github.com/puppetlabs/gatling-puppet-load-test/blob/7278352a6626e1f22ae8d17a7d36aa36c94b5cf4/tests/helpers/perf_results_helper.rb#L236) utility.
-The HTML documents use a basic [Bootstrap](https://getbootstrap.com/) template which provides a clean layout for standalone viewing,
-and allows the tables to be extracted for inclusion in larger reports.
+The HTML documents use a basic [Bootstrap](https://getbootstrap.com/) template which provides a clean layout for standalone viewing and allows the tables to be extracted for inclusion in larger reports.
 
 #### var logs
 TBD: [SLV-691](https://tickets.puppetlabs.com/browse/SLV-691) has been created to update this document to include the logs once the directory has been archived before copying to the results.
@@ -109,6 +116,7 @@ TBD: [SLV-691](https://tickets.puppetlabs.com/browse/SLV-691) has been created t
 #### Gatling results
 The 'metric' node directory contains the Gatling results from the test run. 
 These results are contained within a sub-directory of the `root/gatling-puppet-load-test/simulation-runner/results` directory.
+
 For example:
 ```
 results/perf/PERF_1572446968/ip-10-227-0-248.amz-dev.puppet.net
@@ -121,6 +129,7 @@ results/perf/PERF_1572446968/ip-10-227-0-248.amz-dev.puppet.net
 
 The results directory name consists of the scenario name (`PerfTestLarge`) and a timestamp (`1572446972804`).
 This directory is generated by Gatling and includes the HTML report, simulation log file, and JSON data files.
+
 For example:
 ```
 PerfTestLarge-1572446972804
@@ -148,7 +157,9 @@ For local viewing open the file directly.
 The `simulation.log` file is the Gatling simulation log which contains a record of each transaction in the simulation.
 
 ##### JSON data
-The JSON data files are contained within the `js` directory. For example:
+The JSON data files are contained within the `js` directory. 
+
+For example:
 ```
 PerfTestLarge-1572446972804/js
 ├── all_sessions.js
@@ -179,6 +190,7 @@ Metrics data for the test run is extracted from the [`puppet-metrics-collector`]
 This utility uses the timestamps in the `start_epoch` and `end_epoch` files created at the start and end of the run to copy only the data for the duration of the test run.
 The data is extracted into a directory structure mirroring the original source directory and compressed into an archive named with the start and end timestamps: `20191030T144928Z-20191030T184941Z.tar.gz` in the example above.
 The archive is extracted into the `puppet-metrics-collector` directory in the results which contains the relevant data.
+
 For example:
 ```
 results/perf/PERF_1572446968/puppet-metrics-collector
@@ -226,6 +238,7 @@ The results for each Scale test run are contained within a separate timestamped 
 The name of each result directory consists of the label `SCALE_` to indicate a Scale run followed by a timestamp generated at the start of the run.
 The directory also contains a `latest` link pointing to the latest Scale test results.
 
+For example:
 ```
 results/scale
 ├── PERF_SCALE_1572446292
@@ -234,6 +247,7 @@ results/scale
 ```
 
 Each Scale test result directory contains directories and files related to the overall Scale test run as well as each iteration of the scenario.
+
 For example:
 ```
 results/scale/PERF_SCALE_1572446292
@@ -270,6 +284,7 @@ Scale_{timestamp}_{iteration}_{number_of_agents}
 ```
 
 This pattern makes it easy to tell how many iterations were run and how many agents were run per iteration.
+
 For example, the directory listing above is from a sample test with three iterations:
 ```
 results/scale/PERF_SCALE_1572446292
@@ -280,6 +295,7 @@ results/scale/PERF_SCALE_1572446292
 
 ### Iteration sub-directories
 The sub-directory created for each Scale test iteration contains directories and files selectively copied from the corresponding Performance results for that iteration.
+
 For example:
 ```
 results/scale/PERF_SCALE_1572446292/Scale_1572446292_1_600
@@ -301,6 +317,7 @@ The first obvious difference between the Scale results and the Performance resul
 
 ##### Master
 The 'master' directory contains the same files found in the corresponding Performance results directory.
+
 For example:
 ```
 results/scale/PERF_SCALE_1572446292/Scale_1572446292_1_600/master
@@ -317,6 +334,7 @@ These have been covered in the Performance [Performance/Host directories/Master]
 
 ##### Metric
 The 'metric' directory contains the Gatling results found in the corresponding `root/gatling-puppet-load-test/simulation-runner/results` directory in the Performance results.
+
 For example:
 
 ```
@@ -340,6 +358,7 @@ These have been covered in the Performance [Performance/Host directories/Metric]
 
 ## Gatling JSON data
 The `stats.json` and `global_stats.json` files for each iteration are copied to the `json` directory and renamed based on the iteration naming pattern used for the iteration sub-directories.
+
 For example:
 ```
 results/scale/PERF_SCALE_1572446292/json
@@ -353,6 +372,7 @@ results/scale/PERF_SCALE_1572446292/json
 
 ## Logs
 The log files for the Scale test run are copied to the `log` directory.
+
 For example:
 ```
 results/scale/PERF_SCALE_1572446292/log

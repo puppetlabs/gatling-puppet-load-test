@@ -674,20 +674,36 @@ module PerfRunHelper
     flunk("One or more assertions failed") unless assertion_exceptions.empty?
   end
 
+  def archive_system_logs(host)
+    puppet_logdir = on(host, puppet("config", "print", "logdir")).stdout.strip
+    puppetlabs_dir = File.dirname(puppet_logdir)
+    archive_name = "puppet_logdir.tgz"
+    archive_path = File.join(File.dirname(puppetlabs_dir), archive_name)
+
+    # remove any previous archive
+    command = "rm -f #{archive_path}"
+    on(host, command, accept_all_exit_codes: true)
+
+    # create archive
+    command = "cd #{File.dirname(puppetlabs_dir)} && " \
+              "tar -czf #{archive_name} #{File.basename(puppetlabs_dir)}"
+    on(host, command, accept_all_exit_codes: true) do |result|
+      unless result.exit_code.zero?
+        logger.warn("Unable to to create archive of system logs")
+        archive_path = nil
+      end
+    end
+
+    return archive_path
+  end
+
   def copy_system_logs(host)
-    puppet_logdir = File.dirname on(host, puppet("config", "print", "logdir")).stdout.strip
-    # Get the first path segment from puppet_logdir
-    logdir_root = puppet_logdir.split(File::SEPARATOR).select { |s| s.length >= 1 }.shift
+    archive = archive_system_logs(host)
+    return unless archive
 
-    dest = File.join(@archive_root, host, File.dirname(puppet_logdir))
-    tar_root = File.join(@archive_root, host, logdir_root)
-    archive_name = File.join(@archive_root, host, "puppet_logdir.tgz")
-
+    dest = File.join(@archive_root, host)
     FileUtils.mkdir_p(dest)
-    scp_from(host, puppet_logdir, dest)
-    tgz = Zlib::GzipWriter.new(File.open(archive_name, "wb"))
-    Minitar.pack(dest, tgz)
-    FileUtils.rm_rf(tar_root, secure: true)
+    scp_from(host, archive, dest)
   end
 
   private

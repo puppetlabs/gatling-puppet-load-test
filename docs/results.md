@@ -153,6 +153,24 @@ PerfTestLarge-1572446972804
 The `index.html` file is the Gatling HTML report which will load automatically when this directory is viewed in a web browser.
 For local viewing open the file directly.
 
+The following directory tree represents the files and directories used in this HTML report (redundant files have been omitted for brevity):
+```
+PerfTestLarge-1572446972804
+├── group_perftestlarge-5163d.html
+├── index.html
+├── js
+│   ├── all_sessions.js
+│   ├── ...
+│   └── unpack.js
+├── req_perftestlarge---588ae.html
+├── ...
+├── req_perftestlarge---de2f0.html
+└── style
+    ├── arrow_down.png
+    ├── ...
+    └── style.css
+```
+
 ##### Simulation log
 The `simulation.log` file is the Gatling simulation log which contains a record of each transaction in the simulation.
 
@@ -223,7 +241,8 @@ As with other CSV files in the results these are converted into HTML documents: 
 
 ## Tune settings
 The current values for the settings available for tuning via the [pe_tune](https://github.com/tkishel/pe_tune) module are captured in the `current_tune_settings.json` file.
-
+This file is created by the [`util/tune/current_settings.rb`](../util/tune/current_settings.rb) script which gets the actual settings from the relevant configuration files.
+This script is called prior to the execution of the scenario.
 
 ---
 
@@ -264,7 +283,7 @@ results/scale/PERF_SCALE_1572446292
 ```
 
 ## Scale test report
-The Scale test results contains a CSV file with measurements extracted from the Gatling JSON data for each iteration.
+The Scale test result directory contains a CSV report with measurements extracted from the Gatling JSON data for each iteration.
 This report is useful for comparing the performance impact of additional nodes for each iteration.
 It is also useful for comparing the outcome of multiple Scale test runs.
 
@@ -385,7 +404,8 @@ results/scale/PERF_SCALE_1572446292/log
 ```
 
 ## pe_tune
-The current tune settings are captured in the `pe_tune_current.txt` file.
+The current tune settings are captured in the `pe_tune_current.txt` file by running the `puppet infrastructure tune --current` command.
+It is currently only created during Scale test runs and included in the Scale results.
 
 ## puppet-metrics-collector
 The puppet-metrics-collector files for each iteration of the Scale run are copied to the `puppet-metrics-collector` directory,

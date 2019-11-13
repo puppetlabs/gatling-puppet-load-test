@@ -19,9 +19,9 @@ module GPLT
 
     default_test_type = "apples to apples"
 
-    option :test_type, default: default_test_type
-    option :baseline, required: true
-    option :results_dir, required: true
+    option :test_type, default: default_test_type, aliases: "-t"
+    option :baseline, required: true, aliases: "-b"
+    option :results_dir, required: true, aliases: "-r"
 
     desc "validate2baseline",
          "validate perf results against baseline data"

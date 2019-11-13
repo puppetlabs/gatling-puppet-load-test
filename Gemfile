@@ -15,7 +15,6 @@ gem "rototiller", "~>1.0"
 gem "rspec", "~>3.0"
 gem "rubocop", "~> 0.67"
 gem "scooter", "~>4.3"
-gem "thor", "~>0.20"
 
 group :test do
   gem "simplecov", "~> 0.17.0", require: false

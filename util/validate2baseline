@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+
+require "optparse"
+require "cli"
+
+DEFAULT_TEST_TYPE = "apples to apples"
+DESCRIPTION = <<-DESC
+  `validate2baseline` validates performance results data against baseline data.
+
+  You must specify a --baseline for the baseline data and a --results_dir
+  containing the performance results to compare for validation.
+
+  The --test_type is optional and defaults to "#{DEFAULT_TEST_TYPE}"
+
+  A passing state will echo "PASS" to STDOUT and exit with 0. A failing state
+  will echo "FAIL" to STDOUT and exit with 1.
+
+DESC
+
+DEFAULTS = <<~DEFAULTS
+  The following defaults values are used if the options are not specified:
+  * TEST_TYPE (-t, --test_type): #{DEFAULT_TEST_TYPE}
+DEFAULTS
+
+options = {}
+optparse = OptionParser.new do |opts|
+  options[:test_type] = DEFAULT_TEST_TYPE
+  opts.on("-t", "--test_type TEST_TYPE", String) do |o|
+    options[:test_type] = o
+  end
+  opts.on("-b", "--baseline BASELINE", String) do |o|
+    options[:baseline] = o
+  end
+  opts.on("-r", "--results_dir DIR", String) do |o|
+    options[:results_dir] = o
+  end
+  opts.on("-h", "--help") do
+    puts DESCRIPTION
+    puts opts
+    puts DEFAULTS
+    exit
+  end
+end
+
+# verify mandatory options have been set
+begin
+  optparse.parse!
+  mandatory = %i[test_type baseline results_dir]
+  missing = mandatory.select { |o| options[o].nil? }
+  raise OptionParser::MissingArgument, missing.join(", ") unless missing.empty?
+rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+  puts $ERROR_INFO.to_s
+  puts optparse
+  exit
+end
+
+c = GPLT::CLI.new
+c.validate2baseline(options)

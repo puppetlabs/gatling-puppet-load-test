@@ -543,7 +543,7 @@ describe PerfHelperClass do
 
       classifier = double("classifier").as_null_object
       allow(classifier).to receive(:get_node_group_by_name).and_return("id" => master_group_id)
-      subject.stub(:classifier) { classifier }
+      allow(subject).to receive(:classifier).and_return(classifier)
 
       expect(classifier).to receive(:update_node_group).with(master_group_id, class_opts)
       subject.configure_code_manager
@@ -553,7 +553,7 @@ describe PerfHelperClass do
   describe "#cm_deploy_all_envs" do
     it "calls deploy_all_environments on classifier" do
       classifier = double("classifier").as_null_object
-      subject.stub(:classifier) { classifier }
+      allow(subject).to receive(:classifier).and_return(classifier)
 
       expect(classifier).to receive(:deploy_all_environments)
       subject.cm_deploy_all_envs
@@ -587,7 +587,7 @@ describe PerfHelperClass do
       classifier = double("classifier",
                           get_node_group_by_name: { "id" => pe_infra_uuid },
                           find_or_create_node_group_model: true)
-      subject.stub(:classifier) { classifier }
+      allow(subject).to receive(:classifier).and_return(classifier)
 
       expect(classifier).to receive(:find_or_create_node_group_model).with(expected_lb_group)
       expect(classifier).to receive(:find_or_create_node_group_model).with(expected_lb_exports_group)

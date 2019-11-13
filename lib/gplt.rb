@@ -49,3 +49,12 @@ module GPLT
     end
   end
 end
+
+help_commands = Thor::HELP_MAPPINGS + ["help"]
+if help_commands.any? { |cmd| ARGV.include? cmd }
+  help_commands.each do |cmd|
+    if (match = ARGV.delete(cmd))
+      ARGV.unshift match
+    end
+  end
+end

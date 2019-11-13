@@ -446,23 +446,28 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
     let(:archive_path) { File.join(archive_dir, archive_name) }
 
     context "when archiving succeeds" do
+      before { subject.instance_variable_set(:@archive_root, archive_root) }
+      before { allow(subject).to receive(:archive_system_logs).with(host).and_return(archive_path) }
+      before { allow(subject).to receive(:scp_from) }
+      before { allow(FileUtils).to receive(:mkdir_p) }
       it "calls scp_from to copy archive path to archive root" do
         expected_dest = File.join(archive_root, host)
-
-        # mock out @archive_root instance variable
-        subject.instance_variable_set(:@archive_root, archive_root)
-
-        allow(subject).to receive(:archive_system_logs).with(host).and_return(archive_path)
         expect(subject).to receive(:scp_from).with(host, archive_path, expected_dest)
-
+        subject.copy_system_logs(host)
+      end
+      it "calls mkdir_p to create the local destination path" do
+        expect(FileUtils).to receive(:mkdir_p)
         subject.copy_system_logs(host)
       end
     end
     context "when archiving fails" do
+      before { allow(subject).to receive(:archive_system_logs).with(host).and_return(nil) }
       it "scp_from is not called" do
-        allow(subject).to receive(:archive_system_logs).with(host).and_return(nil)
         expect(subject).not_to receive(:scp_from)
-
+        subject.copy_system_logs(host)
+      end
+      it "mkdir_p is not called" do
+        expect(FileUtils).not_to receive(:mkdir_p)
         subject.copy_system_logs(host)
       end
     end

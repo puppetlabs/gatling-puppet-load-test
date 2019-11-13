@@ -1152,7 +1152,7 @@ module PerfRunHelper
   # @return [String]  Path to file
   def find_file(dir, pat)
     file = `find #{dir} -name "#{pat}" -print`.chomp
-    raise System.StandardError "The file does not exist" unless File.exist?(file)
+    raise StandardError, "The file does not exist" unless File.exist?(file)
 
     file
   end

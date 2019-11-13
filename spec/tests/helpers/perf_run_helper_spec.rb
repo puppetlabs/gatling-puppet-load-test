@@ -761,5 +761,23 @@ current_tune_settings.json"
       end
     end
   end
+  describe "#find_file" do
+    let(:path) { "/file/path" }
+    let(:pattern) { "search-pattern" }
+    let(:found_file) { "/file" }
+    before { allow(subject).to receive(:`).and_return(found_file) }
+    context "file exists" do
+      before { allow(File).to receive(:exist?).and_return(true) }
+      it "returns file path" do
+        expect(subject.find_file(path, pattern)).to eql(found_file)
+      end
+    end
+    context "file does not exist" do
+      before { allow(File).to receive(:exist?).and_return(false) }
+      it "raises an exception" do
+        expect { subject.find_file(path, pattern) }.to raise_error
+      end
+    end
+  end
 end
 # rubocop:enable Metrics/BlockLength

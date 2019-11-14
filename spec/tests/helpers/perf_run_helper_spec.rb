@@ -438,6 +438,7 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
       end
     end
   end
+
   describe "#copy_system_logs" do
     let(:host) { double.as_null_object }
     let(:archive_root) { "/tmp/test/archive" }
@@ -450,28 +451,34 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
       before { allow(subject).to receive(:archive_system_logs).with(host).and_return(archive_path) }
       before { allow(subject).to receive(:scp_from) }
       before { allow(FileUtils).to receive(:mkdir_p) }
+
       it "calls scp_from to copy archive path to archive root" do
         expected_dest = File.join(archive_root, host)
         expect(subject).to receive(:scp_from).with(host, archive_path, expected_dest)
         subject.copy_system_logs(host)
       end
+
       it "calls mkdir_p to create the local destination path" do
         expect(FileUtils).to receive(:mkdir_p)
         subject.copy_system_logs(host)
       end
     end
+
     context "when archiving fails" do
       before { allow(subject).to receive(:archive_system_logs).with(host).and_return(nil) }
-      it "scp_from is not called" do
+
+      it "does not call scp_from" do
         expect(subject).not_to receive(:scp_from)
         subject.copy_system_logs(host)
       end
-      it "mkdir_p is not called" do
+
+      it "does not call mkdir_p" do
         expect(FileUtils).not_to receive(:mkdir_p)
         subject.copy_system_logs(host)
       end
     end
   end
+
   describe "#archive_system_logs" do
     let(:host) { double.as_null_object }
     let(:puppet_logdir) { "/var/log/puppetlabs/puppet" }

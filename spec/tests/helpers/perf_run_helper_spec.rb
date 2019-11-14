@@ -459,7 +459,8 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
       end
 
       it "calls mkdir_p to create the local destination path" do
-        expect(FileUtils).to receive(:mkdir_p)
+        expected_dest = File.join(archive_root, host)
+        expect(FileUtils).to receive(:mkdir_p).with(expected_dest)
         subject.copy_system_logs(host)
       end
     end
@@ -481,32 +482,44 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
 
   describe "#archive_system_logs" do
     let(:host) { double.as_null_object }
+    let(:logger) { double.as_null_object }
     let(:puppet_logdir) { "/var/log/puppetlabs/puppet" }
     let(:archive_dir) { "/var/log" }
     let(:archive_name) { "puppet_logdir.tgz" }
     let(:archive_path) { File.join(archive_dir, archive_name) }
 
+    let(:result) { Beaker::Result.new(host, "foo") }
+    let(:cmd1) { "rm -f #{archive_path}" }
+    let(:cmd2) { "cd #{archive_dir} && tar -czf #{archive_name} puppetlabs" }
+
+    before(:each) do
+      allow(subject).to receive(:logger).and_return(logger)
+      allow(subject).to receive(:puppet).and_return(puppet_logdir)
+
+      expect(subject).to receive(:on).with(host, puppet_logdir).ordered.and_return(result)
+      expect(subject).to receive(:on).with(host, cmd1, accept_all_exit_codes: true).ordered.and_return(result)
+      expect(subject).to receive(:on).with(host, cmd2, accept_all_exit_codes: true).ordered.and_return(result)
+    end
+
     context "when archiving succeeds" do
+      before :each do
+        result.stdout = puppet_logdir
+        result.exit_code = 0
+      end
       it "returns archive path" do
-        expect(subject).to receive(:archive_system_logs).with(host).and_return(archive_path)
-        subject.archive_system_logs(host)
+        expect(subject.archive_system_logs(host)).to eq(archive_path)
       end
       it "runs tar on the host" do
-        result = Beaker::Result.new(host, "foo")
-        result.stdout = puppet_logdir
-        cmd1 = "rm -f #{archive_path}"
-        cmd2 = "cd #{archive_dir} && tar -czf #{archive_name} puppetlabs"
-        allow(subject).to receive(:puppet).and_return(puppet_logdir)
-        expect(subject).to receive(:on).with(host, puppet_logdir).ordered.and_return(result)
-        expect(subject).to receive(:on).with(host, cmd1, accept_all_exit_codes: true).ordered
-        expect(subject).to receive(:on).with(host, cmd2, accept_all_exit_codes: true).ordered
         subject.archive_system_logs(host)
       end
     end
     context "when archiving fails" do
+      before :each do
+        result.stdout = puppet_logdir
+        result.exit_code = 1
+      end
       it "returns nil" do
-        expect(subject).to receive(:archive_system_logs).with(host).and_return(nil)
-        subject.archive_system_logs(host)
+        expect(subject.archive_system_logs(host)).to eq(nil)
       end
     end
   end

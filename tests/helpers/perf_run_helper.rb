@@ -687,11 +687,10 @@ module PerfRunHelper
     # create archive
     command = "cd #{File.dirname(puppetlabs_dir)} && " \
               "tar -czf #{archive_name} #{File.basename(puppetlabs_dir)}"
-    on(host, command, accept_all_exit_codes: true) do |result|
-      unless result.exit_code.zero?
-        logger.warn("Unable to to create archive of system logs")
-        archive_path = nil
-      end
+    result = on(host, command, accept_all_exit_codes: true)
+    unless result.exit_code.zero?
+      logger.warn("Unable to to create archive of system logs")
+      archive_path = nil
     end
 
     return archive_path

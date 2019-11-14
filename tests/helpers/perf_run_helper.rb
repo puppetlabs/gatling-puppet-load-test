@@ -1088,7 +1088,7 @@ module PerfRunHelper
   #
   # @return [String]  Path to atop log file
   def find_atop_log_from_dir(dir, runtype)
-    find_file(dir, "atop_log_#{runtype}*.csv")
+    find_file(dir, "atop_log_#{runtype}_json.csv")
   end
 
   # @param  [String] csv_string  CSV string from atop file created by BeakerBenchmark PerformanceResult.log_csv.
@@ -1152,7 +1152,7 @@ module PerfRunHelper
   # @return [String]  Path to file
   def find_file(dir, pat)
     file = `find #{dir} -name "#{pat}" -print`.chomp
-    raise StandardError, "File matching pattern '#{pat}' not found in path #{dir}" unless File.exist?(file)
+    raise StandardError, "Single file matching pattern '#{pat}' not found in path #{dir}." unless File.exist?(file)
 
     file
   end

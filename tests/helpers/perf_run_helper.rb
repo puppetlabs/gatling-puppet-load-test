@@ -1037,7 +1037,7 @@ module PerfRunHelper
   def baseline_assert(atop_result, gatling_result)
     baseline = get_baseline_result
     data = baseline_to_results_data(baseline, atop_result, gatling_result)
-    assert_later(validate_baseline_data(data), "Things are really fucked up now")
+    assert_later(validate_baseline_data(data), "Assertions failed while validating results to baseline")
   end
 
   # rubocop: enable Naming/AccessorMethodName
@@ -1152,7 +1152,7 @@ module PerfRunHelper
   # @return [String]  Path to file
   def find_file(dir, pat)
     file = `find #{dir} -name "#{pat}" -print`.chomp
-    raise StandardError, "The file does not exist" unless File.exist?(file)
+    raise StandardError, "File matching pattern '#{pat}' not found in path #{dir}" unless File.exist?(file)
 
     file
   end

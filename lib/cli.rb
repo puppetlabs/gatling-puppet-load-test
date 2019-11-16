@@ -12,9 +12,13 @@ end
 module GPLT
   # Class for holding command line methods
   class CLI
-    extend PerfRunHelper
+    include PerfRunHelper
+    def initialize(log_level)
+      @log_level = log_level
+    end
+
     def validate2baseline(options)
-      if CLI.validate_results_to_baseline(options[:results_dir], options[:baseline], options[:test_type])
+      if validate_results_to_baseline(options[:results_dir], options[:baseline], options[:test_type])
         puts "PASS"
         exit 0
       else

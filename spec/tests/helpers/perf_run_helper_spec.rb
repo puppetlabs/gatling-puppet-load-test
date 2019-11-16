@@ -440,8 +440,9 @@ current_tune_settings.json"
   end
 
   describe "#assert_all" do
-    let(:logger) { double }
-    before { allow(subject).to receive(:logger).and_return(logger) }
+    let(:lgr) { Beaker::Logger.new(log_level: "warn", quiet: true) }
+    before { subject.instance_variable_set(:@logger, lgr) }
+    before { allow(subject).to receive(:logger).and_return(lgr) }
 
     context "when assertion fails" do
       it "raises exception" do
@@ -449,7 +450,7 @@ current_tune_settings.json"
 
         expect(subject).to receive(:flunk).with("One or more assertions failed")
                                           .and_raise(Minitest::Assertion, "One or more assertions failed")
-        expect(logger).to receive(:error).with(/expression = false/)
+        expect(lgr).to receive(:error).with(/expression = false/)
 
         subject.assertion_exceptions.push(Minitest::Assertion.new("expression = false"))
         expect { subject.assert_all }.to raise_error(Minitest::Assertion, "One or more assertions failed")
@@ -476,8 +477,8 @@ current_tune_settings.json"
                                           .and_raise(Minitest::Assertion, "One or more assertions failed")
         subject.assertion_exceptions.push(Minitest::Assertion.new("expression = false 1"))
         subject.assertion_exceptions.push(Minitest::Assertion.new("expression = false 2"))
-        expect(logger).to receive(:error).with(/expression = false 1/)
-        expect(logger).to receive(:error).with(/expression = false 2/)
+        expect(lgr).to receive(:error).with(/expression = false 1/)
+        expect(lgr).to receive(:error).with(/expression = false 2/)
 
         expect { subject.assert_all }.to raise_error(Minitest::Assertion, "One or more assertions failed")
       end
@@ -494,6 +495,10 @@ current_tune_settings.json"
   end
 
   describe "#baseline_assert" do
+    let(:lgr) { Beaker::Logger.new(log_level: "warn", quiet: true) }
+    before { subject.instance_variable_set(:@logger, lgr) }
+    before { allow(subject).to receive(:logger).and_return(lgr) }
+
     # rubocop:disable Metrics/LineLength
     let(:gatling_assertions) do
       [{ "expected_values" => [100.0],
@@ -632,6 +637,10 @@ current_tune_settings.json"
     end
   end
   describe "#validate_results_to_baseline" do
+    let(:lgr) { Beaker::Logger.new(log_level: "warn", quiet: true) }
+    before { subject.instance_variable_set(:@logger, lgr) }
+    before { allow(subject).to receive(:logger).and_return(lgr) }
+
     let(:gatling_assertion_content) do # {{{
       <<~ASSERTIONS
         {
@@ -738,6 +747,10 @@ current_tune_settings.json"
     end
   end
   describe "#validate_baseline_delta" do
+    let(:lgr) { Beaker::Logger.new(log_level: "warn", quiet: true) }
+    before { subject.instance_variable_set(:@logger, lgr) }
+    before { allow(subject).to receive(:logger).and_return(lgr) }
+
     context "when all deltas are < MAX_BASELINE_VARIANCE" do
       it "returns true" do
         expect(subject.validate_baseline_data("pass_thing1" => [1.00, 0.98],
@@ -775,7 +788,8 @@ current_tune_settings.json"
     context "file does not exist" do
       before { allow(File).to receive(:exist?).and_return(false) }
       it "raises an exception" do
-        expect { subject.find_file(path, pattern) }.to raise_error
+        expect { subject.find_file(path, pattern) }.to \
+          raise_error("Single file matching pattern '#{pattern}' not found in path #{path}.")
       end
     end
   end

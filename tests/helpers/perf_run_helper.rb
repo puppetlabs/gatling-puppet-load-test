@@ -43,7 +43,7 @@ module PerfRunHelper
 
   # Stub out logger if module is used without beaker.
   def logger
-    @logger ||= Beaker::Logger.new
+    @logger ||= Beaker::Logger.new(log_level: @log_level)
   end
 
   # Stub out current_test_name if module is used without beaker.

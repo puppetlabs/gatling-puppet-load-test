@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path("../../lib", __dir__)
+
+require "optparse"
+require "cli"
+
+DEFAULT_LOG_LEVEL = "warn"
+DEFAULT_TEST_TYPE = "apples to apples"
+DESCRIPTION = <<-DESC
+  `validate2baseline` validates performance results data against baseline data.
+
+  Options:
+    Required:
+      --baseline : Baseline PE version to search data for.
+      --results_dir : Directory containing performance results to compare for validation.
+
+    Optional:
+      --test_type : GPLT test type.  Defaults to "#{DEFAULT_TEST_TYPE}"
+      --log_level : Beaker logger log_level.  Defaults to "#{DEFAULT_LOG_LEVEL}"
+
+  A passing state will echo "PASS" to STDOUT and exit with 0.  A failing state
+  will echo "FAIL" to STDOUT and exit with 1.
+
+DESC
+
+DEFAULTS = <<~DEFAULTS
+  The following defaults values are used if the options are not specified:
+  * TEST_TYPE (-t, --test_type): #{DEFAULT_TEST_TYPE}
+DEFAULTS
+
+options = {}
+optparse = OptionParser.new do |opts|
+  options[:log_level] = DEFAULT_LOG_LEVEL
+  options[:test_type] = DEFAULT_TEST_TYPE
+  opts.on("-b", "--baseline BASELINE", String) do |o|
+    options[:baseline] = o
+  end
+  opts.on("-r", "--results_dir DIR", String) do |o|
+    options[:results_dir] = o
+  end
+  opts.on("-t", "--test_type TEST_TYPE", String) do |o|
+    options[:test_type] = o
+  end
+  opts.on("-l", "--log_level LOG_LEVEL", String) do |o|
+    options[:log_level] = o
+  end
+  opts.on("-h", "--help") do
+    puts DESCRIPTION
+    puts opts
+    puts DEFAULTS
+    exit
+  end
+end
+
+# verify mandatory options have been set
+begin
+  optparse.parse!
+  mandatory = %i[test_type baseline results_dir]
+  missing = mandatory.select { |o| options[o].nil? }
+  raise OptionParser::MissingArgument, missing.join(", ") unless missing.empty?
+rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+  puts $ERROR_INFO.to_s
+  puts optparse
+  exit
+end
+
+c = GPLT::CLI.new(options[:log_level])
+c.validate2baseline(options)

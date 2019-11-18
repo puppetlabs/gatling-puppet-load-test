@@ -247,7 +247,7 @@ end
 #   value = get_postgres_parameter(parameter, /(example_a|example_b)/)
 #
 def get_postgres_parameter(parameter, exclusions = DEFAULT_EXCLUSION)
-  get_conf_parameter(POSTGRES_CONF, parameter, exclusions)
+  get_conf_parameter(POSTGRES_CONF, parameter, exclusions) unless POSTGRES_CONF.nil?
 end
 
 # Returns the value for the specified parameter in the puppetdb config file

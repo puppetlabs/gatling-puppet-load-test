@@ -438,33 +438,89 @@ describe PerfRunHelperClass do # rubocop:disable Metrics/BlockLength
       end
     end
   end
-  describe "#copy_system_logs" do
-    let!(:hosts) do
-      [Beaker::Host.create("master",
-                           { platform: Beaker::Platform.new("centos-6.5-x86_64"),
-                             role: "master" }, logger: @logger)]
-    end
-    it "calls archive_file_from with given host and parent dir of puppet_logdir" do
-      # test variables
-      build_id = gplt_timestamp = nil
-      puppet_logdir = "/foo/bar/baz"
-      archive_root = "/test/archive"
-      job_name = "foobar"
-      archive_name = "#{job_name}__#{build_id}__#{gplt_timestamp}__system_logs.tgz"
-      ENV["JOB_NAME"] = job_name
-      myhost = hosts.first
-      # mock out @archive_root instance variable
-      subject.instance_variable_set(:@archive_root, archive_root)
-      # mock out beaker result
-      result = Beaker::Result.new(myhost, "foo")
-      result.stdout = puppet_logdir
 
-      allow(subject).to receive(:on).with(myhost, any_args).and_return(result)
-      expect(subject).to receive(:puppet).with("config", "print", "logdir")
-      expect(subject).to receive(:archive_file_from).with(myhost,
-                                                          File.dirname(puppet_logdir),
-                                                          {}, archive_root, archive_name)
-      subject.copy_system_logs(myhost)
+  describe "#copy_system_logs" do
+    let(:host) { double.as_null_object }
+    let(:archive_root) { "/tmp/test/archive" }
+    let(:archive_dir) { "/var/log" }
+    let(:archive_name) { "puppet_logdir.tgz" }
+    let(:archive_path) { File.join(archive_dir, archive_name) }
+
+    context "when archiving succeeds" do
+      before { subject.instance_variable_set(:@archive_root, archive_root) }
+      before { allow(subject).to receive(:archive_system_logs).with(host).and_return(archive_path) }
+      before { allow(subject).to receive(:scp_from) }
+      before { allow(FileUtils).to receive(:mkdir_p) }
+
+      it "calls scp_from to copy archive path to archive root" do
+        expected_dest = File.join(archive_root, host)
+        expect(subject).to receive(:scp_from).with(host, archive_path, expected_dest)
+        subject.copy_system_logs(host)
+      end
+
+      it "calls mkdir_p to create the local destination path" do
+        expected_dest = File.join(archive_root, host)
+        expect(FileUtils).to receive(:mkdir_p).with(expected_dest)
+        subject.copy_system_logs(host)
+      end
+    end
+
+    context "when archiving fails" do
+      before { allow(subject).to receive(:archive_system_logs).with(host).and_return(nil) }
+
+      it "does not call scp_from" do
+        expect(subject).not_to receive(:scp_from)
+        subject.copy_system_logs(host)
+      end
+
+      it "does not call mkdir_p" do
+        expect(FileUtils).not_to receive(:mkdir_p)
+        subject.copy_system_logs(host)
+      end
+    end
+  end
+
+  describe "#archive_system_logs" do
+    let(:host) { double.as_null_object }
+    let(:logger) { double.as_null_object }
+    let(:puppet_logdir) { "/var/log/puppetlabs/puppet" }
+    let(:archive_dir) { "/var/log" }
+    let(:archive_name) { "puppet_logdir.tgz" }
+    let(:archive_path) { File.join(archive_dir, archive_name) }
+
+    let(:result) { Beaker::Result.new(host, "foo") }
+    let(:cmd1) { "rm -f #{archive_path}" }
+    let(:cmd2) { "cd #{archive_dir} && tar -czf #{archive_name} puppetlabs" }
+
+    before(:each) do
+      allow(subject).to receive(:logger).and_return(logger)
+      allow(subject).to receive(:puppet).and_return(puppet_logdir)
+
+      expect(subject).to receive(:on).with(host, puppet_logdir).ordered.and_return(result)
+      expect(subject).to receive(:on).with(host, cmd1, accept_all_exit_codes: true).ordered.and_return(result)
+      expect(subject).to receive(:on).with(host, cmd2, accept_all_exit_codes: true).ordered.and_return(result)
+    end
+
+    context "when archiving succeeds" do
+      before :each do
+        result.stdout = puppet_logdir
+        result.exit_code = 0
+      end
+      it "returns archive path" do
+        expect(subject.archive_system_logs(host)).to eq(archive_path)
+      end
+      it "runs tar on the host" do
+        subject.archive_system_logs(host)
+      end
+    end
+    context "when archiving fails" do
+      before :each do
+        result.stdout = puppet_logdir
+        result.exit_code = 1
+      end
+      it "returns nil" do
+        expect(subject.archive_system_logs(host)).to eq(nil)
+      end
     end
   end
 end

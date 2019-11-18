@@ -674,19 +674,35 @@ module PerfRunHelper
     flunk("One or more assertions failed") unless assertion_exceptions.empty?
   end
 
-  def copy_system_logs(host)
-    job_name = if ENV["JOB_NAME"]
-                 ENV["JOB_NAME"]
-                   .sub(/[A-Z0-9_]+=.*$/, "")
-                   .gsub(%r{[/,.]}, "_")[0..200]
-               else
-                 "unknown_or_dev_job"
-               end
+  def archive_system_logs(host)
+    puppet_logdir = on(host, puppet("config", "print", "logdir")).stdout.strip
+    puppetlabs_dir = File.dirname(puppet_logdir)
+    archive_name = "puppet_logdir.tgz"
+    archive_path = File.join(File.dirname(puppetlabs_dir), archive_name)
 
-    archive_name = "#{job_name}__#{ENV['BUILD_ID']}__#{@gplt_timestamp}__system_logs.tgz"
-    puppet_logdir = File.dirname on(host, puppet("config", "print", "logdir")).stdout.strip
-    archive_file_from(host, puppet_logdir,
-                      {}, @archive_root, archive_name)
+    # remove any previous archive
+    command = "rm -f #{archive_path}"
+    on(host, command, accept_all_exit_codes: true)
+
+    # create archive
+    command = "cd #{File.dirname(puppetlabs_dir)} && " \
+              "tar -czf #{archive_name} #{File.basename(puppetlabs_dir)}"
+    result = on(host, command, accept_all_exit_codes: true)
+    unless result.exit_code.zero?
+      logger.warn("Unable to to create archive of system logs")
+      archive_path = nil
+    end
+
+    return archive_path
+  end
+
+  def copy_system_logs(host)
+    archive = archive_system_logs(host)
+    return unless archive
+
+    dest = File.join(@archive_root, host)
+    FileUtils.mkdir_p(dest)
+    scp_from(host, archive, dest)
   end
 
   private

@@ -27,8 +27,7 @@ There is one optional option:
 Example:
 ```
 $ bundle exec util/results/validate2baseline --baseline=2019.1.0 --results_dir=$HOME/Downloads/results/perf/PERF_1571758219
-...
-FAIL
+PASS
 $ echo $?
-1
+0
 ```

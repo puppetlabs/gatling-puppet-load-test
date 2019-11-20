@@ -584,6 +584,9 @@ module PerfRunHelper
     res_files.each do |file|
       FileUtils.copy_file file, File.join(scale_result_dir, File.basename(file))
     end
+
+    # copy the entire perf results dir (temporary workaround to ensure all files are copied)
+    FileUtils.copy_entry @archive_root, File.join(scale_result_dir, File.basename(@archive_root))
   end
 
   # Process the scale results for the current iteration, update the CSV file, fail if KOs are found

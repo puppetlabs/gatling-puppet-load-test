@@ -34,9 +34,10 @@ step "average memory" do
   assert_later(atop_result.avg_mem < 3_000_000, "Average memory was: #{atop_result.avg_mem}, expected < 3000000")
 end
 
-# This step will only be run if BASELINE_PE_VER has been set.
-step "baseline assertions" do
-  baseline_assert(atop_result, gatling_result)
+if ENV["BASELINE_PE_VER"]
+  step "baseline assertions" do
+    baseline_assert(atop_result, gatling_result)
+  end
 end
 
 assert_all

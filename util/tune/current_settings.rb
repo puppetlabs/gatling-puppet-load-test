@@ -27,7 +27,10 @@ DEFAULT_EXCLUSION = ""
 DEFAULT_WORKING_DIRECTORY = "/root/tmp"
 DEFAULT_OUTPUT_FILE = "current_tune_settings.json"
 
-# Returns the value for the 'max-active-instances' parameter if found, otherwise the default value
+# Returns the value for the 'max-active-instances' parameter if found in the conf file.
+# If the conf file doesn't exist returns NA as puppetserver must not be installed on this host.
+# Otherwise calculates the default based on the documentation linked above which was current at the
+# time this was written.  It could have changed, but probably not.
 #
 # See the following documentation:
 #   https://puppet.com/docs/pe/2019.1/config_puppetserver.html#tune-the-maximum-number-of-jruby-instances
@@ -40,32 +43,45 @@ DEFAULT_OUTPUT_FILE = "current_tune_settings.json"
 #   value = puppetserver_jruby_max_active_instances
 #
 def puppetserver_jruby_max_active_instances
-  if File.exist? PE_PUPPET_SERVER_CONF
-    line = File.open(PE_PUPPET_SERVER_CONF).grep(/max-active-instances/)[0]
-    value = line.scan(/\d+/).first unless line.nil?
-  end
+  return NA unless File.exist? PE_PUPPET_SERVER_CONF
 
-  unless value
-    # TODO: eliminate bash
-    command = "facter processorcount"
-    output = `#{command}`
+  conf = File.read(PE_PUPPET_SERVER_CONF)
+  match_pattern = /^\s*max-active-instances: (\d+)/
+  conf_scan = conf.scan(match_pattern)
+  value = conf_scan.last ? conf_scan.last.first : nil
+  return value unless value.nil?
 
-    if output
-      # See the docs link in the description above
-      # The default used in PE is the number of CPUs - 1, expressed as $::processorcount - 1.
-      # One instance is the minimum value and four instances is the maximum value.
-      #
-      # TODO: Determine if / where the default value for the 'jruby_max_active_instances' is set
-      #   See https://tickets.puppetlabs.com/browse/SLV-530
-      num_cores = output.to_i
-      value = [[(num_cores - 1), MIN_DEFAULT_JRUBIES].max, MAX_DEFAULT_JRUBIES].min.to_s
-    else
-      value = NA
-    end
+  # Since there is no value in the file, the default must be in effect
+  calculate_puppetserver_jruby_max_active_instances_default
+end
 
-  end
+# Calculates the default based on the documentation linked which was current at the
+# time this was written.  It could have changed, but probably not.
+# This is needed because there is no method to get the actual setting in use from the active process
+# If the value isn't set in the conf file, then the internal default is used, which is calculated
+# with the documented formula.
+#
+# See the following documentation:
+#   https://puppet.com/docs/pe/2019.1/config_puppetserver.html#tune-the-maximum-number-of-jruby-instances
+#
+# @author Randell Pelak
+#
+# @return [string] The default value for the max-active-instances setting
+#
+def calculate_puppetserver_jruby_max_active_instances_default
+  # TODO: eliminate bash
+  command = "facter processorcount"
+  output = `#{command}`
+  return NA unless output # no facter => no puppet => no puppetserver...
 
-  value
+  # See the docs link in the description above
+  # The default used in PE is the number of CPUs - 1, expressed as $::processorcount - 1.
+  # One instance is the minimum value and four instances is the maximum value.
+  #
+  # TODO: Determine if / where the default value for the 'jruby_max_active_instances' is set
+  #   See https://tickets.puppetlabs.com/browse/SLV-530
+  num_cores = output.to_i
+  [[(num_cores - 1), MIN_DEFAULT_JRUBIES].max, MAX_DEFAULT_JRUBIES].min.to_s
 end
 
 # Returns the java args for the specified file
@@ -200,6 +216,7 @@ end
 
 # Returns the value for the specified parameter in the specified config file
 # Optionally accepts a list of exclusions to avoid collisions (i.e. 'work_mem' matching 'autovacuum_work_mem', etc)
+# Works on the puppetdb and postgres conf files only.
 #
 # @author Bill Claytor
 #
@@ -211,62 +228,44 @@ end
 #
 # @example
 #   value = get_conf_parameter(file, parameter)
-#   value = get_conf_parameter(file, parameter, /(example_a|example_b)/)
 #
-# TODO: update to eliminate the use of exclusions
-#   See https://tickets.puppetlabs.com/browse/SLV-531
-#
-def get_conf_parameter(file, parameter, exclusions = DEFAULT_EXCLUSION)
-  value = if File.exist? file
+def get_conf_parameter(file, parameter)
+  return NA unless File.exist? file
 
-            # this pattern extracts the value from the result with the '\K'
-            match_pattern = /#{parameter} = \K[^\s]+/
-
-            # eliminate comments, search for the parameter, apply exclusions, extract the value
-            File.open(file).grep_v(/^#/).grep(/#{parameter}/).grep_v(exclusions)[0].match(match_pattern)
-
-          else
-            NA
-          end
-  value
+  conf = File.read(file)
+  match_pattern = /^\s*#{parameter} = (\S+)/
+  conf_scan = conf.scan(match_pattern)
+  conf_scan.last ? conf_scan.last.first : NA
 end
 
 # Returns the value for the specified parameter in the postgres config file
 #
-# Note: see get_conf_parameter for a description of optional exclusions
-#
 # @author Bill Claytor
 #
 # @param [String] parameter   The parameter to search for
-# @param [RegEx]  exclusions  The regular expression used to exclude words from the search
 #
 # @return [string] The parameter value if found, otherwise "N/A"
 #
 # @example
 #   value = get_postgres_parameter(parameter)
-#   value = get_postgres_parameter(parameter, /(example_a|example_b)/)
 #
-def get_postgres_parameter(parameter, exclusions = DEFAULT_EXCLUSION)
-  get_conf_parameter(POSTGRES_CONF, parameter, exclusions) unless POSTGRES_CONF.nil?
+def get_postgres_parameter(parameter)
+  get_conf_parameter(POSTGRES_CONF, parameter) unless POSTGRES_CONF.nil?
 end
 
 # Returns the value for the specified parameter in the puppetdb config file
 #
-# Note: see get_conf_parameter for a description of optional exclusions
-#
 # @author Bill Claytor
 #
 # @param [String] parameter   The parameter to search for
-# @param [RegEx]  exclusions  The regular expression used to exclude words from the search
 #
 # @return [string] The parameter value if found, otherwise "N/A"
 #
 # @example
 #   value = get_puppetdb_parameter(parameter)
-#   value = get_puppetdb_parameter(parameter, /(example_a|example_b)/)
 #
-def get_puppetdb_parameter(parameter, exclusions = DEFAULT_EXCLUSION)
-  get_conf_parameter(PUPPET_DB_CONF, parameter, exclusions)
+def get_puppetdb_parameter(parameter)
+  get_conf_parameter(PUPPET_DB_CONF, parameter)
 end
 
 # Returns the value for the following setting:
@@ -350,8 +349,7 @@ end
 #   value = database_work_mem
 #
 def database_work_mem
-  exclusions = /(maintenance|autovacuum)/
-  get_postgres_parameter("work_mem", exclusions)
+  get_postgres_parameter("work_mem")
 end
 
 # Returns the value for the following setting:

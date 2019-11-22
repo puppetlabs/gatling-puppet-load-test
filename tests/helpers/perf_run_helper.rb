@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# vim: foldmethod=marker
+
 require "beaker"
 require "beaker-benchmark"
 require "master_manipulator"
@@ -890,8 +892,8 @@ module PerfRunHelper
 
     # grab puppet-metrics-collector data for the run
     scp_to(master, "util/metrics/collect_metrics_files.rb", "/root/collect_metrics_files.rb")
-    start_epoch = File.read("#{@archive_root}/start_epoch")
-    end_epoch = File.read("#{@archive_root}/end_epoch")
+    @start_epoch = File.read("#{@archive_root}/start_epoch")
+    @end_epoch = File.read("#{@archive_root}/end_epoch")
 
     # privatebindir is not available if beaker did not install puppet.
     # So, we introspect it from the host based on the installed puppet.
@@ -901,7 +903,7 @@ module PerfRunHelper
     end
     cmf_output = on(master,
                     "env PATH=\"#{master['privatebindir']}:${PATH}\" \
-                    ruby /root/collect_metrics_files.rb --start_epoch #{start_epoch} --end_epoch #{end_epoch}")
+                    ruby /root/collect_metrics_files.rb --start_epoch #{@start_epoch} --end_epoch #{@end_epoch}")
                  .output
     filename = cmf_output.match(/\w+-\w+.tar.gz/)[0].to_s
     scp_from(master, "/root/#{filename}", "#{@archive_root}/")
@@ -915,7 +917,51 @@ module PerfRunHelper
       puts
     end
 
+    save_average_compile_time("#{@archive_root}/avg_compile_time.txt", database)
+
     [perf, GatlingResult.new(gatling_assertions, mean_response_time)]
+  end
+
+  def save_average_compile_time(file, puppetdb_host)
+    # Convert epoch values (which are created based on local time) to UTC time
+    # strings compatible with puppetdb queries.
+    start_time = Time.at(@start_epoch.to_i).getgm.strftime "%Y-%m-%d %H:%M:%S"
+    end_time = Time.at(@end_epoch.to_i).getgm.strftime "%Y-%m-%d %H:%M:%S"
+
+    query = <<~QUERY
+      query=["from", "reports",
+              ["extract", "metrics",
+                ["and",
+                  [">=", "start_time", "#{start_time}"],
+                  ["<=", "end_time", "#{end_time}"]]]]
+    QUERY
+    query = query.strip.gsub(/\n+/, " ")
+    query = query.gsub(/\s+/, " ")
+
+    curl = %W[
+      curl
+      -X GET
+      http://localhost:8080/pdb/query/v4
+      -d '#{query}'
+    ].join(" ")
+
+    result = nil
+    begin
+      bkr_res = on(puppetdb_host, curl)
+      data = JSON.parse(bkr_res.stdout.chomp)
+      data.delete_if { |report| report["metrics"]["data"].empty? }
+      config_retrieval_times = data.map do |report|
+        report["metrics"]["data"].select do |md|
+          md["category"] == "time" && (md["name"] == "config_retrieval" || md["name"] == "total")
+        end.first.fetch("value")
+      end
+      avg_config_retrieval_time = config_retrieval_times.reduce(0.0, :+) / config_retrieval_times.size
+      result = avg_config_retrieval_time.ceil
+    rescue StandardError # rubocop:disable Lint/HandleExceptions
+      # empty file will be written
+    end
+
+    File.write(file, result)
   end
 
   # The atop CSV file

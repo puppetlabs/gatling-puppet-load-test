@@ -13,16 +13,18 @@ include PerfResultsHelper # rubocop:disable Style/MixinUsage
 module PerfRunHelper
   extend Beaker::DSL::BeakerBenchmark::Helpers
 
+  INFINITY = 1 / 0.0
   MAX_BASELINE_VARIANCE = 0.10 # 10%
 
   # Variance overrides go here.  They must be named as follows to be processed:
   #   "MAX_VARIANCE_OVERRIDE_#{results_key}"
+  # Variances can be skipped entirely by setting their maximum to INFINITY.
   MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM = 0.15 # 15%
-  MAX_VARIANCE_OVERRIDE_PROCESS_PUPPETDB_AVG_CPU = 10.00 # 1000%
-  MAX_VARIANCE_OVERRIDE_PROCESS_CONSOLE_SERVICES_RELEASE_AVG_CPU = 10.00 # 1000%
-  MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_CPU = 10.00 # 100%
-  MAX_VARIANCE_OVERRIDE_PROCESS_PUPPET_SERVER_RELEASE_AVG_CPU = 10.00 # 1000%
-  MAX_VARIANCE_OVERRIDE_AVG_CPU = 10.00 # 1000%
+  MAX_VARIANCE_OVERRIDE_PROCESS_PUPPETDB_AVG_CPU = INFINITY
+  MAX_VARIANCE_OVERRIDE_PROCESS_CONSOLE_SERVICES_RELEASE_AVG_CPU = INFINITY
+  MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_CPU = INFINITY
+  MAX_VARIANCE_OVERRIDE_PROCESS_PUPPET_SERVER_RELEASE_AVG_CPU = INFINITY
+  MAX_VARIANCE_OVERRIDE_AVG_CPU = INFINITY
   MAX_VARIANCE_OVERRIDE_AVG_RESPONSE_TIME = 0.50 # 50%
 
   # rubocop: disable  Naming/AccessorMethodName
@@ -1083,6 +1085,10 @@ module PerfRunHelper
   # @return [Boolean]
   def validate_baseline_data(data)
     failures = find_failing_variances(data)
+    # FIXME: The following line removes any failures where the performance is
+    # better than expected.  Strictly speaking, this should trigger a failure,
+    # but we have not gated on this condition in the past.
+    failures = failures.select { |_k, v| v.last > 1 }
     return true if failures.empty?
 
     failures.each do |k, v|

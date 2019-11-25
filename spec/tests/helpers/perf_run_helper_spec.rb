@@ -763,12 +763,38 @@ current_tune_settings.json"
                                               "pass_thing2" => [100, 102])).to eq(false)
       end
     end
+    context "when any delta is > MAX_BASELINE_VARIANCE other direction" do
+      it "returns false" do
+        expect(subject.validate_baseline_data("fail_thing"  => [2, 1],
+                                              "pass_thing2" => [100, 102])).to eq(false)
+      end
+    end
     context "when MAX_BASELINE_VARIANCE < 'orchestration_service memory delta' > MAX_BASELINE_VARIANCE_ORCH_REL_MEM" do
       it "returns true" do
         expect(
           subject.validate_baseline_data(
             "pass_thing1"                                    => [1.00, 0.98],
             "process_orchestration_services_release_avg_mem" => [100, 112]
+          )
+        ).to eq(true)
+      end
+    end
+    context "when 'orchestration_service memory delta' < MAX_BASELINE_VARIANCE_ORCH_REL_MEM AND worse" do
+      it "returns false" do
+        expect(
+          subject.validate_baseline_data(
+            "pass_thing1"                                    => [1.00, 0.98],
+            "process_orchestration_services_release_avg_mem" => [100, 150]
+          )
+        ).to eq(false)
+      end
+    end
+    context "when 'orchestration_service memory delta' < MAX_BASELINE_VARIANCE_ORCH_REL_MEM AND better" do
+      it "returns true" do
+        expect(
+          subject.validate_baseline_data(
+            "pass_thing1"                                    => [1.00, 0.98],
+            "process_orchestration_services_release_avg_mem" => [100, 50]
           )
         ).to eq(true)
       end

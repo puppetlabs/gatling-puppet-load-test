@@ -1085,10 +1085,11 @@ module PerfRunHelper
   # @return [Boolean]
   def validate_baseline_data(data)
     failures = find_failing_variances(data)
-    # FIXME: The following line removes any failures where the performance is
-    # better than expected.  Strictly speaking, this should trigger a failure,
-    # but we have not gated on this condition in the past.
-    failures = failures.select { |_k, v| v.last > 1 }
+    # FIXME: (SLV-716) Revert the commit associated with the following line.
+    # The following line removes any failures where the performance is better
+    # than expected for memory consumption.  Strictly speaking, this should
+    # trigger a failure, but we have not gated on this condition in the past.
+    failures = failures.reject { |k, v| v.last < 1 && k.to_s.match(/mem$/) }
     return true if failures.empty?
 
     failures.each do |k, v|

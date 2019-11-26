@@ -917,12 +917,22 @@ module PerfRunHelper
       puts
     end
 
-    save_average_compile_time("#{@archive_root}/avg_compile_time.txt", database)
+    save_average_transaction_time("#{@archive_root}/avg_transaction_time.json", database)
 
     [perf, GatlingResult.new(gatling_assertions, mean_response_time)]
   end
 
-  def save_average_compile_time(file, puppetdb_host)
+  # Gather average transaction time from reports and write to a file
+  #
+  # The data written to the file will be a JSON string in the format, where the
+  # error element will only appear if an error was encountered while retrieving
+  # the time value.
+  #
+  # { "avg_transaction_time": 42, "unit": "seconds", "error": "Things went badly" }
+  #
+  # @param [String] file File path to record the data to
+  # @param [Beaker::Host] puppetdb_host Host object to query data from (should be puppetdb)
+  def save_average_transaction_time(file, puppetdb_host)
     # Convert epoch values (which are created based on local time) to UTC time
     # strings compatible with puppetdb queries.
     start_time = Time.at(@start_epoch.to_i).getgm.strftime "%Y-%m-%d %H:%M:%S"
@@ -945,23 +955,26 @@ module PerfRunHelper
       -d '#{query}'
     ].join(" ")
 
-    result = nil
+    result = { avg_transaction_time: nil, unit: "seconds" }
     begin
       bkr_res = on(puppetdb_host, curl)
       data = JSON.parse(bkr_res.stdout.chomp)
       data.delete_if { |report| report["metrics"]["data"].empty? }
-      config_retrieval_times = data.map do |report|
+      # See the time section of the
+      # [puppet report schema](https://github.com/puppetlabs/puppet/blob/master/api/schemas/report.json)
+      # for details.
+      transaction_report_times = data.map do |report|
         report["metrics"]["data"].select do |md|
           md["category"] == "time" && (md["name"] == "config_retrieval" || md["name"] == "total")
         end.first.fetch("value")
       end
-      avg_config_retrieval_time = config_retrieval_times.reduce(0.0, :+) / config_retrieval_times.size
-      result = avg_config_retrieval_time.ceil
-    rescue StandardError # rubocop:disable Lint/HandleExceptions
-      # empty file will be written
+      avg_transaction_time = transaction_report_times.reduce(0.0, :+) / transaction_report_times.size
+      result[:avg_transaction_time] = avg_transaction_time
+    rescue StandardError => e
+      result[:error] = [e.class, e.message].join " "
     end
 
-    File.write(file, result)
+    File.write(file, result.to_json)
   end
 
   # The atop CSV file

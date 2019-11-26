@@ -746,57 +746,72 @@ current_tune_settings.json"
       end
     end
   end
-  describe "#validate_baseline_delta" do
+  describe "#validate_baseline_data" do
     let(:lgr) { Beaker::Logger.new(log_level: "warn", quiet: true) }
     before { subject.instance_variable_set(:@logger, lgr) }
     before { allow(subject).to receive(:logger).and_return(lgr) }
 
-    context "when all deltas are < MAX_BASELINE_VARIANCE" do
+    context "when all variances are < MAX_BASELINE_VARIANCE" do
       it "returns true" do
-        expect(subject.validate_baseline_data("pass_thing1" => [1.00, 0.98],
-                                              "pass_thing2" => [100, 102])).to eq(true)
+        baselines = [1.00, 100]
+        data = { pass_lower: [baselines[0],
+                              baselines[0] - baselines[0] * PerfRunHelper::MAX_BASELINE_VARIANCE * 0.9],
+                 pass_higher: [baselines[1],
+                               baselines[1] + baselines[1] * PerfRunHelper::MAX_BASELINE_VARIANCE * 0.9] }
+        expect(subject.validate_baseline_data(data)).to eq(true)
       end
     end
-    context "when any delta is > MAX_BASELINE_VARIANCE" do
+    context "when any variance is > MAX_BASELINE_VARIANCE lower" do
       it "returns false" do
-        expect(subject.validate_baseline_data("fail_thing"  => [1, 2],
-                                              "pass_thing2" => [100, 102])).to eq(false)
+        baselines = [1.00, 100]
+        data = { fail_lower: [baselines[0],
+                              baselines[0] - baselines[0] * PerfRunHelper::MAX_BASELINE_VARIANCE * 1.1],
+                 pass_higher: [baselines[1],
+                               baselines[1] + baselines[1] * PerfRunHelper::MAX_BASELINE_VARIANCE * 0.9] }
+        expect(subject.validate_baseline_data(data)).to eq(false)
       end
     end
-    context "when any delta is > MAX_BASELINE_VARIANCE other direction" do
+    context "when any variance is > MAX_BASELINE_VARIANCE higher" do
       it "returns false" do
-        expect(subject.validate_baseline_data("fail_thing"  => [2, 1],
-                                              "pass_thing2" => [100, 102])).to eq(false)
+        baselines = [1.00, 100]
+        data = { fail_higher: [baselines[0],
+                               baselines[0] + baselines[0] * PerfRunHelper::MAX_BASELINE_VARIANCE * 1.1],
+                 pass_higher: [baselines[1],
+                               baselines[1] + baselines[1] * PerfRunHelper::MAX_BASELINE_VARIANCE * 0.9] }
+        expect(subject.validate_baseline_data(data)).to eq(false)
       end
     end
-    context "when MAX_BASELINE_VARIANCE < 'orchestration_service memory delta' > MAX_BASELINE_VARIANCE_ORCH_REL_MEM" do
+    context "when 'orchestration_service memory variance' between max and max override" do
       it "returns true" do
-        expect(
-          subject.validate_baseline_data(
-            "pass_thing1"                                    => [1.00, 0.98],
-            "process_orchestration_services_release_avg_mem" => [100, 112]
-          )
-        ).to eq(true)
+        between_variation = (PerfRunHelper::MAX_BASELINE_VARIANCE +
+                             PerfRunHelper::MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM
+                            ) / 2
+        baselines = [1.00, 100]
+        data = { pass_lower: [baselines[0],
+                              baselines[0] - baselines[0] * PerfRunHelper::MAX_BASELINE_VARIANCE * 0.9],
+                 process_orchestration_services_release_avg_mem: [baselines[1],
+                                                                  baselines[1] + baselines[1] * between_variation] }
+        expect(subject.validate_baseline_data(data)).to eq(true)
       end
     end
-    context "when 'orchestration_service memory delta' < MAX_BASELINE_VARIANCE_ORCH_REL_MEM AND worse" do
+    context "when 'orchestration_service memory variance' greater than max override AND worse" do
       it "returns false" do
-        expect(
-          subject.validate_baseline_data(
-            "pass_thing1"                                    => [1.00, 0.98],
-            "process_orchestration_services_release_avg_mem" => [100, 150]
-          )
-        ).to eq(false)
+        baselines = [1.00, 100]
+        data = { pass_lower: [baselines[0],
+                              baselines[0] - baselines[0] * PerfRunHelper::MAX_BASELINE_VARIANCE * 0.9],
+                 process_orchestration_services_release_avg_mem: [baselines[1],
+                                                                  baselines[1] + baselines[1] * PerfRunHelper::MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM * 1.1] } # rubocop:disable  Metrics/LineLength
+        expect(subject.validate_baseline_data(data)).to eq(false)
       end
     end
-    context "when 'orchestration_service memory delta' < MAX_BASELINE_VARIANCE_ORCH_REL_MEM AND better" do
+    context "when 'orchestration_service memory variance' greater than max override AND better" do
       it "returns true" do
-        expect(
-          subject.validate_baseline_data(
-            "pass_thing1"                                    => [1.00, 0.98],
-            "process_orchestration_services_release_avg_mem" => [100, 50]
-          )
-        ).to eq(true)
+        baselines = [1.00, 100]
+        data = { pass_lower: [baselines[0],
+                              baselines[0] - baselines[0] * PerfRunHelper::MAX_BASELINE_VARIANCE * 0.9],
+                 process_orchestration_services_release_avg_mem: [baselines[1],
+                                                                  baselines[1] - baselines[1] * PerfRunHelper::MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM * 1.1] } # rubocop:disable  Metrics/LineLength
+        expect(subject.validate_baseline_data(data)).to eq(true)
       end
     end
   end

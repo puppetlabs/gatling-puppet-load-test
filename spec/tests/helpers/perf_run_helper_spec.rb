@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# vim: set foldmethod=marker
+# vim: foldmethod=marker
 
 require "spec_helper"
 require "minitest/assertions"
@@ -831,6 +831,68 @@ current_tune_settings.json"
       it "raises an exception" do
         expect { subject.find_file(path, pattern) }.to \
           raise_error("Single file matching pattern '#{pattern}' not found in path #{path}.")
+      end
+    end
+  end
+  describe "#save_average_transaction_time" do
+    let(:host) do
+      Beaker::Host.create("localhost", { role: "database" }, logger: @logger)
+    end
+    before { subject.instance_variable_set(:@start_epoch, 0) }
+    before { subject.instance_variable_set(:@end_epoch, 946_684_799) }
+    let(:file) { Tempfile.new(described_class.to_s) }
+    let(:result) { Beaker::Result.new(host, "") }
+    let(:curl) do
+      curl = <<~CURL
+        curl
+          -X GET
+          http://localhost:8080/pdb/query/v4
+          -d 'query=["from", "reports",
+                      ["extract", "metrics",
+                        ["and",
+                          [">=", "start_time", "1970-01-01 00:00:00"],
+                          ["<=", "end_time", "1999-12-31 23:59:59"]]]]'
+      CURL
+      curl = curl.strip.gsub(/\n+/, " ")
+      curl.gsub(/\s+/, " ")
+    end
+    context "when puppet query returns json data with config_retreival times" do
+      it "writes average transaction time to the given file" do
+        config_retrieval_time = 41.534695086999933
+        expected_file_content = { avg_transaction_time: config_retrieval_time, unit: "seconds" }.to_json
+        result.stdout = <<~JSON_DATA # {{{
+          [
+            {
+              "metrics": {
+                "data": [
+                  {
+                    "name": "config_retrieval",
+                    "value": #{config_retrieval_time},
+                    "category": "time"
+                  }
+                ]
+              }
+            }
+          ]
+        JSON_DATA
+        # }}}
+        expect(subject).to receive(:on).with(host, curl).and_return(result)
+        subject.save_average_transaction_time(file.path, host)
+
+        file.open
+        expect(file.read.chomp).to eq(expected_file_content)
+      end
+    end
+    context "when puppet query returns no data" do
+      it "writes error to the given file" do
+        err_msg = "JSON::ParserError A JSON text must at least contain two octets!"
+        expected_file_content = { avg_transaction_time: nil, unit: "seconds", error: err_msg }.to_json
+        result.stdout = ""
+        expect(subject).to receive(:on).with(host, curl).and_return(result)
+        subject.save_average_transaction_time(file.path, host)
+
+        file.open
+        expect(file.read.chomp).to eq(expected_file_content)
       end
     end
   end

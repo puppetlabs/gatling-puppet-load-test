@@ -5,7 +5,7 @@ require "./tests/helpers/perf_run_helper"
 # Add pry support when available
 begin
   require "pry"
-rescue LoadError # rubocop: disable Lint/HandleExceptions
+rescue LoadError # rubocop: disable Lint/SuppressedException
   # do nothing
 end
 

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# vim: foldmethod=marker
+
 require "beaker"
 require "beaker-benchmark"
 require "master_manipulator"
@@ -890,8 +892,8 @@ module PerfRunHelper
 
     # grab puppet-metrics-collector data for the run
     scp_to(master, "util/metrics/collect_metrics_files.rb", "/root/collect_metrics_files.rb")
-    start_epoch = File.read("#{@archive_root}/start_epoch")
-    end_epoch = File.read("#{@archive_root}/end_epoch")
+    @start_epoch = File.read("#{@archive_root}/start_epoch")
+    @end_epoch = File.read("#{@archive_root}/end_epoch")
 
     # privatebindir is not available if beaker did not install puppet.
     # So, we introspect it from the host based on the installed puppet.
@@ -901,7 +903,7 @@ module PerfRunHelper
     end
     cmf_output = on(master,
                     "env PATH=\"#{master['privatebindir']}:${PATH}\" \
-                    ruby /root/collect_metrics_files.rb --start_epoch #{start_epoch} --end_epoch #{end_epoch}")
+                    ruby /root/collect_metrics_files.rb --start_epoch #{@start_epoch} --end_epoch #{@end_epoch}")
                  .output
     filename = cmf_output.match(/\w+-\w+.tar.gz/)[0].to_s
     scp_from(master, "/root/#{filename}", "#{@archive_root}/")
@@ -915,7 +917,64 @@ module PerfRunHelper
       puts
     end
 
+    save_average_transaction_time("#{@archive_root}/avg_transaction_time.json", database)
+
     [perf, GatlingResult.new(gatling_assertions, mean_response_time)]
+  end
+
+  # Gather average transaction time from reports and write to a file
+  #
+  # The data written to the file will be a JSON string in the format, where the
+  # error element will only appear if an error was encountered while retrieving
+  # the time value.
+  #
+  # { "avg_transaction_time": 42, "unit": "seconds", "error": "Things went badly" }
+  #
+  # @param [String] file File path to record the data to
+  # @param [Beaker::Host] puppetdb_host Host object to query data from (should be puppetdb)
+  def save_average_transaction_time(file, puppetdb_host)
+    # Convert epoch values (which are created based on local time) to UTC time
+    # strings compatible with puppetdb queries.
+    start_time = Time.at(@start_epoch.to_i).getgm.strftime "%Y-%m-%d %H:%M:%S"
+    end_time = Time.at(@end_epoch.to_i).getgm.strftime "%Y-%m-%d %H:%M:%S"
+
+    query = <<~QUERY
+      query=["from", "reports",
+              ["extract", "metrics",
+                ["and",
+                  [">=", "start_time", "#{start_time}"],
+                  ["<=", "end_time", "#{end_time}"]]]]
+    QUERY
+    query = query.strip.gsub(/\n+/, " ")
+    query = query.gsub(/\s+/, " ")
+
+    curl = %W[
+      curl
+      -X GET
+      http://localhost:8080/pdb/query/v4
+      -d '#{query}'
+    ].join(" ")
+
+    result = { avg_transaction_time: nil, unit: "seconds" }
+    begin
+      bkr_res = on(puppetdb_host, curl)
+      data = JSON.parse(bkr_res.stdout.chomp)
+      data.delete_if { |report| report["metrics"]["data"].empty? }
+      # See the time section of the
+      # [puppet report schema](https://github.com/puppetlabs/puppet/blob/master/api/schemas/report.json)
+      # for details.
+      transaction_report_times = data.map do |report|
+        report["metrics"]["data"].select do |md|
+          md["category"] == "time" && (md["name"] == "config_retrieval" || md["name"] == "total")
+        end.first.fetch("value")
+      end
+      avg_transaction_time = transaction_report_times.reduce(0.0, :+) / transaction_report_times.size
+      result[:avg_transaction_time] = avg_transaction_time
+    rescue StandardError => e
+      result[:error] = [e.class, e.message].join " "
+    end
+
+    File.write(file, result.to_json)
   end
 
   # The atop CSV file

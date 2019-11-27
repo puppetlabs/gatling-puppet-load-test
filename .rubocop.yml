@@ -4,7 +4,7 @@ AllCops:
     - 'Boltdir/site-modules/metrics/spec/fixtures/**/*'
     - 'Boltdir/site-modules/pe_xl/**/*'
     - 'vendor/**/*'
-Layout/AlignHash:
+Layout/HashAlignment:
   EnforcedHashRocketStyle: table
 Style/StringLiterals:
   EnforcedStyle: double_quotes

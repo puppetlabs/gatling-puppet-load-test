@@ -227,7 +227,8 @@ module PerfRunHelper
     puts "Executing scale tests:"
     puts "base number of agents = #{@scale_base_instances}"
     puts "number of iterations = #{@scale_iterations}"
-    puts "number to increment = #{@scale_increment}"
+    puts "number of repetitions per iteration = #{@scale_num_repetitions}"
+    puts "number of instances to increment per iteration = #{@scale_increment}"
     puts
 
     # execute each scenario

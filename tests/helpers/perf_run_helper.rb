@@ -15,13 +15,17 @@ include PerfResultsHelper # rubocop:disable Style/MixinUsage
 module PerfRunHelper
   extend Beaker::DSL::BeakerBenchmark::Helpers
 
+  # rubocop: disable  Naming/AccessorMethodName
+  BEAKER_PE_VER = ENV["BEAKER_PE_VER"]
+  BASELINE_PE_VER = ENV["BASELINE_PE_VER"]
   INFINITY = 1 / 0.0
   MAX_BASELINE_VARIANCE = 0.10 # 10%
 
   # Variance overrides go here.  They must be named as follows to be processed:
   #   "MAX_VARIANCE_OVERRIDE_#{results_key}"
   # Variances can be skipped entirely by setting their maximum to INFINITY.
-  MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM = 0.15 # 15%
+  MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM = \
+    BEAKER_PE_VER =~ /^2019.2.*/ ? INFINITY : 0.15 # skip for 2019.2, else 15%
   MAX_VARIANCE_OVERRIDE_PROCESS_BOLT_SERVER_AVG_CPU = INFINITY
   MAX_VARIANCE_OVERRIDE_PROCESS_ACE_SERVER_AVG_CPU = INFINITY
   MAX_VARIANCE_OVERRIDE_PROCESS_PUPPETDB_AVG_CPU = INFINITY
@@ -31,9 +35,6 @@ module PerfRunHelper
   MAX_VARIANCE_OVERRIDE_AVG_CPU = INFINITY
   MAX_VARIANCE_OVERRIDE_AVG_RESPONSE_TIME = 0.50 # 50%
 
-  # rubocop: disable  Naming/AccessorMethodName
-  BEAKER_PE_VER = ENV["BEAKER_PE_VER"]
-  BASELINE_PE_VER = ENV["BASELINE_PE_VER"]
   SCALE_ITERATIONS = 15
   SCALE_INCREMENT = 100
   SCALE_MAX_ALLOWED_KO = 10

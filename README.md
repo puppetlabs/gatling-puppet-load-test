@@ -5,6 +5,7 @@
 #### Table of Contents
 
 1. [Setup](#setup)
+1. [PE trial performance test](#pe-trial-performance-test)
 1. [Apples to Apples performance tests](#apples-to-apples-performance-tests)
 1. [Opsworks performance tests](#opsworks-performance-tests)
 1. [Soak performance tests](#soak-performance-tests)
@@ -159,6 +160,24 @@ curl -u jdoe --url https://vmpooler.example.com/api/v1/token
 For more detailed information, please refer to the
 [vmpooler documentation](https://github.com/puppetlabs/vmpooler/blob/master/docs)
 
+
+## PE trial performance test
+
+This repo includes a `pe-trial.rb` test to validate that an AWS m5.large can
+easily accommodate the 10 nodes allowed for a trial installation of Puppet
+Enterprise.  To run this test use the following command.  Please ensure that
+you set the `BEAKER_PE_VER` and the `BEAKER_PE_DIR` to match the PE version
+that you are testing.  The other environment variables should remain as defined
+below.
+```
+    BEAKER_TESTS=tests/pe-trial.rb \
+    PUPPET_GATLING_SCENARIO=pe-trial.json \
+    ABS_AWS_MASTER_SIZE=m5.large \
+    BEAKER_PE_VER=2019.1.0 \
+    BEAKER_PE_DIR=http://enterprise.delivery.puppetlabs.net/archives/releases/2019.1.0 \
+    BEAKER_INSTALL_TYPE=pe \
+    bundle exec rake performance
+```
 
 ## Apples to Apples performance tests
 

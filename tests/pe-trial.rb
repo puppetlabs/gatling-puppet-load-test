@@ -36,12 +36,6 @@ gatlingassertions = %W[SUCCESSFUL_REQUESTS=#{min_success_request_perc}
                        TOTAL_REQUEST_COUNT=#{total_request_count}].join " "
 ## End setup
 
-# Execute agent runs to warm up the JIT before starting our monitoring.
-step "warm up" do
-  perf_setup("WarmUpJit.json", "PerfTestLarge", "")
-  stop_monitoring(master, "/opt/puppetlabs")
-end
-
 # pass in gatling scenario file name and simulation id
 step "run simulation" do
   perf_setup(scenario_file, sim, gatlingassertions)

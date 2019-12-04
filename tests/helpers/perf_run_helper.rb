@@ -917,7 +917,8 @@ module PerfRunHelper
       puts
     end
 
-    save_average_transaction_time("#{@archive_root}/avg_transaction_time.json", database)
+    # TODO:  The save_average_transaction_time should be re-enabled as part of SLV-724
+    # save_average_transaction_time("#{@archive_root}/avg_transaction_time.json", database)
 
     [perf, GatlingResult.new(gatling_assertions, mean_response_time)]
   end

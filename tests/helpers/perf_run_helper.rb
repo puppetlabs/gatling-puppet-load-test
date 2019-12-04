@@ -787,13 +787,13 @@ module PerfRunHelper
       base_url = "https://#{pup}:8140"
       sim_config = "config/scenarios/#{gatling_scenario} "
       reports_target_path = "#{sim_runner_dir}/results/#{reports_target}"
-      command = "cd #{sim_runner_dir} && " \
-                "PUPPET_GATLING_MASTER_BASE_URL=#{base_url} " \
-                "PUPPET_GATLING_SIMULATION_CONFIG=#{sim_config} " +
-                gatling_assertions +
-                "PUPPET_GATLING_REPORTS_ONLY=#{reports_only} " \
-                "PUPPET_GATLING_REPORTS_TARGET=#{reports_target_path} " \
-                "PUPPET_GATLING_SIMULATION_ID=#{simulation_id} sbt run"
+      command = %W[cd #{sim_runner_dir} &&
+                   PUPPET_GATLING_MASTER_BASE_URL=#{base_url}
+                   PUPPET_GATLING_SIMULATION_CONFIG=#{sim_config}
+                   #{gatling_assertions}
+                   PUPPET_GATLING_REPORTS_ONLY=#{reports_only}
+                   PUPPET_GATLING_REPORTS_TARGET=#{reports_target_path}
+                   PUPPET_GATLING_SIMULATION_ID=#{simulation_id} sbt run].join " "
 
       on(metric, command, accept_all_exit_codes: true) do |result|
         fail_test "Gatling execution failed with: #{result.formatted_output(20)}" if result.exit_code != 0

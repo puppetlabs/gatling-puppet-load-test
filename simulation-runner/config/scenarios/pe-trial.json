@@ -1,0 +1,12 @@
+{
+    "run_description": "PE trial: 'role::by_size_large' role from perf control repo, 100 agents, 2 repetitions",
+    "nodes": [
+        {
+            "node_config": "PerfTestLarge.json",
+            "num_instances": 100,
+            "ramp_up_duration_seconds": 1800,
+            "num_repetitions": 2,
+            "sleep_duration_seconds": 1800
+        }
+    ]
+}

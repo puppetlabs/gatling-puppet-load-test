@@ -631,8 +631,10 @@ namespace :pe_xl do
     raise KeyError, 'key not found: "BEAKER_PE_VER"' unless ENV["BEAKER_PE_VER"].is_a? String
 
     # validate that BEAKER_PE_VER looks like a PE version
-    match_data = ENV["BEAKER_PE_VER"].match(/(^\d{4}\.\d+)\.(\d+)(.*$)/i)
-    raise Error, "BEAKER_PE_VER: #{ENV['BEAKER_PE_VER']} does not look like a valid version string" unless match_data
+    pe_pattern = /(^\d{4}\.\d+)\.(\d+)(.*$)/i
+    err_msg = "BEAKER_PE_VER: #{ENV['BEAKER_PE_VER']} does not match the pattern '#{pe_pattern}'"
+    match_data = ENV["BEAKER_PE_VER"].match(pe_pattern)
+    raise Error, err_msg unless match_data
 
     pe_dir = if !match_data[3]&.empty?
                "http://enterprise.delivery.puppetlabs.net/#{match_data[1]}/ci-ready/"

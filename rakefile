@@ -39,14 +39,13 @@ end
 def fetch_pe_for_master(beaker_proxy, master, ver, dir, dest = "/tmp")
   local = File.directory?(dir)
   filename = "puppet-enterprise-#{ver}-#{master['packaging_platform']}"
+  non_exist_msg = "PE #{filename} does not exist at #{dir}"
   if local
     extension = File.exist?("#{dir}/#{filename}.tar.gz") ? ".tar.gz" : ".tar"
-    non_exist_msg = "PE #{dir}/#{filename}#{extension} does not exist"
     raise non_exist_msg unless File.exist?("#{dir}/#{filename}#{extension}")
 
   else
     extension = beaker_proxy.link_exists?("#{dir}/#{filename}.tar.gz") ? ".tar.gz" : ".tar"
-    non_exist_msg = "PE #{dir}/#{filename}#{extension} does not exist"
     raise non_exist_msg unless beaker_proxy.link_exists?("#{dir}/#{filename}#{extension}")
 
     beaker_proxy.fetch_http_file(dir, "#{filename}#{extension}", dest)

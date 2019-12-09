@@ -1,5 +1,3 @@
-require "beaker"
-require "beaker-pe"
 require 'rototiller'
 require 'rubocop/rake_task'
 
@@ -9,23 +7,9 @@ include AbsHelper
 require './tests/helpers/perf_results_helper'
 include PerfResultsHelper
 
+require "./lib/beakerhelper"
+
 REF_ARCH_STD, REF_ARCH_LARGE = ["S","L"]
-
-# Create a trumped up class to get a Beaker helpers outside of a Beaker run
-class ClassMixedWithDSLHelpers
-  include Beaker::DSL::Helpers
-  include Beaker::DSL::Wrappers
-  include Beaker::DSL::Roles
-  include Beaker::DSL::Patterns
-
-  def options
-    { cache_files_locally: true }
-  end
-
-  def logger
-    Beaker::Logger.new
-  end
-end
 
 def master_from_beaker_hosts_hash(hosts)
   master = nil
@@ -634,7 +618,7 @@ namespace :pe_xl do
     pe_pattern = /(^\d{4}\.\d+)\.(\d+)(.*$)/i
     err_msg = "BEAKER_PE_VER: #{ENV['BEAKER_PE_VER']} does not match the pattern '#{pe_pattern}'"
     match_data = ENV["BEAKER_PE_VER"].match(pe_pattern)
-    raise Error, err_msg unless match_data
+    raise err_msg unless match_data
 
     pe_dir = if !match_data[3]&.empty?
                "http://enterprise.delivery.puppetlabs.net/#{match_data[1]}/ci-ready/"
@@ -648,7 +632,7 @@ namespace :pe_xl do
     puts "Retrieving PE package"
     cfg_hash = Beaker::Options::HostsFileParser.parse_hosts_file "#{BUILD_DIR}/beaker.cfg"
     master = master_from_beaker_hosts_hash(cfg_hash[:HOSTS])
-    bkr = ClassMixedWithDSLHelpers.new
+    bkr = BeakerHelper.new
     fetch_pe_for_master(bkr, master, ENV["BEAKER_PE_VER"], pe_dir)
   end
 

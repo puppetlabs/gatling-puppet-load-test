@@ -630,13 +630,14 @@ namespace :pe_xl do
     puts "Provisioning nodes for pe_xl"
     raise KeyError, 'key not found: "BEAKER_PE_VER"' unless ENV["BEAKER_PE_VER"].is_a? String
 
-    m = ENV["BEAKER_PE_VER"].match(/(^\d{4}\.\d+)\.(\d+)(.*$)/i)
-    raise Error, "BEAKER_PE_VER: #{ENV['BEAKER_PE_VER']} does not look like a valid version string" unless m
+    # validate that BEAKER_PE_VER looks like a PE version
+    match_data = ENV["BEAKER_PE_VER"].match(/(^\d{4}\.\d+)\.(\d+)(.*$)/i)
+    raise Error, "BEAKER_PE_VER: #{ENV['BEAKER_PE_VER']} does not look like a valid version string" unless match_data
 
-    pe_dir = if !m[3]&.empty?
-               "http://enterprise.delivery.puppetlabs.net/#{m[1]}/ci-ready/"
+    pe_dir = if !match_data[3]&.empty?
+               "http://enterprise.delivery.puppetlabs.net/#{match_data[1]}/ci-ready/"
              else
-               "http://enterprise.delivery.puppetlabs.net/archives/releases/#{m[1]}.#{m[2]}/"
+               "http://enterprise.delivery.puppetlabs.net/archives/releases/#{match_data[1]}.#{match_data[2]}/"
              end
 
     mkdir_p BUILD_DIR

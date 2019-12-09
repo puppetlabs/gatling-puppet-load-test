@@ -36,7 +36,7 @@ def master_from_beaker_hosts_hash(hosts)
   master
 end
 
-def fetch_pe_for_master(beaker_proxy, master, ver, dir, dest = "/tmp")
+def fetch_pe_for_master(beaker_obj, master, ver, dir, dest = "/tmp")
   local = File.directory?(dir)
   filename = "puppet-enterprise-#{ver}-#{master['packaging_platform']}"
   non_exist_msg = "PE #{filename} does not exist at #{dir}"
@@ -45,10 +45,11 @@ def fetch_pe_for_master(beaker_proxy, master, ver, dir, dest = "/tmp")
     raise non_exist_msg unless File.exist?("#{dir}/#{filename}#{extension}")
 
   else
-    extension = beaker_proxy.link_exists?("#{dir}/#{filename}.tar.gz") ? ".tar.gz" : ".tar"
-    raise non_exist_msg unless beaker_proxy.link_exists?("#{dir}/#{filename}#{extension}")
+    # ensure that package exists at remote location
+    extension = beaker_obj.link_exists?("#{dir}/#{filename}.tar.gz") ? ".tar.gz" : ".tar"
+    raise non_exist_msg unless beaker_obj.link_exists?("#{dir}/#{filename}#{extension}")
 
-    beaker_proxy.fetch_http_file(dir, "#{filename}#{extension}", dest)
+    beaker_obj.fetch_http_file(dir, "#{filename}#{extension}", dest)
   end
   local_file = File.join(dest, filename) + extension
   raise "failed to retrieve #{filename}#{extenstion}" unless File.exist?(local_file)
@@ -644,8 +645,8 @@ namespace :pe_xl do
     puts "Retrieving PE package"
     cfg_hash = Beaker::Options::HostsFileParser.parse_hosts_file "#{BUILD_DIR}/beaker.cfg"
     master = master_from_beaker_hosts_hash(cfg_hash[:HOSTS])
-    bhp = ClassMixedWithDSLHelpers.new
-    fetch_pe_for_master(bhp, master, ENV["BEAKER_PE_VER"], pe_dir)
+    bkr = ClassMixedWithDSLHelpers.new
+    fetch_pe_for_master(bkr, master, ENV["BEAKER_PE_VER"], pe_dir)
   end
 
   desc "Provision pe_xl nodes"

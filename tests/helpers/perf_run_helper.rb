@@ -232,7 +232,8 @@ module PerfRunHelper
     puts "Executing scale tests:"
     puts "base number of agents = #{@scale_base_instances}"
     puts "number of iterations = #{@scale_iterations}"
-    puts "number to increment = #{@scale_increment}"
+    puts "number of repetitions per iteration = #{@scale_num_repetitions}"
+    puts "number of instances to increment per iteration = #{@scale_increment}"
     puts
 
     # execute each scenario
@@ -466,25 +467,40 @@ module PerfRunHelper
     file = File.read("#{scenarios_dir}/#{gatling_scenario}")
     json = JSON.parse(file)
 
-    # allow the base instances to be set via environment variable
+    # allow the settings to be set via environment variables
+    # TODO: refactor to streamline handling of multiple environment variables / settings
+    env_scale_class = ENV["PUPPET_SCALE_CLASS"]
     env_base_instances = ENV["PUPPET_GATLING_SCALE_BASE_INSTANCES"]
+    env_num_repetitions = ENV["PUPPET_GATLING_SCALE_NUM_REPETITIONS"]
     json_base_instances = json["nodes"][0]["num_instances"]
+    json_num_repetitions = json["nodes"][0]["num_repetitions"]
 
-    # TODO: refactor
     if !env_base_instances.nil?
       puts "Using environment specified base instances: #{env_base_instances}"
       @scale_base_instances = Integer(env_base_instances)
-
-      # update json
-      desc = "'role::by_size_small' role from perf control repo, #{@scale_base_instances} agents, 1 iteration"
-      json["run_description"] = desc
-      json["nodes"][0]["num_instances"] = @scale_base_instances
     else
       puts "Using JSON specified base instances: #{json_base_instances}"
       @scale_base_instances = json_base_instances
     end
 
+    if !env_num_repetitions.nil?
+      puts "Using environment specified number of repetitions: #{env_num_repetitions}"
+      @scale_num_repetitions = Integer(env_num_repetitions)
+    else
+      puts "Using JSON specified number of repetitions: #{json_num_repetitions}"
+      @scale_num_repetitions = json_num_repetitions
+    end
+
+    # instances will be incremented per iteration
     instances = @scale_base_instances
+    desc = "'#{env_scale_class}' role from perf control repo, " \
+           "#{instances} agents, #{@scale_num_repetitions} repetition(s)"
+
+    # update JSON (this was previously conditional)
+    # TODO: refactor to update before each iteration vs. after
+    json["run_description"] = desc
+    json["nodes"][0]["num_instances"] = instances
+    json["nodes"][0]["num_repetitions"] = @scale_num_repetitions
 
     (1..@scale_iterations).each do |iteration|
       # create scenario with the current data (first scenario is the original)
@@ -496,7 +512,9 @@ module PerfRunHelper
 
       # update the data for the next iteration
       instances += @scale_increment
-      desc = "'role::by_size_small' role from perf control repo, #{instances} agents, 1 iteration"
+      desc = "'#{env_scale_class}' role from perf control repo, " \
+             "#{instances} agents, #{@scale_num_repetitions} repetition(s)"
+
       json["run_description"] = desc
       json["nodes"][0]["num_instances"] = instances
     end

@@ -110,12 +110,25 @@ SELECT max(producer_timestamp)
 INTO TEMPORARY TABLE max_report
 FROM reports;
 
+DROP TABLE IF EXISTS max_resource_event;
+
+SELECT max(timestamp)
+INTO TEMPORARY TABLE max_resource_event
+FROM resource_events;
+
 DROP TABLE IF EXISTS time_diff;
 
 SELECT (DATE_PART('day', now() - (select max from max_report)) * 24 +
         DATE_PART('hour', now() - (select max from max_report))) * 60 +
         DATE_PART('minute', now() - (select max from max_report)) as minute_diff
 INTO TEMPORARY TABLE time_diff;
+
+DROP TABLE IF EXISTS resource_events_time_diff;
+
+SELECT (DATE_PART('day', now() - (select max from max_resource_event)) * 24 +
+        DATE_PART('hour', now() - (select max from max_resource_event))) * 60 +
+        DATE_PART('minute', now() - (select max from max_resource_event)) as minute_diff
+INTO TEMPORARY TABLE resource_events_time_diff;
 
 UPDATE reports
   SET producer_timestamp = producer_timestamp + ((select minute_diff from time_diff) * INTERVAL '1 minute'),
@@ -124,7 +137,7 @@ UPDATE reports
   receive_time = receive_time + ((select minute_diff from time_diff) * INTERVAL '1 minute');
 
 UPDATE resource_events
-  SET timestamp = timestamp + ((select minute_diff from time_diff) * INTERVAL '1 minute');
+  SET timestamp = timestamp + ((select minute_diff from resource_events_time_diff) * INTERVAL '1 minute');
 
 UPDATE catalogs
   SET producer_timestamp = producer_timestamp + ((select minute_diff from time_diff) * INTERVAL '1 minute'),
@@ -136,4 +149,6 @@ UPDATE factsets
 
 DROP TABLE IF EXISTS time_diff;
 DROP TABLE IF EXISTS max_report;
+DROP TABLE IF EXISTS resource_events_time_diff;
+DROP TABLE IF EXISTS max_resource_event;
 ```

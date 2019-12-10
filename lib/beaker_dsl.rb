@@ -4,7 +4,7 @@ require "beaker"
 require "beaker-pe"
 
 # BeakerHelper class to get Beaker helpers outside of a Beaker run
-class BeakerHelper
+class BeakerDSL
   include Beaker::DSL::Helpers
   include Beaker::DSL::Wrappers
   include Beaker::DSL::Roles

@@ -7,7 +7,7 @@ include AbsHelper
 require './tests/helpers/perf_results_helper'
 include PerfResultsHelper
 
-require "./lib/beakerhelper"
+require "./lib/beaker_dsl"
 
 REF_ARCH_STD, REF_ARCH_LARGE = ["S","L"]
 
@@ -632,7 +632,7 @@ namespace :pe_xl do
     puts "Retrieving PE package"
     cfg_hash = Beaker::Options::HostsFileParser.parse_hosts_file "#{BUILD_DIR}/beaker.cfg"
     master = master_from_beaker_hosts_hash(cfg_hash[:HOSTS])
-    bkr = BeakerHelper.new
+    bkr = BeakerDSL.new
     fetch_pe_for_master(bkr, master, ENV["BEAKER_PE_VER"], pe_dir)
   end
 

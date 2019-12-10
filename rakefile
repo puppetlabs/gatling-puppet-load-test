@@ -7,7 +7,43 @@ include AbsHelper
 require './tests/helpers/perf_results_helper'
 include PerfResultsHelper
 
+require "./lib/beaker_dsl"
+
 REF_ARCH_STD, REF_ARCH_LARGE = ["S","L"]
+
+def master_from_beaker_hosts_hash(hosts)
+  master = nil
+  hosts.each_key do |name|
+    host = hosts[name]
+    master = host if host[:roles].include?("master")
+  end
+  master
+end
+
+def fetch_pe_for_master(beaker_obj, master, ver, dir, dest = "/tmp")
+  local = File.directory?(dir)
+  filename = "puppet-enterprise-#{ver}-#{master['packaging_platform']}"
+  non_exist_msg = "PE #{filename} does not exist at #{dir}"
+  if local
+    extension = File.exist?("#{dir}/#{filename}.tar.gz") ? ".tar.gz" : ".tar"
+    raise non_exist_msg unless File.exist?("#{dir}/#{filename}#{extension}")
+
+  else
+    # ensure that package exists at remote location
+    extension = beaker_obj.link_exists?("#{dir}/#{filename}.tar.gz") ? ".tar.gz" : ".tar"
+    raise non_exist_msg unless beaker_obj.link_exists?("#{dir}/#{filename}#{extension}")
+
+    beaker_obj.fetch_http_file(dir, "#{filename}#{extension}", dest)
+  end
+  local_file = File.join(dest, filename) + extension
+  raise "failed to retrieve #{filename}#{extenstion}" unless File.exist?(local_file)
+
+  return if extension == ".tar.gz" || File.exist?("#{local_file}.gz")
+
+  Zlib::GzipWriter.open("#{local_file}.gz") do |gz|
+    gz.write IO.binread(local_file)
+  end
+end
 
 task :default => :performance
 
@@ -577,8 +613,27 @@ namespace :pe_xl do
   file "#{BUILD_DIR}/params.json" do
     puts "Provisioning nodes for pe_xl"
     raise KeyError, 'key not found: "BEAKER_PE_VER"' unless ENV["BEAKER_PE_VER"].is_a? String
+
+    # validate that BEAKER_PE_VER looks like a PE version
+    pe_pattern = /(^\d{4}\.\d+)\.(\d+)(.*$)/i
+    err_msg = "BEAKER_PE_VER: #{ENV['BEAKER_PE_VER']} does not match the pattern '#{pe_pattern}'"
+    match_data = ENV["BEAKER_PE_VER"].match(pe_pattern)
+    raise err_msg unless match_data
+
+    pe_dir = if !match_data[3]&.empty?
+               "http://enterprise.delivery.puppetlabs.net/#{match_data[1]}/ci-ready/"
+             else
+               "http://enterprise.delivery.puppetlabs.net/archives/releases/#{match_data[1]}.#{match_data[2]}/"
+             end
+
     mkdir_p BUILD_DIR
     system "bundle exec ruby util/abs/provision_pe_xl_nodes.rb --output_dir #{BUILD_DIR} --pe_version #{ENV['BEAKER_PE_VER']}"
+
+    puts "Retrieving PE package"
+    cfg_hash = Beaker::Options::HostsFileParser.parse_hosts_file "#{BUILD_DIR}/beaker.cfg"
+    master = master_from_beaker_hosts_hash(cfg_hash[:HOSTS])
+    bkr = BeakerDSL.new
+    fetch_pe_for_master(bkr, master, ENV["BEAKER_PE_VER"], pe_dir)
   end
 
   desc "Provision pe_xl nodes"

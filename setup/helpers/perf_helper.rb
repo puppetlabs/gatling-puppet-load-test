@@ -395,7 +395,7 @@ module PerfHelper
       "parent"  => "00000000-0000-4000-8000-000000000000",
       "name"    => "perf-agent-group",
       "rule"    => ["~", %w[fact clientcert], ".*agent.*"],
-      "classes" => { ENV["PUPPET_SCALE_CLASS"] => nil }
+      "classes" => { ENV["PUPPET_SCALE_CLASS"] => {} }
     )
   end
 

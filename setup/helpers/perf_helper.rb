@@ -660,7 +660,7 @@ module PerfHelper
       "parent"  => "00000000-0000-4000-8000-000000000000",
       "name"    => "master-group",
       "rule"    => ["~", %w[fact clientcert], master_cert_name],
-      "classes" => { "role::puppet_master" => nil }
+      "classes" => { "role::puppet_master" => {} }
     )
   end
 

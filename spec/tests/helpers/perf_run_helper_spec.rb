@@ -39,7 +39,7 @@ describe PerfRunHelperClass do
                            role: "loadbalancer" }, logger: @logger)]
   end
   let(:perf_result_processes) do
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     {
       "1" => { cmd: "/opt/puppetlabs/puppet/bin/pxp-agent", avg_cpu: 1, avg_mem: 10_000 },
       "2" => { cmd: %w[/opt/puppetlabs/server/apps/postgresql/bin/postmaster
@@ -120,7 +120,7 @@ describe PerfRunHelperClass do
                        --restart-file /opt/puppetlabs/server/data/puppetserver/restartcounter].join(" "),
                 avg_cpu: 7, avg_mem: 70_000 }
     }
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
   end
   let(:valid_process_hash) do
     {
@@ -499,7 +499,7 @@ current_tune_settings.json"
     before { subject.instance_variable_set(:@logger, lgr) }
     before { allow(subject).to receive(:logger).and_return(lgr) }
 
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     let(:gatling_assertions) do
       [{ "expected_values" => [100.0],
          "message"         => "Global: percentage of successful requests is greater than or equal to 100.0",
@@ -514,7 +514,7 @@ current_tune_settings.json"
                                    "actual_value"    => [28_800.0],
                                    "target"          => "count of all requests" }]
     end
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
     let(:gatling_result) { PerfRunHelper::GatlingResult.new(gatling_assertions, 42) }
 
     let(:atop_result) do
@@ -671,7 +671,7 @@ current_tune_settings.json"
     end
     # }}}
     context "when validation passes" do
-      # rubocop:disable Metrics/LineLength
+      # rubocop:disable Layout/LineLength
       let(:atop_file_content) do
         "Action,Duration,Avg CPU,Avg MEM,Avg DSK read,Avg DSK Write
         ApplesToApples.json,14416.49,#{baseline_result[:avg_cpu]},#{baseline_result[:avg_mem]},43,#{baseline_result[:avg_disk_write]}
@@ -682,7 +682,7 @@ current_tune_settings.json"
         18805,'/path/console-services-release.jar',#{baseline_result[:process_console_services_release_avg_cpu]},#{baseline_result[:process_console_services_release_avg_mem]},0,26
         23970,'/path/puppet-server-release.jar',#{baseline_result[:process_puppet_server_release_avg_cpu]},#{baseline_result[:process_puppet_server_release_avg_mem]},0,309"
       end
-      # rubocop:enable Metrics/LineLength
+      # rubocop:enable Layout/LineLength
       # }}}
       let(:gatling_stats_content) do # {{{
         <<~STATS
@@ -800,7 +800,7 @@ current_tune_settings.json"
         data = { pass_lower: [baselines[0],
                               baselines[0] - baselines[0] * PerfRunHelper::MAX_BASELINE_VARIANCE * 0.9],
                  process_orchestration_services_release_avg_mem: [baselines[1],
-                                                                  baselines[1] + baselines[1] * PerfRunHelper::MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM * 1.1] } # rubocop:disable  Metrics/LineLength
+                                                                  baselines[1] + baselines[1] * PerfRunHelper::MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM * 1.1] } # rubocop:disable  Layout/LineLength
         expect(subject.validate_baseline_data(data)).to eq(false)
       end
     end
@@ -810,7 +810,7 @@ current_tune_settings.json"
         data = { pass_lower: [baselines[0],
                               baselines[0] - baselines[0] * PerfRunHelper::MAX_BASELINE_VARIANCE * 0.9],
                  process_orchestration_services_release_avg_mem: [baselines[1],
-                                                                  baselines[1] - baselines[1] * PerfRunHelper::MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM * 1.1] } # rubocop:disable  Metrics/LineLength
+                                                                  baselines[1] - baselines[1] * PerfRunHelper::MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM * 1.1] } # rubocop:disable  Layout/LineLength
         expect(subject.validate_baseline_data(data)).to eq(true)
       end
     end

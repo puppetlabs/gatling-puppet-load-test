@@ -95,7 +95,7 @@ def find_certname(text)
 end
 
 def find_report_request_info(text)
-  matches = text.match(%r{\n\s*\.put\("/puppet/v3/report[^"]+"\)\s*\n\s*\.headers\(([^\)]+)\)\s*\n\s*\.body\(RawFileBody\("([^"]+)"\)\)\)\s*\n}) # rubocop:disable Metrics/LineLength
+  matches = text.match(%r{\n\s*\.put\("/puppet/v3/report[^"]+"\)\s*\n\s*\.headers\(([^\)]+)\)\s*\n\s*\.body\(RawFileBody\("([^"]+)"\)\)\)\s*\n}) # rubocop:disable Layout/LineLength
   unless matches
     puts "Unable to find report request in recording!"
     exit 1

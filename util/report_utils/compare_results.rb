@@ -17,18 +17,25 @@ output_path = (ARGV[2])
 def write_csv(output_path, result_a, result_b)
   row_labels = PerfResultsHelper::PERF_CSV_ROW_LABELS
 
+  # columns
+  min = 1
+  max = 2
+  mean = 3
+  std_dev = 4
+
   # TODO: use release names
   CSV.open(output_path.to_s, "wb") do |csv|
-    csv << ["", "$RELEASE_A_NAME ($RELEASE_A_NUMBER)", "", "",
-            "$RELEASE_B_NAME ($RELEASE_B_NUMBER)", "", ""]
-    csv << ["Duration", "max ms", "mean ms", "std dev", "max ms", "mean ms",
+    csv << ["", "$RELEASE_A_NAME ($RELEASE_A_NUMBER)", "", "", "",
+            "$RELEASE_B_NAME ($RELEASE_B_NUMBER)", "", "", "", ""]
+    csv << ["Duration (ms)", "min", "max", "mean", "std dev", "min", "max", "mean",
             "std dev", "% (mean) diff"]
 
     row_labels.each_with_index do |item, index|
-      res_index = index + 1
-      csv << [item, result_a[res_index][1], result_a[res_index][2], result_a[res_index][3],
-              result_b[res_index][1], result_b[res_index][2], result_b[res_index][3],
-              percent_diff_string(result_a[res_index][2], result_b[res_index][2])]
+      row = index + 1
+      csv << [item,
+              result_a[row][min], result_a[row][max], result_a[row][mean], result_a[row][std_dev],
+              result_b[row][min], result_b[row][max], result_b[row][mean], result_b[row][std_dev],
+              percent_diff_string(result_a[row][mean], result_b[row][mean])]
     end
   end
 end

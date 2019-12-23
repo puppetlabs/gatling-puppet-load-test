@@ -12,12 +12,13 @@ require "zlib"
 # TODO: consolidate scale results code here
 module PerfResultsHelper
   # stats used in gatling2csv
+  MIN = "minResponseTime"
   MAX = "maxResponseTime"
   MEAN = "meanResponseTime"
   STD = "standardDeviation"
   TOTAL = "total"
 
-  PERF_CSV_COLUMN_HEADINGS = ["Duration", "max ms", "mean ms", "std dev"].freeze
+  PERF_CSV_COLUMN_HEADINGS = ["Duration (ms)", "min", "max", "mean", "std dev"].freeze
 
   # these must be in the same order as the Gatling data
   PERF_CSV_ROW_LABELS = ["overall response time",
@@ -118,7 +119,7 @@ module PerfResultsHelper
                      contents[contents.keys[index - 1]]["stats"]
                    end
 
-        csv << [item, row_data[MAX][TOTAL], row_data[MEAN][TOTAL], row_data[STD][TOTAL]]
+        csv << [item, row_data[MIN][TOTAL], row_data[MAX][TOTAL], row_data[MEAN][TOTAL], row_data[STD][TOTAL]]
       end
     end
 

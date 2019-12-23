@@ -374,7 +374,7 @@ end
 # @example
 #   settings = current_settings
 #
-# rubocop:disable Metrics/LineLength
+# rubocop:disable Layout/LineLength
 def current_settings
   params = {}
   params["puppet_enterprise::master::puppetserver::jruby_max_active_instances"] = puppetserver_jruby_max_active_instances
@@ -403,6 +403,6 @@ def current_settings
   settings_json
 end
 
-# rubocop:enable Metrics/LineLength
+# rubocop:enable Layout/LineLength
 
 current_settings

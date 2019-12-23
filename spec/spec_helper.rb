@@ -11,13 +11,13 @@ SimpleCov.start do
 end
 
 # setup helpers
-Dir["./setup/helpers/*.rb"].each { |file| require file }
+Dir["./setup/helpers/*.rb"].sort.each { |file| require file }
 
 # test helpers
-Dir["./tests/helpers/*.rb"].each { |file| require file }
+Dir["./tests/helpers/*.rb"].sort.each { |file| require file }
 
 # metrics scripts
-Dir["./util/metrics/*.rb"].each { |file| require file }
+Dir["./util/metrics/*.rb"].sort.each { |file| require file }
 
 SimpleCov.at_exit do
   SimpleCov.result.format!

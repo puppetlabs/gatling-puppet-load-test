@@ -727,7 +727,7 @@ module PerfResultsHelper
   # @example
   #   extract_puppetserver_metrics_from_json(file)
   #
-  # rubocop:disable Metrics/LineLength
+  # rubocop:disable Layout/LineLength
   def extract_puppetserver_metrics_from_json(file)
     raise "The specified file was not found: #{file}" unless File.exist?(file)
 
@@ -830,5 +830,5 @@ module PerfResultsHelper
     true
   end
 
-  # rubocop:enable Metrics/LineLength
+  # rubocop:enable Layout/LineLength
 end

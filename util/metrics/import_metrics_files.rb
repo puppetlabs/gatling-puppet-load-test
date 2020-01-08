@@ -24,24 +24,23 @@ module Metrics
   #   collector module.  This is how often it tars up the json files.
   #
   class ImportMetricsFiles
-    # TODO: make this optional?
-    JSON2GRAPHITE_PATH = "~/git/puppet-metrics-viewer/json2graphite.rb"
-
     # Initialize class
     #
     # @author Bill Claytor
     #
     # @param [string] results_dir The GPLT results directory to process
     # @param [string] prefix The prefix to use when building the server tag
+    # @param [string] json2graphite_path The path to the json2graphite.rb script
     #
     # @return [void]
     #
     # @example
     #   initialize(results_dir, prefix)
     #
-    def initialize(results_dir, prefix)
+    def initialize(results_dir, prefix, json2graphite_path)
       @results_dir = results_dir
       @prefix = prefix
+      @json2graphite_path = json2graphite_path
       @id = @results_dir.split("_").last
     end
 
@@ -102,7 +101,7 @@ module Metrics
       hostname = File.basename host_dir
       server_tag = "#{@prefix}_#{@id}_#{hostname}"
       pattern = "'#{host_dir}/*.json'"
-      cmd = "ruby #{JSON2GRAPHITE_PATH} --pattern #{pattern}" \
+      cmd = "ruby #{@json2graphite_path} --pattern #{pattern}" \
         " --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag #{server_tag}"
       puts "Importing puppet-metrics-collector files for host: #{hostname}"
       puts " cmd: #{cmd}"
@@ -114,6 +113,8 @@ module Metrics
 end
 
 if $PROGRAM_NAME == __FILE__
+
+  DEFAULT_JSON2GRAPHITE_PATH = File.expand_path "~/git/puppet-metrics-viewer/json2graphite.rb"
 
   DESCRIPTION = <<~DESCRIPTION
     This script imports metrics collector data for the Standard and Large reference architectures.
@@ -131,6 +132,13 @@ if $PROGRAM_NAME == __FILE__
 
   DESCRIPTION
 
+  DEFAULTS = <<~DEFAULTS
+
+    The following defaults values are used if the options are not specified:
+    * JSON2GRAPHITE_PATH (-j, --json2graphite): #{DEFAULT_JSON2GRAPHITE_PATH}
+
+  DEFAULTS
+
   options = {}
 
   # Note: looks like 'Store options to a Hash' doesn't work in Ruby 2.3.0.
@@ -143,15 +151,20 @@ if $PROGRAM_NAME == __FILE__
     opts.on("-h", "--help", "Display the help text") do
       puts DESCRIPTION
       puts opts
+      puts DEFAULTS
       exit
     end
 
-    opts.on("-r", "--results_dir RESULTS_DIR", String, "The results directory to process") do |results_dir|
+    opts.on("-r", "--results_dir dir_path", String, "The results directory to process") do |results_dir|
       options[:results_dir] = results_dir
     end
 
-    opts.on("-p", "--prefix PREFIX", String, "The prefix to use when building the server tag") do |prefix|
+    opts.on("-p", "--prefix prefix", String, "The prefix to use when building the server tag") do |prefix|
       options[:prefix] = prefix
+    end
+
+    opts.on("-j", "--json2graphite file_path", String, "The json2graphite script path") do |json2graphite|
+      options[:json2graphite] = json2graphite
     end
   end.parse!
 
@@ -160,6 +173,9 @@ if $PROGRAM_NAME == __FILE__
 
   raise "Specified directory does not exist: #{options[:results_dir]}" unless File.directory? options[:results_dir]
 
-  obj = Metrics::ImportMetricsFiles.new(options[:results_dir], options[:prefix])
+  json2graphite_path = options[:json2graphite] || DEFAULT_JSON2GRAPHITE_PATH
+  raise "The json2graphite.rb script was not found: #{json2graphite_path}" unless File.exist? json2graphite_path
+
+  obj = Metrics::ImportMetricsFiles.new(options[:results_dir], options[:prefix], json2graphite_path)
   obj.import_metrics_files
 end

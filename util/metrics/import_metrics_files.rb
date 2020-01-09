@@ -70,18 +70,34 @@ module Metrics
 
       # each service directory
       service_dirs.each do |service_dir|
-        puts "Checking directory: #{service_dir}"
+        import_metrics_files_for_service_dir(service_dir)
+      end
+    end
 
-        # each host directory
-        host_dirs = Dir.glob("#{service_dir}/*").select { |f| File.directory? f }
+    # Calls import_metrics_files_for_host_dir for each host directory
+    # in the specified service directory
+    #
+    # @author Bill Claytor
+    #
+    # @param [string] service_dir The service directory to import
+    #
+    # @return [void]
+    #
+    # @example
+    #   import_metrics_files
+    #
+    def import_metrics_files_for_service_dir(service_dir)
+      puts "Checking directory: #{service_dir}"
 
-        puts " host directories: "
-        puts host_dirs
-        puts
+      # each host directory
+      host_dirs = Dir.glob("#{service_dir}/*").select { |f| File.directory? f }
 
-        host_dirs.each do |host_dir|
-          import_metrics_files_for_host_dir(host_dir)
-        end
+      puts " host directories: "
+      puts host_dirs
+      puts
+
+      host_dirs.each do |host_dir|
+        import_metrics_files_for_host_dir(host_dir)
       end
     end
 

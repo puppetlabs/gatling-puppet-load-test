@@ -156,7 +156,7 @@ if $PROGRAM_NAME == __FILE__
 
   DEFAULTS = <<~DEFAULTS
 
-    The following defaults values are used if the options are not specified:
+    The following default values are used if the options are not specified:
     * JSON2GRAPHITE_PATH (-j, --json2graphite): #{DEFAULT_JSON2GRAPHITE_PATH}
 
   DEFAULTS

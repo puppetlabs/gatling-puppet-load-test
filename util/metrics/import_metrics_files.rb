@@ -121,7 +121,7 @@ module Metrics
       hostname = File.basename host_dir
       server_tag = "#{@prefix}_#{@id}_#{hostname}"
       pattern = "'#{host_dir}/*.json'"
-      cmd = "ruby #{@json2graphite_path} --pattern #{pattern}" \
+      cmd = "#{@json2graphite_path} --pattern #{pattern}" \
         " --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag #{server_tag}"
       puts "Importing puppet-metrics-collector files for host: #{hostname}"
       puts " cmd: #{cmd}"
@@ -148,7 +148,7 @@ if $PROGRAM_NAME == __FILE__
     be ruby util/metrics/import_metrics.rb -r results/scale/PERF_SCALE_12345 -p slv-649
 
     This will result in the following server tags:
-    slv-649_12345_ip-10-227-0-11.amz-dev.puppet.net
+    slv-649_12345_ip-10-227-0-11j.amz-dev.puppet.net
     slv-649_12345_ip-10-227-0-22.amz-dev.puppet.net
     slv-649_12345_ip-10-227-2-173.amz-dev.puppet.net
 

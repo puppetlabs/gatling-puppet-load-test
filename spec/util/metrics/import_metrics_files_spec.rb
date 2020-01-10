@@ -48,6 +48,16 @@ describe Metrics::ImportMetricsFiles do
     end
   end
 
+  describe "#output_settings" do
+    it "outputs the settings" do
+      settings = %w[results_dir prefix json2graphite_path id]
+      settings.each do |setting|
+        expect(IMF_obj).to receive(:puts).with(/#{Regexp.escape(setting)}/)
+      end
+      IMF_obj.output_settings
+    end
+  end
+
   describe "#import_metrics_files_for_service_dir" do
     it "calls import_metrics_files_for_host_dir for each host directory in the service directory" do
       service_dir = "#{pmc_dir}/puppetdb"

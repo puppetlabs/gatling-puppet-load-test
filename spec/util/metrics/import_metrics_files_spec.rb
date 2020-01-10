@@ -76,7 +76,7 @@ describe Metrics::ImportMetricsFiles do
       hostname = "1.1.1.1"
       expected_tag = "#{prefix}_#{id}_#{hostname}"
       expected_pattern = "'#{host_dir}/*.json'"
-      expected_cmd = "ruby #{json2graphite_path} --pattern #{expected_pattern}" \
+      expected_cmd = "#{json2graphite_path} --pattern #{expected_pattern}" \
         " --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag #{expected_tag}"
 
       expect(IMF_obj).to receive(:`).with(expected_cmd)

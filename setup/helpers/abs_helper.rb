@@ -214,7 +214,16 @@ module AbsHelper
     result = nil
 
     (1..ABS_MAX_REQUEST_ATTEMPTS).each do |ct|
-      response = perform_awsdirect_request(uri, request_body)
+      begin
+        response = perform_awsdirect_request(uri, request_body)
+      rescue => e # rubocop:disable Style/RescueStandardError
+        # ABS raises some exceptions that we believe it is safe to rety on
+        # Bandon High thinks this is one.
+        # QENG-7458 is what this is supposed to fix.
+        raise unless e.message =~ "Received following error trying to provision request"
+
+        puts "Caught special exception due to abs response so retry can proceed"
+      end
       if valid_abs_response?(response)
         result = parse_awsdirect_response_body(response.body)
         break

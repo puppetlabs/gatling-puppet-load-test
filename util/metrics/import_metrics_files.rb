@@ -30,13 +30,15 @@ module Metrics
     # @return [void]
     #
     # @example
-    #   initialize(results_dir, prefix)
+    #   initialize(results_dir, prefix, json2graphite_path)
     #
     def initialize(results_dir, prefix, json2graphite_path)
       @results_dir = results_dir
       @prefix = prefix
       @json2graphite_path = json2graphite_path
-      @id = @results_dir.split("_").last
+
+      # if it is a perf results dir, use the timestamp segment as the ID, otherwise nil
+      @id = valid_results_dir?(results_dir) ? @results_dir.split("_").last : nil
     end
 
     # The main entry point to the import_metrics_files script
@@ -50,7 +52,7 @@ module Metrics
     #
     def import_metrics_files
       pmc_dir = "#{@results_dir}/puppet-metrics-collector"
-      raise "Directory not found: #{pmc_dir}" unless File.directory? pmc_dir
+      raise "puppet-metrics-collector directory not found: #{pmc_dir}" unless File.directory? pmc_dir
 
       output_settings
 
@@ -61,6 +63,19 @@ module Metrics
       service_dirs.each do |service_dir|
         import_metrics_files_for_service_dir(service_dir)
       end
+    end
+
+    # Returns true if the specified dir is a GPLT results dir, otherwise false
+    #
+    # @author Bill Claytor
+    #
+    # @return [Boolean] true if the specified dir is a GPLT results dir, otherwise false
+    #
+    # @example
+    #   result = valid_results_dir?(results_dir)
+    #
+    def valid_results_dir?(results_dir)
+      results_dir.include?("PERF_")
     end
 
     # Outputs the specified settings
@@ -108,6 +123,9 @@ module Metrics
     # with a server tag using the following pattern:
     # <prefix>_<id>_<hostname>
     #
+    # Otherwise, if the ID is omitted:
+    # <prefix>_<hostname>
+    #
     # @author Bill Claytor
     #
     # @param [string] host_dir The host directory to import
@@ -118,16 +136,37 @@ module Metrics
     #   import_metrics_files
     #
     def import_metrics_files_for_host_dir(host_dir)
-      hostname = File.basename host_dir
-      server_tag = "#{@prefix}_#{@id}_#{hostname}"
+      @hostname = File.basename host_dir
       pattern = "'#{host_dir}/*.json'"
       cmd = "#{@json2graphite_path} --pattern #{pattern}" \
-        " --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag #{server_tag}"
-      puts "Importing puppet-metrics-collector files for host: #{hostname}"
+        " --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag #{build_server_tag}"
+      puts "Importing puppet-metrics-collector files for host: #{@hostname}"
       puts " cmd: #{cmd}"
       puts
 
       `#{cmd}`
+    end
+
+    # Builds a server tag using the following pattern if an ID is specified:
+    # <prefix>_<id>_<hostname>
+    #
+    # Otherwise, if the ID is omitted:
+    # <prefix>_<hostname>
+    #
+    # @author Bill Claytor
+    #
+    # @return [String] The server tag
+    #
+    # @example:
+    #   build_server_tag
+    #
+    def build_server_tag
+      server_tag = if @id.nil?
+                     "#{@prefix}_#{@hostname}"
+                   else
+                     "#{@prefix}_#{@id}_#{@hostname}"
+                   end
+      server_tag
     end
 
     # rubocop:enable Style/Semicolon
@@ -137,6 +176,7 @@ end
 if $PROGRAM_NAME == __FILE__
 
   DEFAULT_JSON2GRAPHITE_PATH = File.expand_path "~/git/puppet-metrics-viewer/json2graphite.rb"
+  DEFAULT_RESULTS_DIR = File.expand_path Dir.pwd
 
   DESCRIPTION = <<~DESCRIPTION
     This script imports data captured by puppet-metrics-collector.
@@ -158,6 +198,7 @@ if $PROGRAM_NAME == __FILE__
 
     The following default values are used if the options are not specified:
     * JSON2GRAPHITE_PATH (-j, --json2graphite): #{DEFAULT_JSON2GRAPHITE_PATH}
+    * DEFAULT_RESULTS_DIR (-r, --results_dir): #{DEFAULT_RESULTS_DIR}
 
   DEFAULTS
 
@@ -190,14 +231,17 @@ if $PROGRAM_NAME == __FILE__
     end
   end.parse!
 
-  raise "A results directory must be specified with the -r or --results_dir option" if options[:results_dir].nil?
+  # TODO: move options validation into class when implementing SLV-685 (optionally suppress ID)
+  results_dir = options[:results_dir] || DEFAULT_RESULTS_DIR
+  raise "Specified directory does not exist: #{results_dir}" unless File.directory? results_dir
+
   raise "A prefix must be specified with the -p or --prefix option" if options[:prefix].nil?
 
-  raise "Specified directory does not exist: #{options[:results_dir]}" unless File.directory? options[:results_dir]
+  prefix = options[:prefix]
 
   json2graphite_path = options[:json2graphite] || DEFAULT_JSON2GRAPHITE_PATH
   raise "The json2graphite.rb script was not found: #{json2graphite_path}" unless File.exist? json2graphite_path
 
-  obj = Metrics::ImportMetricsFiles.new(options[:results_dir], options[:prefix], json2graphite_path)
+  obj = Metrics::ImportMetricsFiles.new(results_dir, prefix, json2graphite_path)
   obj.import_metrics_files
 end

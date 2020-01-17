@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "../../tests/helpers/perf_results_helper.rb"
+require_relative "../../tests/helpers/perf_results_helper.rb"
 include PerfResultsHelper # rubocop:disable Style/MixinUsage
 
 # TODO: include this functionality in every performance run

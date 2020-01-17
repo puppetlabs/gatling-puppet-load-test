@@ -6,7 +6,7 @@ require "optparse"
 require "yaml"
 require "json"
 require "beaker-hostgenerator"
-require "./setup/helpers/abs_helper.rb"
+require_relative "../../setup/helpers/abs_helper.rb"
 include AbsHelper # rubocop:disable Style/MixinUsage
 
 REF_ARCH_TYPES = { large: "l", extra_large: "xl" }.freeze

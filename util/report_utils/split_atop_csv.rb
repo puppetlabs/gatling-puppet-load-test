@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "../../tests/helpers/perf_results_helper.rb"
+require_relative "../../tests/helpers/perf_results_helper.rb"
 include PerfResultsHelper # rubocop:disable Style/MixinUsage
 
 raise Exception, "you must provide a csv file" unless ARGV[0]

@@ -6,7 +6,7 @@
 require "json"
 require "csv"
 
-require "../../tests/helpers/perf_results_helper.rb"
+require_relative "../../tests/helpers/perf_results_helper.rb"
 include PerfResultsHelper # rubocop:disable Style/MixinUsage
 
 raise Exception, "you must provide a directory" unless ARGV[0]

@@ -3,14 +3,17 @@
 # rubocop:disable Metrics/BlockLength
 require "spec_helper"
 describe Metrics::ImportMetricsFiles do
-  results_dir = "spec/fixtures/metrics/large/perf/PERF_12345"
-  pmc_dir = "#{results_dir}/puppet-metrics-collector"
+  results_dir = "spec/fixtures/metrics/large"
+  perf_results_dir = "#{results_dir}/perf/PERF_12345"
+  scale_results_dir = "#{results_dir}/scale/PERF_SCALE_12345"
+  non_results_dir = "#{results_dir}/not-a-results-dir"
+  pmc_dir = "#{perf_results_dir}/puppet-metrics-collector"
   prefix = "slv-123"
   id = "12345"
   json2graphite_path = "/zzz/json2graphite.rb"
 
   before :all do
-    IMF_obj = Metrics::ImportMetricsFiles.new(results_dir, prefix, json2graphite_path)
+    IMF_obj = Metrics::ImportMetricsFiles.new(perf_results_dir, prefix, json2graphite_path)
   end
 
   before do
@@ -18,12 +21,53 @@ describe Metrics::ImportMetricsFiles do
   end
 
   describe "#initialize" do
-    it "checks that the passed in parameters get converted into attributes" do
-      temp_imf = Metrics::ImportMetricsFiles.new(results_dir, prefix, json2graphite_path)
-      expect(temp_imf.instance_variable_get("@results_dir")).to eq(results_dir)
+    it "converts the passed in parameters into attributes" do
+      temp_imf = Metrics::ImportMetricsFiles.new(perf_results_dir, prefix, json2graphite_path)
+      expect(temp_imf.instance_variable_get("@results_dir")).to eq(perf_results_dir)
       expect(temp_imf.instance_variable_get("@prefix")).to eq(prefix)
       expect(temp_imf.instance_variable_get("@json2graphite_path")).to eq(json2graphite_path)
-      expect(temp_imf.instance_variable_get("@id")).to eq(results_dir.split("_").last)
+      # expect(temp_imf.instance_variable_get("@id")).to eq(perf_results_dir.split("_").last)
+    end
+
+    context "when the specified results_dir is a GPLT perf results dir" do
+      it "uses the last segment of the directory name as the ID" do
+        temp_imf = Metrics::ImportMetricsFiles.new(perf_results_dir, prefix, json2graphite_path)
+        expect(temp_imf.instance_variable_get("@id")).to eq(perf_results_dir.split("_").last)
+      end
+    end
+
+    context "when the specified results_dir is a GPLT scale results dir" do
+      it "uses the last segment of the directory name as the ID" do
+        temp_imf = Metrics::ImportMetricsFiles.new(scale_results_dir, prefix, json2graphite_path)
+        expect(temp_imf.instance_variable_get("@id")).to eq(scale_results_dir.split("_").last)
+      end
+    end
+
+    context "when the specified results_dir is not a valid GPLT results dir" do
+      it "sets the ID to nil" do
+        temp_imf = Metrics::ImportMetricsFiles.new(non_results_dir, prefix, json2graphite_path)
+        expect(temp_imf.instance_variable_get("@id")).to eq(nil)
+      end
+    end
+  end
+
+  describe "#valid_results_dir?" do
+    context "when the specified directory is a GPLT perf directory" do
+      it "returns true" do
+        expect(IMF_obj.valid_results_dir?(perf_results_dir)).to eq(true)
+      end
+    end
+
+    context "when the specified directory is a GPLT scale directory" do
+      it "returns true" do
+        expect(IMF_obj.valid_results_dir?(scale_results_dir)).to eq(true)
+      end
+    end
+
+    context "when the specified directory is a not a GPLT results directory" do
+      it "returns false" do
+        expect(IMF_obj.valid_results_dir?(non_results_dir)).to eq(false)
+      end
     end
   end
 
@@ -73,7 +117,7 @@ describe Metrics::ImportMetricsFiles do
   describe "#import_metrics_files_for_host_dir" do
     it "calls the json2graphite script with the expected server tag" do
       host_dir = "#{pmc_dir}/puppetdb/1.1.1.1"
-      hostname = "1.1.1.1"
+      hostname = File.basename(host_dir)
       expected_tag = "#{prefix}_#{id}_#{hostname}"
       expected_pattern = "'#{host_dir}/*.json'"
       expected_cmd = "#{json2graphite_path} --pattern #{expected_pattern}" \
@@ -81,6 +125,28 @@ describe Metrics::ImportMetricsFiles do
 
       expect(IMF_obj).to receive(:`).with(expected_cmd)
       IMF_obj.import_metrics_files_for_host_dir(host_dir)
+    end
+  end
+
+  describe "#build_server_tag" do
+    test_hostname = "7.7.7.7"
+    before do
+      IMF_obj.instance_variable_set(:@hostname, test_hostname)
+    end
+
+    context "when the ID is not nil" do
+      it "returns a server tag that includes the ID" do
+        expected_tag = "#{prefix}_#{id}_#{test_hostname}"
+        expect(IMF_obj.build_server_tag).to eq(expected_tag)
+      end
+    end
+
+    context "when the ID is nil" do
+      it "returns a server tag without an ID" do
+        IMF_obj.instance_variable_set(:@id, nil)
+        expected_tag = "#{prefix}_#{test_hostname}"
+        expect(IMF_obj.build_server_tag).to eq(expected_tag)
+      end
     end
   end
 end

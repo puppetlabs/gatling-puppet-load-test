@@ -15,6 +15,7 @@ module Metrics
   # @attr [string] prefix The prefix to use when building the server tag
   # @attr [string] json2graphite_path The path to the json2graphite.rb script
   # @attr [string] id The ID to use when building the server tag (the last segment of the results folder name)
+  # @attr [string] hostname The name of the host dir currently being processed
   #
   class ImportMetricsFiles
     # rubocop:disable Style/Semicolon
@@ -41,6 +42,21 @@ module Metrics
       @id = valid_results_dir?(results_dir) ? @results_dir.split("_").last : nil
     end
 
+    # Returns true if the specified dir is a GPLT results dir, otherwise false
+    #
+    # @author Bill Claytor
+    #
+    # @param [string] results_dir The specified results_dir to validate
+    #
+    # @return [Boolean] true if the specified dir is a GPLT results dir, otherwise false
+    #
+    # @example
+    #   result = valid_results_dir?(results_dir)
+    #
+    def valid_results_dir?(results_dir)
+      File.basename(results_dir).match?(/^PERF_(SCALE_)?\d+$/)
+    end
+
     # The main entry point to the import_metrics_files script
     #
     # @author Bill Claytor
@@ -63,19 +79,6 @@ module Metrics
       service_dirs.each do |service_dir|
         import_metrics_files_for_service_dir(service_dir)
       end
-    end
-
-    # Returns true if the specified dir is a GPLT results dir, otherwise false
-    #
-    # @author Bill Claytor
-    #
-    # @return [Boolean] true if the specified dir is a GPLT results dir, otherwise false
-    #
-    # @example
-    #   result = valid_results_dir?(results_dir)
-    #
-    def valid_results_dir?(results_dir)
-      results_dir.include?("PERF_")
     end
 
     # Outputs the specified settings

@@ -147,7 +147,13 @@ module Metrics
       puts " cmd: #{cmd}"
       puts
 
-      `#{cmd}`
+      output = `#{cmd}`
+      success = $?.success? # rubocop:disable Style/SpecialGlobalVars
+
+      puts "Exit status was: #{$?.exitstatus}" # rubocop:disable Style/SpecialGlobalVars
+      puts
+
+      raise "ERROR - command failed with the the following output: #{output}" unless success
     end
 
     # Builds a server tag using the following pattern if an ID is specified:

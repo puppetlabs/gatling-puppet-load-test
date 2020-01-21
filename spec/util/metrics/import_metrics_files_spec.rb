@@ -126,6 +126,22 @@ describe Metrics::ImportMetricsFiles do
       expect(IMF_obj).to receive(:`).with(expected_cmd)
       IMF_obj.import_metrics_files_for_host_dir(host_dir)
     end
+
+    context "when the command returns a non-zero exit code" do
+      it "raises an error with the output" do
+        expected_output = "ERROR"
+        expected_status = 1
+        host_dir = "#{pmc_dir}/puppetdb/1.1.1.1"
+
+        expect(IMF_obj).to receive(:`).and_return(expected_output)
+
+        `(exit #{expected_status})`
+        expect($?).to receive(:success?).and_return(false) # rubocop:disable Style/SpecialGlobalVars
+
+        expect { IMF_obj.import_metrics_files_for_host_dir(host_dir) }
+          .to raise_error(RuntimeError, /#{expected_output}/)
+      end
+    end
   end
 
   describe "#build_server_tag" do

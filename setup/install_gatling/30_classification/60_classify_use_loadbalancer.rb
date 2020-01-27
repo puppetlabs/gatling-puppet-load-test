@@ -55,6 +55,7 @@ test_name "classify and use loadbalancer" do # rubocop:disable Metrics/BlockLeng
     # Infra agents would otherwise inherit the config above, so explicitly override it to defaults.
     pe_infra_agent_group = {
       "name"    => "PE Infrastructure Agent",
+      "rule"    => ["and", ["not", ["~", %w[fact clientcert], ".*agent.*"]]],
       "classes" => {
         "puppet_enterprise::profile::agent" => {
           "manage_puppet_conf" => true,

@@ -191,15 +191,16 @@ if ! { [ "$PE_MAJOR" ] && [ "$PE_MINOR" ] && [ "$PE_PATCH" ]; }; then
     exit 1
 fi
 
+if [ "$PE_BUILD" ]; then
+  URL=http://enterprise.delivery.puppetlabs.net/$PE_MAJOR.$PE_MINOR/ci-ready/
+else
+  URL=http://enterprise.delivery.puppetlabs.net/archives/releases/$PE_VERSION/
+fi
+
+# Ensure packages can be found for PE_VERSION
 if [ -z $NOOP ]; then
-    # Ensure packages can be found for PE_VERSION
-    if [ "$PE_BUILD" ]; then
-      URL=http://enterprise.delivery.puppetlabs.net/$PE_MAJOR.$PE_MINOR/ci-ready/
-    else
-      URL=http://enterprise.delivery.puppetlabs.net/archives/releases/$PE_VERSION/
-    fi
-    curl "$URL" | grep "puppet-enterprise-$PE_VERSION-el-7-x86_64.tar" || \
-        { echo "Error: Unable to find packages for $PE_VERSION.  Double check that $PE_VERSION is available."; exit 1; }
+  curl "$URL" | grep "puppet-enterprise-$PE_VERSION-el-7-x86_64.tar" || \
+      { echo "Error: Unable to find packages for $PE_VERSION.  Double check that $PE_VERSION is available."; exit 1; }
 fi
 
 

@@ -323,7 +323,7 @@ echo "Testing Standard Ref Arch: Standard Deployment"
             test="$PREFIX-std-$ec2-tune-$TUNE"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
             if [ -z $NOOP ]; then
-                cd "$WORK_DIR/$test/gatling-puppet-load-test" || exit 1
+                cd "$WORK_DIR/$test" || exit 1
                 (bundle exec rake $task > "$test-$run_type-$i.log") &
             else
                 (echo_env) &

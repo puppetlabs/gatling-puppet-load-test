@@ -8,8 +8,9 @@ test_name "final puppet run" do
     # If deployed via install_pe this is part of the install.
     #   Ref: https://github.com/puppetlabs/beaker-pe/blob/master/lib/beaker-pe/install/pe_utils.rb
     # This is added to ensure that the puppet agent service is
-    # disabled prior to a gatling run regardless of how the hosts
-    # were deployed.
-    stop_agent_on(hosts)
+    # disabled on hosts with a role other than agent prior to a
+    # gatling run regardless of how the hosts were deployed.
+    infra_hosts = hosts.reject { |host| (host[:roles] == ["agent"]) }
+    stop_agent_on(infra_hosts)
   end
 end

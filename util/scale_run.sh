@@ -191,15 +191,16 @@ if ! { [ "$PE_MAJOR" ] && [ "$PE_MINOR" ] && [ "$PE_PATCH" ]; }; then
     exit 1
 fi
 
+if [ "$PE_BUILD" ]; then
+  URL=http://enterprise.delivery.puppetlabs.net/$PE_MAJOR.$PE_MINOR/ci-ready/
+else
+  URL=http://enterprise.delivery.puppetlabs.net/archives/releases/$PE_VERSION/
+fi
+
+# Ensure packages can be found for PE_VERSION
 if [ -z $NOOP ]; then
-    # Ensure packages can be found for PE_VERSION
-    if [ "$PE_BUILD" ]; then
-      URL=http://enterprise.delivery.puppetlabs.net/$PE_MAJOR.$PE_MINOR/ci-ready/
-    else
-      URL=http://enterprise.delivery.puppetlabs.net/archives/releases/$PE_VERSION/
-    fi
-    curl "$URL" | grep "puppet-enterprise-$PE_VERSION-el-7-x86_64.tar" || \
-        { echo "Error: Unable to find packages for $PE_VERSION.  Double check that $PE_VERSION is available."; exit 1; }
+  curl "$URL" | grep "puppet-enterprise-$PE_VERSION-el-7-x86_64.tar" || \
+      { echo "Error: Unable to find packages for $PE_VERSION.  Double check that $PE_VERSION is available."; exit 1; }
 fi
 
 
@@ -323,7 +324,7 @@ echo "Testing Standard Ref Arch: Standard Deployment"
             test="$PREFIX-std-$ec2-tune-$TUNE"
             cmd="bundle exec rake $task > \"$test-$run_type-$i.log\""
             if [ -z $NOOP ]; then
-                cd "$WORK_DIR/$test/gatling-puppet-load-test" || exit 1
+                cd "$WORK_DIR/$test" || exit 1
                 (bundle exec rake $task > "$test-$run_type-$i.log") &
             else
                 (echo_env) &

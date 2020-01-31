@@ -174,7 +174,7 @@ below.
     PUPPET_GATLING_SCENARIO=pe-trial.json \
     ABS_AWS_MASTER_SIZE=m5.large \
     BEAKER_PE_VER=2019.1.0 \
-    BEAKER_PE_DIR=http://enterprise.delivery.puppetlabs.net/archives/releases/2019.1.0 \
+    BEAKER_PE_DIR=https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/archives/releases/2019.1.0 \
     BEAKER_INSTALL_TYPE=pe \
     bundle exec rake performance
 ```
@@ -204,7 +204,7 @@ Example run
 ```
 export BEAKER_INSTALL_TYPE=pe
 export BEAKER_PE_VER=2019.1.0
-export BEAKER_PE_DIR=http://enterprise.delivery.puppetlabs.net/archives/releases/2019.1.0
+export BEAKER_PE_DIR=https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/archives/releases/2019.1.0
 export BASELINE_PE_VER=2018.1.9
 export GOOGLE_APPLICATION_CREDENTIALS=mysecret.json  # location of your google json key file
 

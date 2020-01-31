@@ -112,7 +112,7 @@ end
 desc 'Provision systems for the performance task with ABS - included in the performance task'
 # validate the BEAKER_INSTALL_TYPE (and dependent env vars) to prevent provisioning if incorrectly specified
 rototiller_task :performance_provision_with_abs  => "validate:beaker_install_type" do |t|
-  t.add_env({:name => 'BEAKER_PE_DIR', :message => 'The PE download directory, example: http://enterprise.delivery.puppetlabs.net/archives/releases/2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
+  t.add_env({:name => 'BEAKER_PE_DIR', :message => 'The PE download directory, example: https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/archives/releases/2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'BEAKER_PE_VER', :message => 'The PE version to install on hosts, example: 2017.2.4'}) if ENV['BEAKER_INSTALL_TYPE'] == 'pe'
   t.add_env({:name => 'ABS_OS', :default => 'centos-7-x86-64-west', :message => 'The OS to provision with ABS: centos-7-x86-64-west (for AWS), or centos-7-x86_64 (for vmpooler)'})
   t.add_env({:name => 'ABS_AWS_METRICS_SIZE', :default => 'c5.2xlarge', :message => 'The AWS instance size for the Metrics host'})
@@ -621,9 +621,9 @@ namespace :pe_xl do
     raise err_msg unless match_data
 
     pe_dir = if !match_data[3]&.empty?
-               "http://enterprise.delivery.puppetlabs.net/#{match_data[1]}/ci-ready/"
+               "https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/#{match_data[1]}/ci-ready/"
              else
-               "http://enterprise.delivery.puppetlabs.net/archives/releases/#{match_data[1]}.#{match_data[2]}/"
+               "https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/archives/releases/#{match_data[1]}.#{match_data[2]}/"
              end
 
     mkdir_p BUILD_DIR

@@ -192,9 +192,9 @@ if ! { [ "$PE_MAJOR" ] && [ "$PE_MINOR" ] && [ "$PE_PATCH" ]; }; then
 fi
 
 if [ "$PE_BUILD" ]; then
-  URL=http://enterprise.delivery.puppetlabs.net/$PE_MAJOR.$PE_MINOR/ci-ready/
+  URL=https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/$PE_MAJOR.$PE_MINOR/ci-ready/
 else
-  URL=http://enterprise.delivery.puppetlabs.net/archives/releases/$PE_VERSION/
+  URL=https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/archives/releases/$PE_VERSION/
 fi
 
 # Ensure packages can be found for PE_VERSION

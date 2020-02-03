@@ -43,7 +43,7 @@ You can set the values manually:
 
 ```
 export BEAKER_INSTALL_TYPE=pe
-export BEAKER_PE_DIR=http://enterprise.delivery.puppetlabs.net/archives/releases/2019.0.1
+export BEAKER_PE_DIR=https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/archives/releases/2019.0.1
 export BEAKER_PE_VER=2019.0.1
 ```
 

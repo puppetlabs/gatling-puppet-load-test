@@ -166,7 +166,7 @@ def step010_setup_beaker(script_dir, server_version) {
     if (server_version["type"] == "pe") {
         if (server_version["find_latest"] == true) {
             withEnv(["SUT_HOST=${SUT_HOST}",
-                     "pe_dir=http://enterprise.delivery.puppetlabs.net/${server_version["pe_version"]}/ci-ready/",
+                     "pe_dir=https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/${server_version["pe_version"]}/ci-ready/",
                      "pe_family=${server_version["pe_version"]}"]) {
                 sh "${script_dir}/010_setup_beaker.sh"
             }

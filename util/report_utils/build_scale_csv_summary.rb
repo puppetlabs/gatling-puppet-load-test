@@ -32,21 +32,22 @@ SUMMARY_CSV_HEADINGS = ["result",
 # @return [void]
 #
 # @example
-#   build_report(parent_dir)
+#   build_scale_csv_summary(parent_dir)
 #
 def build_scale_csv_summary(parent_dir)
   puts "building scale test csv summary report for parent dir: #{parent_dir}"
   puts
 
   parent_name = File.basename(parent_dir)
-  output_path = "#{parent_dir}/#{parent_name}.html"
+  report_name = "scale_test_summary"
+  output_path = "#{parent_dir}/#{report_name}.html"
 
   # create a summary csv file to contain the last successful iteration from each result
-  @summary_csv_path_success = "#{parent_dir}/#{parent_name}.summary_success.csv"
+  @summary_csv_path_success = "#{parent_dir}/#{report_name}.success.csv"
   create_summary_csv(@summary_csv_path_success)
 
   # create a summary csv file to contain the failing iteration from each result
-  @summary_csv_path_fail = "#{parent_dir}/#{parent_name}.summary_fail.csv"
+  @summary_csv_path_fail = "#{parent_dir}/#{report_name}.fail.csv"
   create_summary_csv(@summary_csv_path_fail)
 
   # start with the template
@@ -131,7 +132,7 @@ def process_result_dirs(parent_dir)
 
     # create a summary csv with the headings and last 2 rows
     heading = "<h1>#{dirname}</h1>"
-    table = process_results_csv(csv_path)
+    table = extract_table_from_results_csv(csv_path)
     @tables += heading + table unless table.nil?
   end
 end
@@ -147,7 +148,7 @@ end
 # @example
 #    table = process_results_csv(csv_path)
 #
-def process_results_csv(csv_path)
+def extract_table_from_results_csv(csv_path)
   # ensure the expected result csv file exists
   raise "File not found: #{csv_path}" unless File.file?(csv_path)
 

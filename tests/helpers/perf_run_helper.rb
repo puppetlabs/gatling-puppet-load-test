@@ -262,7 +262,10 @@ module PerfRunHelper
         puts
 
         # restart using master_manipulator
-        restart_puppet_server(master)
+        masters = select_hosts(roles: %w[master compile_master])
+        masters.each do |compiler|
+          restart_puppet_server(compiler)
+        end
 
       end
 

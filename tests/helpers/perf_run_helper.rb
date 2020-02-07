@@ -41,7 +41,6 @@ module PerfRunHelper
 
   SCALE_ITERATIONS = 15
   SCALE_INCREMENT = 100
-  SCALE_MAX_ALLOWED_KO = 10
   PUPPET_METRICS_COLLECTOR_SERVICES = if ENV["BEAKER_INSTALL_TYPE"] == "pe"
                                         %w[orchestrator puppetdb puppetserver]
                                       else
@@ -272,7 +271,7 @@ module PerfRunHelper
 
       perf_setup(scenario, simulation_id, gatlingassertions)
 
-      # get results, copy from metrics, check for KOs, fail if ko > SCALE_MAX_ALLOWED_KO
+      # get results, copy from metrics, check for KOs, fail if KO > calculated max
       success = handle_scale_results(scenario_hash)
       break unless success
     end
@@ -717,9 +716,10 @@ module PerfRunHelper
       puts
     end
 
-    # allow no more than SCALE_MAX_ALLOWED_KO KOs per iteration; this needs to be last
-    if num_ko > SCALE_MAX_ALLOWED_KO
-      puts "ERROR - more than #{SCALE_MAX_ALLOWED_KO} KOs encountered in scenario: #{scenario}"
+    # allow no more than 1% of (instances * repetitions) KOs per iteration; this needs to be last
+    scale_max_allowed_ko = 0.01 * scale_scenario_instances * @scale_num_repetitions
+    if num_ko > scale_max_allowed_ko
+      puts "ERROR - more than #{scale_max_allowed_ko} KOs encountered in scenario: #{scenario}"
       puts "Exiting scale run..."
       puts
       success = false

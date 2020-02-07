@@ -744,7 +744,6 @@ module PerfResultsHelper
   # @example
   #   extract_puppetserver_metrics_from_json(file)
   #
-  # rubocop:disable Layout/LineLength
   def extract_puppetserver_metrics_from_json(file)
     raise "The specified file was not found: #{file}" unless File.exist?(file)
 
@@ -759,16 +758,19 @@ module PerfResultsHelper
 
       # catalog (ignore metrics without catalog metrics)
       # TODO: investigate alternatives to handling averages
-      # TODO: update to use dig, handle multiple puppetservers (https://tickets.puppetlabs.com/browse/SLV-569)
-      catalog_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-puppet-profiler"]["status"]["experimental"]["catalog-metrics"]
+      # puppet-metrics-collector metric files only have data for a single server
+      puppetserver_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]
+      profile_metrics = puppetserver_metrics.dig("pe-puppet-profiler") || puppetserver_metrics.dig("puppet-profiler")
+      catalog_metrics = profile_metrics.dig("status", "experimental", "catalog-metrics")
 
       # catalog
       static_compile_mean = catalog_metrics[0]["mean"]
 
       # jruby
-      pe_jruby_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-jruby-metrics"]["status"]["experimental"]["metrics"]
-      average_borrow_time = pe_jruby_metrics["average-borrow-time"]
-      num_free_jrubies = pe_jruby_metrics["num-free-jrubies"]
+      jruby_metrics = puppetserver_metrics.dig("pe-jruby-metrics") || puppetserver_metrics.dig("jruby-metrics")
+      jruby_metrics_metrics = jruby_metrics.dig("status", "experimental", "metrics")
+      average_borrow_time = jruby_metrics_metrics.dig("average-borrow-time")
+      num_free_jrubies = jruby_metrics_metrics.dig("num-free-jrubies")
 
       row = [File.basename(file), timestamp, static_compile_mean, average_borrow_time, num_free_jrubies]
     rescue StandardError
@@ -846,6 +848,4 @@ module PerfResultsHelper
 
     true
   end
-
-  # rubocop:enable Layout/LineLength
 end

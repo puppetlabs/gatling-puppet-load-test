@@ -3,7 +3,7 @@
     "nodes": [
         {
             "node_config": "PerfTestLarge.json",
-            "num_instances": 4000,
+            "num_instances": 6000,
             "ramp_up_duration_seconds": 1800,
             "num_repetitions": 2,
             "sleep_duration_seconds": 1800

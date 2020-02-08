@@ -382,7 +382,7 @@ p9_instance_setup includes puppet-metrics-viewer which can be used to view the d
 
 For a scale run named ‘PERF_SCALE_1555545283’:
 ```
-ruby /home/centos/puppet-metrics-viewer/json2graphite.rb --pattern '/home/centos/gplt/321a/gatling-puppet-load-test/results/scale/PERF_SCALE_1555545283/puppet-metrics-collector/**/*.json' --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag slv-321a-PERF_SCALE_1555545283
+ruby /home/centos/puppet-metrics-collector/files/json2timeseriesdb.rb --pattern '/home/centos/gplt/321a/gatling-puppet-load-test/results/scale/PERF_SCALE_1555545283/puppet-metrics-collector/**/*.json' --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag slv-321a-PERF_SCALE_1555545283
 ```
 
 The `metrics` script in the template folder makes this process easier:

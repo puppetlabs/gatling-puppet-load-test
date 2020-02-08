@@ -7,13 +7,13 @@ require "optparse"
 
 # General namespace for metrics module
 module Metrics
-  # Main class for importing puppet-metrics-collector files via the json2graphite script
+  # Main class for importing puppet-metrics-collector files via the json2timeseriesdb script
   #
   # @author Bill Claytor
   #
   # @attr [string] results_dir The GPLT results directory to process
   # @attr [string] prefix The prefix to use when building the server tag
-  # @attr [string] json2graphite_path The path to the json2graphite.rb script
+  # @attr [string] json2timeseriesdb_path The path to the json2timeseriesdb.rb script
   # @attr [string] id The ID to use when building the server tag (the last segment of the results folder name)
   # @attr [string] hostname The name of the host dir currently being processed
   #
@@ -26,17 +26,17 @@ module Metrics
     #
     # @param [string] results_dir The GPLT results directory to process
     # @param [string] prefix The prefix to use when building the server tag
-    # @param [string] json2graphite_path The path to the json2graphite.rb script
+    # @param [string] json2timeseriesdb_path The path to the json2timeseriesdb.rb script
     #
     # @return [void]
     #
     # @example
-    #   initialize(results_dir, prefix, json2graphite_path)
+    #   initialize(results_dir, prefix, json2timeseriesdb_path)
     #
-    def initialize(results_dir, prefix, json2graphite_path)
+    def initialize(results_dir, prefix, json2timeseriesdb_path)
       @results_dir = results_dir
       @prefix = prefix
-      @json2graphite_path = json2graphite_path
+      @json2timeseriesdb_path = json2timeseriesdb_path
 
       # if it is a perf results dir, use the timestamp segment as the ID, otherwise nil
       @id = valid_results_dir?(results_dir) ? @results_dir.split("_").last : nil
@@ -95,7 +95,7 @@ module Metrics
       puts " results_dir: #{@results_dir}"
       puts " prefix: #{@prefix}"
       puts " id: #{@id}"
-      puts " json2graphite_path: #{@json2graphite_path}"
+      puts " json2timeseriesdb_path: #{@json2timeseriesdb_path}"
     end
 
     # Calls import_metrics_files_for_host_dir for each host directory
@@ -122,7 +122,7 @@ module Metrics
       end
     end
 
-    # Calls the json2graphite.rb script for the specified host directory
+    # Calls the json2timeseriesdb.rb script for the specified host directory
     # with a server tag using the following pattern:
     # <prefix>_<id>_<hostname>
     #
@@ -141,7 +141,7 @@ module Metrics
     def import_metrics_files_for_host_dir(host_dir)
       @hostname = File.basename host_dir
       pattern = "'#{host_dir}/*.json'"
-      cmd = "#{@json2graphite_path} --pattern #{pattern}" \
+      cmd = "#{@json2timeseriesdb_path} --pattern #{pattern}" \
         " --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag #{build_server_tag}"
       puts "Importing puppet-metrics-collector files for host: #{@hostname}"
       puts " cmd: #{cmd}"
@@ -184,12 +184,12 @@ end
 
 if $PROGRAM_NAME == __FILE__
 
-  DEFAULT_JSON2GRAPHITE_PATH = File.expand_path "~/git/puppet-metrics-viewer/json2graphite.rb"
+  DEFAULT_JSON2GRAPHITE_PATH = File.expand_path "~/git/puppet-metrics-collector/files/json2timeseriesdb.rb"
   DEFAULT_RESULTS_DIR = File.expand_path Dir.pwd
 
   DESCRIPTION = <<~DESCRIPTION
     This script imports data captured by puppet-metrics-collector.
-    It checks each service subdirectory of the puppet-metrics-collector directory and calls the json2graphite.rb script once for each host subdirectory found within.
+    It checks each service subdirectory of the puppet-metrics-collector directory and calls the json2timeseriesdb.rb script once for each host subdirectory found within.
     The server tags are constructed using the following pattern:
     <prefix>_<id>_<hostname>
 
@@ -206,7 +206,7 @@ if $PROGRAM_NAME == __FILE__
   DEFAULTS = <<~DEFAULTS
 
     The following default values are used if the options are not specified:
-    * JSON2GRAPHITE_PATH (-j, --json2graphite): #{DEFAULT_JSON2GRAPHITE_PATH}
+    * JSON2GRAPHITE_PATH (-j, --json2timeseriesdb): #{DEFAULT_JSON2GRAPHITE_PATH}
     * DEFAULT_RESULTS_DIR (-r, --results_dir): #{DEFAULT_RESULTS_DIR}
 
   DEFAULTS
@@ -235,8 +235,8 @@ if $PROGRAM_NAME == __FILE__
       options[:prefix] = prefix
     end
 
-    opts.on("-j", "--json2graphite file_path", String, "The json2graphite script path") do |json2graphite|
-      options[:json2graphite] = json2graphite
+    opts.on("-j", "--json2timeseriesdb file_path", String, "The json2timeseriesdb script path") do |json2timeseriesdb|
+      options[:json2timeseriesdb] = json2timeseriesdb
     end
   end.parse!
 
@@ -248,9 +248,11 @@ if $PROGRAM_NAME == __FILE__
 
   prefix = options[:prefix]
 
-  json2graphite_path = options[:json2graphite] || DEFAULT_JSON2GRAPHITE_PATH
-  raise "The json2graphite.rb script was not found: #{json2graphite_path}" unless File.exist? json2graphite_path
+  json2timeseriesdb_path = options[:json2timeseriesdb] || DEFAULT_JSON2GRAPHITE_PATH
+  unless File.exist? json2timeseriesdb_path
+    raise "The json2timeseriesdb.rb script was not found: #{json2timeseriesdb_path}"
+  end
 
-  obj = Metrics::ImportMetricsFiles.new(results_dir, prefix, json2graphite_path)
+  obj = Metrics::ImportMetricsFiles.new(results_dir, prefix, json2timeseriesdb_path)
   obj.import_metrics_files
 end

@@ -4,7 +4,7 @@
 # TODO: accept release names as optional arguments for A / B
 
 require "csv"
-require "../../tests/helpers/perf_results_helper.rb"
+require_relative "../../tests/helpers/perf_results_helper.rb"
 include PerfResultsHelper # rubocop:disable Style/MixinUsage
 
 raise Exception, "you must provide two csv files to compare" unless ARGV[0] && ARGV[1]

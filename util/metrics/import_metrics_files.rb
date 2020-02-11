@@ -248,7 +248,7 @@ if $PROGRAM_NAME == __FILE__
 
   prefix = options[:prefix]
 
-  json2timeseriesdb_path = options[:json2timeseriesdb] || DEFAULT_JSON2GRAPHITE_PATH
+  json2timeseriesdb_path = options[:json2timeseriesdb] || DEFAULT_JSON2TIMESERIESDB_PATH
   unless File.exist? json2timeseriesdb_path
     raise "The json2timeseriesdb.rb script was not found: #{json2timeseriesdb_path}"
   end

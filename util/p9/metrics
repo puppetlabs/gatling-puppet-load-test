@@ -9,5 +9,4 @@ tag=${id}-"$@"
 source=${PWD}/gatling-puppet-load-test/results/${type}
 results=${source}/"$@"
 
-ruby /home/centos/puppet-metrics-collector/files/json2timeseries.rb --pattern ${results}/puppet-metrics-collector/**/*.json --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag ${tag}
-
+ruby /home/centos/puppet-metrics-collector/files/json2timeseriesdb.rb --pattern ${results}/puppet-metrics-collector/**/*.json --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag ${tag}

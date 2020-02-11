@@ -184,7 +184,7 @@ end
 
 if $PROGRAM_NAME == __FILE__
 
-  DEFAULT_JSON2GRAPHITE_PATH = File.expand_path "~/git/puppet-metrics-collector/files/json2timeseriesdb.rb"
+  DEFAULT_JSON2TIMESERIESDB_PATH = File.expand_path "~/git/puppet-metrics-collector/files/json2timeseriesdb.rb"
   DEFAULT_RESULTS_DIR = File.expand_path Dir.pwd
 
   DESCRIPTION = <<~DESCRIPTION

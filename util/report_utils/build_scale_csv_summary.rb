@@ -204,7 +204,6 @@ end
 #
 def update_summary_csv(summary_csv_path, line)
   puts "updating summary csv: #{summary_csv_path}"
-  puts "results: #{line}"
 
   # the results row is a string rather than an array so handle as file rather than csv
   File.open(summary_csv_path, "a+") do |f|

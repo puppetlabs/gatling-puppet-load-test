@@ -235,7 +235,7 @@ module PerfResultsHelper
   #   csv2html(csv_path)
   #
   def csv2html(csv_path)
-    validate_csv(csv_path)
+    return unless valid_csv?(csv_path)
 
     puts "  converting CSV file: #{csv_path}"
     csv_data = CSV.read(csv_path)
@@ -320,13 +320,11 @@ module PerfResultsHelper
   # TODO: error handling, spec test
   #
   def average_csv(data_csv_path, start_column = 0)
-    validate_csv(data_csv_path)
+    return unless valid_csv?(data_csv_path)
 
     puts "Reading CSV file: #{data_csv_path}"
     data_csv = CSV.read(data_csv_path)
     num_rows = data_csv.length - 1
-
-    raise "The specified CSV file contains no data: #{data_csv_path}" unless num_rows > 1
 
     headings_row = []
     averages_row = []
@@ -361,6 +359,14 @@ module PerfResultsHelper
       average_csv << headings_row
       average_csv << averages_row
     end
+  end
+
+  def valid_csv?(csv_path)
+    begin validate_csv(csv_path)
+    rescue StandardError
+      return false
+    end
+    true
   end
 
   # Validate the specified CSV file using csvlint
@@ -701,19 +707,30 @@ module PerfResultsHelper
     puppetserver_files = Dir.glob("#{metrics_dir}/puppetserver/**/*.json")
     raise "No JSON files found: #{puppetserver_dir}" if puppetserver_files.nil? || puppetserver_files.empty?
 
-    csv_path = "#{metrics_dir}/../puppetserver.csv"
-    CSV.open(csv_path, "wb") do |csv|
-      csv << PMC_ROW_HEADINGS
-
-      puppetserver_files.sort.each do |file|
-        puppetserver_metrics = extract_puppetserver_metrics_from_json(file)
-        csv << puppetserver_metrics unless puppetserver_metrics.nil?
-      end
+    # group files by servername
+    files_by_server = {}
+    puppetserver_files.each do |file|
+      servername = file.split("/")[-2]
+      files_by_server[servername] ||= []
+      files_by_server[servername] << file
     end
 
-    average_csv(csv_path, 2)
-    csv2html(csv_path)
-    csv2html(csv_path.gsub(".csv", ".average.csv"))
+    # store csv results in separate files by servername
+    files_by_server.each do |servername, file_list|
+      csv_path = "#{metrics_dir}/../puppetserver-#{servername}.csv"
+      CSV.open(csv_path, "wb") do |csv|
+        csv << PMC_ROW_HEADINGS
+
+        file_list.sort.each do |file|
+          puppetserver_metrics = extract_puppetserver_metrics_from_json(file)
+          csv << puppetserver_metrics unless puppetserver_metrics.nil?
+        end
+      end
+
+      average_csv(csv_path, 2)
+      csv2html(csv_path)
+      csv2html(csv_path.gsub(".csv", ".average.csv"))
+    end
   end
 
   # Processes the specified JSON file in the 'puppetserver' service directory
@@ -727,7 +744,6 @@ module PerfResultsHelper
   # @example
   #   extract_puppetserver_metrics_from_json(file)
   #
-  # rubocop:disable Layout/LineLength
   def extract_puppetserver_metrics_from_json(file)
     raise "The specified file was not found: #{file}" unless File.exist?(file)
 
@@ -742,16 +758,19 @@ module PerfResultsHelper
 
       # catalog (ignore metrics without catalog metrics)
       # TODO: investigate alternatives to handling averages
-      # TODO: update to use dig, handle multiple puppetservers (https://tickets.puppetlabs.com/browse/SLV-569)
-      catalog_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-puppet-profiler"]["status"]["experimental"]["catalog-metrics"]
+      # puppet-metrics-collector metric files only have data for a single server
+      puppetserver_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]
+      profile_metrics = puppetserver_metrics.dig("pe-puppet-profiler") || puppetserver_metrics.dig("puppet-profiler")
+      catalog_metrics = profile_metrics.dig("status", "experimental", "catalog-metrics")
 
       # catalog
       static_compile_mean = catalog_metrics[0]["mean"]
 
       # jruby
-      pe_jruby_metrics = json["servers"][json["servers"].keys[0]]["puppetserver"]["pe-jruby-metrics"]["status"]["experimental"]["metrics"]
-      average_borrow_time = pe_jruby_metrics["average-borrow-time"]
-      num_free_jrubies = pe_jruby_metrics["num-free-jrubies"]
+      jruby_metrics = puppetserver_metrics.dig("pe-jruby-metrics") || puppetserver_metrics.dig("jruby-metrics")
+      jruby_metrics_metrics = jruby_metrics.dig("status", "experimental", "metrics")
+      average_borrow_time = jruby_metrics_metrics.dig("average-borrow-time")
+      num_free_jrubies = jruby_metrics_metrics.dig("num-free-jrubies")
 
       row = [File.basename(file), timestamp, static_compile_mean, average_borrow_time, num_free_jrubies]
     rescue StandardError
@@ -829,6 +848,4 @@ module PerfResultsHelper
 
     true
   end
-
-  # rubocop:enable Layout/LineLength
 end

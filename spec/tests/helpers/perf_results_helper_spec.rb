@@ -234,9 +234,13 @@ describe PerfResultsHelper do
   # TODO: complete
   describe "#average_csv" do
     context "when the specified file does not contain more than one row" do
-      it "raises an error" do
-        expect { subject.average_csv(TEST_VALID_CSV_HEADINGS_PATH) }
-          .to raise_error(RuntimeError)
+      it "fails validation" do
+        expect(subject).to receive(:valid_csv?).with(TEST_VALID_CSV_HEADINGS_PATH).and_return(false)
+        subject.average_csv(TEST_VALID_CSV_HEADINGS_PATH)
+      end
+      it "skips processing" do
+        expect(CSV).not_to receive(:read).with(TEST_VALID_CSV_HEADINGS_PATH)
+        subject.average_csv(TEST_VALID_CSV_HEADINGS_PATH)
       end
     end
 

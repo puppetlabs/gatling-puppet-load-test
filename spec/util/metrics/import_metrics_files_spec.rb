@@ -10,10 +10,10 @@ describe Metrics::ImportMetricsFiles do
   pmc_dir = "#{perf_results_dir}/puppet-metrics-collector"
   prefix = "slv-123"
   id = "12345"
-  json2graphite_path = "/zzz/json2graphite.rb"
+  json2timeseriesdb_path = "/zzz/json2timeseriesdb.rb"
 
   before :all do
-    IMF_obj = Metrics::ImportMetricsFiles.new(perf_results_dir, prefix, json2graphite_path)
+    IMF_obj = Metrics::ImportMetricsFiles.new(perf_results_dir, prefix, json2timeseriesdb_path)
   end
 
   before do
@@ -22,30 +22,30 @@ describe Metrics::ImportMetricsFiles do
 
   describe "#initialize" do
     it "converts the passed in parameters into attributes" do
-      temp_imf = Metrics::ImportMetricsFiles.new(perf_results_dir, prefix, json2graphite_path)
+      temp_imf = Metrics::ImportMetricsFiles.new(perf_results_dir, prefix, json2timeseriesdb_path)
       expect(temp_imf.instance_variable_get("@results_dir")).to eq(perf_results_dir)
       expect(temp_imf.instance_variable_get("@prefix")).to eq(prefix)
-      expect(temp_imf.instance_variable_get("@json2graphite_path")).to eq(json2graphite_path)
+      expect(temp_imf.instance_variable_get("@json2timeseriesdb_path")).to eq(json2timeseriesdb_path)
       # expect(temp_imf.instance_variable_get("@id")).to eq(perf_results_dir.split("_").last)
     end
 
     context "when the specified results_dir is a GPLT perf results dir" do
       it "uses the last segment of the directory name as the ID" do
-        temp_imf = Metrics::ImportMetricsFiles.new(perf_results_dir, prefix, json2graphite_path)
+        temp_imf = Metrics::ImportMetricsFiles.new(perf_results_dir, prefix, json2timeseriesdb_path)
         expect(temp_imf.instance_variable_get("@id")).to eq(perf_results_dir.split("_").last)
       end
     end
 
     context "when the specified results_dir is a GPLT scale results dir" do
       it "uses the last segment of the directory name as the ID" do
-        temp_imf = Metrics::ImportMetricsFiles.new(scale_results_dir, prefix, json2graphite_path)
+        temp_imf = Metrics::ImportMetricsFiles.new(scale_results_dir, prefix, json2timeseriesdb_path)
         expect(temp_imf.instance_variable_get("@id")).to eq(scale_results_dir.split("_").last)
       end
     end
 
     context "when the specified results_dir is not a valid GPLT results dir" do
       it "sets the ID to nil" do
-        temp_imf = Metrics::ImportMetricsFiles.new(non_results_dir, prefix, json2graphite_path)
+        temp_imf = Metrics::ImportMetricsFiles.new(non_results_dir, prefix, json2timeseriesdb_path)
         expect(temp_imf.instance_variable_get("@id")).to eq(nil)
       end
     end
@@ -94,7 +94,7 @@ describe Metrics::ImportMetricsFiles do
 
   describe "#output_settings" do
     it "outputs the settings" do
-      settings = %w[results_dir prefix json2graphite_path id]
+      settings = %w[results_dir prefix json2timeseriesdb_path id]
       settings.each do |setting|
         expect(IMF_obj).to receive(:puts).with(/#{Regexp.escape(setting)}/)
       end
@@ -115,12 +115,12 @@ describe Metrics::ImportMetricsFiles do
   end
 
   describe "#import_metrics_files_for_host_dir" do
-    it "calls the json2graphite script with the expected server tag" do
+    it "calls the json2timeseriesdb script with the expected server tag" do
       host_dir = "#{pmc_dir}/puppetdb/1.1.1.1"
       hostname = File.basename(host_dir)
       expected_tag = "#{prefix}_#{id}_#{hostname}"
       expected_pattern = "'#{host_dir}/*.json'"
-      expected_cmd = "#{json2graphite_path} --pattern #{expected_pattern}" \
+      expected_cmd = "#{json2timeseriesdb_path} --pattern #{expected_pattern}" \
         " --convert-to influxdb --netcat localhost --influx-db puppet_metrics --server-tag #{expected_tag}"
 
       expect(IMF_obj).to receive(:`).with(expected_cmd)

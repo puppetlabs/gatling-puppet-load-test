@@ -1,6 +1,7 @@
 require 'rototiller'
 require 'rubocop/rake_task'
 
+require './setup/helpers/pe_xl_helper'
 require './setup/helpers/abs_helper'
 include AbsHelper
 
@@ -10,15 +11,6 @@ include PerfResultsHelper
 require "./lib/beaker_dsl"
 
 REF_ARCH_STD, REF_ARCH_LARGE = ["S","L"]
-
-beaker_role_map = { "master"            => %w[master dashboard],
-                    "master_replica"    => "master",
-                    "puppet_db"         => "database",
-                    "puppet_db_replica" => "database",
-                    "compiler_a"        => "compile_master",
-                    "compiler_b"        => "compile_master",
-                    "loadbalancer"      => "loadbalancer",
-                    "metrics"           => "metric" }
 
 def master_from_beaker_hosts_hash(hosts)
   master = nil
@@ -128,7 +120,7 @@ rototiller_task :performance_provision_with_abs  => "validate:beaker_install_typ
   t.add_env({:name => 'ABS_AWS_DEFAULT_SIZE', :default => 'c5.2xlarge', :message => 'The AWS instance size for the Metrics host'})
   t.add_env({:name => 'ABS_AWS_DEFAULT_VOLUME_SIZE', :default => '80', :message => 'The AWS instance volume size for the Metrics host'})
 
-  beaker_role_map.each do |role, beaker_roles|
+  PeXlHelper::BEAKER_ROLE_MAP.each do |role, beaker_roles|
     t.add_env({:name => "ABS_AWS_#{role.upcase}_SIZE", :default => ENV["ABS_AWS_DEFAULT_SIZE"], :message => "The AWS instance size for the #{role} host"})
     t.add_env({:name => "ABS_AWS_#{role.upcase}_VOLUME_SIZE", :default => ENV["ABS_AWS_DEFAULT_VOLUME_SIZE"], :message => "The AWS instance volume size for the #{role} host"})
   end

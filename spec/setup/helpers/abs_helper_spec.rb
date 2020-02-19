@@ -95,6 +95,12 @@ describe AbsHelperClass do
       'type': TEST_BEAKER_TYPE,
       'engine': TEST_ENGINE }.freeze
 
+  TEST_HOST_MASTER =
+    { 'hostname': TEST_HOSTNAME,
+      'type': TEST_BEAKER_TYPE,
+      'engine': TEST_ENGINE,
+      'role': TEST_MASTER_ROLE }.freeze
+
   TEST_AWSDIRECTRETURN_REQUEST_BODY = { 'hostname': TEST_HOSTNAME }.to_json.freeze
 
   TEST_VALID_RESPONSE_BODY = "OK".freeze
@@ -380,7 +386,7 @@ describe AbsHelperClass do
         expect(subject).to receive(:parse_awsdirect_response_body)
           .with(TEST_AWSDIRECT_RESPONSE_BODY).and_return(TEST_HOST)
 
-        expect(subject.get_abs_resource_host(TEST_A2A_MASTER)).to eq(TEST_HOST)
+        expect(subject.get_abs_resource_host(TEST_A2A_MASTER)).to eq(TEST_HOST_MASTER)
       end
     end
 

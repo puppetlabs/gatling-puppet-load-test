@@ -2,6 +2,8 @@
 
 module PeXlHelper
 
+  require "beaker-hostgenerator"
+
   # define beaker roles for each host
   BEAKER_ROLE_MAP = { "master"            => %w[master dashboard],
                       "master_replica"    => "master",
@@ -25,9 +27,9 @@ module PeXlHelper
   #   create_pe_xl_bolt_files(hosts)
   #
   # TODO: spec test(s)
-  def create_pe_xl_bolt_files(hosts, output_dir)
+  def self.create_pe_xl_bolt_files(hosts, pe_ver, output_dir)
     create_nodes_yaml(hosts, output_dir)
-    create_params_json(hosts, output_dir)
+    create_params_json(hosts, pe_ver, output_dir)
     create_beaker_config(hosts, output_dir)
   end
 
@@ -41,7 +43,7 @@ module PeXlHelper
   # @example
   #   hosts = provision_hosts_for_roles(roles)
   #   create_nodes_yaml(hosts, output_dir)
-  def create_nodes_yaml(hosts, output_dir)
+  def self.create_nodes_yaml(hosts, output_dir)
     data = { "groups" => [
       { "name"   => "pe_xl_nodes",
         "config" => { "transport" => "ssh",
@@ -57,8 +59,6 @@ module PeXlHelper
     puts
 
     File.write(output_path, data.to_yaml)
-
-    check_nodes_yaml(output_path) if TEST
   end
 
 
@@ -74,7 +74,7 @@ module PeXlHelper
   # @example
   #   hosts = provision_hosts_for_roles(roles)
   #   create_params_json(hosts, output_dir)
-  def create_params_json(hosts, output_dir)
+  def self.create_params_json(hosts, pe_ver, output_dir)
     master, = hosts.map { |host| host[:hostname] if host[:role] == "master" }.compact
     pdb, = hosts.map { |host| host[:hostname] if host[:role] == "puppet_db" }.compact
     master_replica, = hosts.map { |host| host[:hostname] if host[:role] == "master_replica" }.compact
@@ -98,7 +98,7 @@ module PeXlHelper
       console_password: "puppetlabs",
       dns_alt_names: dns_alt_names,
       compiler_pool_address: pool_address,
-      version: PE_VERSION
+      version: pe_ver
     }.compact
 
     params_json = JSON.pretty_generate(pe_xl_params)
@@ -109,12 +109,10 @@ module PeXlHelper
     puts
 
     File.write(output_path, params_json)
-
-    check_params_json(output_path) if TEST
   end
 
 
-  def create_beaker_config(hosts, output_dir)
+  def self.create_beaker_config(hosts, output_dir)
     beaker_os = "redhat7-64"
 
     beaker_roles = BEAKER_ROLE_MAP.keys
@@ -165,8 +163,6 @@ module PeXlHelper
     puts
 
     File.write(output_path, beaker_yaml)
-
-    puts beaker_yaml if TEST
   end
 
 end

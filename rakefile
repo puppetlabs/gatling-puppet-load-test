@@ -10,6 +10,9 @@ include PerfResultsHelper
 
 require "./lib/beaker_dsl"
 
+# Set location for artifacts
+BUILD_DIR = File.join(File.expand_path(File.dirname(__FILE__)), "build", "pe_xl")
+
 REF_ARCH_STD, REF_ARCH_LARGE = ["S","L"]
 
 def master_from_beaker_hosts_hash(hosts)
@@ -141,6 +144,8 @@ rototiller_task :performance_provision_with_abs  => "validate:beaker_install_typ
   end
 
   abs_resource_hosts = get_abs_resource_hosts(abs_roles)
+  PeXlHelper.create_pe_xl_bolt_files(JSON.parse(abs_resource_hosts, :symbolize_names => true),
+                                     ENV["BEAKER_PE_VER"], BUILD_DIR)
   raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
 end
 
@@ -617,9 +622,6 @@ namespace :git do
 end
 
 namespace :pe_xl do
-  # Set location for artifacts
-  BUILD_DIR = File.join(File.expand_path(File.dirname(__FILE__)), "build", "pe_xl")
-
   desc "Delete pe_xl local file artifacts"
   task :clean do
     puts "Removing pe_xl file artifacts"

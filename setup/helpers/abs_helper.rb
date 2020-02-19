@@ -200,6 +200,7 @@ module AbsHelper
       puts "Retrying request..."
       puts
     end
+    result["role"] = role
 
     error_msg = "Unable to provision host for role '#{role}' after #{ABS_MAX_REQUEST_ATTEMPTS} attempts"
     raise error_msg if result.nil?

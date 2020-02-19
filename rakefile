@@ -605,8 +605,10 @@ task :clean do
   rm_rf "junit"
   rm_rf "last_abs_resource_hosts.log"
   rm_rf "log"
+  rm_rf "coverage"
   rm_rf Dir.glob('results/perf/PERF_*').grep(/PERF_[0-9]+.*$/)
   rm_rf Dir.glob('results/scale/PERF_SCALE_*')
+  rm_rf Dir.glob('simulation-runner/config/scenarios/Scale_1*.json')
   rm_rf "simulation-runner/target"
   rm_rf "tmp"
   rm_rf Dir.glob('*.tgz')

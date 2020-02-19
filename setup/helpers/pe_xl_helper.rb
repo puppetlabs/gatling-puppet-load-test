@@ -22,10 +22,6 @@ module PeXlHelper
   # @param [Array<Hash>] hosts The provisioned hosts
   # @param [String] output_dir The directory where the file should be written
   #
-  # @example
-  #   hosts = provision_hosts_for_roles(roles)
-  #   create_pe_xl_bolt_files(hosts)
-  #
   # TODO: spec test(s)
   def self.create_pe_xl_bolt_files(hosts, pe_ver, output_dir)
     create_nodes_yaml(hosts, output_dir)
@@ -40,9 +36,6 @@ module PeXlHelper
   # @param [Array<Hash>] hosts The provisioned hosts
   # @param [String] output_dir The directory where the file should be written
   #
-  # @example
-  #   hosts = provision_hosts_for_roles(roles)
-  #   create_nodes_yaml(hosts, output_dir)
   def self.create_nodes_yaml(hosts, output_dir)
     data = { "groups" => [
       { "name"   => "pe_xl_nodes",
@@ -61,19 +54,13 @@ module PeXlHelper
     File.write(output_path, data.to_yaml)
   end
 
-
   # Creates the Bolt parameters file (params.json) for the specified hosts
-  #
-  # Note: designed to use the output of provision_hosts_for_roles
   #
   # @author Bill Claytor
   #
   # @param [Array<Hash>] hosts The provisioned hosts
   # @param [String] output_dir The directory where the file should be written
   #
-  # @example
-  #   hosts = provision_hosts_for_roles(roles)
-  #   create_params_json(hosts, output_dir)
   def self.create_params_json(hosts, pe_ver, output_dir)
     master, = hosts.map { |host| host[:hostname] if host[:role] == "master" }.compact
     pdb, = hosts.map { |host| host[:hostname] if host[:role] == "puppet_db" }.compact

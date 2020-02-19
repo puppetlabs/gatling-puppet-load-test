@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
+# Provides helpers for creating pe_xl files used for bolt plans
 module PeXlHelper
-
   require "beaker-hostgenerator"
 
   # define beaker roles for each host
@@ -12,7 +12,7 @@ module PeXlHelper
                       "compiler_a"        => "compile_master",
                       "compiler_b"        => "compile_master",
                       "loadbalancer"      => "loadbalancer",
-                      "metrics"           => "metric" }
+                      "metrics"           => "metric" }.freeze
 
   # Creates the Bolt inventory file (nodes.yaml) and
   # parameters file (params.json) for the specified hosts
@@ -98,7 +98,6 @@ module PeXlHelper
     File.write(output_path, params_json)
   end
 
-
   def self.create_beaker_config(hosts, output_dir)
     beaker_os = "redhat7-64"
 
@@ -151,5 +150,4 @@ module PeXlHelper
 
     File.write(output_path, beaker_yaml)
   end
-
 end

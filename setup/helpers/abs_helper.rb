@@ -71,7 +71,6 @@ module AbsHelper
     user_has_token
   end
 
-
   # Initializes AbsHelper and returns the specified host
   #
   # @author Bill Claytor

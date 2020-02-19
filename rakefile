@@ -144,6 +144,7 @@ rototiller_task :performance_provision_with_abs  => "validate:beaker_install_typ
   end
 
   abs_resource_hosts = get_abs_resource_hosts(abs_roles)
+  mkdir_p BUILD_DIR
   PeXlHelper.create_pe_xl_bolt_files(JSON.parse(abs_resource_hosts, :symbolize_names => true),
                                      ENV["BEAKER_PE_VER"], BUILD_DIR)
   raise 'Unable to provision hosts via ABS' unless abs_resource_hosts
@@ -650,8 +651,7 @@ namespace :pe_xl do
                "https://artifactory.delivery.puppetlabs.net/artifactory/generic_enterprise__local/archives/releases/#{match_data[1]}.#{match_data[2]}/"
              end
 
-    mkdir_p BUILD_DIR
-    system "bundle exec ruby util/abs/provision_pe_xl_nodes.rb --output_dir #{BUILD_DIR} --pe_version #{ENV['BEAKER_PE_VER']}"
+    Rake::Task["performance_provision_with_abs"].invoke
 
     puts "Retrieving PE package"
     cfg_hash = Beaker::Options::HostsFileParser.parse_hosts_file "#{BUILD_DIR}/beaker.cfg"

@@ -183,9 +183,6 @@ describe AbsHelperClass do
           expect(subject.instance_variable_get(:@aws_image_id)).to eq(TEST_IMAGE_ID)
           expect(subject.instance_variable_get(:@aws_region)).to eq(TEST_REGION)
           expect(subject.instance_variable_get(:@aws_reap_time)).to eq(TEST_REAP_TIME)
-          expect(subject.instance_variable_get(:@master_size)).to eq(TEST_MASTER_SIZE)
-          expect(subject.instance_variable_get(:@metrics_size))
-            .to eq(TEST_METRICS_SIZE)
           expect(subject.instance_variable_get(:@abs_beaker_pe_version))
             .to eq(TEST_BEAKER_PE_VERSION)
         end
@@ -219,9 +216,6 @@ describe AbsHelperClass do
           expect(subject.instance_variable_get(:@aws_image_id)).to eq(TEST_IMAGE_ID)
           expect(subject.instance_variable_get(:@aws_region)).to eq(TEST_REGION)
           expect(subject.instance_variable_get(:@aws_reap_time)).to eq(TEST_REAP_TIME)
-          expect(subject.instance_variable_get(:@master_size)).to eq(TEST_MASTER_SIZE)
-          expect(subject.instance_variable_get(:@metrics_size))
-            .to eq(TEST_METRICS_SIZE)
 
           subject.abs_initialize
         end
@@ -234,22 +228,6 @@ describe AbsHelperClass do
 
         expect(subject).to receive(:get_abs_token).and_return(false)
         expect(subject.abs_initialize).to eq(false)
-      end
-    end
-  end
-
-  describe "#get_a2a_hosts" do
-    before do
-      subject.instance_variable_set("@master_size", TEST_MASTER_SIZE)
-      subject.instance_variable_set("@master_volume_size", TEST_MASTER_VOLUME_SIZE)
-      subject.instance_variable_set("@metrics_size", TEST_METRICS_SIZE)
-      subject.instance_variable_set("@metrics_volume_size", TEST_METRICS_VOLUME_SIZE)
-    end
-
-    context "when called" do
-      it "initializes the helper and returns the a2a hosts" do
-        expect(subject).to receive(:abs_initialize)
-        expect(subject.get_a2a_hosts).to eq(TEST_A2A_HOSTS)
       end
     end
   end

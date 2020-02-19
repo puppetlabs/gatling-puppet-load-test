@@ -65,41 +65,12 @@ module AbsHelper
         @aws_reap_time = ENV["ABS_AWS_REAP_TIME"] || AWS_REAP_TIME
       end
 
-      @master_size = ENV["ABS_AWS_MASTER_SIZE"]
-      @master_volume_size = ENV["ABS_AWS_MASTER_VOLUME_SIZE"] || MASTER_VOLUME_SIZE
-      @metrics_size = ENV["ABS_AWS_METRICS_SIZE"]
-      @metrics_volume_size = ENV["ABS_METRICS_VOLUME_SIZE"] || METRICS_VOLUME_SIZE
       @abs_beaker_pe_version = ENV["BEAKER_PE_VER"] || nil
       @abs_id = ENV["ABS_ID"] || ABS_ID
     end
     user_has_token
   end
 
-  # Initializes AbsHelper and returns the hosts for an ApplesToApples run
-  #
-  # @author Bill Claytor
-  #
-  # @return [Hash] The ApplesToApples hosts (master and metrics)
-  #
-  # @example
-  #   hosts = abs_get_a2a_hosts
-  #
-  def get_a2a_hosts
-    abs_initialize
-    master =
-      { 'role': "master",
-        'size': @master_size,
-        'volume_size': @master_volume_size }
-
-    metrics =
-      { 'role': "metrics",
-        'size': @metrics_size,
-        'volume_size': @metrics_volume_size }
-
-    hosts = [master, metrics]
-
-    hosts
-  end
 
   # Initializes AbsHelper and returns the specified host
   #

@@ -13,7 +13,12 @@ require "./lib/beaker_dsl"
 # Set location for artifacts
 BUILD_DIR = File.join(File.expand_path(File.dirname(__FILE__)), "build", "pe_xl")
 
-REF_ARCH_STD, REF_ARCH_LARGE = ["S","L"]
+REF_ARCH_STD, REF_ARCH_LARGE, REF_ARCH_XL, REF_ARCH_XL_HA  = %w[S L XL XLHA]
+
+STD_ROLES = %w[metrics master]
+LARGE_ROLES = STD_ROLES + %w[loadbalancer compiler_a compiler_b]
+XL_ROLES = LARGE_ROLES + %w[puppet_db]
+XL_HA_ROLES = XL_ROLES + %w[master_replica puppet_db_replica]
 
 def master_from_beaker_hosts_hash(hosts)
   master = nil
@@ -131,10 +136,15 @@ rototiller_task :performance_provision_with_abs  => "validate:beaker_install_typ
 
   abs_initialize
   abs_roles = []
-  if ENV['REF_ARCH'] == REF_ARCH_LARGE
-    roles = %w[metrics master loadbalancer compiler_a compiler_b]
+  case ENV['REF_ARCH']
+  when REF_ARCH_XL_HA
+    roles = XL_HA_ROLES
+  when REF_ARCH_XL
+    roles = XL_ROLES
+  when REF_ARCH_LARGE
+    roles = LARGE_ROLES
   else
-    roles = %w[metrics master]
+    roles = STD_ROLES
   end
 
   roles.each do |role|

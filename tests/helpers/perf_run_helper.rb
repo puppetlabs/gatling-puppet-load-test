@@ -24,8 +24,14 @@ module PerfRunHelper
   # Variance overrides go here.  They must be named as follows to be processed:
   #   "MAX_VARIANCE_OVERRIDE_#{results_key}"
   # Variances can be skipped entirely by setting their maximum to INFINITY.
+
+  # skip when comparing 2019 to 2018.1 (PE-28215), else 15%
   MAX_VARIANCE_OVERRIDE_PROCESS_ORCHESTRATION_SERVICES_RELEASE_AVG_MEM = \
-    BEAKER_PE_VER =~ /^2019.[2,3].*/ ? INFINITY : 0.15 # skip for 2019.[2,3], else 15%
+    BEAKER_PE_VER =~ /^2019.*/ && BASELINE_PE_VER =~ /^2018.1.*/ ? INFINITY : 0.15
+  # allow 25% variance when comparing 2019 to 2018.1 LTS; PE-28214
+  MAX_VARIANCE_OVERRIDE_AVG_DISK_WRITE = 0.25 if BEAKER_PE_VER =~ /^2019.*/ && BASELINE_PE_VER =~ /^2018.1.*/
+  # allow 30% variance when comparing 2019 to 2018.1 LTS; PDB-4635
+  MAX_VARIANCE_OVERRIDE_PROCESS_PUPPETDB_AVG_MEM = 0.30 if BEAKER_PE_VER =~ /^2019.*/ && BASELINE_PE_VER =~ /^2018.1.*/
   MAX_VARIANCE_OVERRIDE_PROCESS_BOLT_SERVER_AVG_CPU = INFINITY
   MAX_VARIANCE_OVERRIDE_PROCESS_ACE_SERVER_AVG_CPU = INFINITY
   MAX_VARIANCE_OVERRIDE_PROCESS_PUPPETDB_AVG_CPU = INFINITY
@@ -37,7 +43,6 @@ module PerfRunHelper
 
   # updates to quiet recuring failures (SLV-749)
   MAX_VARIANCE_OVERRIDE_PROCESS_BOLT_SERVER_AVG_MEM = INFINITY # This should be revisited. Trigger undefined.
-  MAX_VARIANCE_OVERRIDE_AVG_DISK_WRITE = 0.11 # PE-28214
 
   SCALE_ITERATIONS = 15
   SCALE_INCREMENT = 100

@@ -13,7 +13,7 @@ gem "master_manipulator", "~>2.1"
 gem "parallel", "~>1.6"
 gem "rototiller", "~>1.0"
 gem "rspec", "~>3.0"
-gem "rubocop", "~> 0.67"
+gem "rubocop", "0.79.0"
 gem "scooter", "~>4.3"
 
 group :test do

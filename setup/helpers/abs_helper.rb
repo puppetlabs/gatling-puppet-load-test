@@ -65,40 +65,10 @@ module AbsHelper
         @aws_reap_time = ENV["ABS_AWS_REAP_TIME"] || AWS_REAP_TIME
       end
 
-      @master_size = ENV["ABS_AWS_MASTER_SIZE"]
-      @master_volume_size = ENV["ABS_AWS_MASTER_VOLUME_SIZE"] || MASTER_VOLUME_SIZE
-      @metrics_size = ENV["ABS_AWS_METRICS_SIZE"]
-      @metrics_volume_size = ENV["ABS_METRICS_VOLUME_SIZE"] || METRICS_VOLUME_SIZE
       @abs_beaker_pe_version = ENV["BEAKER_PE_VER"] || nil
       @abs_id = ENV["ABS_ID"] || ABS_ID
     end
     user_has_token
-  end
-
-  # Initializes AbsHelper and returns the hosts for an ApplesToApples run
-  #
-  # @author Bill Claytor
-  #
-  # @return [Hash] The ApplesToApples hosts (master and metrics)
-  #
-  # @example
-  #   hosts = abs_get_a2a_hosts
-  #
-  def get_a2a_hosts
-    abs_initialize
-    master =
-      { 'role': "master",
-        'size': @master_size,
-        'volume_size': @master_volume_size }
-
-    metrics =
-      { 'role': "metrics",
-        'size': @metrics_size,
-        'volume_size': @metrics_volume_size }
-
-    hosts = [master, metrics]
-
-    hosts
   end
 
   # Initializes AbsHelper and returns the specified host
@@ -233,7 +203,9 @@ module AbsHelper
     error_msg = "Unable to provision host for role '#{role}' after #{ABS_MAX_REQUEST_ATTEMPTS} attempts"
     raise error_msg if result.nil?
 
-    result
+    r = result.dup
+    r[:role] = role
+    r
   end
 
   # Returns the specified ABS hosts via ABS
@@ -739,89 +711,6 @@ module AbsHelper
     rescue StandardError => e
       raise "#{e.inspect} encountered parsing the hosts array: #{abs_resource_hosts}"
     end
-
-    hosts
-  end
-
-  # Provisions a host with a tag for the specified role
-  # with the optionally specified size and volume_size
-  #
-  # @author Bill Claytor
-  #
-  # @param [String] role The value to specify for the role tag
-  # @param [String] size The EC2 instance size to use
-  # @param [String] volume_size The volume size to use
-  #
-  # @raise [RuntimeError] If provisioning is not successful
-  #
-  # @return [Hash] The provisioned host
-  #
-  # @example
-  #   host = provision_host_for_role(role)
-  #     or
-  #   host = provision_host_for_role(role, "c5.xlarge", "40")
-  #
-  def provision_host_for_role(role, size = AWS_SIZE, volume_size = AWS_VOLUME_SIZE)
-    host_to_provision = get_host_to_provision(role, size, volume_size)
-    abs_resource_hosts = get_abs_resource_hosts(host_to_provision)
-    raise "Unable to provision host via ABS" unless abs_resource_hosts
-
-    # parse the JSON
-    hosts = parse_abs_resource_hosts(abs_resource_hosts)
-
-    # convert keys from strings to symbols (provision_pe_xl_nodes.rb expects symbols)
-    # TODO: remove once SLV-676 (standardize on symbols) has been implemented
-    host = Hash[hosts[0].map { |key, value| [key.to_sym, value] }]
-
-    # add the role so the host can be identified by role
-    host[:role] = role
-
-    puts "Successfully provisioned host - role: #{host[:role]}, hostname: #{host[:hostname]}"
-    puts
-
-    host
-  end
-
-  # Provisions a set of hosts for the specified roles
-  # with the optionally specified prefix, size, and volume_size
-  #
-  # @author Bill Claytor
-  #
-  # @param [Array] roles The roles for which hosts should be provisioned
-  # @param [String] abs_id The value to specify for id tag
-  # @param [String] size The EC2 instance size to use
-  # @param [String] volume_size The volume size to use
-  #
-  # @return [Array<Hash>] The provisioned hosts
-  #
-  # @example
-  #   roles = ["master","puppet_db"]
-  #   hosts = provision_hosts_for_roles(roles)
-  #     or
-  #   hosts = provision_host_for_role(roles, "slv-test", "c5.xlarge", "40")
-  #
-  def provision_hosts_for_roles(roles, abs_id = nil, size = AWS_SIZE, volume_size = AWS_VOLUME_SIZE)
-    hosts = []
-
-    puts "Provisioning hosts for the following roles:"
-    puts roles
-    puts
-
-    # this will be evaluated in abs_initialize
-    ENV["ABS_ID"] = abs_id unless abs_id.nil?
-    num_threads = roles.length > MAX_THREADS ? roles.length : MAX_THREADS
-
-    # uses in_threads to allow variable modification
-    Parallel.map(roles.each, in_threads: num_threads) do |role|
-      host = provision_host_for_role(role, size, volume_size)
-      hosts << host
-    end
-
-    puts "The following hosts were successfully provisioned:"
-    puts hosts
-    puts
-
-    update_last_abs_resource_hosts(hosts.to_json)
 
     hosts
   end

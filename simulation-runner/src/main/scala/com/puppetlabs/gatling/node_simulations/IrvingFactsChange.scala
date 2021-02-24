@@ -21,9 +21,9 @@ class IrvingFactsChange extends SimulationWithScenario {
 // 		.userAgentHeader("Puppet/5.3.3 Ruby/2.4.2-p198 (x86_64-linux)")
 
 	val reportBody = ElFileBody("IrvingFactsChange_0006_request.txt")
-	val facts_str  = scala.io.Source.fromFile("user-files/facts/IrvingFactsChange_facts_raw.txt").mkString
-	val facts_fdr  = csv("user-files/facts/IrvingFactsChange_custom_facts.csv")
-        val hostf_fdr  = csv("user-files/facts/IrvingFactsChange_custom_hostf.csv").circular
+	val facts_str  = scala.io.Source.fromFile("facts/IrvingFactsChange_facts_raw.txt").mkString
+	val facts_fdr  = csv("facts/IrvingFactsChange_custom_facts.csv")
+        val hostf_fdr  = csv("facts/IrvingFactsChange_custom_hostf.csv").circular
 
 	val baseHeaders = Map("Accept" -> "application/json, text/pson",
 		"Accept-Encoding" -> "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
@@ -37,12 +37,25 @@ class IrvingFactsChange extends SimulationWithScenario {
 		"X-Puppet-Version" -> "5.3.3")
 // val uri1 = "https://ec2-34-217-77-138.us-west-2.compute.amazonaws.com:8140/puppet/v3"
 
+	object Retry {
+		val retry = asLongAs(session => session("ret_code").as[String] != 200) {
+			pause(session => session("ret_seconds").as[Duration])
+			.exec(http("agent_retry")
+				.get("/puppet/v3/node/${node}?environment=production&transaction_uuid=efcde81b-e435-4630-a940-6229f071b3ed&fail_on_404=true")
+				.check(status.in(200,503),status.saveAs("ret_code"), header("RetryAfter").saveAs("ret_seconds"))
+			).exitHereIfFailed
+		}
+	}
+
 	val scn = scenario("IrvingFactsChange")
 		.feed(facts_fdr)
 		.feed(hostf_fdr)
 		.exec(http("node")
 			.get("/puppet/v3/node/${node}?environment=production&transaction_uuid=efcde81b-e435-4630-a940-6229f071b3ed&fail_on_404=true")
-			.headers(headers_0))
+			.headers(headers_0)
+			.check(checkIf((response: Response, session: Session) => response.status.get.getStatusCode == 503)(header("RetryAfter").saveAs("ret_seconds")))
+			.check(status.saveAs("ret_code")))
+		.exec(Retry.retry)
 		.pause(112 milliseconds)
 		.exec(http("filemeta pluginfacts")
 			.get("/puppet/v3/file_metadatas/pluginfacts?environment=production&links=follow&recurse=true&source_permissions=use&ignore=.svn&ignore=CVS&ignore=.git&ignore=.hg&ignore=%2A.pot&checksum_type=md5")
